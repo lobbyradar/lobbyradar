@@ -1,0 +1,23 @@
+{
+  "name": "lobbyradar",
+  "version": "0.0.1",
+  "description": "lobbyradar api",
+  "main": "lobbyradar.js",
+  "scripts": {
+    "test": "null"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.opendatacity.de/opendatacity/lobbyradar.git"
+  },
+  "author": "yetzt <node@yetzt.me> (https://yetzt.me/)",
+  "license": "Public Domain",
+  "dependencies": {
+    "body-parser": "^1.10.0",
+    "debug": "^2.1.0",
+    "express": "^4.10.4",
+    "moment": "^2.8.4",
+    "mustache-express": "^1.2.0",
+    "nsa": "0.0.5"
+  }
+}
