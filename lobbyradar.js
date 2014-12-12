@@ -4,9 +4,10 @@
 var bodyparser = require("body-parser");
 var mustache = require("mustache-express");
 var express = require("express");
+var mongojs = require("mongojs");
 var moment = require("moment");
 var crypto = require("crypto");
-var debug = require("debug")("lobbyradar:app");
+var debug = require("debug")("app");
 var path = require("path");
 var nsa = require("nsa");
 var fs = require("fs");
@@ -20,8 +21,11 @@ if (!config.hasOwnProperty("listen")) {
 	process.exit();
 };
 
+// load mongojs 
+var db = mongojs(config.db, ["entities","relations"]);
+
 // local modules
-var api = require("./lib/api.js")(config.api);
+var api = require("./lib/api.js")(config.api, db);
 
 // use nsa if configured
 if (config.hasOwnProperty("nsa") && (config.nsa)) {
@@ -32,7 +36,7 @@ if (config.hasOwnProperty("nsa") && (config.nsa)) {
 	}).start(function(){
 		debug("started heartbeat");
 	});
-}
+};
 
 // use express
 var app = express();
