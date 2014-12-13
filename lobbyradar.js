@@ -59,14 +59,141 @@ app.use(bodyparser.urlencoded({
 	extended: false
 }));
 
-// default api method. does nothing //OK//
-app.get("/api", function(req, res){
-	res.status("200").json({error:null});
+// check api key for api
+app.use("/api", function(req, res, next){
+	debug("request to api");
+	var apikey = req.body.apikey || req.query.apikey || null;
+	if (!apikey) return res.status(403).json({error: new Error("Access Denied. Please provide a valid API Key (#1)").toString()});
+	if (!config.api.keys.hasOwnProperty(apikey)) return res.status(403).json({error: new Error("Access Denied. Please provide a valid API Key (#2)").toString()});
+	debug("api access by %s", config.api.keys[apikey]);
+	next();
+});
+
+// create entity. 
+app.post("/api/entity/create", function(req, res){
+	debug("create entity for \"%s\"", req.body.ent.name);
+	api.ent_create(req.body.ent, function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// get entity. 
+app.all("/api/entity/get/:id", function(req, res){
+	debug("get entity %s", req.params.id);
+	api.ent_get(req.params.id, function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// delete entity. 
+app.all("/api/entity/delete/:id", function(req, res){
+	debug("delete entity %s", req.params.id);
+	api.ent_delete(req.params.id, function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// update entity. 
+app.post("/api/entity/update/:id", function(req, res){
+	debug("update entity %s", req.params.id);
+	api.ent_update(req.params.id, req.body.ent, function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// upmerge entity. 
+app.post("/api/entity/upmerge/:id", function(req, res){
+	debug("upmerge entity %s", req.params.id);
+	api.ent_upmerge(req.params.id, req.body.ent, function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// entity types. 
+app.all("/api/entity/types", function(req, res){
+	debug("entity types");
+	api.ent_types(function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// entity tags.
+app.all("/api/entity/tags", function(req, res){
+	debug("entity tags");
+	api.ent_tags(function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// create relation. 
+app.post("/api/relation/create", function(req, res){
+	debug("create relation for \"%s\"", req.body.rel.name);
+	api.rel_create(req.body.rel, function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// get relation. 
+app.all("/api/relation/get/:id", function(req, res){
+	debug("get relation %s", req.params.id);
+	api.rel_get(req.params.id, function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// delete relation. 
+app.all("/api/relation/delete/:id", function(req, res){
+	debug("delete relation %s", req.params.id);
+	api.rel_delete(req.params.id, function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// update relation. 
+app.post("/api/relation/update/:id", function(req, res){
+	debug("update relation %s", req.params.id);
+	api.rel_update(req.params.id, req.body.rel, function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// upmerge relation. 
+app.post("/api/relation/upmerge/:id", function(req, res){
+	debug("upmerge relation %s", req.params.id);
+	api.rel_upmerge(req.params.id, req.body.rel, function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// relation types. 
+app.all("/api/relation/types", function(req, res){
+	debug("relation types");
+	api.rel_types(function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// relation tags.
+app.all("/api/relation/tags", function(req, res){
+	debug("relation tags");
+	api.rel_tags(function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// default api method. 
+app.all("/api", function(req, res){
+	res.type("json").status("200").json({error:null});
+});
+
+// index page
+app.all("/", function(req, res){
+	res.status(200).send("lobbyradar.");
 });
 
 // everything else is 404
-app.get("*", function(req, res){
-	res.status(404).send();
+app.all("*", function(req, res){
+	res.status(404).send("404");
 });
 
 // determine listen method
