@@ -87,10 +87,15 @@ List all distinct relation tags
 	tags: ["tag"], // array of strings
 	name: "Name", // string
 	aliases: ["Name", "Alt. Name"], // array of strings
-	data: {
-		k: [v, true], // key: [value, manually set]
-		k: [v, false]
-	},
+	data: [{
+		"key": "address",
+		"value": {what:ever},
+		"desc": "Description",
+		"format": "address", // string, number, address, list, date, ...
+		"auto": true,
+		created: (new Date()), // date object
+		updated: (new Date()) // date object
+	}],	
 	sources: [{
 		url: "",
 		created: (new Date()),
@@ -111,9 +116,15 @@ List all distinct relation tags
 	type: "employee", // string
 	tags: [""], // array of strings
 	weight: 0, // float, 0..1
-	data: {
-		k: [v, true] // key: [value, manually set]
-	},
+	data: [{
+		"key": "address",
+		"value": {what:ever},
+		"desc": "Description",
+		"format": "address", // string, number, address, list, date, ...
+		"auto": true,
+		created: (new Date()), // date object
+		updated: (new Date()) // date object
+	}],
 	sources: [{ 
 		url: "",
 		created: (new Date()), // date object
