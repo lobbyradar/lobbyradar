@@ -2,3 +2,5 @@ config.js
 lobbyradar.sock
 node_modules
 apitest.js
+data
+
