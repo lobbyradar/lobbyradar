@@ -13,6 +13,7 @@
   "author": "yetzt <node@yetzt.me> (https://yetzt.me/)",
   "license": "Public Domain",
   "dependencies": {
+    "JSONStream": "^0.10.0",
     "body-parser": "^1.10.0",
     "debug": "^2.1.0",
     "express": "^4.10.4",
@@ -20,6 +21,8 @@
     "mongojs": "^0.18.0",
     "mustache-express": "^1.2.0",
     "nsa": "0.0.5",
-    "validator": "^3.22.2"
+    "request": "^2.51.0",
+    "validator": "^3.22.2",
+    "xz": "^1.0.4"
   }
 }
