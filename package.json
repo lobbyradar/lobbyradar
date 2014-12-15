@@ -1,6 +1,6 @@
 {
   "name": "lobbyradar",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "lobbyradar api",
   "main": "lobbyradar.js",
   "scripts": {
