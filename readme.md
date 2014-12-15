@@ -86,6 +86,7 @@ List all distinct relation tags
 	type: "person", // string
 	tags: ["tag"], // array of strings
 	name: "Name", // string
+	slug: "name", // ascii representation of name
 	aliases: ["Name", "Alt. Name"], // array of strings
 	data: [{
 		"key": "address",
@@ -101,7 +102,11 @@ List all distinct relation tags
 		created: (new Date()),
 		updated: (new Date()),
 		remark: "" // string
-	}]
+	}],
+	search: [
+		"name",
+		"alt name"
+	] // searchable ascii representations of name and aliases
 }
 ``` 
 
