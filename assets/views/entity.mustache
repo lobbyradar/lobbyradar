@@ -1,0 +1,33 @@
+{{>header}}
+{{>navigation}}
+<div class="container" id="main">
+	{{#err}}<p>Fehler {{.}}</p>{{/err}}
+	{{#entity}}
+		<h1>{{name}}</h1>
+		<p>{{type}}</p>
+		<ul>
+			{{#aliases}}<li><a href="/tag/{{.}}">{{.}}</a></li>{{/aliases}}
+		</ul>
+		<ul>
+			{{#tags}}<li><a href="/tag/{{.}}">{{.}}</a></li>{{/tags}}
+		</ul>
+		<p>Erstellt: {{created}}</p>
+		<p>Letzte Aktualisierung: {{updated}}</p>
+		{{#data}}
+		<div>
+			<h3>{{desc}}</h3>
+			<p>{{value}}</p>
+		</div>
+		{{/data}}
+		{{#sources}}
+		<p>Quelle: <a href="{{{url}}}">{{url}}</a></p>
+		{{/sources}}
+		<h2>Verknüpfungen</h2>
+		<ul>
+			{{#relations}}
+			<li><a href="/entity/{{.}}">{{.}}</a></li>
+			{{/relations}}
+		</ul>
+	{{/entity}}
+</div>
+{{>footer}}

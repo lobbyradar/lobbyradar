@@ -46,10 +46,10 @@ var _mustache = mustache();
 _mustache.cache = false;
 app.engine("mustache", _mustache);
 app.set("view engine", "mustache");
-app.set("views", path.resolve(__dirname, "views"));
+app.set("views", path.resolve(__dirname, "assets/views"));
 
-var webpath = path.resolve(__dirname, "web");
-app.use("/", express.static(webpath));
+// static assets
+app.use("/assets", express.static(path.resolve(__dirname, "assets")));
 
 // parse application/json
 app.use(bodyparser.json());
@@ -187,8 +187,32 @@ app.all("/api", function(req, res){
 });
 
 // index page
+app.all("/entity/:id", function(req, res){
+	api.ent_get(req.params.id, function(err, ent){
+		api.ent_rels(ent._id, function(err, rels){
+			ent.relations = rels.map(function(rel){
+				return rel.entities.filter(function(r){
+					return (r.toString() !== ent._id.toString());
+				}).pop();
+			});
+			res.render("entity", {
+				"err": err,
+				"entity": ent
+			});
+		});
+	});
+});
+
+// index page
 app.all("/", function(req, res){
-	res.status(200).send("lobbyradar.");
+	api.ent_list(function(err, list){
+		res.render("index", {
+			"list": {
+				"err": err,
+				"item": list
+			}
+		});
+	});
 });
 
 // everything else is 404

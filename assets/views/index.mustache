@@ -1,0 +1,23 @@
+{{>header}}
+{{>navigation}}
+<div class="container" id="main">
+	{{#list}}
+		<h1>Liste</h1>
+		{{#err}}<p>Fehler {{.}}</p>{{/err}}
+		<ul>
+		{{#item}}
+			<li><a href="/entity/{{_id}}">{{name}}</a> ({{type}})</li>
+		{{/item}}
+		</ul>
+	{{/list}}
+	{{#entity}}
+		<h1>{{name}}</h1>
+		{{#err}}<p>Fehler {{.}}</p>{{/err}}
+		<ul>
+		{{#item}}
+			<li><a href="/entity/{{_id}}">{{name}}</a> ({{type}})</li>
+		{{/item}}
+		</ul>
+	{{/entity}}
+</div>
+{{>footer}}
