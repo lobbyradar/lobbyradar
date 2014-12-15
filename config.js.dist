@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 module.exports = {
-	api: {},
+	api: {
+		keys: {
+//			"apikey": "Username"
+		}
+	},
 	listen: {
 		socket: "lobbyradar.sock",
 		// host: "localhost",
