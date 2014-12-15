@@ -1,5 +1,10 @@
 # Lobbyradar
 
+## Todo
+
+* match address formats
+* put original name into people field
+
 ## API
 
 ### `ent_check(ent, callback)`
