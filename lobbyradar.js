@@ -190,11 +190,8 @@ app.all("/api", function(req, res){
 app.all("/entity/:id", function(req, res){
 	api.ent_get(req.params.id, function(err, ent){
 		api.ent_rels(ent._id, function(err, rels){
-			ent.relations = rels.map(function(rel){
-				return rel.entities.filter(function(r){
-					return (r.toString() !== ent._id.toString());
-				}).pop();
-			});
+			console.log(rels);
+			ent.relations = rels;
 			res.render("entity", {
 				"err": err,
 				"entity": ent
