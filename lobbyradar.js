@@ -125,6 +125,14 @@ app.all("/api/entity/tags", function(req, res){
 	});
 });
 
+// export.
+app.all("/api/entity/export", function(req, res){
+	debug("relation tags");
+	api.ent_export(function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
 // create relation. 
 app.post("/api/relation/create", function(req, res){
 	debug("create relation for \"%s\"", req.body.rel.name);
