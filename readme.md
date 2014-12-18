@@ -39,6 +39,10 @@ _not implemented yet_
 
 Extend an entity with new data.
 
+### `ent_creaxtend(ent, callback)`
+
+Extend matching entity or create new one if none matching. This is used by importers.
+
 ### `ent_types(callback)`
 
 List all distinct entity types
@@ -50,6 +54,36 @@ List all distinct entity tags
 ### `ent_rels(id, callback)`
 
 Get all relations for an entity
+
+### `ent_list([cond], callback)`
+
+Get all entities, filter by condition:
+
+``` javascript
+{
+	letter: "A", // beginning with letter a
+	type: "person" // only entities of specific type
+}
+```
+
+### `ent_match(ent, callback)`
+
+Get an entity which matches another entity by type and name.
+
+### `ent_export(callback)`
+
+Export all entities with relations in the following format:
+
+``` javascript
+{
+	<id>: [
+		<type>,
+		[<name>, <alias>, <alias>],
+		[<related_id>, <related_id>]
+	],
+	<id>: [ ... ]
+}
+```
 
 ### `rel_check(rel, callback)`
 
