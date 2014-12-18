@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="de" ng-app="Station">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Lobbyradarstation</title>
+	<link rel="stylesheet" href="assets/bower_components/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="assets/css/index.css">
+	<script src="assets/bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="assets/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="assets/bower_components/angular/angular.min.js"></script>
+	<script src="assets/bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+	<script src="assets/bower_components/angular-resource/angular-resource.min.js"></script>
+	<script src="assets/bower_components/ng-table/ng-table.min.js"></script>
+	<script src="assets/js/station.js"></script>
+</head>
+<body ng-controller="AppCtrl">
+
+<nav class="navbar navbar-default navbar-static-top" role="navigation">
+	<div class="container">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+				<span class="sr-only">Navigation anzeigen</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href ui-sref="start">Lobbyradarstation</a>
+		</div>
+		<div id="navbar" class="navbar-collapse collapse">
+			<ul class="nav navbar-nav navbar-right">
+				<li class="active" ui-sref-active="active"><a href ui-sref="start">Start</a></li>
+				<li ui-sref-active="active"><a href ui-sref="persons">Personen</a></li>
+				<li ui-sref-active="active"><a href ui-sref="organisations">Organisationen</a></li>
+			</ul>
+		</div>
+	</div>
+</nav>
+
+<div class="container">
+	<div ui-view></div>
+
+</div>
+
+
+<script type="text/ng-template" id="partials/start.html">
+
+	<div class="jumbotron">
+		<h1>Lobbyradarstation</h1>
+	</div>
+
+</script>
+
+<script type="text/ng-template" id="partials/persons.html">
+
+		<h1>Liste von Personen</h1>
+
+		<p><strong>Page:</strong> {{tableParams.page()}}</p>
+		<p><strong>Count per page:</strong> {{tableParams.count()}}</p>
+
+		<table ng-table="tableParams" template-pagination="custom/pager" show-filter="true" class="table">
+			<tbody>
+			<tr ng-repeat="p in $data">
+				<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="name">
+					{{p.name}}
+				</td>
+				<!--<td data-title="'Age'" sortable="age">-->
+					<!--{{p.age}}-->
+				<!--</td>-->
+			</tr>
+			</tbody>
+		</table>
+
+</script>
+
+<script type="text/ng-template" id="partials/organisations.html">
+
+		<h1>Liste von Organisationen</h1>
+
+</script>
+
+<script type="text/ng-template" id="custom/pager">
+	<ul class="pager ng-cloak">
+		<li ng-repeat="page in pages"
+			ng-class="{'disabled': !page.active, 'previous': page.type == 'prev', 'next': page.type == 'next'}"
+			ng-show="page.type == 'prev' || page.type == 'next'" ng-switch="page.type">
+			<a ng-switch-when="prev" ng-click="params.page(page.number)" href="">&laquo; Previous</a>
+			<a ng-switch-when="next" ng-click="params.page(page.number)" href="">Next &raquo;</a>
+		</li>
+		<li>
+			<div class="btn-group">
+				<button type="button" ng-class="{'active':params.count() == 10}" ng-click="params.count(10)" class="btn btn-default">10</button>
+				<button type="button" ng-class="{'active':params.count() == 25}" ng-click="params.count(25)" class="btn btn-default">25</button>
+				<button type="button" ng-class="{'active':params.count() == 50}" ng-click="params.count(50)" class="btn btn-default">50</button>
+				<button type="button" ng-class="{'active':params.count() == 100}" ng-click="params.count(100)" class="btn btn-default">100</button>
+			</div>
+		</li>
+	</ul>
+</script>
+
+</body>
+</html>

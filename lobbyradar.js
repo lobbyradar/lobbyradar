@@ -50,6 +50,8 @@ app.set("views", path.resolve(__dirname, "assets/views"));
 
 // static assets
 app.use("/assets", express.static(path.resolve(__dirname, "assets")));
+// static backend
+app.use("/station", express.static(path.resolve(__dirname, "station")));
 
 // parse application/json
 app.use(bodyparser.json());
@@ -81,6 +83,14 @@ app.post("/api/entity/create", function(req, res){
 app.all("/api/entity/get/:id", function(req, res){
 	debug("get entity %s", req.params.id);
 	api.ent_get(req.params.id, function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// get entities.
+app.get("/api/entity/list", function(req, res){
+	debug("list entities");
+	api.ent_list(req.query, function(err, result){
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
