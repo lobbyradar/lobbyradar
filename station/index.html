@@ -5,6 +5,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Lobbyradarstation</title>
+	<link rel="stylesheet" href="assets/bower_components/fontawesome/css/font-awesome.min.css">
 	<link rel="stylesheet" href="assets/bower_components/bootstrap/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="assets/css/index.css">
 	<script src="assets/bower_components/jquery/dist/jquery.min.js"></script>
@@ -54,29 +55,99 @@
 
 <script type="text/ng-template" id="partials/persons.html">
 
-		<h1>Liste von Personen</h1>
+	<h1>Liste von Personen</h1>
 
-		<p><strong>Page:</strong> {{tableParams.page()}}</p>
-		<p><strong>Count per page:</strong> {{tableParams.count()}}</p>
+	<div class="row">
+		<div class="col-md-3"><p><strong>Page:</strong> {{tableParams.page()}}</p></div>
+		<div class="col-md-3"><p><strong>Count per page:</strong> {{tableParams.count()}}</p></div>
+		<div class="col-md-3"><p><strong>Total:</strong> {{tableParams.total()}}</p></div>
+		<div class="col-md-3"><p><strong>Sorting:</strong> {{tableParams.sorting()|json}}</p></div>
+	</div>
 
-		<table ng-table="tableParams" template-pagination="custom/pager" show-filter="true" class="table">
-			<tbody>
-			<tr ng-repeat="p in $data">
-				<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="name">
-					{{p.name}}
-				</td>
-				<!--<td data-title="'Age'" sortable="age">-->
-					<!--{{p.age}}-->
-				<!--</td>-->
-			</tr>
-			</tbody>
-		</table>
+	<table ng-table="tableParams" template-pagination="custom/pager" show-filter="true" class="table table-striped">
+		<tbody>
+		<tr ng-repeat="p in $data">
+			<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
+			<td><span ui-sref='edit({id: p._id})'><i class="fa fa-edit"></i></span></td>
+		</tr>
+		</tbody>
+	</table>
 
 </script>
 
 <script type="text/ng-template" id="partials/organisations.html">
 
-		<h1>Liste von Organisationen</h1>
+	<h1>Liste von Organisationen</h1>
+
+	<div class="row">
+		<div class="col-md-3"><p><strong>Page:</strong> {{tableParams.page()}}</p></div>
+		<div class="col-md-3"><p><strong>Count per page:</strong> {{tableParams.count()}}</p></div>
+		<div class="col-md-3"><p><strong>Total:</strong> {{tableParams.total()}}</p></div>
+		<div class="col-md-3"><p><strong>Sorting:</strong> {{tableParams.sorting()|json}}</p></div>
+	</div>
+
+	<table ng-table="tableParams" template-pagination="custom/pager" show-filter="true" class="table table-striped">
+		<tbody>
+		<tr ng-repeat="p in $data">
+			<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
+			<td><span ui-sref='edit({id: p._id})'><i class="fa fa-edit"></i></span></td>
+		</tr>
+		</tbody>
+	</table>
+
+</script>
+
+<script type="text/ng-template" id="partials/edit.html">
+
+	<h1>Bearbeiten</h1>
+
+	<p>ID:</p>
+	<p ng-bind="item._id"></p>
+
+	<form role="form">
+
+		<div class="form-group">
+			<label for="name">Name</label>
+			<input type="text" class="form-control" id="name" placeholder="Enter name" ng-value="item.name">
+		</div>
+
+		<div class="form-group">
+			<label>Aliases</label>
+
+			<div class="has-feedback">
+				<input type="text" class="form-control" placeholder="Aliases" ng-model="edit.alias" key-bind="{ enter: 'selectAlias()'}">
+				<span ng-show="canSelectAlias()" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="selectAlias()"></span>
+			</div>
+			<div class="list-sel-ctn">
+				<div ng-repeat="o in item.aliases" class="list-sel-item"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove" ng-click="removeAlias(o)"></i></div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Tags</label>
+
+			<div class="has-feedback">
+				<input type="text" class="form-control" placeholder="Tags" ng-model="edit.tag" key-bind="{ enter: 'selectTag()'}">
+				<span ng-show="canSelectTag()" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="selectTag()"></span>
+			</div>
+			<div class="list-sel-ctn">
+				<div ng-repeat="o in item.tags" class="list-sel-item"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove" ng-click="removeTag(o)"></i></div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label>Sources</label>
+
+			<div class="has-feedback">
+				<input type="text" class="form-control" placeholder="Source" ng-model="edit.src" key-bind="{ enter: 'selectSource()'}">
+				<span ng-show="canSelectSource()" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="selectSource()"></span>
+			</div>
+			<div class="list-sel-ctn">
+				<div ng-repeat="o in item.sources" class="list-sel-item"><a ng-href="{{o.url}}" ng-bind="o.url"></a> (<span ng-bind="o.updated"></span>)<i class="glyphicon glyphicon-remove" ng-click="removeTag(o)"></i></div>
+			</div>
+		</div>
+
+	</form>
 
 </script>
 

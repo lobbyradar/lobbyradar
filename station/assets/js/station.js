@@ -12,6 +12,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			url: "/start",
 			templateUrl: "partials/start.html"
 		})
+		.state('edit', {
+			url: "/edit/:id",
+			templateUrl: "partials/edit.html",
+			controller: 'EditCtrl'
+		})
 		.state('persons', {
 			url: "/persons",
 			templateUrl: "partials/persons.html",
@@ -24,14 +29,14 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 		});
 });
 
-app.factory('entities', function ($resource) {
+app.factory('api', function ($resource) {
 	'use strict';
-	return $resource('/api/entity/:cmd', {
+	return $resource('/api/entity/:cmd/:id', {
 			apikey: 'ffalt'
 		}, {
 			list: {
 				method: 'GET',
-				params: {cmd: 'list', type: 'person'},
+				params: {cmd: 'list'}
 			},
 			item: {
 				method: 'GET',
@@ -41,22 +46,22 @@ app.factory('entities', function ($resource) {
 	);
 });
 
-
 app.controller('AppCtrl', function ($scope) {
 	'use strict';
 
 });
 
-
-app.controller('PersonsCtrl', function ($scope, $resource, $filter, ngTableParams, entities) {
-	'use strict';
-
-	var persons = [];
+var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api, type) {
+	var list = [];
 
 	var getData = function ($defer, params) {
 		var orderedData = params.filter() ?
-			$filter('filter')(persons, params.filter()) :
-			persons;
+			$filter('filter')(list, params.filter()) :
+			list;
+		orderedData = params.sorting() ?
+			$filter('orderBy')(orderedData, params.orderBy()) :
+			orderedData;
+
 		params.total(orderedData.length);
 		var current = orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count());
 		$defer.resolve(current);
@@ -76,9 +81,9 @@ app.controller('PersonsCtrl', function ($scope, $resource, $filter, ngTableParam
 		}
 	);
 
-	entities.list({},
+	api.list({type: type},
 		function (data) {
-			persons = data.result;
+			list = data.result;
 			$scope.tableParams.reload();
 		},
 		function (err) {
@@ -86,8 +91,28 @@ app.controller('PersonsCtrl', function ($scope, $resource, $filter, ngTableParam
 		}
 	);
 
+};
+
+app.controller('PersonsCtrl', function ($scope, $resource, $filter, ngTableParams, api) {
+	'use strict';
+	typedListCtrl($scope, $resource, $filter, ngTableParams, api, 'person');
 });
 
-app.controller('OrganisationsCtrl', [function () {
+app.controller('OrganisationsCtrl', function ($scope, $resource, $filter, ngTableParams, api) {
+	'use strict';
+	typedListCtrl($scope, $resource, $filter, ngTableParams, api, 'entity');
+});
 
-}]);
+app.controller('EditCtrl', function ($scope, $stateParams, api) {
+	'use strict';
+	console.log($stateParams);
+	api.item({id: $stateParams.id},
+		function (data) {
+			$scope.item = data.result;
+		},
+		function (err) {
+			console.log('err', err);
+		}
+	)
+
+});
