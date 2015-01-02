@@ -218,6 +218,35 @@ app.all("/entity/:id", function(req, res){
 	});
 });
 
+// listing page
+app.all("/list/:type/:letter?", function(req, res){
+	var cond = {};
+
+	if (req.params.hasOwnProperty("letter") && /^[a-z0-9]$/i.test(req.params.letter)) cond.letter = req.params.letter;
+	if (req.params.hasOwnProperty("type") && ["person","organisation","entity"].indexOf(req.params.type) >= 0) cond.type = req.params.type;
+
+	api.ent_list(cond, function(err, list){
+		list = list.map(function(item){
+			switch (item.type) {
+				case "person": item.icon = "user"; break;
+				case "organisation": item.icon = "building"; break;
+				case "entity": item.icon = "building"; break;
+			};
+			return item;
+		});
+		var tmpl = {"list": { "type": (cond.type||"all"), "err": err, "item": list }};
+		if (cond.letter) tmpl["letter_"+cond.letter] = true;
+		if (cond.type) {
+			tmpl["nav_"+cond.type] = true;
+			tmpl["hl_"+cond.type] = true;
+		} else {
+			tmpl["hl_all"] = true;
+		};
+		res.render("index", tmpl);
+	});
+});
+
+
 // index page
 app.all("/", function(req, res){
 	api.ent_list(function(err, list){

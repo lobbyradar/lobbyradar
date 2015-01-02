@@ -2,13 +2,65 @@
 {{>navigation}}
 <div class="container" id="main">
 	{{#list}}
-		<h1>Liste</h1>
+		<h1>
+			{{#hl_all}}Alle Einträge{{/hl_all}}
+			{{#hl_person}}Personen{{/hl_person}}
+			{{#hl_entity}}Organisationen{{/hl_entity}}
+			{{#hl_search}}Organisationen{{/hl_search}}
+		</h1>
 		{{#err}}<p>Fehler {{.}}</p>{{/err}}
-		<ul>
-		{{#item}}
-			<li><a href="/entity/{{_id}}">{{name}}</a> ({{type}})</li>
-		{{/item}}
-		</ul>
+		
+		 {{#letter_a}}class="active"{{/letter_a}}
+		
+		<nav>
+			<ul class="pagination">
+				<li{{#letter_a}} class="active"{{/letter_a}}><a href="/list/{{type}}/a">A</a></li>
+				<li{{#letter_b}} class="active"{{/letter_b}}><a href="/list/{{type}}/b">B</a></li>
+				<li{{#letter_c}} class="active"{{/letter_c}}><a href="/list/{{type}}/c">C</a></li>
+				<li{{#letter_d}} class="active"{{/letter_d}}><a href="/list/{{type}}/d">D</a></li>
+				<li{{#letter_e}} class="active"{{/letter_e}}><a href="/list/{{type}}/e">E</a></li>
+				<li{{#letter_f}} class="active"{{/letter_f}}><a href="/list/{{type}}/f">F</a></li>
+				<li{{#letter_g}} class="active"{{/letter_g}}><a href="/list/{{type}}/g">G</a></li>
+				<li{{#letter_h}} class="active"{{/letter_h}}><a href="/list/{{type}}/h">H</a></li>
+				<li{{#letter_i}} class="active"{{/letter_i}}><a href="/list/{{type}}/i">I</a></li>
+				<li{{#letter_j}} class="active"{{/letter_j}}><a href="/list/{{type}}/j">J</a></li>
+				<li{{#letter_k}} class="active"{{/letter_k}}><a href="/list/{{type}}/k">K</a></li>
+				<li{{#letter_l}} class="active"{{/letter_l}}><a href="/list/{{type}}/l">L</a></li>
+				<li{{#letter_m}} class="active"{{/letter_m}}><a href="/list/{{type}}/m">M</a></li>
+				<li{{#letter_n}} class="active"{{/letter_n}}><a href="/list/{{type}}/n">N</a></li>
+				<li{{#letter_o}} class="active"{{/letter_o}}><a href="/list/{{type}}/o">O</a></li>
+				<li{{#letter_p}} class="active"{{/letter_p}}><a href="/list/{{type}}/p">P</a></li>
+				<li{{#letter_q}} class="active"{{/letter_q}}><a href="/list/{{type}}/q">Q</a></li>
+				<li{{#letter_r}} class="active"{{/letter_r}}><a href="/list/{{type}}/r">R</a></li>
+				<li{{#letter_s}} class="active"{{/letter_s}}><a href="/list/{{type}}/s">S</a></li>
+				<li{{#letter_t}} class="active"{{/letter_t}}><a href="/list/{{type}}/t">T</a></li>
+				<li{{#letter_u}} class="active"{{/letter_u}}><a href="/list/{{type}}/u">U</a></li>
+				<li{{#letter_v}} class="active"{{/letter_v}}><a href="/list/{{type}}/v">V</a></li>
+				<li{{#letter_w}} class="active"{{/letter_w}}><a href="/list/{{type}}/w">W</a></li>
+				<li{{#letter_x}} class="active"{{/letter_x}}><a href="/list/{{type}}/x">X</a></li>
+				<li{{#letter_y}} class="active"{{/letter_y}}><a href="/list/{{type}}/y">Y</a></li>
+				<li{{#letter_z}} class="active"{{/letter_z}}><a href="/list/{{type}}/z">Z</a></li>
+			</ul>
+		</nav>
+		
+		<div class="table-responsive">
+			<table class="table table-striped table-hover table-condensed">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Verbindungen</th>
+					</tr>
+				</thead>
+				<tbody>
+				{{#item}}
+					<tr>
+						<td><i class="fa fa-{{icon}}"></i> <a href="/entity/{{_id}}">{{name}}</a></td>
+						<td>{{connections}}</td>
+					</tr>
+				{{/item}}
+				</tbody>
+			</table>
+		</div>
 	{{/list}}
 	{{#entity}}
 		<h1>{{name}}</h1>

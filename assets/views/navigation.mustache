@@ -13,6 +13,11 @@
 			</a>
 		</div>
 		<div class="navbar-collapse collapse">
+			<ul class="nav navbar-nav">
+				<li{{#nav_all}} class="active"{{/nav_all}}><a href="/list/all">Alles</a></li>
+				<li{{#nav_person}} class="active"{{/nav_person}}><a href="/list/person">Personen</a></li>
+				<li{{#nav_entity}} class="active"{{/nav_entity}}><a href="/list/entity">Organisationen</a></li>
+			</ul>
 			<!--
 			<ul class="nav navbar-nav">
 				<li class="active"><a href="/adm">Berichte</a></li>
