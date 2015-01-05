@@ -12,10 +12,15 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			url: "/start",
 			templateUrl: "partials/start.html"
 		})
-		.state('edit', {
-			url: "/edit/:id",
-			templateUrl: "partials/edit.html",
-			controller: 'EditCtrl'
+		.state('person', {
+			url: "/person/:id",
+			templateUrl: "partials/editor.html",
+			controller: 'PersonEditCtrl'
+		})
+		.state('organisation', {
+			url: "/organisation/:id",
+			templateUrl: "partials/editor.html",
+			controller: 'OrganisationEditCtrl'
 		})
 		.state('persons', {
 			url: "/persons",
@@ -99,13 +104,11 @@ app.controller('PersonsCtrl', function ($scope, $resource, $filter, ngTableParam
 });
 
 app.controller('OrganisationsCtrl', function ($scope, $resource, $filter, ngTableParams, api) {
-	'use strict';
 	typedListCtrl($scope, $resource, $filter, ngTableParams, api, 'entity');
 });
 
-app.controller('EditCtrl', function ($scope, $stateParams, api) {
-	'use strict';
-	console.log($stateParams);
+var typedEditCtrl = function ($scope, $stateParams, api) {
+
 	api.item({id: $stateParams.id},
 		function (data) {
 			$scope.item = data.result;
@@ -113,6 +116,66 @@ app.controller('EditCtrl', function ($scope, $stateParams, api) {
 		function (err) {
 			console.log('err', err);
 		}
-	)
+	);
 
+	$scope.addSource = function (link, comment) {
+		$scope.item.sources.push({
+			url: link,
+			remark: comment
+		});
+	};
+
+	$scope.addEntry = function (id, a) {
+		if ($scope.canAddEntry(id, a))
+			$scope.item[id].push(a);
+	};
+
+	$scope.canAddEntry = function (id, a) {
+		return ($scope.item && a && (a.length > 0) && ($scope.item[id].indexOf(a) < 0));
+	};
+
+	$scope.removeEntry = function (id, a) {
+		var i = $scope.item[id].indexOf(a);
+		if (i >= 0) {
+			$scope.item[id].splice(i, 1);
+		}
+	};
+
+	$scope.removeData = function (d) {
+		var i = $scope.item.data.indexOf(d);
+		if (i >= 0) {
+			$scope.item.data.splice(i, 1);
+		}
+	};
+	$scope.addData = function (type) {
+		$scope.item.data.push({
+			key: type
+		});
+	};
+};
+
+app.controller('PersonEditCtrl', function ($scope, $stateParams, api) {
+	$scope.modename = 'Person';
+	$scope.isPerson = true;
+	typedEditCtrl($scope, $stateParams, api);
+});
+
+app.controller('OrganisationEditCtrl', function ($scope, $stateParams, api) {
+	$scope.modename = 'Organisation';
+	$scope.isPerson = false;
+	typedEditCtrl($scope, $stateParams, api);
+});
+
+app.directive('ngEnter', function () {
+	return function (scope, element, attrs) {
+		element.bind("keydown keypress", function (event) {
+			if (event.which === 13) {
+				scope.$apply(function () {
+					scope.$eval(attrs.ngEnter);
+				});
+
+				event.preventDefault();
+			}
+		});
+	};
 });
