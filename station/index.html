@@ -278,16 +278,22 @@
 		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
 			Datenfeld hinzufügen <span class="caret"></span>
 		</button>
-			<ul class="dropdown-menu up" role="menu">
-				<li><a href ng-click="addData('titles')">Titel</a></li>
-				<li><a href ng-click="addData('address')">Adresse</a></li>
-				<li><a href ng-click="addData('description')">Beschreibung</a></li>
-				<li ng-if="!isPerson"><a href ng-click="addData('members')">Anzahl der Mitglieder</a></li>
-				<li ng-if="!isPerson"><a href ng-click="addData('organisations')">Anzahl der Mitgliedsorganisationen</a></li>
-			</ul>
+		<ul class="dropdown-menu up" role="menu">
+			<li><a href ng-click="addData('titles')">Titel</a></li>
+			<li><a href ng-click="addData('address')">Adresse</a></li>
+			<li><a href ng-click="addData('description')">Beschreibung</a></li>
+			<li ng-if="!isPerson"><a href ng-click="addData('members')">Anzahl der Mitglieder</a></li>
+			<li ng-if="!isPerson"><a href ng-click="addData('organisations')">Anzahl der Mitgliedsorganisationen</a></li>
+		</ul>
 	</div>
 
 	<!--<hr/>{{item.data}}<hr/>{{item}}-->
+
+	<div class="pull-right">
+		<button type="button" class="btn btn-primary" ng-click="save()">Speichern</button>
+		<button type="button" class="btn btn-default" ng-click="back()">Abbruch</button>
+	</div>
+
 
 </script>
 

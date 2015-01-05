@@ -46,6 +46,10 @@ app.factory('api', function ($resource) {
 			item: {
 				method: 'GET',
 				params: {cmd: 'get'}
+			},
+			save: {
+				method: 'POST',
+				params: {cmd: 'update'}
 			}
 		}
 	);
@@ -107,7 +111,7 @@ app.controller('OrganisationsCtrl', function ($scope, $resource, $filter, ngTabl
 	typedListCtrl($scope, $resource, $filter, ngTableParams, api, 'entity');
 });
 
-var typedEditCtrl = function ($scope, $stateParams, api) {
+var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 
 	api.item({id: $stateParams.id},
 		function (data) {
@@ -152,18 +156,34 @@ var typedEditCtrl = function ($scope, $stateParams, api) {
 			key: type
 		});
 	};
+
+	$scope.back = function () {
+		$state.go($scope.isPerson ? 'persons' : 'organisations');
+	};
+
+	$scope.save = function () {
+		//api.save({id: $stateParams.id, ent: $scope.item},
+		//	function (data) {
+		//		console.log('saved', data);
+		//		$scope.back();
+		//	},
+		//	function (err) {
+		//		console.log('err', err);
+		//	}
+		//);
+	};
 };
 
-app.controller('PersonEditCtrl', function ($scope, $stateParams, api) {
+app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, api) {
 	$scope.modename = 'Person';
 	$scope.isPerson = true;
-	typedEditCtrl($scope, $stateParams, api);
+	typedEditCtrl($scope, $state, $stateParams, api);
 });
 
-app.controller('OrganisationEditCtrl', function ($scope, $stateParams, api) {
+app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, api) {
 	$scope.modename = 'Organisation';
 	$scope.isPerson = false;
-	typedEditCtrl($scope, $stateParams, api);
+	typedEditCtrl($scope, $state, $stateParams, api);
 });
 
 app.directive('ngEnter', function () {
