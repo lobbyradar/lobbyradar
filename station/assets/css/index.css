@@ -2,17 +2,16 @@
 	width: 100% !important;
 }
 
-.btn-remove-data {
+.btn-right {
 	float: right;
 	cursor: pointer;
 	border: solid 1px #ededed;
 	border-radius: 2px;
 }
 
-.btn-remove-data:hover {
+.btn-right:hover {
 	border-color: #c3c3c3;
 }
-
 
 .up {
 	bottom: 100% !important;

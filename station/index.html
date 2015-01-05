@@ -68,7 +68,7 @@
 		<tbody>
 		<tr ng-repeat="p in $data">
 			<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
-			<td><span ui-sref='person({id: p._id})'><i class="fa fa-edit"></i></span></td>
+			<td><span ui-sref='person({id: p._id})'><i class="fa fa-edit btn-right"></i></span></td>
 		</tr>
 		</tbody>
 	</table>
@@ -90,7 +90,7 @@
 		<tbody>
 		<tr ng-repeat="p in $data">
 			<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
-			<td><span ui-sref='organisation({id: p._id})'><i class="fa fa-edit"></i></span></td>
+			<td><span ui-sref='organisation({id: p._id})'><i class="fa fa-edit btn-right"></i></span></td>
 		</tr>
 		</tbody>
 	</table>
@@ -121,7 +121,7 @@
 			</div>
 			<div class="list-sel-ctn">
 				<div ng-repeat="o in item.aliases" class="list-sel-item"><span ng-bind="o"></span>
-					<i class="glyphicon glyphicon-remove btn-remove-data" ng-click="removeEntry('aliases', o)"></i></div>
+					<i class="glyphicon glyphicon-remove btn-right" ng-click="removeEntry('aliases', o)"></i></div>
 			</div>
 		</div>
 
@@ -136,7 +136,7 @@
 			</div>
 			<div class="list-sel-ctn">
 				<div ng-repeat="o in item.tags" class="list-sel-item"><span ng-bind="o"></span>
-					<i class="glyphicon glyphicon-remove btn-remove-data" ng-click="removeEntry('tags', o)"></i></div>
+					<i class="glyphicon glyphicon-remove btn-right" ng-click="removeEntry('tags', o)"></i></div>
 			</div>
 		</div>
 
@@ -155,7 +155,7 @@
 				<div ng-repeat="o in item.sources" class="list-sel-item">
 					<a ng-href="{{o.url}}" ng-bind="o.url"></a>
 					<span ng-bind="o.remark"></span>
-					<i class="glyphicon glyphicon-remove btn-remove-data" ng-click="removeEntry('sources', o)"></i>
+					<i class="glyphicon glyphicon-remove btn-right" ng-click="removeEntry('sources', o)"></i>
 				</div>
 			</div>
 		</div>
@@ -175,7 +175,7 @@
 					<label>Titel</label>
 					<input type="text" class="form-control" placeholder="Titel" ng-model="d.value">
 				</div>
-				<i class="glyphicon glyphicon-remove btn-remove-data" ng-click="removeData(d)"></i>
+				<i class="glyphicon glyphicon-remove btn-right" ng-click="removeData(d)"></i>
 			</form>
 		</div>
 
@@ -223,7 +223,7 @@
 				</div>
 
 
-				<i class="glyphicon glyphicon-remove btn-remove-data" ng-click="removeData(d)"></i>
+				<i class="glyphicon glyphicon-remove btn-right" ng-click="removeData(d)"></i>
 			</form>
 		</div>
 
@@ -237,7 +237,7 @@
 					<label>Anzahl der Mitglieder</label>
 					<input type="text" class="form-control" placeholder="Anzahl der Mitglieder" ng-model="d.value">
 				</div>
-				<i class="glyphicon glyphicon-remove btn-remove-data" ng-click="removeData(d)"></i>
+				<i class="glyphicon glyphicon-remove btn-right" ng-click="removeData(d)"></i>
 			</form>
 		</div>
 
@@ -252,7 +252,7 @@
 					<label>Anzahl der Mitgliedsorganisationen</label>
 					<input type="text" class="form-control" placeholder="Anzahl der Mitgliedsorganisationen" ng-model="d.value">
 				</div>
-				<i class="glyphicon glyphicon-remove btn-remove-data" ng-click="removeData(d)"></i>
+				<i class="glyphicon glyphicon-remove btn-right" ng-click="removeData(d)"></i>
 			</form>
 		</div>
 
@@ -266,7 +266,7 @@
 					<label>Beschreibung</label>
 					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.value">
 				</div>
-				<i class="glyphicon glyphicon-remove btn-remove-data" ng-click="removeData(d)"></i>
+				<i class="glyphicon glyphicon-remove btn-right" ng-click="removeData(d)"></i>
 			</form>
 		</div>
 
