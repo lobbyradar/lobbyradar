@@ -71,11 +71,11 @@
 		<h1><i class="fa fa-spin fa-spinner"></i> Personen-Liste wird geladen</h1>
 	</div>
 
-	<div ng-if="!loading">
+	<div ng-show="!loading">
 
 		<div class="row">
 
-			<div class="col-md-9 headline"><h1>Personen</h1>Anzahl <span ng-bind="tableParams.total()"></span></div>
+			<div class="col-md-9 headline"><h1>Personen</h1><p>Anzahl <span ng-bind="tableParams.total()"></span></p></div>
 
 			<div class="col-md-3">
 				<div class="pull-right has-feedback">
@@ -111,11 +111,11 @@
 		<h1><i class="fa fa-spin fa-spinner"></i> Organisationen-Liste wird geladen</h1>
 	</div>
 
-	<div ng-if="!loading">
+	<div ng-show="!loading">
 
 		<div class="row">
 
-			<div class="col-md-9 headline"><h1>Organisationen</h1>Anzahl <span ng-bind="tableParams.total()"></span></div>
+			<div class="col-md-9 headline"><h1>Organisationen</h1><p>Anzahl <span ng-bind="tableParams.total()"></span></p></div>
 
 			<div class="col-md-3">
 				<div class="pull-right has-feedback">

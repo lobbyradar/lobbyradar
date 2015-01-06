@@ -48,10 +48,13 @@
 	margin: 0;
 }
 
+.headline p {
+	font-size: 0.8em;
+}
+
 .navbar-brand {
 	font-size: 30px;
 	font-family: "Roboto Slab";
-	/*color: #eee !important;*/
 }
 
 .jumbotron {
