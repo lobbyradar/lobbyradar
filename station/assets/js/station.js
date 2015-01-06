@@ -61,12 +61,31 @@ app.controller('AppCtrl', function ($scope) {
 });
 
 var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api, type) {
+
+	$scope.loading = true;
+
 	var list = [];
 
+	$scope.filter = {
+		text: ''
+	};
+
+	$scope.refilter = function () {
+		$scope.tableParams.reload();
+	};
+
+	$scope.resetFilter = function () {
+		$scope.filter.text = '';
+		$scope.tableParams.reload();
+	};
+
 	var getData = function ($defer, params) {
-		var orderedData = params.filter() ?
-			$filter('filter')(list, params.filter()) :
-			list;
+		//var orderedData = params.filter() ?
+		//	$filter('filter')(list, params.filter()) :
+		//	list;
+
+		var orderedData = $scope.filter.text.length ? $filter('filter')(list, {'name': $scope.filter.text}) : list;
+
 		orderedData = params.sorting() ?
 			$filter('orderBy')(orderedData, params.orderBy()) :
 			orderedData;
@@ -93,7 +112,9 @@ var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api, ty
 	api.list({type: type},
 		function (data) {
 			list = data.result;
+			$scope.$watch("filter.text", $scope.refilter);
 			$scope.tableParams.reload();
+			$scope.loading = false;
 		},
 		function (err) {
 			console.error(err);
@@ -113,6 +134,8 @@ app.controller('OrganisationsCtrl', function ($scope, $resource, $filter, ngTabl
 
 var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 
+	$scope.edit = {};
+
 	api.item({id: $stateParams.id},
 		function (data) {
 			$scope.item = data.result;
@@ -130,8 +153,10 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 	};
 
 	$scope.addEntry = function (id, a) {
-		if ($scope.canAddEntry(id, a))
+		if ($scope.canAddEntry(id, a)) {
 			$scope.item[id].push(a);
+			$scope.edit[id] = '';
+		}
 	};
 
 	$scope.canAddEntry = function (id, a) {
@@ -162,15 +187,16 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 	};
 
 	$scope.save = function () {
-		//api.save({id: $stateParams.id, ent: $scope.item},
-		//	function (data) {
-		//		console.log('saved', data);
-		//		$scope.back();
-		//	},
-		//	function (err) {
-		//		console.log('err', err);
-		//	}
-		//);
+		console.log('send', $stateParams.id);
+		api.save({id: $stateParams.id}, {ent: $scope.item},
+			function (data) {
+				console.log('saved', data);
+				$scope.back();
+			},
+			function (err) {
+				console.log('err', err);
+			}
+		);
 	};
 };
 

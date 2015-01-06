@@ -5,6 +5,8 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Lobbyradarstation</title>
+
+	<link href="../assets/fonts/roboto-slab/roboto-slab.css" rel="stylesheet" type="text/css">
 	<link rel="stylesheet" href="assets/bower_components/fontawesome/css/font-awesome.min.css">
 	<link rel="stylesheet" href="assets/bower_components/bootstrap/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="assets/css/index.css">
@@ -27,7 +29,9 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href ui-sref="start">Lobbyradarstation</a>
+			<img class="navbar-img" src="/assets/images/lobbyradar.png">
+			<a class="navbar-brand" href ui-sref="start">
+				Lobbyradarstation</a>
 		</div>
 		<div id="navbar" class="navbar-collapse collapse">
 			<ul class="nav navbar-nav navbar-right">
@@ -48,52 +52,90 @@
 <script type="text/ng-template" id="partials/start.html">
 
 	<div class="jumbotron">
-		<h1>Lobbyradarstation</h1>
+		<div class="row">
+			<div class="col-md-6">
+				<img src="/assets/images/lobbyradar.png">
+			</div>
+			<div class="col-md-6">
+				<h1>
+					Lobby<br/>radar<br/>station</h1>
+			</div>
+		</div>
 	</div>
 
 </script>
 
 <script type="text/ng-template" id="partials/persons.html">
 
-	<h1>Liste von Personen</h1>
-
-	<div class="row">
-		<div class="col-md-3"><p><strong>Page:</strong> {{tableParams.page()}}</p></div>
-		<div class="col-md-3"><p><strong>Count per page:</strong> {{tableParams.count()}}</p></div>
-		<div class="col-md-3"><p><strong>Total:</strong> {{tableParams.total()}}</p></div>
-		<div class="col-md-3"><p><strong>Sorting:</strong> {{tableParams.sorting()|json}}</p></div>
+	<div ng-if="loading" class="loading">
+		<h1><i class="fa fa-spin fa-spinner"></i> Personen-Liste wird geladen</h1>
 	</div>
 
-	<table ng-table="tableParams" template-pagination="custom/pager" show-filter="true" class="table table-striped">
-		<tbody>
-		<tr ng-repeat="p in $data">
-			<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
-			<td><span ui-sref='person({id: p._id})'><i class="fa fa-edit btn-right"></i></span></td>
-		</tr>
-		</tbody>
-	</table>
+	<div ng-if="!loading">
+
+		<div class="row">
+
+			<div class="col-md-9 headline"><h1>Personen</h1>Anzahl <span ng-bind="tableParams.total()"></span></div>
+
+			<div class="col-md-3">
+				<div class="pull-right has-feedback">
+					<label>Suche</label>
+					<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
+					<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="glyphicon glyphicon-remove"></i></span>
+				</div>
+			</div>
+
+		</div>
+
+		<!--<div class="row">-->
+		<!--<div class="col-md-3"><p><strong>Page:</strong> {{tableParams.page()}}</p></div>-->
+		<!--<div class="col-md-3"><p><strong>Count per page:</strong> {{tableParams.count()}}</p></div>-->
+		<!--<div class="col-md-3"><p><strong>Total:</strong> {{tableParams.total()}}</p></div>-->
+		<!--<div class="col-md-3"><p><strong>Sorting:</strong> {{tableParams.sorting()|json}}</p></div>-->
+		<!--</div>-->
+
+		<table ng-table="tableParams" template-pagination="custom/pager" show-filter="false" class="table table-striped">
+			<tbody>
+			<tr ng-repeat="p in $data">
+				<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
+				<td><span ui-sref='person({id: p._id})'><i class="fa fa-edit btn-right"></i></span></td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
 
 </script>
 
 <script type="text/ng-template" id="partials/organisations.html">
-
-	<h1>Liste von Organisationen</h1>
-
-	<div class="row">
-		<div class="col-md-3"><p><strong>Page:</strong> {{tableParams.page()}}</p></div>
-		<div class="col-md-3"><p><strong>Count per page:</strong> {{tableParams.count()}}</p></div>
-		<div class="col-md-3"><p><strong>Total:</strong> {{tableParams.total()}}</p></div>
-		<div class="col-md-3"><p><strong>Sorting:</strong> {{tableParams.sorting()|json}}</p></div>
+	<div ng-if="loading" class="loading">
+		<h1><i class="fa fa-spin fa-spinner"></i> Organisationen-Liste wird geladen</h1>
 	</div>
 
-	<table ng-table="tableParams" template-pagination="custom/pager" show-filter="true" class="table table-striped">
-		<tbody>
-		<tr ng-repeat="p in $data">
-			<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
-			<td><span ui-sref='organisation({id: p._id})'><i class="fa fa-edit btn-right"></i></span></td>
-		</tr>
-		</tbody>
-	</table>
+	<div ng-if="!loading">
+
+		<div class="row">
+
+			<div class="col-md-9 headline"><h1>Organisationen</h1>Anzahl <span ng-bind="tableParams.total()"></span></div>
+
+			<div class="col-md-3">
+				<div class="pull-right has-feedback">
+					<label>Suche</label>
+					<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
+					<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="glyphicon glyphicon-remove"></i></span>
+				</div>
+			</div>
+
+		</div>
+
+		<table ng-table="tableParams" template-pagination="custom/pager" show-filter="false" class="table table-striped">
+			<tbody>
+			<tr ng-repeat="p in $data">
+				<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
+				<td><span ui-sref='organisation({id: p._id})'><i class="fa fa-edit btn-right"></i></span></td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
 
 </script>
 
@@ -101,7 +143,7 @@
 
 	<h1><span ng-bind="modename"></span> bearbeiten</h1>
 
-	<p>ID: <span ng-bind="item._id"></span></p>
+	<!--<p>ID: <span ng-bind="item._id"></span></p>-->
 
 	<form role="form">
 
@@ -112,32 +154,32 @@
 
 		<hr/>
 
-		<div class="form-group">
-			<label>Aliases</label>
+		<div class="row">
 
-			<div class="has-feedback">
-				<input type="text" class="form-control" placeholder="Aliases" ng-model="edit.alias" ng-enter="addEntry('aliases', edit.alias)">
-				<span ng-show="canAddEntry('aliases', edit.alias)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('aliases', edit.alias)"></span>
-			</div>
-			<div class="list-sel-ctn">
-				<div ng-repeat="o in item.aliases" class="list-sel-item"><span ng-bind="o"></span>
-					<i class="glyphicon glyphicon-remove btn-right" ng-click="removeEntry('aliases', o)"></i></div>
-			</div>
-		</div>
+			<div class="form-group col-md-6">
+				<label>Aliases</label>
 
-		<hr/>
-
-		<div class="form-group">
-			<label>Tags</label>
-
-			<div class="has-feedback">
-				<input type="text" class="form-control" placeholder="Tags" ng-model="edit.tag" ng-enter="addEntry('tags', edit.tag)">
-				<span ng-show="canAddEntry('tags', edit.alias)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tag)"></span>
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="Aliases" ng-model="edit.aliases" ng-enter="addEntry('aliases', edit.aliases)">
+					<span ng-show="canAddEntry('aliases', edit.aliases)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('aliases', edit.aliases)"></span>
+				</div>
+				<div class="label-list">
+					<div ng-repeat="o in item.aliases" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" ng-click="removeEntry('aliases', o)"></i></div>
+				</div>
 			</div>
-			<div class="list-sel-ctn">
-				<div ng-repeat="o in item.tags" class="list-sel-item"><span ng-bind="o"></span>
-					<i class="glyphicon glyphicon-remove btn-right" ng-click="removeEntry('tags', o)"></i></div>
+
+			<div class="form-group col-md-6">
+				<label>Tags</label>
+
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="Tags" ng-model="edit.tags" ng-enter="addEntry('tags', edit.tags)">
+					<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
+				</div>
+				<div class="label-list">
+					<div ng-repeat="o in item.tags" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" ng-click="removeEntry('tags', o)"></i></div>
+				</div>
 			</div>
+
 		</div>
 
 		<hr/>
@@ -179,94 +221,105 @@
 			</form>
 		</div>
 
-		<div ng-switch-when="address">
-			<form class="form-inline">
-				<div class="form-group">
-					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.desc">
-				</div>
-				<div class="form-group">
+		<div ng-switch-when="address" class="row">
+			<form class="form">
+
+				<div class="form-group col-md-12">
+					<i class="glyphicon glyphicon-remove btn-right" title="Adresse löschen" ng-click="removeData(d)"></i>
 					<label>Name</label>
 					<input type="text" class="form-control" placeholder="Name" ng-model="d.value.name">
 				</div>
-				<div class="form-group">
-					<label>Stadt</label>
-					<input type="text" class="form-control" placeholder="Stadt" ng-model="d.value.city">
-				</div>
-				<div class="form-group">
+
+				<div class="form-group col-md-12">
 					<label>Adresse</label>
 					<input type="text" class="form-control" placeholder="Adresse" ng-model="d.value.addr">
 				</div>
-				<div class="form-group">
-					<label>Land</label>
-					<input type="text" class="form-control" placeholder="Land" ng-model="d.value.country">
-				</div>
-				<div class="form-group">
+
+				<div class="form-group col-md-4">
 					<label>Postleitzahl</label>
 					<input type="text" class="form-control" placeholder="Postleitzahl" ng-model="d.value.postcode">
 				</div>
-				<div class="form-group">
+
+				<div class="form-group col-md-4">
+					<label>Stadt</label>
+					<input type="text" class="form-control" placeholder="Stadt" ng-model="d.value.city">
+				</div>
+
+				<div class="form-group col-md-4">
+					<label>Land</label>
+					<input type="text" class="form-control" placeholder="Land" ng-model="d.value.country">
+				</div>
+
+				<div class="form-group col-md-6">
 					<label>Telefon</label>
 					<input type="text" class="form-control" placeholder="Telefon" ng-model="d.value.tel">
 				</div>
-				<div class="form-group">
+
+				<div class="form-group col-md-6">
 					<label>Fax</label>
 					<input type="text" class="form-control" placeholder="Fax" ng-model="d.value.fax">
 				</div>
-				<div class="form-group">
+
+				<div class="form-group col-md-6">
 					<label>E-Mail</label>
 					<input type="text" class="form-control" placeholder="E-Mail" ng-model="d.value.email">
 				</div>
-				<div class="form-group">
+
+				<div class="form-group col-md-6">
 					<label>www</label>
 					<input type="text" class="form-control" placeholder="www" ng-model="d.value.www">
 				</div>
 
-
-				<i class="glyphicon glyphicon-remove btn-right" ng-click="removeData(d)"></i>
-			</form>
-		</div>
-
-		<div ng-switch-when="members">
-			<form class="form-inline">
-				<div class="form-group">
+				<div class="form-group col-md-6">
 					<label>Beschreibung</label>
 					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.desc">
 				</div>
-				<div class="form-group">
+
+			</form>
+		</div>
+
+		<div ng-switch-when="members" class="row">
+			<form class="form">
+
+				<div class="form-group col-md-6">
+					<i class="glyphicon glyphicon-remove btn-right" ng-click="removeData(d)"></i>
 					<label>Anzahl der Mitglieder</label>
 					<input type="text" class="form-control" placeholder="Anzahl der Mitglieder" ng-model="d.value">
 				</div>
-				<i class="glyphicon glyphicon-remove btn-right" ng-click="removeData(d)"></i>
-			</form>
-		</div>
 
-
-		<div ng-switch-when="organisations">
-			<form class="form-inline">
-				<div class="form-group">
+				<div class="form-group col-md-6">
 					<label>Beschreibung</label>
 					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.desc">
 				</div>
-				<div class="form-group">
-					<label>Anzahl der Mitgliedsorganisationen</label>
-					<input type="text" class="form-control" placeholder="Anzahl der Mitgliedsorganisationen" ng-model="d.value">
-				</div>
-				<i class="glyphicon glyphicon-remove btn-right" ng-click="removeData(d)"></i>
+
 			</form>
 		</div>
 
-		<div ng-switch-when="description">
-			<form class="form-inline">
-				<div class="form-group">
-					<label>Beschreibung der Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung der Beschreibung" ng-model="d.desc">
+		<div ng-switch-when="organisations" class="row">
+			<form class="form">
+				<div class="form-group col-md-6">
+					<i class="glyphicon glyphicon-remove btn-right" title="Anzahl entfernen" ng-click="removeData(d)"></i>
+					<label>Anzahl der Mitgliedsorganisationen</label>
+					<input type="text" class="form-control" placeholder="Anzahl der Mitgliedsorganisationen" ng-model="d.value">
 				</div>
-				<div class="form-group">
+				<div class="form-group col-md-6">
+					<label>Beschreibung</label>
+					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.desc">
+				</div>
+			</form>
+		</div>
+
+		<div ng-switch-when="description" class="row">
+			<form class="form">
+				<div class="form-group col-md-12">
+					<i class="glyphicon glyphicon-remove btn-right" title="Beschreibung entfernen" ng-click="removeData(d)"></i>
 					<label>Beschreibung</label>
 					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.value">
 				</div>
-				<i class="glyphicon glyphicon-remove btn-right" ng-click="removeData(d)"></i>
+				<div class="form-group col-md-6">
+					<label>Beschreibung der Beschreibung</label>
+					<input type="text" class="form-control" placeholder="Beschreibung der Beschreibung" ng-model="d.desc">
+				</div>
 			</form>
 		</div>
 
@@ -303,8 +356,12 @@
 			ng-class="{'disabled': !page.active, 'previous': page.type == 'prev', 'next': page.type == 'next'}"
 			ng-show="page.type == 'prev' || page.type == 'next'" ng-switch="page.type">
 			<a ng-switch-when="prev" ng-click="params.page(page.number)" href="">&laquo; Previous</a>
+
 			<a ng-switch-when="next" ng-click="params.page(page.number)" href="">Next &raquo;</a>
 		</li>
+		<div>
+			Seite <span ng-bind="params.page()"></span>
+		</div>
 		<li>
 			<div class="btn-group">
 				<button type="button" ng-class="{'active':params.count() == 10}" ng-click="params.count(10)" class="btn btn-default">10</button>

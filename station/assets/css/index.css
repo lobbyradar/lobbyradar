@@ -2,6 +2,21 @@
 	width: 100% !important;
 }
 
+.clickable {
+	cursor: pointer;
+	pointer-events: inherit !important;
+}
+
+.label-list {
+	margin-top: 4px;
+}
+
+.label-list div {
+	margin-right: 4px;
+	display:inline-block;
+	float: none;
+}
+
 .btn-right {
 	float: right;
 	cursor: pointer;
@@ -13,7 +28,45 @@
 	border-color: #c3c3c3;
 }
 
+.btn-label-right {
+	cursor: pointer;
+	border: solid 1px #ededed;
+	border-radius: 2px;
+	margin-left: 4px;
+}
+
+.btn-label-right:hover {
+	border-color: #c3c3c3;
+}
+
 .up {
 	bottom: 100% !important;
 	top: auto !important;
+}
+
+.headline h1 {
+	margin: 0;
+}
+
+.navbar-brand {
+	font-size: 30px;
+	font-family: "Roboto Slab";
+	/*color: #eee !important;*/
+}
+
+.jumbotron {
+	font-size: 50px;
+	font-family: "Roboto Slab";
+	text-align: center;
+}
+
+.navbar-img {
+	margin-top: 6px;
+	margin-right: 6px;
+	height: 40px;
+	float: left;
+}
+
+.loading {
+	text-align: center;
 }
