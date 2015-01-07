@@ -11,6 +11,8 @@ var debug = require("debug")("app");
 var path = require("path");
 var nsa = require("nsa");
 var fs = require("fs");
+var passportlocal = require("passport-local");
+var passport = require("passport");
 
 // config
 var config = require("./config.js");
@@ -22,7 +24,7 @@ if (!config.hasOwnProperty("listen")) {
 };
 
 // load mongojs 
-var db = mongojs(config.db, ["entities","relations"]);
+var db = mongojs(config.db, ["entities","relations","users"]);
 
 // local modules
 var api = require("./lib/api.js")(config.api, db);
@@ -38,6 +40,33 @@ if (config.hasOwnProperty("nsa") && (config.nsa)) {
 	});
 };
 
+/* configure passport */
+passport.serializeUser(function (user, done) {
+	done(null, user);
+});
+
+passport.deserializeUser(function (username, done) {
+	api.user_find(username, function (err, user) {
+		if (err)
+			done(null, false); //remove session (invalid username, e.g. after id change)
+		else
+			done(null, user);
+	});
+});
+
+passport.use(new passportlocal.Strategy(function (username, password, done) {
+	process.nextTick(function () {
+		api.user_auth(username, password, function (result, user) {
+			if ((!result) || (!user)) {
+				done(null, false, {message: 'Invalid Credentials'});
+			} else {
+				done(null, user);
+			}
+		});
+	});
+}));
+
+
 // use express
 var app = express();
 
@@ -52,6 +81,8 @@ app.set("views", path.resolve(__dirname, "assets/views"));
 app.use("/assets", express.static(path.resolve(__dirname, "assets")));
 // static backend
 app.use("/station", express.static(path.resolve(__dirname, "station")));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // parse application/json
 app.use(bodyparser.json());
@@ -198,6 +229,54 @@ app.all("/api/relation/tags", function(req, res){
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
+
+// get users.
+app.get("/api/users/list", function(req, res){
+	debug("list users");
+	api.user_list(function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// create user.
+app.post("/api/users/create", function(req, res){
+	debug("create user",req.body.user);
+	api.user_create(req.body.user, function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// delete user.
+app.all("/api/users/delete/:id", function(req, res){
+	debug("delete user %s", req.params.id);
+	api.user_delete(req.params.id, function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// get user.
+app.all("/api/users/get/:id", function(req, res){
+	debug("get user %s", req.params.id);
+	api.user_get(req.params.id, function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// update entity.
+app.post("/api/users/update/:id", function(req, res){
+	debug("update user %s", req.params.id);
+	api.user_update(req.params.id, req.body.user, function(err, result){
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+app.post('/login',
+	function(req, res, next) {
+		req.login(req.body,function(err){
+			if (err) return res.sendStatus(401);
+			res.sendStatus(200);
+		});
+	});
 
 // default api method. 
 app.all("/api", function(req, res){

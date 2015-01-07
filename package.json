@@ -22,6 +22,8 @@
     "mongojs": "^0.18.0",
     "mustache-express": "^1.2.0",
     "nsa": "0.0.5",
+    "passport": "^0.2.1",
+    "passport-local": "^1.0.0",
     "request": "^2.51.0",
     "slug": "^0.8.0",
     "validator": "^3.22.2",

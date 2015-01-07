@@ -5,7 +5,7 @@ var app = angular.module('Station', ['ui.router', 'ngTable', 'ngResource']);
 app.config(function ($stateProvider, $urlRouterProvider) {
 	'use strict';
 
-	$urlRouterProvider.otherwise("/start");
+	$urlRouterProvider.otherwise("/login");
 
 	$stateProvider
 		.state('start', {
@@ -31,6 +31,21 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			url: "/organisations",
 			templateUrl: "partials/organisations.html",
 			controller: 'OrganisationsCtrl'
+		})
+		.state('users', {
+			url: "/users",
+			templateUrl: "partials/users.html",
+			controller: 'UsersCtrl'
+		})
+		.state('user', {
+			url: "/user/:id",
+			templateUrl: "partials/user.html",
+			controller: 'UserEditCtrl'
+		})
+		.state('login', {
+			url: "/login",
+			templateUrl: "partials/login.html",
+			controller: 'LoginCtrl'
 		});
 });
 
@@ -55,9 +70,73 @@ app.factory('api', function ($resource) {
 	);
 });
 
+app.factory('users', function ($resource) {
+	'use strict';
+	return $resource('/api/users/:cmd/:id', {
+			apikey: 'ffalt'
+		}, {
+			list: {
+				method: 'GET',
+				params: {cmd: 'list'}
+			},
+			item: {
+				method: 'GET',
+				params: {cmd: 'get'}
+			},
+			save: {
+				method: 'POST',
+				params: {cmd: 'update'}
+			},
+			create: {
+				method: 'POST',
+				params: {cmd: 'create'}
+			}
+		}
+	);
+});
+
+app.factory('auth', function ($resource) {
+	'use strict';
+	return $resource('/:cmd', {}, {
+			login: {
+				method: 'POST',
+				params: {cmd: 'login'}
+			},
+			logout: {
+				method: 'POST',
+				params: {cmd: 'logout'}
+			}
+		}
+	);
+});
+
+app.run(function ($rootScope) {
+
+	$rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+		console.log(toState);
+		//if ($rootScope.loggedIn) {
+		//
+		//}
+		//var state_access = toState.data ? toState.data.access : access.user;
+		//if (!AuthenticationService.authorize(state_access)) {
+		//	event.preventDefault();
+		//	see if logged in through frontend
+		//AuthenticationService.check(
+		//	function (user) {
+		//		$state.go(toState.name);
+		//	}, function (err) {
+		//		$rootScope.accessdenied = true;
+		//		$state.go('login');
+		//	}
+		//);
+		//}
+	});
+
+})
+
 app.controller('AppCtrl', function ($scope) {
 	'use strict';
-
+	$scope.loggedIn = false;
 });
 
 var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api, type) {
@@ -145,10 +224,10 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 		}
 	);
 
-	$scope.addSource = function (link, comment) {
+	$scope.addSource = function () {
 		$scope.item.sources.push({
-			url: link,
-			remark: comment
+			url: '',
+			remark: ''
 		});
 	};
 
@@ -187,9 +266,9 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 	};
 
 	$scope.save = function () {
-		console.log('send', $stateParams.id);
 		api.save({id: $stateParams.id}, {ent: $scope.item},
 			function (data) {
+				if (data.err) return alert(data.err);
 				console.log('saved', data);
 				$scope.back();
 			},
@@ -210,6 +289,111 @@ app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, a
 	$scope.modename = 'Organisation';
 	$scope.isPerson = false;
 	typedEditCtrl($scope, $state, $stateParams, api);
+});
+
+app.controller('LoginCtrl', function ($scope, $state, $stateParams, $resource, $rootScope, auth) {
+	$scope.login = {};
+
+	$scope.loginUser = function () {
+		auth.login(
+			$scope.login,
+			function (data) {
+				$rootScope.loggedIn = true;
+				$state.go('start');
+			},
+			function (err) {
+				console.log(err);
+			}
+		)
+	};
+});
+
+app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
+
+	$scope.isNew = ($stateParams.id == 'new');
+
+	$scope.create = function () {
+		users.create({user: $scope.user},
+			function (data) {
+				if (data.err) return alert(data.err);
+				console.log('saved', data);
+				$state.go('users');
+			},
+			function (err) {
+				console.log('err', err);
+			}
+		);
+	};
+
+	$scope.save = function () {
+		users.save({id: $stateParams.id},
+			{user: $scope.user},
+			function (data) {
+				if (data.err) return alert(data.err);
+				console.log('saved', data);
+				$state.go('users');
+			},
+			function (err) {
+				console.log('err', err);
+			}
+		);
+	};
+
+	if (!$scope.isNew) {
+		users.item({id: $stateParams.id},
+			{user: $scope.user},
+			function (data) {
+				if (data.err) return alert(data.err);
+				$scope.user = data.result;
+			},
+			function (err) {
+				console.log('err', err);
+			}
+		);
+	} else {
+		$scope.user = {};
+	}
+
+});
+
+app.controller('UsersCtrl', function ($scope, $state, $stateParams, $filter, ngTableParams, users) {
+
+	var list = [];
+
+	var getData = function ($defer, params) {
+		var orderedData = list;//$scope.filter.text.length ? $filter('filter')(list, {'name': $scope.filter.text}) : list;
+
+		orderedData = params.sorting() ?
+			$filter('orderBy')(orderedData, params.orderBy()) :
+			orderedData;
+
+		params.total(orderedData.length);
+		var current = orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count());
+		$defer.resolve(current);
+	};
+
+	$scope.tableParams = new ngTableParams(
+		{
+			page: 1,
+			count: 10,
+			sorting: {
+				name: 'asc'
+			}
+		},
+		{
+			total: 0,
+			getData: getData
+		}
+	);
+
+	users.list(function (data) {
+			list = data.result;
+			$scope.tableParams.reload();
+		},
+		function (err) {
+			console.error(err);
+		}
+	);
 });
 
 app.directive('ngEnter', function () {
