@@ -248,9 +248,9 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 		}
 	};
 
-	$scope.addData = function (type) {
+	$scope.addData = function (format) {
 		$scope.item.data.push({
-			key: type
+			format: format
 		});
 	};
 
