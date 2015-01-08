@@ -117,13 +117,12 @@ app.factory('auth', function ($resource) {
 app.run(function ($rootScope, $state, auth) {
 
 	$rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
-		console.log(toState);
 		if (toState.name !== 'login') {
 			if (!$rootScope.loggedInUser) {
 				event.preventDefault();
 				auth.loggedIn(function (data) {
 					$rootScope.loggedInUser = data.result;
-					$state.go(toState.name);
+					$state.go(toState.name, toParams);
 				}, function () {
 					$rootScope.loggedInUser = null;
 					$state.go('login');
@@ -220,16 +219,9 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 			$scope.item = data.result;
 		},
 		function (err) {
-			console.log('err', err);
+			console.error(err);
 		}
 	);
-
-	$scope.addSource = function () {
-		$scope.item.sources.push({
-			url: '',
-			remark: ''
-		});
-	};
 
 	$scope.addEntry = function (id, a) {
 		if ($scope.canAddEntry(id, a)) {
@@ -255,6 +247,7 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 			$scope.item.data.splice(i, 1);
 		}
 	};
+
 	$scope.addData = function (type) {
 		$scope.item.data.push({
 			key: type
@@ -268,12 +261,11 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 	$scope.save = function () {
 		api.save({id: $stateParams.id}, {ent: $scope.item},
 			function (data) {
-				if (data.err) return alert(data.err);
-				console.log('saved', data);
+				if (data.error) return alert(JSON.stringify(data.error));
 				$scope.back();
 			},
 			function (err) {
-				console.log('err', err);
+				console.error(err);
 			}
 		);
 	};
@@ -318,11 +310,10 @@ app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
 		users.create({user: $scope.user},
 			function (data) {
 				if (data.err) return alert(data.err);
-				console.log('saved', data);
 				$state.go('users');
 			},
 			function (err) {
-				console.log('err', err);
+				console.error(err);
 			}
 		);
 	};
@@ -332,11 +323,10 @@ app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
 			{user: $scope.user},
 			function (data) {
 				if (data.err) return alert(data.err);
-				console.log('saved', data);
 				$state.go('users');
 			},
 			function (err) {
-				console.log('err', err);
+				console.error(err);
 			}
 		);
 	};
@@ -349,7 +339,7 @@ app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
 				$scope.user = data.result;
 			},
 			function (err) {
-				console.log('err', err);
+				console.error(err);
 			}
 		);
 	} else {

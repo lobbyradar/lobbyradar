@@ -190,26 +190,6 @@
 
 	<hr/>
 
-	<div ng-repeat="d in item.sources">
-
-		<div class="row">
-			<form class="form">
-				<div class="form-group col-md-9">
-					<i class="glyphicon glyphicon-remove btn-right" title="Quelle entfernen" ng-click="removeEntry('sources', d)"></i>
-					<label>Quelle</label>
-					<input type="url" class="form-control" placeholder="Quelle" ng-model="d.url">
-				</div>
-				<div class="form-group col-md-3">
-					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.remark">
-				</div>
-			</form>
-		</div>
-		<hr/>
-
-	</div>
-
-
 	<div ng-repeat="d in item.data" ng-switch="d.key">
 
 		<div ng-switch-when="titles" class="row">
@@ -225,6 +205,22 @@
 				</div>
 			</form>
 		</div>
+
+
+		<div ng-switch-when="source" class="row">
+			<form class="form">
+				<div class="form-group col-md-9">
+					<i class="glyphicon glyphicon-remove btn-right" title="Quelle entfernen" ng-click="removeData(d)"></i>
+					<label>Quelle</label>
+					<input type="url" class="form-control" placeholder="Quelle" ng-model="d.value.url">
+				</div>
+				<div class="form-group col-md-3">
+					<label>Beschreibung</label>
+					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.value.remark">
+				</div>
+			</form>
+		</div>
+
 
 		<div ng-switch-when="address" class="row">
 			<form class="form">
@@ -342,7 +338,7 @@
 			<li><a href ng-click="addData('description')">Beschreibung</a></li>
 			<li ng-if="!isPerson"><a href ng-click="addData('members')">Anzahl der Mitglieder</a></li>
 			<li ng-if="!isPerson"><a href ng-click="addData('organisations')">Anzahl der Mitgliedsorganisationen</a></li>
-			<li><a href ng-click="addSource()">Quelle</a></li>
+			<li><a href ng-click="addData('source')">Quelle</a></li>
 		</ul>
 	</div>
 
