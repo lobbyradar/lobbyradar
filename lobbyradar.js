@@ -11,6 +11,10 @@ var debug = require("debug")("app");
 var path = require("path");
 var nsa = require("nsa");
 var fs = require("fs");
+var passportlocal = require("passport-local");
+var passport = require("passport");
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
 
 // config
 var config = require("./config.js");
@@ -19,10 +23,10 @@ var config = require("./config.js");
 if (!config.hasOwnProperty("listen")) {
 	coneole.error("you have to configure a socket or port");
 	process.exit();
-};
+}
 
 // load mongojs 
-var db = mongojs(config.db, ["entities","relations"]);
+var db = mongojs(config.db, ["entities", "relations", "users"]);
 
 // local modules
 var api = require("./lib/api.js")(config.api, db);
@@ -33,10 +37,35 @@ if (config.hasOwnProperty("nsa") && (config.nsa)) {
 		server: config.nsa,
 		service: "lobbyradar",
 		interval: "10s"
-	}).start(function(){
-		debug("started heartbeat");
+	}).start(function () {
+			debug("started heartbeat");
+		});
+}
+
+/* configure passport */
+passport.serializeUser(function (user, done) {
+	done(null, user._id);
+});
+
+passport.deserializeUser(function (id, done) {
+	api.user_get(id, function (err, user) {
+		if (err)
+			done(null, false); //remove session (invalid username, e.g. after id change)
+		else
+			done(null, user);
 	});
-};
+});
+
+passport.use(new passportlocal.Strategy(function (username, password, done) {
+	api.user_auth(username, password, function (err, user) {
+		if ((err) || (!user)) {
+			done(null, false, {message: 'Invalid Credentials'});
+		} else {
+			done(null, user);
+		}
+	});
+}));
+
 
 // use express
 var app = express();
@@ -53,6 +82,11 @@ app.use("/assets", express.static(path.resolve(__dirname, "assets")));
 // static backend
 app.use("/station", express.static(path.resolve(__dirname, "station")));
 
+app.use(cookieParser());
+app.use(session({secret: 'domo arigato mr roboto'}));
+app.use(passport.initialize());
+app.use(passport.session());
+
 // parse application/json
 app.use(bodyparser.json());
 
@@ -62,8 +96,12 @@ app.use(bodyparser.urlencoded({
 }));
 
 // check api key for api
-app.use("/api", function(req, res, next){
+app.use("/api", function (req, res, next) {
 	debug("request to api");
+	if (req.user)  {
+		debug("api access by user %s", req.user.name);
+		return next();
+	}
 	var apikey = req.body.apikey || req.query.apikey || null;
 	if (!apikey) return res.status(403).json({error: new Error("Access Denied. Please provide a valid API Key (#1)").toString()});
 	if (!config.api.keys.hasOwnProperty(apikey)) return res.status(403).json({error: new Error("Access Denied. Please provide a valid API Key (#2)").toString()});
@@ -72,142 +110,198 @@ app.use("/api", function(req, res, next){
 });
 
 // create entity. 
-app.post("/api/entity/create", function(req, res){
+app.post("/api/entity/create", function (req, res) {
 	debug("create entity for \"%s\"", req.body.ent.name);
-	api.ent_create(req.body.ent, function(err, result){
+	api.ent_create(req.body.ent, function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
 // get entity. 
-app.all("/api/entity/get/:id", function(req, res){
+app.all("/api/entity/get/:id", function (req, res) {
 	debug("get entity %s", req.params.id);
-	api.ent_get(req.params.id, function(err, result){
+	api.ent_get(req.params.id, function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
 // get entities.
-app.get("/api/entity/list", function(req, res){
+app.get("/api/entity/list", function (req, res) {
 	debug("list entities");
-	api.ent_list(req.query, function(err, result){
+	api.ent_list(req.query, function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
 // delete entity. 
-app.all("/api/entity/delete/:id", function(req, res){
+app.all("/api/entity/delete/:id", function (req, res) {
 	debug("delete entity %s", req.params.id);
-	api.ent_delete(req.params.id, function(err, result){
+	api.ent_delete(req.params.id, function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
 // update entity. 
-app.post("/api/entity/update/:id", function(req, res){
+app.post("/api/entity/update/:id", function (req, res) {
 	debug("update entity %s", req.params.id);
-	api.ent_update(req.params.id, req.body.ent, function(err, result){
+	api.ent_update(req.params.id, req.body.ent, function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
 // upmerge entity. 
-app.post("/api/entity/upmerge/:id", function(req, res){
+app.post("/api/entity/upmerge/:id", function (req, res) {
 	debug("upmerge entity %s", req.params.id);
-	api.ent_upmerge(req.params.id, req.body.ent, function(err, result){
+	api.ent_upmerge(req.params.id, req.body.ent, function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
 // entity types. 
-app.all("/api/entity/types", function(req, res){
+app.all("/api/entity/types", function (req, res) {
 	debug("entity types");
-	api.ent_types(function(err, result){
+	api.ent_types(function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
 // entity tags.
-app.all("/api/entity/tags", function(req, res){
+app.all("/api/entity/tags", function (req, res) {
 	debug("entity tags");
-	api.ent_tags(function(err, result){
+	api.ent_tags(function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
 // export.
-app.all("/api/entity/export", function(req, res){
+app.all("/api/entity/export", function (req, res) {
 	debug("relation tags");
-	api.ent_export(function(err, result){
+	api.ent_export(function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
 // create relation. 
-app.post("/api/relation/create", function(req, res){
+app.post("/api/relation/create", function (req, res) {
 	debug("create relation for \"%s\"", req.body.rel.name);
-	api.rel_create(req.body.rel, function(err, result){
+	api.rel_create(req.body.rel, function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
 // get relation. 
-app.all("/api/relation/get/:id", function(req, res){
+app.all("/api/relation/get/:id", function (req, res) {
 	debug("get relation %s", req.params.id);
-	api.rel_get(req.params.id, function(err, result){
+	api.rel_get(req.params.id, function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
 // delete relation. 
-app.all("/api/relation/delete/:id", function(req, res){
+app.all("/api/relation/delete/:id", function (req, res) {
 	debug("delete relation %s", req.params.id);
-	api.rel_delete(req.params.id, function(err, result){
+	api.rel_delete(req.params.id, function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
 // update relation. 
-app.post("/api/relation/update/:id", function(req, res){
+app.post("/api/relation/update/:id", function (req, res) {
 	debug("update relation %s", req.params.id);
-	api.rel_update(req.params.id, req.body.rel, function(err, result){
+	api.rel_update(req.params.id, req.body.rel, function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
 // upmerge relation. 
-app.post("/api/relation/upmerge/:id", function(req, res){
+app.post("/api/relation/upmerge/:id", function (req, res) {
 	debug("upmerge relation %s", req.params.id);
-	api.rel_upmerge(req.params.id, req.body.rel, function(err, result){
+	api.rel_upmerge(req.params.id, req.body.rel, function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
 // relation types. 
-app.all("/api/relation/types", function(req, res){
+app.all("/api/relation/types", function (req, res) {
 	debug("relation types");
-	api.rel_types(function(err, result){
+	api.rel_types(function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
 // relation tags.
-app.all("/api/relation/tags", function(req, res){
+app.all("/api/relation/tags", function (req, res) {
 	debug("relation tags");
-	api.rel_tags(function(err, result){
+	api.rel_tags(function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
 
-// default api method. 
-app.all("/api", function(req, res){
-	res.type("json").status("200").json({error:null});
+// get users.
+app.get("/api/users/list", function (req, res) {
+	debug("list users");
+	api.user_list(function (err, result) {
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// create user.
+app.post("/api/users/create", function (req, res) {
+	debug("create user", req.body.user);
+	api.user_create(req.body.user, function (err, result) {
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// delete user.
+app.all("/api/users/delete/:id", function (req, res) {
+	debug("delete user %s", req.params.id);
+	api.user_delete(req.params.id, function (err, result) {
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// get user.
+app.all("/api/users/get/:id", function (req, res) {
+	debug("get user %s", req.params.id);
+	api.user_get(req.params.id, function (err, result) {
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// update entity.
+app.post("/api/users/update/:id", function (req, res) {
+	debug("update user %s", req.params.id);
+	api.user_update(req.params.id, req.body.user, function (err, result) {
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+app.get("/user", function (req, res) {
+	if (req.user) res.type("json").status("200").json({error: null, result: {name:req.user.name,admin:req.user.admin}});
+	else res.type("json").sendStatus(401);
+});
+
+app.post('/login', function (req, res, next) {
+	passport.authenticate('local', function (err, user, info) {
+		if (err) return next(err);
+		if (!user)  return res.sendStatus(401);
+		req.logIn(user, function (err) {
+			if (err) return next(err);
+			res.type("json").status("200").json({error: null, result: {name:user.name,admin:user.admin}});
+		});
+	})(req, res, next);
+});
+
+// default api method.
+app.all("/api", function (req, res) {
+	res.type("json").status("200").json({error: null});
 });
 
 // index page
-app.all("/entity/:id", function(req, res){
-	api.ent_get(req.params.id, function(err, ent){
-		api.ent_rels(ent._id, function(err, rels){
+app.all("/entity/:id", function (req, res) {
+	api.ent_get(req.params.id, function (err, ent) {
+		api.ent_rels(ent._id, function (err, rels) {
 			console.log(rels);
 			ent.relations = rels;
 			res.render("entity", {
@@ -219,37 +313,43 @@ app.all("/entity/:id", function(req, res){
 });
 
 // listing page
-app.all("/list/:type/:letter?", function(req, res){
+app.all("/list/:type/:letter?", function (req, res) {
 	var cond = {};
 
 	if (req.params.hasOwnProperty("letter") && /^[a-z0-9]$/i.test(req.params.letter)) cond.letter = req.params.letter;
-	if (req.params.hasOwnProperty("type") && ["person","organisation","entity"].indexOf(req.params.type) >= 0) cond.type = req.params.type;
+	if (req.params.hasOwnProperty("type") && ["person", "organisation", "entity"].indexOf(req.params.type) >= 0) cond.type = req.params.type;
 
-	api.ent_list(cond, function(err, list){
-		list = list.map(function(item){
+	api.ent_list(cond, function (err, list) {
+		list = list.map(function (item) {
 			switch (item.type) {
-				case "person": item.icon = "user"; break;
-				case "organisation": item.icon = "building"; break;
-				case "entity": item.icon = "building"; break;
-			};
+				case "person":
+					item.icon = "user";
+					break;
+				case "organisation":
+					item.icon = "building";
+					break;
+				case "entity":
+					item.icon = "building";
+					break;
+			}
 			return item;
 		});
-		var tmpl = {"list": { "type": (cond.type||"all"), "err": err, "item": list }};
-		if (cond.letter) tmpl["letter_"+cond.letter] = true;
+		var tmpl = {"list": {"type": (cond.type || "all"), "err": err, "item": list}};
+		if (cond.letter) tmpl["letter_" + cond.letter] = true;
 		if (cond.type) {
-			tmpl["nav_"+cond.type] = true;
-			tmpl["hl_"+cond.type] = true;
+			tmpl["nav_" + cond.type] = true;
+			tmpl["hl_" + cond.type] = true;
 		} else {
 			tmpl["hl_all"] = true;
-		};
+		}
 		res.render("index", tmpl);
 	});
 });
 
 
 // index page
-app.all("/", function(req, res){
-	api.ent_list(function(err, list){
+app.all("/", function (req, res) {
+	api.ent_list(function (err, list) {
 		res.render("index", {
 			"list": {
 				"err": err,
@@ -260,36 +360,38 @@ app.all("/", function(req, res){
 });
 
 // everything else is 404
-app.all("*", function(req, res){
+app.all("*", function (req, res) {
 	res.status(404).send("404");
 });
+
+api.user_create({name: 'admin', pass: 'totalsupergehaim007', admin: true}, function () {});
 
 // determine listen method
 if (config.listen.hasOwnProperty("host") && config.listen.hasOwnProperty("port")) {
 	// listen on tcp
-	app.listen(config.listen.port, config.listen.host, function(){
+	app.listen(config.listen.port, config.listen.host, function () {
 		debug("listening on %s:%d", config.listen.host, config.listen.port);
 	});
 } else if (config.listen.hasOwnProperty("port")) {
 	// listen on tcp
-	app.listen(config.listen.port, config.listen.host, function(){
+	app.listen(config.listen.port, config.listen.host, function () {
 		debug("listening on %s:%d", config.listen.host, config.listen.port);
 	});
 } else if (config.listen.hasOwnProperty("socket")) {
 	// listen on socket
 	var sockfile = path.resolve(config.listen.socket);
-	fs.exists(sockfile, function(ex){
+	fs.exists(sockfile, function (ex) {
 		var umask = process.umask(0000);
-		(function(fn){
+		(function (fn) {
 			// delete existing socket and start listening
-			if (ex) return fs.unlink(sockfile, function(err){
+			if (ex) return fs.unlink(sockfile, function (err) {
 				if (err) console.error(err) || process.exit();
 				debug("cleaned up old socket %s", path.basename(sockfile));
 				return fn();
 			});
 			fn();
-		})(function(){
-			app.listen(sockfile, function(){
+		})(function () {
+			app.listen(sockfile, function () {
 				debug("listening on socket %s", path.basename(sockfile));
 				process.umask(umask);
 			});
@@ -299,11 +401,11 @@ if (config.listen.hasOwnProperty("host") && config.listen.hasOwnProperty("port")
 	// listen to your heart
 	coneole.error("you have to configure a socket or port");
 	process.exit();
-};
+}
 
 // delete socket before exiting on SIGINT
-process.on("SIGINT", function(){
-	if (sockfile) return fs.unlink(sockfile, function(err){
+process.on("SIGINT", function () {
+	if (sockfile) return fs.unlink(sockfile, function (err) {
 		if (err) return console.error("failed to clean up old socket", path.basename(sockfile), err);
 		debug("cleaned up old socket %s", path.basename(sockfile));
 		if (heartbeat) return heartbeat.end(function(){

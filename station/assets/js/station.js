@@ -5,7 +5,7 @@ var app = angular.module('Station', ['ui.router', 'ngTable', 'ngResource']);
 app.config(function ($stateProvider, $urlRouterProvider) {
 	'use strict';
 
-	$urlRouterProvider.otherwise("/start");
+	$urlRouterProvider.otherwise("/login");
 
 	$stateProvider
 		.state('start', {
@@ -31,13 +31,28 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			url: "/organisations",
 			templateUrl: "partials/organisations.html",
 			controller: 'OrganisationsCtrl'
+		})
+		.state('users', {
+			url: "/users",
+			templateUrl: "partials/users.html",
+			controller: 'UsersCtrl'
+		})
+		.state('user', {
+			url: "/user/:id",
+			templateUrl: "partials/user.html",
+			controller: 'UserEditCtrl'
+		})
+		.state('login', {
+			url: "/login",
+			templateUrl: "partials/login.html",
+			controller: 'LoginCtrl'
 		});
 });
 
 app.factory('api', function ($resource) {
 	'use strict';
 	return $resource('/api/entity/:cmd/:id', {
-			apikey: 'ffalt'
+			//apikey: 'ffalt'
 		}, {
 			list: {
 				method: 'GET',
@@ -55,7 +70,70 @@ app.factory('api', function ($resource) {
 	);
 });
 
-app.controller('AppCtrl', function ($scope) {
+app.factory('users', function ($resource) {
+	'use strict';
+	return $resource('/api/users/:cmd/:id', {
+			//apikey: 'ffalt'
+		}, {
+			list: {
+				method: 'GET',
+				params: {cmd: 'list'}
+			},
+			item: {
+				method: 'GET',
+				params: {cmd: 'get'}
+			},
+			save: {
+				method: 'POST',
+				params: {cmd: 'update'}
+			},
+			create: {
+				method: 'POST',
+				params: {cmd: 'create'}
+			}
+		}
+	);
+});
+
+app.factory('auth', function ($resource) {
+	'use strict';
+	return $resource('/:cmd', {}, {
+			login: {
+				method: 'POST',
+				params: {cmd: 'login'}
+			},
+			logout: {
+				method: 'POST',
+				params: {cmd: 'logout'}
+			},
+			loggedIn: {
+				method: 'GET',
+				params: {cmd: 'user'}
+			}
+		}
+	);
+});
+
+app.run(function ($rootScope, $state, auth) {
+
+	$rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+		if (toState.name !== 'login') {
+			if (!$rootScope.loggedInUser) {
+				event.preventDefault();
+				auth.loggedIn(function (data) {
+					$rootScope.loggedInUser = data.result;
+					$state.go(toState.name, toParams);
+				}, function () {
+					$rootScope.loggedInUser = null;
+					$state.go('login');
+				});
+			}
+		}
+	});
+
+});
+
+app.controller('AppCtrl', function ($rootScope, $scope) {
 	'use strict';
 
 });
@@ -141,16 +219,9 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 			$scope.item = data.result;
 		},
 		function (err) {
-			console.log('err', err);
+			console.error(err);
 		}
 	);
-
-	$scope.addSource = function (link, comment) {
-		$scope.item.sources.push({
-			url: link,
-			remark: comment
-		});
-	};
 
 	$scope.addEntry = function (id, a) {
 		if ($scope.canAddEntry(id, a)) {
@@ -176,6 +247,7 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 			$scope.item.data.splice(i, 1);
 		}
 	};
+
 	$scope.addData = function (type) {
 		$scope.item.data.push({
 			key: type
@@ -187,14 +259,13 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 	};
 
 	$scope.save = function () {
-		console.log('send', $stateParams.id);
 		api.save({id: $stateParams.id}, {ent: $scope.item},
 			function (data) {
-				console.log('saved', data);
+				if (data.error) return alert(JSON.stringify(data.error));
 				$scope.back();
 			},
 			function (err) {
-				console.log('err', err);
+				console.error(err);
 			}
 		);
 	};
@@ -210,6 +281,111 @@ app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, a
 	$scope.modename = 'Organisation';
 	$scope.isPerson = false;
 	typedEditCtrl($scope, $state, $stateParams, api);
+});
+
+app.controller('LoginCtrl', function ($scope, $state, $stateParams, $resource, $rootScope, auth) {
+	$scope.login = {};
+	$scope.error = null;
+
+	$scope.loginUser = function () {
+		auth.login(
+			$scope.login,
+			function (data) {
+				$rootScope.loggedInUser = data.result;
+				$state.go('start');
+			},
+			function (err) {
+				$rootScope.loggedInUser = null;
+				$scope.error = err;
+			}
+		)
+	};
+});
+
+app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
+
+	$scope.isNew = ($stateParams.id == 'new');
+
+	$scope.create = function () {
+		users.create({user: $scope.user},
+			function (data) {
+				if (data.err) return alert(data.err);
+				$state.go('users');
+			},
+			function (err) {
+				console.error(err);
+			}
+		);
+	};
+
+	$scope.save = function () {
+		users.save({id: $stateParams.id},
+			{user: $scope.user},
+			function (data) {
+				if (data.err) return alert(data.err);
+				$state.go('users');
+			},
+			function (err) {
+				console.error(err);
+			}
+		);
+	};
+
+	if (!$scope.isNew) {
+		users.item({id: $stateParams.id},
+			{user: $scope.user},
+			function (data) {
+				if (data.err) return alert(data.err);
+				$scope.user = data.result;
+			},
+			function (err) {
+				console.error(err);
+			}
+		);
+	} else {
+		$scope.user = {};
+	}
+
+});
+
+app.controller('UsersCtrl', function ($scope, $state, $stateParams, $filter, ngTableParams, users) {
+
+	var list = [];
+
+	var getData = function ($defer, params) {
+		var orderedData = list;//$scope.filter.text.length ? $filter('filter')(list, {'name': $scope.filter.text}) : list;
+
+		orderedData = params.sorting() ?
+			$filter('orderBy')(orderedData, params.orderBy()) :
+			orderedData;
+
+		params.total(orderedData.length);
+		var current = orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count());
+		$defer.resolve(current);
+	};
+
+	$scope.tableParams = new ngTableParams(
+		{
+			page: 1,
+			count: 10,
+			sorting: {
+				name: 'asc'
+			}
+		},
+		{
+			total: 0,
+			getData: getData
+		}
+	);
+
+	users.list(function (data) {
+			list = data.result;
+			$scope.tableParams.reload();
+		},
+		function (err) {
+			console.error(err);
+		}
+	);
 });
 
 app.directive('ngEnter', function () {

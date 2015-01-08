@@ -34,10 +34,11 @@
 				Lobbyradarstation</a>
 		</div>
 		<div id="navbar" class="navbar-collapse collapse">
-			<ul class="nav navbar-nav navbar-right">
+			<ul class="nav navbar-nav navbar-right" ng-if="loggedInUser">
 				<li class="active" ui-sref-active="active"><a href ui-sref="start">Start</a></li>
 				<li ui-sref-active="active"><a href ui-sref="persons">Personen</a></li>
 				<li ui-sref-active="active"><a href ui-sref="organisations">Organisationen</a></li>
+				<li ui-sref-active="active" ng-if="loggedInUser.admin"><a href ui-sref="users">Benutzerinnen</a></li>
 			</ul>
 		</div>
 	</div>
@@ -75,7 +76,9 @@
 
 		<div class="row">
 
-			<div class="col-md-9 headline"><h1>Personen</h1><p>Anzahl <span ng-bind="tableParams.total()"></span></p></div>
+			<div class="col-md-9 headline"><h1>Personen</h1>
+
+				<p>Anzahl <span ng-bind="tableParams.total()"></span></p></div>
 
 			<div class="col-md-3">
 				<div class="pull-right has-feedback">
@@ -115,7 +118,9 @@
 
 		<div class="row">
 
-			<div class="col-md-9 headline"><h1>Organisationen</h1><p>Anzahl <span ng-bind="tableParams.total()"></span></p></div>
+			<div class="col-md-9 headline"><h1>Organisationen</h1>
+
+				<p>Anzahl <span ng-bind="tableParams.total()"></span></p></div>
 
 			<div class="col-md-3">
 				<div class="pull-right has-feedback">
@@ -157,14 +162,14 @@
 		<div class="row">
 
 			<div class="form-group col-md-6">
-				<label>Aliases</label>
+				<label>Aliase</label>
 
 				<div class="has-feedback">
 					<input type="text" class="form-control" placeholder="Aliases" ng-model="edit.aliases" ng-enter="addEntry('aliases', edit.aliases)">
 					<span ng-show="canAddEntry('aliases', edit.aliases)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('aliases', edit.aliases)"></span>
 				</div>
 				<div class="label-list">
-					<div ng-repeat="o in item.aliases" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" ng-click="removeEntry('aliases', o)"></i></div>
+					<div ng-repeat="o in item.aliases" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Alias entfernen" ng-click="removeEntry('aliases', o)"></i></div>
 				</div>
 			</div>
 
@@ -176,56 +181,52 @@
 					<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
 				</div>
 				<div class="label-list">
-					<div ng-repeat="o in item.tags" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" ng-click="removeEntry('tags', o)"></i></div>
+					<div ng-repeat="o in item.tags" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Tag entfernen" ng-click="removeEntry('tags', o)"></i></div>
 				</div>
 			</div>
 
 		</div>
-
-		<hr/>
-
-		<div class="form-group">
-			<label>Quellen</label>
-
-			<div class="has-feedback">
-				<input type="url" class="form-control" placeholder="Source" ng-model="edit.src_link" ng-enter="addSource(edit.src_link, edit.src_remark)">
-			</div>
-			<div class="has-feedback">
-				<input type="text" class="form-control" placeholder="Comment" ng-model="edit.src_remark" ng-enter="addSource(edit.src_link, edit.src_remark)">
-			</div>
-			<div class="list-sel-ctn">
-				<div ng-repeat="o in item.sources" class="list-sel-item">
-					<a ng-href="{{o.url}}" ng-bind="o.url"></a>
-					<span ng-bind="o.remark"></span>
-					<i class="glyphicon glyphicon-remove btn-right" ng-click="removeEntry('sources', o)"></i>
-				</div>
-			</div>
-		</div>
-
-		<hr/>
-
 	</form>
 
+	<hr/>
+
 	<div ng-repeat="d in item.data" ng-switch="d.key">
-		<div ng-switch-when="titles">
-			<form class="form-inline">
-				<div class="form-group">
-					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.desc">
-				</div>
-				<div class="form-group">
+
+		<div ng-switch-when="titles" class="row">
+			<form class="form">
+				<div class="form-group col-md-6">
+					<i class="glyphicon glyphicon-remove btn-right" title="Titel entfernen" ng-click="removeData(d)"></i>
 					<label>Titel</label>
 					<input type="text" class="form-control" placeholder="Titel" ng-model="d.value">
 				</div>
-				<i class="glyphicon glyphicon-remove btn-right" ng-click="removeData(d)"></i>
+				<div class="form-group col-md-6">
+					<label>Beschreibung</label>
+					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.desc">
+				</div>
 			</form>
 		</div>
+
+
+		<div ng-switch-when="source" class="row">
+			<form class="form">
+				<div class="form-group col-md-9">
+					<i class="glyphicon glyphicon-remove btn-right" title="Quelle entfernen" ng-click="removeData(d)"></i>
+					<label>Quelle</label>
+					<input type="url" class="form-control" placeholder="Quelle" ng-model="d.value.url">
+				</div>
+				<div class="form-group col-md-3">
+					<label>Beschreibung</label>
+					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.value.remark">
+				</div>
+			</form>
+		</div>
+
 
 		<div ng-switch-when="address" class="row">
 			<form class="form">
 
 				<div class="form-group col-md-12">
-					<i class="glyphicon glyphicon-remove btn-right" title="Adresse löschen" ng-click="removeData(d)"></i>
+					<i class="glyphicon glyphicon-remove btn-right" title="Adresse entfernen" ng-click="removeData(d)"></i>
 					<label>Name</label>
 					<input type="text" class="form-control" placeholder="Name" ng-model="d.value.name">
 				</div>
@@ -282,7 +283,7 @@
 			<form class="form">
 
 				<div class="form-group col-md-6">
-					<i class="glyphicon glyphicon-remove btn-right" ng-click="removeData(d)"></i>
+					<i class="glyphicon glyphicon-remove btn-right" title="Mitgliederanzahl entfernen" ng-click="removeData(d)"></i>
 					<label>Anzahl der Mitglieder</label>
 					<input type="text" class="form-control" placeholder="Anzahl der Mitglieder" ng-model="d.value">
 				</div>
@@ -332,11 +333,12 @@
 			Datenfeld hinzufügen <span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu up" role="menu">
-			<li><a href ng-click="addData('titles')">Titel</a></li>
+			<li ng-if="isPerson"><a href ng-click="addData('titles')">Titel</a></li>
 			<li><a href ng-click="addData('address')">Adresse</a></li>
 			<li><a href ng-click="addData('description')">Beschreibung</a></li>
 			<li ng-if="!isPerson"><a href ng-click="addData('members')">Anzahl der Mitglieder</a></li>
 			<li ng-if="!isPerson"><a href ng-click="addData('organisations')">Anzahl der Mitgliedsorganisationen</a></li>
+			<li><a href ng-click="addData('source')">Quelle</a></li>
 		</ul>
 	</div>
 
@@ -371,6 +373,76 @@
 			</div>
 		</li>
 	</ul>
+</script>
+
+<script type="text/ng-template" id="partials/users.html">
+
+	<button class="btn btn-default" ui-sref="user({id: 'new'})">Benutzerin anlegen</button>
+
+	<table ng-table="tableParams" class="table table-striped">
+		<tbody>
+		<tr ng-repeat="p in $data">
+			<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
+			<td><span ui-sref='user({id: p._id})'><i class="fa fa-edit btn-right"></i></span></td>
+		</tr>
+		</tbody>
+	</table>
+
+</script>
+
+<script type="text/ng-template" id="partials/login.html">
+	<div class="row">
+		<div class="col-md-5 col-md-offset-3">
+			<div id="headline">
+				<h1>Login</h1>
+			</div>
+			<form class="form form-signin" role="form">
+				<div class="form-group input-group">
+					<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+					<input id="login-user" type="text" name="username" class="form-control input-block-level" placeholder="Name" ng-model="login.username" required>
+				</div>
+				<div class="form-group input-group">
+					<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+					<input id="login-pass" type="password" name="password" class="form-control input-block-level" placeholder="Passwort" ng-model="login.password" required>
+				</div>
+				<div class="form-group">
+					<button class="btn btn-lg btn-primary btn-block" ng-click="loginUser()">Login</button>
+				</div>
+				<div ng-show="error" class="alert alert-danger" ng-bind="error.data"></div>
+			</form>
+		</div>
+	</div>
+</script>
+
+<script type="text/ng-template" id="partials/user.html">
+
+
+	<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+			<h1>Benutzerin <span ng-if="isNew">anlegen</span><span ng-if="!isNew">bearbeiten</span></h1>
+
+			<form class="form">
+				<div class="form-group">
+					<label>Name</label>
+					<input type="text" class="form-control" placeholder="Name" ng-model="user.name">
+				</div>
+				<div class="form-group">
+					<label>Passwort</label>
+					<input type="text" class="form-control" placeholder="Passwort" ng-model="user.pass">
+				</div>
+				<div class="form-group">
+					<label>
+						<input type="checkbox" ng-model="user.admin"> Administratorrechte
+					</label>
+				</div>
+			</form>
+			<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
+			<button ng-if="isNew" class="btn btn-primary" ng-click="create()">Anlegen</button>
+			<button class="btn btn-default" ui-sref="users">Abbruch</button>
+		</div>
+	</div>
+
+
 </script>
 
 </body>
