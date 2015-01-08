@@ -244,9 +244,14 @@ var import_lobbyliste = function(cb){
 										type: "executive",
 										tags: [],
 										weight: 1,
-										data: [].push(person.data.filter(function(set){
-											return (set.key === "source");
-										}).pop()),
+										data: (function(){
+											var data = [];
+											var source = person.data.filter(function(set){
+												return (set.key === "source");
+											});
+											if (source.length > 0) data.push(source.pop());
+											return data;
+										})()
 									}, function(err, rel_id){
 										if (err) return (debug("error: %s", err) || next());
 										debug("relation created %s → %s", chunk.name, person.name);
