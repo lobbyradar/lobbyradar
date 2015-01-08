@@ -190,33 +190,22 @@
 
 	<hr/>
 
-	<div ng-repeat="d in item.data" ng-switch="d.key">
+	<div ng-repeat="d in item.data" ng-switch="d.format">
 
-		<div ng-switch-when="titles" class="row">
+		<div ng-switch-when="link" class="row">
 			<form class="form">
-				<div class="form-group col-md-6">
-					<i class="glyphicon glyphicon-remove btn-right" title="Titel entfernen" ng-click="removeData(d)"></i>
-					<label>Titel</label>
-					<input type="text" class="form-control" placeholder="Titel" ng-model="d.value">
+				<div class="form-group col-md-12">
+					<i class="glyphicon glyphicon-remove btn-right" title="Link entfernen" ng-click="removeData(d)"></i>
+					<label>Link</label>
+					<input type="url" class="form-control" placeholder="Link" ng-model="d.value.url">
 				</div>
 				<div class="form-group col-md-6">
-					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.desc">
-				</div>
-			</form>
-		</div>
-
-
-		<div ng-switch-when="source" class="row">
-			<form class="form">
-				<div class="form-group col-md-9">
-					<i class="glyphicon glyphicon-remove btn-right" title="Quelle entfernen" ng-click="removeData(d)"></i>
-					<label>Quelle</label>
-					<input type="url" class="form-control" placeholder="Quelle" ng-model="d.value.url">
-				</div>
-				<div class="form-group col-md-3">
 					<label>Beschreibung</label>
 					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.value.remark">
+				</div>
+				<div class="form-group col-md-6">
+					<label>Schlüssel</label>
+					<input type="text" class="form-control" placeholder="Schlüssel" ng-model="d.key">
 				</div>
 			</form>
 		</div>
@@ -276,50 +265,46 @@
 					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.desc">
 				</div>
 
+				<div class="form-group col-md-6">
+					<label>Schlüssel</label>
+					<input type="text" class="form-control" placeholder="Schlüssel" ng-model="d.key">
+				</div>
+
 			</form>
 		</div>
 
-		<div ng-switch-when="members" class="row">
+		<div ng-switch-when="number" class="row">
 			<form class="form">
-
-				<div class="form-group col-md-6">
-					<i class="glyphicon glyphicon-remove btn-right" title="Mitgliederanzahl entfernen" ng-click="removeData(d)"></i>
-					<label>Anzahl der Mitglieder</label>
-					<input type="text" class="form-control" placeholder="Anzahl der Mitglieder" ng-model="d.value">
+				<div class="form-group col-md-4">
+					<i class="glyphicon glyphicon-remove btn-right" title="Zahl entfernen" ng-click="removeData(d)"></i>
+					<label>Zahl</label>
+					<input type="number" class="form-control" placeholder="Zahl" ng-model="d.value">
 				</div>
-
-				<div class="form-group col-md-6">
+				<div class="form-group col-md-4">
 					<label>Beschreibung</label>
 					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.desc">
 				</div>
-
-			</form>
-		</div>
-
-		<div ng-switch-when="organisations" class="row">
-			<form class="form">
-				<div class="form-group col-md-6">
-					<i class="glyphicon glyphicon-remove btn-right" title="Anzahl entfernen" ng-click="removeData(d)"></i>
-					<label>Anzahl der Mitgliedsorganisationen</label>
-					<input type="text" class="form-control" placeholder="Anzahl der Mitgliedsorganisationen" ng-model="d.value">
-				</div>
-				<div class="form-group col-md-6">
-					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.desc">
+				<div class="form-group col-md-4">
+					<label>Schlüssel</label>
+					<input type="text" class="form-control" placeholder="Schlüssel" ng-model="d.key">
 				</div>
 			</form>
 		</div>
 
-		<div ng-switch-when="description" class="row">
+		<div ng-switch-when="string" class="row">
 			<form class="form">
 				<div class="form-group col-md-12">
-					<i class="glyphicon glyphicon-remove btn-right" title="Beschreibung entfernen" ng-click="removeData(d)"></i>
-					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.value">
+					<label>Text</label>
+					<input type="text" class="form-control" placeholder="Text" ng-model="d.value">
 				</div>
 				<div class="form-group col-md-6">
-					<label>Beschreibung der Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung der Beschreibung" ng-model="d.desc">
+					<label>Beschreibung</label>
+					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.desc">
+				</div>
+				<div class="form-group col-md-6">
+					<i class="glyphicon glyphicon-remove btn-right" title="Text entfernen" ng-click="removeData(d)"></i>
+					<label>Schlüssel</label>
+					<input type="text" class="form-control" placeholder="Schlüssel" ng-model="d.key">
 				</div>
 			</form>
 		</div>
@@ -333,12 +318,10 @@
 			Datenfeld hinzufügen <span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu up" role="menu">
-			<li ng-if="isPerson"><a href ng-click="addData('titles')">Titel</a></li>
+			<li><a href ng-click="addData('string')">Text</a></li>
 			<li><a href ng-click="addData('address')">Adresse</a></li>
-			<li><a href ng-click="addData('description')">Beschreibung</a></li>
-			<li ng-if="!isPerson"><a href ng-click="addData('members')">Anzahl der Mitglieder</a></li>
-			<li ng-if="!isPerson"><a href ng-click="addData('organisations')">Anzahl der Mitgliedsorganisationen</a></li>
-			<li><a href ng-click="addData('source')">Quelle</a></li>
+			<li><a href ng-click="addData('number')">Zahl</a></li>
+			<li><a href ng-click="addData('link')">Link</a></li>
 		</ul>
 	</div>
 
