@@ -279,6 +279,7 @@ if (module.parent === null) {
 	api.reset("i know what i am doing", function(){
 		execute(function(){
 			debug("import finished");
+			process.exit();
 		});
 	});
 } else {
