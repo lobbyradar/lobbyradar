@@ -407,14 +407,14 @@ if (config.listen.hasOwnProperty("host") && config.listen.hasOwnProperty("port")
 process.on("SIGINT", function () {
 	if (sockfile) return fs.unlink(sockfile, function (err) {
 		if (err) return console.error("failed to clean up old socket", path.basename(sockfile), err);
-		debug("cleaned up old socket %s", path.basename(config.sockfile));
-		if (heartbeat) return heartbeat.end(function () {
+		debug("cleaned up old socket %s", path.basename(sockfile));
+		if (heartbeat) return heartbeat.end(function(){
 			debug("ended heartbeat");
 			process.exit();
 		});
 		process.exit();
 	});
-	if (heartbeat) return heartbeat.end(function () {
+	if (heartbeat) return heartbeat.end(function(){
 		debug("ended heartbeat");
 		process.exit();
 	});

@@ -4,7 +4,7 @@ var jsonstream = require("JSONStream");
 var mongojs = require("mongojs");
 var request = require("request");
 var moment = require("moment");
-var debug = require("debug")("import");
+var debug = require("debug")("importer:lobbyliste");
 var async = require("async");
 var path = require("path");
 var xz = require("xz");
@@ -244,9 +244,14 @@ var import_lobbyliste = function(cb){
 										type: "executive",
 										tags: [],
 										weight: 1,
-										data: [].push(person.data.filter(function(set){
-											return (set.key === "source");
-										}).pop()),
+										data: (function(){
+											var data = [];
+											var source = person.data.filter(function(set){
+												return (set.key === "source");
+											});
+											if (source.length > 0) data.push(source.pop());
+											return data;
+										})()
 									}, function(err, rel_id){
 										if (err) return (debug("error: %s", err) || next());
 										debug("relation created %s → %s", chunk.name, person.name);
@@ -274,6 +279,7 @@ if (module.parent === null) {
 	api.reset("i know what i am doing", function(){
 		execute(function(){
 			debug("import finished");
+			process.exit();
 		});
 	});
 } else {

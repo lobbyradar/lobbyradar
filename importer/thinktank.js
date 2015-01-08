@@ -4,7 +4,7 @@ var jsonstream = require("JSONStream");
 var mongojs = require("mongojs");
 var request = require("request");
 var moment = require("moment");
-var debug = require("debug")("import");
+var debug = require("debug")("importer:thinktank");
 var async = require("async");
 var path = require("path");
 var xz = require("xz");
@@ -67,20 +67,40 @@ var convert_thinktank = function(data, fn){
 		tags: ["thinktank"], // array of strings
 		name: data.name, // string
 		aliases: [], // array of strings
-		data: [],	
-		sources: [{
-			url: data.source_url,
+		data: [{
+			key: "source",
+			value: {
+				url: data.source_url,
+				remark: "created by tinktank importer"
+			},
+			desc: "Quelle",
+			format: "link",
+			auto: true,
 			created: (new Date()),
-			updated: (new Date()),
-			remark: "created by tinktank importer"
+			updated: (new Date())
 		}]
 	};
 	
 	// transfer adresses
 	data.address.forEach(function(addr){
+
+		// convert scraper format
+		var addrdata = {
+			type: 'main',
+			name: addr.name,
+			addr: addr.extra.join(", "),
+			street: addr.street,
+			postcode: addr.postcode,
+			city: addr.city,
+			country: addr.country,
+			email: addr.email,
+			tel: addr.phone,
+			fax: addr.fax
+		};
+
 		result.data.push({
 			"key": "address",
-			"value": addr,
+			"value": addrdata,
 			"desc": "Adresse",
 			"format": "address",
 			"auto": true,
@@ -189,27 +209,51 @@ var extract_thinktank_people = function(data, fn) {
 		if (!person || !person.hasOwnProperty("name") || typeof person.name !== "string" || person.name === "") {
 			return fn(new Error("person has no name"));
 		};
-		
+
+		// testing for "k.A."
+		if (/^\s*k\.\s*a\.\s*$/i.test(person.name)) return fn(new Error("person is unknown"));
+				
 		debug("extracting person: %s", person.name);
+
+		// fixing brackets after name
+		if (/^([^\(]+)\s*\(([^\)]+)\)\s*$/.test(person.name)) {
+			if (person.hasOwnProperty("titles") && (typeof person.titles === "string") && person.titles !== "") {
+				person.titles = [person.titles];
+			} else {
+				person.titles = [];
+			}
+			person.titles.push(person.name.replace(/^([^\(]+)\s*\(([^\)]+)\)\s*$/, "$2"));
+			person.titles = person.titles.join(", ");
+			person.name = person.name.replace(/^([^\(]+)\s*\(([^\)]+)\)\s*$/, "$1");
+		};
+		
+		// fix some random brackets
+		person.name = person.name.replace(/[\s\(]*$/,"");
+		person.titles = person.titles.replace(/[\s\)]*$/,"");
 
 		// FIXME: put original name to data in scraper for aliases
 		var result = {
 			created: (new Date()),
 			updated: (new Date()),
-			type: "executive",
-			tags: ["thinktank"],
+			type: "person",
+			tags: ["thinktank", "executive"],
 			name: person.name,
 			aliases: [],
-			data: [],	
-			sources: [{
-				url: data.source_url,
+			data: [{
+				key: "source",
+				value: {
+					url: data.source_url,
+					remark: "created by thinktank importer"
+				},
+				desc: "Quelle",
+				format: "link",
+				auto: true,
 				created: (new Date()),
-				updated: (new Date()),
-				remark: "created by tinktank importer"
+				updated: (new Date())
 			}]
 		};
 		
-		// transfert titles to data
+		// transfer titles to data
 		if (person.hasOwnProperty("titles") && (typeof person.titles === "string") && person.titles !== "") {
 			result.data.push({
 				"key": "titles",
@@ -227,13 +271,13 @@ var extract_thinktank_people = function(data, fn) {
 	});
 };
 
-var import_thinktanks = function(){
+var import_thinktanks = function(finish){
 	var q = async.queue(function(fn, next){
 		fn(next);
 	},5);
 	q.drain = function(){
 		debug("thinktanks done");
-		cb();
+		finish();
 	};
 	var f = "thinktanks."+moment().format("YYYYMMDD")+".json.xz";
 	var l = path.resolve(__dirname, "data", f);
@@ -246,13 +290,13 @@ var import_thinktanks = function(){
 				if (err) return debug("error: %s", err);
 				debug("converted thinktank %s", chunk.name);
 				q.push(function(next){
-					api.ent_create(ent, function(err, ent_id){
+					api.ent_creaxtend(ent, function(err, ent_id){
 						next();
 						if (err) return debug("error: %s", err);
 						debug("entity created %s", ent.name);
 						extract_thinktank_people(chunk, function(err, person){
 							if (err) return debug("error: %s", err);
-							api.ent_create(person, function(err, pers_id){
+							api.ent_creaxtend(person, function(err, pers_id){
 								if (err) return debug("error: %s", err);
 								debug("person created %s", person.name);
 								// create relation
@@ -262,8 +306,14 @@ var import_thinktanks = function(){
 										type: "executive",
 										tags: [],
 										weight: 1,
-										data: [],
-										sources: person.sources
+										data: (function(){
+											var data = [];
+											var source = person.data.filter(function(set){
+												return (set.key === "source");
+											});
+											if (source.length > 0) data.push(source.pop());
+											return data;
+										})()
 									}, function(err, rel_id){
 										if (err) return (debug("error: %s", err) || next());
 										debug("relation created %s → %s", chunk.name, person.name);
@@ -291,6 +341,7 @@ if (module.parent === null) {
 	api.reset("i know what i am doing", function(){
 		execute(function(){
 			debug("import finished");
+			process.exit();
 		});
 	});
 } else {
