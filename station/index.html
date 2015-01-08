@@ -194,18 +194,22 @@
 
 		<div ng-switch-when="link" class="row">
 			<form class="form">
-				<div class="form-group col-md-12">
+				<div class="form-group col-md-9">
 					<i class="glyphicon glyphicon-remove btn-right" title="Link entfernen" ng-click="removeData(d)"></i>
 					<label>Link</label>
 					<input type="url" class="form-control" placeholder="Link" ng-model="d.value.url">
 				</div>
+				<div class="form-group col-md-3">
+					<label>Bemerkung</label>
+					<input type="text" class="form-control" placeholder="Bemerkung" ng-model="d.remark">
+				</div>
 				<div class="form-group col-md-6">
 					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.value.remark">
+					<input type="text" class="form-control" placeholder="Beschreibung" ng-class="{'missinginput': needsInput(d.desc)}" ng-model="d.desc">
 				</div>
 				<div class="form-group col-md-6">
 					<label>Schlüssel</label>
-					<input type="text" class="form-control" placeholder="Schlüssel" ng-model="d.key">
+					<input type="text" ng-class="{'missinginput': needsInput(d.key)}" class="form-control" placeholder="Schlüssel" ng-model="d.key">
 				</div>
 			</form>
 		</div>
@@ -262,12 +266,12 @@
 
 				<div class="form-group col-md-6">
 					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.desc">
+					<input type="text" class="form-control" placeholder="Beschreibung" ng-class="{'missinginput': needsInput(d.desc)}" ng-model="d.desc">
 				</div>
 
 				<div class="form-group col-md-6">
 					<label>Schlüssel</label>
-					<input type="text" class="form-control" placeholder="Schlüssel" ng-model="d.key">
+					<input type="text" ng-class="{'missinginput': needsInput(d.key)}" class="form-control" placeholder="Schlüssel" ng-model="d.key">
 				</div>
 
 			</form>
@@ -282,11 +286,11 @@
 				</div>
 				<div class="form-group col-md-4">
 					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.desc">
+					<input type="text" class="form-control" placeholder="Beschreibung" ng-class="{'missinginput': needsInput(d.desc)}" ng-model="d.desc">
 				</div>
 				<div class="form-group col-md-4">
 					<label>Schlüssel</label>
-					<input type="text" class="form-control" placeholder="Schlüssel" ng-model="d.key">
+					<input type="text" ng-class="{'missinginput': needsInput(d.key)}" class="form-control" placeholder="Schlüssel" ng-model="d.key">
 				</div>
 			</form>
 		</div>
@@ -299,12 +303,12 @@
 				</div>
 				<div class="form-group col-md-6">
 					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-model="d.desc">
+					<input type="text" class="form-control" placeholder="Beschreibung" ng-class="{'missinginput': needsInput(d.desc)}" ng-model="d.desc">
 				</div>
 				<div class="form-group col-md-6">
 					<i class="glyphicon glyphicon-remove btn-right" title="Text entfernen" ng-click="removeData(d)"></i>
 					<label>Schlüssel</label>
-					<input type="text" class="form-control" placeholder="Schlüssel" ng-model="d.key">
+					<input type="text" ng-class="{'missinginput': needsInput(d.key)}" class="form-control" placeholder="Schlüssel" ng-model="d.key">
 				</div>
 			</form>
 		</div>

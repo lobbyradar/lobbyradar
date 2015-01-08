@@ -13,7 +13,7 @@
 
 .label-list div {
 	margin-right: 4px;
-	display:inline-block;
+	display: inline-block;
 	float: none;
 }
 
@@ -72,4 +72,8 @@
 
 .loading {
 	text-align: center;
+}
+
+.missinginput {
+	border: 1px solid red;
 }

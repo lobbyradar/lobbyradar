@@ -269,6 +269,10 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 			}
 		);
 	};
+
+	$scope.needsInput = function (s) {
+		return ((!s) || (s.trim().length == 0));
+	};
 };
 
 app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, api) {
