@@ -52,7 +52,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 app.factory('api', function ($resource) {
 	'use strict';
 	return $resource('/api/entity/:cmd/:id', {
-			apikey: 'ffalt'
+			//apikey: 'ffalt'
 		}, {
 			list: {
 				method: 'GET',
@@ -73,7 +73,7 @@ app.factory('api', function ($resource) {
 app.factory('users', function ($resource) {
 	'use strict';
 	return $resource('/api/users/:cmd/:id', {
-			apikey: 'ffalt'
+			//apikey: 'ffalt'
 		}, {
 			list: {
 				method: 'GET',
@@ -105,38 +105,38 @@ app.factory('auth', function ($resource) {
 			logout: {
 				method: 'POST',
 				params: {cmd: 'logout'}
+			},
+			loggedIn: {
+				method: 'GET',
+				params: {cmd: 'user'}
 			}
 		}
 	);
 });
 
-app.run(function ($rootScope) {
+app.run(function ($rootScope, $state, auth) {
 
 	$rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
 		console.log(toState);
-		//if ($rootScope.loggedIn) {
-		//
-		//}
-		//var state_access = toState.data ? toState.data.access : access.user;
-		//if (!AuthenticationService.authorize(state_access)) {
-		//	event.preventDefault();
-		//	see if logged in through frontend
-		//AuthenticationService.check(
-		//	function (user) {
-		//		$state.go(toState.name);
-		//	}, function (err) {
-		//		$rootScope.accessdenied = true;
-		//		$state.go('login');
-		//	}
-		//);
-		//}
+		if (toState.name !== 'login') {
+			if (!$rootScope.loggedInUser) {
+				event.preventDefault();
+				auth.loggedIn(function (data) {
+					$rootScope.loggedInUser = data.result;
+					$state.go(toState.name);
+				}, function () {
+					$rootScope.loggedInUser = null;
+					$state.go('login');
+				});
+			}
+		}
 	});
 
-})
+});
 
-app.controller('AppCtrl', function ($scope) {
+app.controller('AppCtrl', function ($rootScope, $scope) {
 	'use strict';
-	$scope.loggedIn = false;
+
 });
 
 var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api, type) {
@@ -293,16 +293,18 @@ app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, a
 
 app.controller('LoginCtrl', function ($scope, $state, $stateParams, $resource, $rootScope, auth) {
 	$scope.login = {};
+	$scope.error = null;
 
 	$scope.loginUser = function () {
 		auth.login(
 			$scope.login,
 			function (data) {
-				$rootScope.loggedIn = true;
+				$rootScope.loggedInUser = data.result;
 				$state.go('start');
 			},
 			function (err) {
-				console.log(err);
+				$rootScope.loggedInUser = null;
+				$scope.error = err;
 			}
 		)
 	};
