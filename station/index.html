@@ -201,7 +201,7 @@
 				</div>
 				<div class="form-group col-md-3">
 					<label>Bemerkung</label>
-					<input type="text" class="form-control" placeholder="Bemerkung" ng-model="d.remark">
+					<input type="text" class="form-control" placeholder="Bemerkung" ng-model="d.value.remark">
 				</div>
 				<div class="form-group col-md-6">
 					<label>Beschreibung</label>
@@ -298,6 +298,7 @@
 		<div ng-switch-when="string" class="row">
 			<form class="form">
 				<div class="form-group col-md-12">
+					<i class="glyphicon glyphicon-remove btn-right" title="Text entfernen" ng-click="removeData(d)"></i>
 					<label>Text</label>
 					<input type="text" class="form-control" placeholder="Text" ng-model="d.value">
 				</div>
@@ -306,7 +307,6 @@
 					<input type="text" class="form-control" placeholder="Beschreibung" ng-class="{'missinginput': needsInput(d.desc)}" ng-model="d.desc">
 				</div>
 				<div class="form-group col-md-6">
-					<i class="glyphicon glyphicon-remove btn-right" title="Text entfernen" ng-click="removeData(d)"></i>
 					<label>Schlüssel</label>
 					<input type="text" ng-class="{'missinginput': needsInput(d.key)}" class="form-control" placeholder="Schlüssel" ng-model="d.key">
 				</div>
