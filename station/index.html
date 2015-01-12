@@ -108,7 +108,10 @@
 			<tbody>
 			<tr ng-repeat="p in $data">
 				<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
-				<td><span ui-sref='person({id: p._id})'><i class="fa fa-edit btn-right"></i></span></td>
+				<td>
+					<span ng-click="remove(p)"><i class="fa fa-trash btn-right"></i></span>
+					<span ui-sref='person({id: p._id})'><i class="fa fa-edit btn-right"></i></span>
+				</td>
 			</tr>
 			</tbody>
 		</table>
@@ -143,7 +146,10 @@
 			<tbody>
 			<tr ng-repeat="p in $data">
 				<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
-				<td><span ui-sref='organisation({id: p._id})'><i class="fa fa-edit btn-right"></i></span></td>
+				<td>
+					<span ng-click="remove(p)"><i class="fa fa-trash btn-right"></i></span>
+					<span ui-sref='organisation({id: p._id})'><i class="fa fa-edit btn-right"></i></span>
+				</td>
 			</tr>
 			</tbody>
 		</table>
@@ -168,7 +174,6 @@
 
 			<div class="form-group col-md-6">
 				<label>Aliase</label>
-
 				<div class="has-feedback">
 					<input type="text" class="form-control" placeholder="Aliases" ng-model="edit.aliases" ng-enter="addEntry('aliases', edit.aliases)">
 					<span ng-show="canAddEntry('aliases', edit.aliases)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('aliases', edit.aliases)"></span>
@@ -180,7 +185,6 @@
 
 			<div class="form-group col-md-6">
 				<label>Tags</label>
-
 				<div class="has-feedback">
 					<input type="text" class="form-control" placeholder="Tags" ng-model="edit.tags" ng-enter="addEntry('tags', edit.tags)">
 					<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
@@ -196,11 +200,11 @@
 	<hr/>
 
 	<div ng-repeat="d in item.data" ng-switch="d.format">
+		<p class="field-headline"><span ng-bind="d.desc"></span><i class="glyphicon glyphicon-remove btn-right" title="{{d.desc}} entfernen" ng-click="removeData(d)"></i></p>
 
 		<div ng-switch-when="link" class="row">
 			<form class="form">
 				<div class="form-group col-md-9">
-					<i class="glyphicon glyphicon-remove btn-right" title="Link entfernen" ng-click="removeData(d)"></i>
 					<label>Link</label>
 					<input type="url" class="form-control" placeholder="Link" ng-model="d.value.url">
 				</div>
@@ -208,29 +212,19 @@
 					<label>Bemerkung</label>
 					<input type="text" class="form-control" placeholder="Bemerkung" ng-model="d.value.remark">
 				</div>
-				<div class="form-group col-md-6">
-					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-class="{'missinginput': needsInput(d.desc)}" ng-model="d.desc">
-				</div>
-				<div class="form-group col-md-6">
-					<label>Schlüssel</label>
-					<input type="text" ng-class="{'missinginput': needsInput(d.key)}" class="form-control" placeholder="Schlüssel" ng-model="d.key">
-				</div>
 			</form>
 		</div>
-
 
 		<div ng-switch-when="address" class="row">
 			<form class="form">
 
 				<div class="form-group col-md-12">
-					<i class="glyphicon glyphicon-remove btn-right" title="Adresse entfernen" ng-click="removeData(d)"></i>
 					<label>Name</label>
 					<input type="text" class="form-control" placeholder="Name" ng-model="d.value.name">
 				</div>
 
 				<div class="form-group col-md-12">
-					<label>Adresse</label>
+					<label>Straße/Postfach</label>
 					<input type="text" class="form-control" placeholder="Adresse" ng-model="d.value.addr">
 				</div>
 
@@ -268,34 +262,14 @@
 					<label>www</label>
 					<input type="text" class="form-control" placeholder="www" ng-model="d.value.www">
 				</div>
-
-				<div class="form-group col-md-6">
-					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-class="{'missinginput': needsInput(d.desc)}" ng-model="d.desc">
-				</div>
-
-				<div class="form-group col-md-6">
-					<label>Schlüssel</label>
-					<input type="text" ng-class="{'missinginput': needsInput(d.key)}" class="form-control" placeholder="Schlüssel" ng-model="d.key">
-				</div>
-
 			</form>
 		</div>
 
 		<div ng-switch-when="number" class="row">
 			<form class="form">
 				<div class="form-group col-md-4">
-					<i class="glyphicon glyphicon-remove btn-right" title="Zahl entfernen" ng-click="removeData(d)"></i>
-					<label>Zahl</label>
+					<!--<label>Wert</label>-->
 					<input type="number" class="form-control" placeholder="Zahl" ng-model="d.value">
-				</div>
-				<div class="form-group col-md-4">
-					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-class="{'missinginput': needsInput(d.desc)}" ng-model="d.desc">
-				</div>
-				<div class="form-group col-md-4">
-					<label>Schlüssel</label>
-					<input type="text" ng-class="{'missinginput': needsInput(d.key)}" class="form-control" placeholder="Schlüssel" ng-model="d.key">
 				</div>
 			</form>
 		</div>
@@ -303,17 +277,8 @@
 		<div ng-switch-when="string" class="row">
 			<form class="form">
 				<div class="form-group col-md-12">
-					<i class="glyphicon glyphicon-remove btn-right" title="Text entfernen" ng-click="removeData(d)"></i>
-					<label>Text</label>
+					<!--<label>Text</label>-->
 					<input type="text" class="form-control" placeholder="Text" ng-model="d.value">
-				</div>
-				<div class="form-group col-md-6">
-					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-class="{'missinginput': needsInput(d.desc)}" ng-model="d.desc">
-				</div>
-				<div class="form-group col-md-6">
-					<label>Schlüssel</label>
-					<input type="text" ng-class="{'missinginput': needsInput(d.key)}" class="form-control" placeholder="Schlüssel" ng-model="d.key">
 				</div>
 			</form>
 		</div>
@@ -326,15 +291,11 @@
 		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
 			Datenfeld hinzufügen <span class="caret"></span>
 		</button>
+
 		<ul class="dropdown-menu up" role="menu">
-			<li><a href ng-click="addData('string')">Text</a></li>
-			<li><a href ng-click="addData('address')">Adresse</a></li>
-			<li><a href ng-click="addData('number')">Zahl</a></li>
-			<li><a href ng-click="addData('link')">Link</a></li>
+			<li ng-repeat="o in fields"><a href ng-click="addData(o)" ng-bind="o.name"></a></li>
 		</ul>
 	</div>
-
-	<!--<hr/>{{item.data}}<hr/>{{item}}-->
 
 	<div class="pull-right">
 		<button type="button" class="btn btn-primary" ng-click="save()">Speichern</button>
@@ -375,7 +336,10 @@
 		<tbody>
 		<tr ng-repeat="p in $data">
 			<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
-			<td><span ui-sref='user({id: p._id})'><i class="fa fa-edit btn-right"></i></span></td>
+			<td>
+				<span ng-click="remove(p)"><i class="fa fa-trash btn-right"></i></span>
+				<span ui-sref='user({id: p._id})'><i class="fa fa-edit btn-right"></i></span>
+			</td>
 		</tr>
 		</tbody>
 	</table>
@@ -407,7 +371,6 @@
 </script>
 
 <script type="text/ng-template" id="partials/user.html">
-
 
 	<div class="row">
 		<div class="col-md-6 col-md-offset-3">
@@ -446,8 +409,11 @@
 		<tr ng-repeat="p in $data">
 			<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
 			<td data-title="'Schlüssel'" filter="{ 'key': 'text' }" sortable="'key'" ng-bind="p.key"></td>
-			<td data-title="'Typ'" filter="{ 'type': 'text' }" sortable="'type'" ng-bind="p.type"></td>
-			<td><span ui-sref='field({id: p._id})'><i class="fa fa-edit btn-right"></i></span></td>
+			<td data-title="'Format'" filter="{ 'format': 'text' }" sortable="'format'" ng-bind="p.format"></td>
+			<td>
+				<span ng-click="remove(p)"><i class="fa fa-trash btn-right"></i></span>
+				<span ui-sref="field({id: p._id})"><i class="fa fa-edit btn-right"></i></span>
+			</td>
 		</tr>
 		</tbody>
 	</table>
@@ -471,8 +437,8 @@
 				</div>
 				<div class="form-group">
 					<label>Typ</label>
-					<select class="form-control" ng-model="field.type">
-						<option value="text">Text</option>
+					<select class="form-control" ng-model="field.format">
+						<option value="string">Text</option>
 						<option value="number">Zahl</option>
 						<option value="link">Link</option>
 						<option value="address">Adresse</option>
@@ -484,6 +450,22 @@
 			<button class="btn btn-default" ui-sref="users">Abbruch</button>
 		</div>
 	</div>
+
+</script>
+
+<script type="text/ng-template" id="partials/ask.html">
+
+<div class="modal-header">
+	<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
+	<h4 class="modal-title">{{data.headline}}</h4>
+</div>
+<div class="modal-body">
+	<p>{{data.question}}</p>
+</div>
+<div class="modal-footer">
+	<button class="btn btn-primary" ng-click="ok()" translate>OK</button>
+	<button class="btn btn-warning" ng-click="cancel()" translate>Cancel</button>
+</div>
 
 </script>
 

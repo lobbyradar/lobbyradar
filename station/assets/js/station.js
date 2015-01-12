@@ -75,6 +75,10 @@ app.factory('organisations', function ($resource) {
 			save: {
 				method: 'POST',
 				params: {cmd: 'update'}
+			},
+			remove: {
+				method: 'GET',
+				params: {cmd: 'delete'}
 			}
 		}
 	);
@@ -94,6 +98,10 @@ app.factory('persons', function ($resource) {
 			save: {
 				method: 'POST',
 				params: {cmd: 'update'}
+			},
+			remove: {
+				method: 'GET',
+				params: {cmd: 'delete'}
 			}
 		}
 	);
@@ -117,6 +125,10 @@ app.factory('users', function ($resource) {
 			create: {
 				method: 'POST',
 				params: {cmd: 'create'}
+			},
+			remove: {
+				method: 'GET',
+				params: {cmd: 'delete'}
 			}
 		}
 	);
@@ -140,6 +152,10 @@ app.factory('fields', function ($resource) {
 			create: {
 				method: 'POST',
 				params: {cmd: 'create'}
+			},
+			remove: {
+				method: 'GET',
+				params: {cmd: 'delete'}
 			}
 		}
 	);
@@ -188,7 +204,33 @@ app.controller('AppCtrl', function ($rootScope, $scope) {
 
 });
 
-var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api) {
+var okcancelModalDialog = function ($modal, data, cb) {
+	var modalInstance = $modal.open({
+		templateUrl: 'partials/ask.html',
+		controller: function ($scope, $modalInstance, data) {
+			$scope.data = data;
+			$scope.ok = function () {
+				$modalInstance.close($scope.data);
+			};
+			$scope.cancel = function () {
+				$modalInstance.dismiss('cancel');
+			};
+		},
+		resolve: {
+			data: function () {
+				return data;
+			}
+		}
+	});
+
+	modalInstance.result.then(function () {
+		cb(data);
+	}, function () {
+//			$log.info('Modal dismissed at: ' + new Date());
+	});
+};
+
+var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api) {
 
 	$scope.loading = true;
 
@@ -205,6 +247,24 @@ var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api) {
 	$scope.resetFilter = function () {
 		$scope.filter.text = '';
 		$scope.tableParams.reload();
+	};
+
+	$scope.remove = function (o) {
+		okcancelModalDialog($modal,
+			{
+				headline: 'Eintrag löschen?',
+				question: 'Soll "' + o.name + '" gelöscht werden?'
+			}
+			, function () {
+				api.remove({id: o._id}, function () {
+					list = list.filter(function (oe) {
+						return oe != o;
+					});
+					$scope.refilter();
+				}, function (err) {
+					console.error(err);
+				})
+			});
 	};
 
 	var getData = function ($defer, params) {
@@ -250,17 +310,82 @@ var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api) {
 
 };
 
-app.controller('PersonsCtrl', function ($scope, $resource, $filter, ngTableParams, persons) {
-	typedListCtrl($scope, $resource, $filter, ngTableParams, persons);
+app.controller('PersonsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, persons) {
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, persons);
 });
 
-app.controller('OrganisationsCtrl', function ($scope, $resource, $filter, ngTableParams, organisations) {
-	typedListCtrl($scope, $resource, $filter, ngTableParams, organisations);
+app.controller('OrganisationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, organisations) {
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, organisations);
 });
 
-app.controller('FieldsCtrl', function ($scope, $resource, $filter, ngTableParams, fields) {
-	typedListCtrl($scope, $resource, $filter, ngTableParams, fields);
+app.controller('FieldsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, fields) {
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, fields);
 });
+
+
+app.controller('UsersCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, users) {
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, users);
+});
+
+app.controller('UsersCtr2l', function ($scope, $state, $stateParams, $filter, ngTableParams, users) {
+
+	var list = [];
+
+	var getData = function ($defer, params) {
+		var orderedData = list;//$scope.filter.text.length ? $filter('filter')(list, {'name': $scope.filter.text}) : list;
+
+		orderedData = params.sorting() ?
+			$filter('orderBy')(orderedData, params.orderBy()) :
+			orderedData;
+
+		params.total(orderedData.length);
+		var current = orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count());
+		$defer.resolve(current);
+	};
+
+	$scope.tableParams = new ngTableParams(
+		{
+			page: 1,
+			count: 10,
+			sorting: {
+				name: 'asc'
+			}
+		},
+		{
+			total: 0,
+			getData: getData
+		}
+	);
+
+	users.list(function (data) {
+			list = data.result;
+			$scope.tableParams.reload();
+		},
+		function (err) {
+			console.error(err);
+		}
+	);
+
+	$scope.remove = function (o) {
+		okcancelModalDialog($modal,
+			{
+				headline: 'Eintrag löschen?',
+				question: 'Soll "' + o.name + '" gelöscht werden?'
+			}
+			, function () {
+				api.remove({id: o._id}, function () {
+					list = list.filter(function (oe) {
+						return oe != o;
+					});
+					$scope.refilter();
+				}, function (err) {
+					console.error(err);
+				})
+			});
+	};
+
+});
+
 
 var typedEditCtrl = function ($scope, $state, $stateParams, api, fields) {
 
@@ -309,9 +434,11 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields) {
 		}
 	};
 
-	$scope.addData = function (format) {
+	$scope.addData = function (o) {
 		$scope.item.data.push({
-			format: format
+			format: o.format,
+			key: o.key,
+			desc: o.name
 		});
 	};
 
@@ -452,49 +579,9 @@ app.controller('FieldEditCtrl', function ($scope, $state, $stateParams, fields) 
 			}
 		);
 	} else {
-		$scope.field = {type:'text'};
+		$scope.field = {format: 'string'};
 	}
 
-});
-
-app.controller('UsersCtrl', function ($scope, $state, $stateParams, $filter, ngTableParams, users) {
-
-	var list = [];
-
-	var getData = function ($defer, params) {
-		var orderedData = list;//$scope.filter.text.length ? $filter('filter')(list, {'name': $scope.filter.text}) : list;
-
-		orderedData = params.sorting() ?
-			$filter('orderBy')(orderedData, params.orderBy()) :
-			orderedData;
-
-		params.total(orderedData.length);
-		var current = orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count());
-		$defer.resolve(current);
-	};
-
-	$scope.tableParams = new ngTableParams(
-		{
-			page: 1,
-			count: 10,
-			sorting: {
-				name: 'asc'
-			}
-		},
-		{
-			total: 0,
-			getData: getData
-		}
-	);
-
-	users.list(function (data) {
-			list = data.result;
-			$scope.tableParams.reload();
-		},
-		function (err) {
-			console.error(err);
-		}
-	);
 });
 
 app.directive('ngEnter', function () {

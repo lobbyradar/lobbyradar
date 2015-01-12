@@ -241,7 +241,13 @@ app.all("/api/relation/tags", function (req, res) {
 app.get("/api/users/list", function (req, res) {
 	debug("list users");
 	api.user_list(function (err, result) {
-		res.type("json").status("200").json({error: err, result: result});
+		res.type("json").status("200").json({error: err, result: result.map(function(u){
+			return {
+				_id: u._id,
+				name: u.name,
+				admin: u.admin
+			}
+		})});
 	});
 });
 
@@ -281,6 +287,11 @@ app.post("/api/users/update/:id", function (req, res) {
 app.get("/api/fields/list", function (req, res) {
 	debug("list fields");
 	api.field_list(function (err, result) {
+		result = result.sort(function (a, b) {
+			if (a.name < b.name) return -1;
+			if (a.name > b.name) return 1;
+			return 0;
+		});
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
