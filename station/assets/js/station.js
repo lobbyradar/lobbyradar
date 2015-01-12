@@ -76,6 +76,10 @@ app.factory('organisations', function ($resource) {
 				method: 'POST',
 				params: {cmd: 'update'}
 			},
+			create: {
+				method: 'POST',
+				params: {cmd: 'create'}
+			},
 			remove: {
 				method: 'GET',
 				params: {cmd: 'delete'}
@@ -98,6 +102,10 @@ app.factory('persons', function ($resource) {
 			save: {
 				method: 'POST',
 				params: {cmd: 'update'}
+			},
+			create: {
+				method: 'POST',
+				params: {cmd: 'create'}
 			},
 			remove: {
 				method: 'GET',
@@ -322,7 +330,6 @@ app.controller('FieldsCtrl', function ($scope, $resource, $filter, $modal, ngTab
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, fields);
 });
 
-
 app.controller('UsersCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, users) {
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, users);
 });
@@ -386,19 +393,29 @@ app.controller('UsersCtr2l', function ($scope, $state, $stateParams, $filter, ng
 
 });
 
+var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, type, mode) {
 
-var typedEditCtrl = function ($scope, $state, $stateParams, api, fields) {
+	$scope.isNew = ($stateParams.id == 'new');
 
 	$scope.edit = {};
 
-	api.item({id: $stateParams.id},
-		function (data) {
-			$scope.item = data.result;
-		},
-		function (err) {
-			console.error(err);
-		}
-	);
+	if ($scope.isNew) {
+		$scope.item = {
+			aliases: [],
+			data: [],
+			tags: [],
+			type: type
+		};
+	} else {
+		api.item({id: $stateParams.id},
+			function (data) {
+				$scope.item = data.result;
+			},
+			function (err) {
+				console.error(err);
+			}
+		);
+	}
 
 	fields.list(function (data) {
 			$scope.fields = data.result;
@@ -407,7 +424,6 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields) {
 			console.error(err);
 		}
 	);
-
 
 	$scope.addEntry = function (id, a) {
 		if ($scope.canAddEntry(id, a)) {
@@ -443,11 +459,23 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields) {
 	};
 
 	$scope.back = function () {
-		$state.go($scope.isPerson ? 'persons' : 'organisations');
+		$state.go(mode);
 	};
 
 	$scope.save = function () {
 		api.save({id: $stateParams.id}, {ent: $scope.item},
+			function (data) {
+				if (data.error) return alert(JSON.stringify(data.error));
+				$scope.back();
+			},
+			function (err) {
+				console.error(err);
+			}
+		);
+	};
+
+	$scope.create = function () {
+		api.create({ent: $scope.item},
 			function (data) {
 				if (data.error) return alert(JSON.stringify(data.error));
 				$scope.back();
@@ -465,14 +493,12 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields) {
 
 app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, persons, fields) {
 	$scope.modename = 'Person';
-	$scope.isPerson = true;
-	typedEditCtrl($scope, $state, $stateParams, persons, fields);
+	typedEditCtrl($scope, $state, $stateParams, persons, fields, 'person', 'persons');
 });
 
 app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, organisations, fields) {
 	$scope.modename = 'Organisation';
-	$scope.isPerson = false;
-	typedEditCtrl($scope, $state, $stateParams, organisations, fields);
+	typedEditCtrl($scope, $state, $stateParams, organisations, fields, 'organisation', 'organisations');
 });
 
 app.controller('LoginCtrl', function ($scope, $state, $stateParams, $resource, $rootScope, auth) {
