@@ -16,6 +16,7 @@
 	<script src="assets/bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
 	<script src="assets/bower_components/angular-resource/angular-resource.min.js"></script>
 	<script src="assets/bower_components/ng-table/ng-table.min.js"></script>
+	<script src="assets/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
 	<script src="assets/js/station.js"></script>
 </head>
 <body ng-controller="AppCtrl">
@@ -38,7 +39,13 @@
 				<li class="active" ui-sref-active="active"><a href ui-sref="start">Start</a></li>
 				<li ui-sref-active="active"><a href ui-sref="persons">Personen</a></li>
 				<li ui-sref-active="active"><a href ui-sref="organisations">Organisationen</a></li>
-				<li ui-sref-active="active" ng-if="loggedInUser.admin"><a href ui-sref="users">Benutzerinnen</a></li>
+				<li class="dropdown" ng-if="loggedInUser.admin">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Stammdaten <span class="caret"></span></a>
+					<ul class="dropdown-menu" role="menu">
+						<li ui-sref-active="active"><a href ui-sref="fields">Datenfelder</a></li>
+						<li ui-sref-active="active"><a href ui-sref="users">Benutzerinnen</a></li>
+					</ul>
+				</li>
 			</ul>
 		</div>
 	</div>
@@ -49,6 +56,29 @@
 
 	<br/>
 </div>
+
+<script type="text/ng-template" id="partials/pager">
+	<ul class="pager ng-cloak">
+		<li ng-repeat="page in pages"
+			ng-class="{'disabled': !page.active, 'previous': page.type == 'prev', 'next': page.type == 'next'}"
+			ng-show="page.type == 'prev' || page.type == 'next'" ng-switch="page.type">
+			<a ng-switch-when="prev" ng-click="params.page(page.number)" href="">&laquo; Previous</a>
+
+			<a ng-switch-when="next" ng-click="params.page(page.number)" href="">Next &raquo;</a>
+		</li>
+		<div>
+			Seite <span ng-bind="params.page()"></span>
+		</div>
+		<li>
+			<div class="btn-group">
+				<button type="button" ng-class="{'active':params.count() == 10}" ng-click="params.count(10)" class="btn btn-default">10</button>
+				<button type="button" ng-class="{'active':params.count() == 25}" ng-click="params.count(25)" class="btn btn-default">25</button>
+				<button type="button" ng-class="{'active':params.count() == 50}" ng-click="params.count(50)" class="btn btn-default">50</button>
+				<button type="button" ng-class="{'active':params.count() == 100}" ng-click="params.count(100)" class="btn btn-default">100</button>
+			</div>
+		</li>
+	</ul>
+</script>
 
 <script type="text/ng-template" id="partials/start.html">
 
@@ -75,19 +105,23 @@
 	<div ng-show="!loading">
 
 		<div class="row">
+			<div class="col-md-6 headline">
+				<h1>Personen</h1>
 
-			<div class="col-md-9 headline"><h1>Personen</h1>
+				<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
+			</div>
 
-				<p>Anzahl <span ng-bind="tableParams.total()"></span></p></div>
+			<div class="col-md-3">
+				<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>
+			</div>
 
 			<div class="col-md-3">
 				<div class="pull-right has-feedback">
 					<label>Suche</label>
 					<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
-					<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="glyphicon glyphicon-remove"></i></span>
+					<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
 				</div>
 			</div>
-
 		</div>
 
 		<!--<div class="row">-->
@@ -97,11 +131,14 @@
 		<!--<div class="col-md-3"><p><strong>Sorting:</strong> {{tableParams.sorting()|json}}</p></div>-->
 		<!--</div>-->
 
-		<table ng-table="tableParams" template-pagination="custom/pager" show-filter="false" class="table table-striped">
+		<table ng-table="tableParams" template-pagination="partials/pager" show-filter="false" class="table table-striped">
 			<tbody>
 			<tr ng-repeat="p in $data">
 				<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
-				<td><span ui-sref='person({id: p._id})'><i class="fa fa-edit btn-right"></i></span></td>
+				<td>
+					<span class="btn-right" ng-click="remove(p)" title="Person löschen"><i class="fa fa-trash"></i></span>
+					<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
+				</td>
 			</tr>
 			</tbody>
 		</table>
@@ -117,26 +154,33 @@
 	<div ng-show="!loading">
 
 		<div class="row">
+			<div class="col-md-6 headline">
+				<h1>Organisationen</h1>
 
-			<div class="col-md-9 headline"><h1>Organisationen</h1>
+				<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
+			</div>
 
-				<p>Anzahl <span ng-bind="tableParams.total()"></span></p></div>
+			<div class="col-md-3">
+				<button class="btn btn-default" ui-sref="organisation({id: 'new'})">Organisation anlegen</button>
+			</div>
 
 			<div class="col-md-3">
 				<div class="pull-right has-feedback">
 					<label>Suche</label>
 					<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
-					<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="glyphicon glyphicon-remove"></i></span>
+					<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
 				</div>
 			</div>
-
 		</div>
 
-		<table ng-table="tableParams" template-pagination="custom/pager" show-filter="false" class="table table-striped">
+		<table ng-table="tableParams" template-pagination="partials/pager" show-filter="false" class="table table-striped">
 			<tbody>
 			<tr ng-repeat="p in $data">
 				<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
-				<td><span ui-sref='organisation({id: p._id})'><i class="fa fa-edit btn-right"></i></span></td>
+				<td>
+					<span class="btn-right" ng-click="remove(p)" title="Organisation löschen"><i class="fa fa-trash"></i></span>
+					<span class="btn-right" ui-sref='organisation({id: p._id})' title="Organisation bearbeiten"><i class="fa fa-edit"></i></span>
+				</td>
 			</tr>
 			</tbody>
 		</table>
@@ -146,15 +190,13 @@
 
 <script type="text/ng-template" id="partials/editor.html">
 
-	<h1><span ng-bind="modename"></span> bearbeiten</h1>
-
-	<!--<p>ID: <span ng-bind="item._id"></span></p>-->
+	<h1><span ng-bind="modename"></span> <span ng-if="isNew">anlegen</span><span ng-if="!isNew">bearbeiten</span></h1>
 
 	<form role="form">
 
 		<div class="form-group">
 			<label for="name">Name</label>
-			<input type="text" class="form-control" id="name" placeholder="Enter name" ng-model="item.name">
+			<input type="text" class="form-control" id="name" placeholder="Name" ng-model="item.name">
 		</div>
 
 		<hr/>
@@ -165,7 +207,7 @@
 				<label>Aliase</label>
 
 				<div class="has-feedback">
-					<input type="text" class="form-control" placeholder="Aliases" ng-model="edit.aliases" ng-enter="addEntry('aliases', edit.aliases)">
+					<input type="text" class="form-control" placeholder="Aliase" ng-model="edit.aliases" ng-enter="addEntry('aliases', edit.aliases)">
 					<span ng-show="canAddEntry('aliases', edit.aliases)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('aliases', edit.aliases)"></span>
 				</div>
 				<div class="label-list">
@@ -174,10 +216,10 @@
 			</div>
 
 			<div class="form-group col-md-6">
-				<label>Tags</label>
+				<label>Schlagworte</label>
 
 				<div class="has-feedback">
-					<input type="text" class="form-control" placeholder="Tags" ng-model="edit.tags" ng-enter="addEntry('tags', edit.tags)">
+					<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" ng-enter="addEntry('tags', edit.tags)">
 					<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
 				</div>
 				<div class="label-list">
@@ -191,11 +233,11 @@
 	<hr/>
 
 	<div ng-repeat="d in item.data" ng-switch="d.format">
+		<p class="field-headline"><span ng-bind="d.desc"></span><i class="glyphicon glyphicon-remove btn-right" title="{{d.desc}} entfernen" ng-click="removeData(d)"></i></p>
 
 		<div ng-switch-when="link" class="row">
 			<form class="form">
 				<div class="form-group col-md-9">
-					<i class="glyphicon glyphicon-remove btn-right" title="Link entfernen" ng-click="removeData(d)"></i>
 					<label>Link</label>
 					<input type="url" class="form-control" placeholder="Link" ng-model="d.value.url">
 				</div>
@@ -203,29 +245,19 @@
 					<label>Bemerkung</label>
 					<input type="text" class="form-control" placeholder="Bemerkung" ng-model="d.value.remark">
 				</div>
-				<div class="form-group col-md-6">
-					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-class="{'missinginput': needsInput(d.desc)}" ng-model="d.desc">
-				</div>
-				<div class="form-group col-md-6">
-					<label>Schlüssel</label>
-					<input type="text" ng-class="{'missinginput': needsInput(d.key)}" class="form-control" placeholder="Schlüssel" ng-model="d.key">
-				</div>
 			</form>
 		</div>
-
 
 		<div ng-switch-when="address" class="row">
 			<form class="form">
 
 				<div class="form-group col-md-12">
-					<i class="glyphicon glyphicon-remove btn-right" title="Adresse entfernen" ng-click="removeData(d)"></i>
 					<label>Name</label>
 					<input type="text" class="form-control" placeholder="Name" ng-model="d.value.name">
 				</div>
 
 				<div class="form-group col-md-12">
-					<label>Adresse</label>
+					<label>Straße/Postfach</label>
 					<input type="text" class="form-control" placeholder="Adresse" ng-model="d.value.addr">
 				</div>
 
@@ -263,34 +295,14 @@
 					<label>www</label>
 					<input type="text" class="form-control" placeholder="www" ng-model="d.value.www">
 				</div>
-
-				<div class="form-group col-md-6">
-					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-class="{'missinginput': needsInput(d.desc)}" ng-model="d.desc">
-				</div>
-
-				<div class="form-group col-md-6">
-					<label>Schlüssel</label>
-					<input type="text" ng-class="{'missinginput': needsInput(d.key)}" class="form-control" placeholder="Schlüssel" ng-model="d.key">
-				</div>
-
 			</form>
 		</div>
 
 		<div ng-switch-when="number" class="row">
 			<form class="form">
 				<div class="form-group col-md-4">
-					<i class="glyphicon glyphicon-remove btn-right" title="Zahl entfernen" ng-click="removeData(d)"></i>
-					<label>Zahl</label>
+					<!--<label>Wert</label>-->
 					<input type="number" class="form-control" placeholder="Zahl" ng-model="d.value">
-				</div>
-				<div class="form-group col-md-4">
-					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-class="{'missinginput': needsInput(d.desc)}" ng-model="d.desc">
-				</div>
-				<div class="form-group col-md-4">
-					<label>Schlüssel</label>
-					<input type="text" ng-class="{'missinginput': needsInput(d.key)}" class="form-control" placeholder="Schlüssel" ng-model="d.key">
 				</div>
 			</form>
 		</div>
@@ -298,17 +310,8 @@
 		<div ng-switch-when="string" class="row">
 			<form class="form">
 				<div class="form-group col-md-12">
-					<i class="glyphicon glyphicon-remove btn-right" title="Text entfernen" ng-click="removeData(d)"></i>
-					<label>Text</label>
+					<!--<label>Text</label>-->
 					<input type="text" class="form-control" placeholder="Text" ng-model="d.value">
-				</div>
-				<div class="form-group col-md-6">
-					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Beschreibung" ng-class="{'missinginput': needsInput(d.desc)}" ng-model="d.desc">
-				</div>
-				<div class="form-group col-md-6">
-					<label>Schlüssel</label>
-					<input type="text" ng-class="{'missinginput': needsInput(d.key)}" class="form-control" placeholder="Schlüssel" ng-model="d.key">
 				</div>
 			</form>
 		</div>
@@ -321,56 +324,51 @@
 		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
 			Datenfeld hinzufügen <span class="caret"></span>
 		</button>
+
 		<ul class="dropdown-menu up" role="menu">
-			<li><a href ng-click="addData('string')">Text</a></li>
-			<li><a href ng-click="addData('address')">Adresse</a></li>
-			<li><a href ng-click="addData('number')">Zahl</a></li>
-			<li><a href ng-click="addData('link')">Link</a></li>
+			<li ng-repeat="o in fields"><a href ng-click="addData(o)" ng-bind="o.name"></a></li>
 		</ul>
 	</div>
 
-	<!--<hr/>{{item.data}}<hr/>{{item}}-->
-
 	<div class="pull-right">
-		<button type="button" class="btn btn-primary" ng-click="save()">Speichern</button>
+		<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
+		<button ng-if="isNew" class="btn btn-primary" ng-click="create()">Anlegen</button>
 		<button type="button" class="btn btn-default" ng-click="back()">Abbruch</button>
 	</div>
 
 
 </script>
 
-<script type="text/ng-template" id="custom/pager">
-	<ul class="pager ng-cloak">
-		<li ng-repeat="page in pages"
-			ng-class="{'disabled': !page.active, 'previous': page.type == 'prev', 'next': page.type == 'next'}"
-			ng-show="page.type == 'prev' || page.type == 'next'" ng-switch="page.type">
-			<a ng-switch-when="prev" ng-click="params.page(page.number)" href="">&laquo; Previous</a>
-
-			<a ng-switch-when="next" ng-click="params.page(page.number)" href="">Next &raquo;</a>
-		</li>
-		<div>
-			Seite <span ng-bind="params.page()"></span>
-		</div>
-		<li>
-			<div class="btn-group">
-				<button type="button" ng-class="{'active':params.count() == 10}" ng-click="params.count(10)" class="btn btn-default">10</button>
-				<button type="button" ng-class="{'active':params.count() == 25}" ng-click="params.count(25)" class="btn btn-default">25</button>
-				<button type="button" ng-class="{'active':params.count() == 50}" ng-click="params.count(50)" class="btn btn-default">50</button>
-				<button type="button" ng-class="{'active':params.count() == 100}" ng-click="params.count(100)" class="btn btn-default">100</button>
-			</div>
-		</li>
-	</ul>
-</script>
-
 <script type="text/ng-template" id="partials/users.html">
 
-	<button class="btn btn-default" ui-sref="user({id: 'new'})">Benutzerin anlegen</button>
+	<div class="row">
+		<div class="col-md-6 headline">
+			<h1>Benutzerinnen</h1>
+
+			<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
+		</div>
+
+		<div class="col-md-3">
+			<button class="btn btn-default" ui-sref="user({id: 'new'})">Benutzerin anlegen</button>
+		</div>
+
+		<div class="col-md-3">
+			<div class="pull-right has-feedback">
+				<label>Suche</label>
+				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
+				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
+			</div>
+		</div>
+	</div>
 
 	<table ng-table="tableParams" class="table table-striped">
 		<tbody>
 		<tr ng-repeat="p in $data">
 			<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
-			<td><span ui-sref='user({id: p._id})'><i class="fa fa-edit btn-right"></i></span></td>
+			<td>
+				<span class="btn-right" ng-click="remove(p)" title="Benutzerin löschen"><i class="fa fa-trash"></i></span>
+				<span class="btn-right" ui-sref='user({id: p._id})' title="Benutzerin bearbeiten"><i class="fa fa-edit"></i></span>
+			</td>
 		</tr>
 		</tbody>
 	</table>
@@ -403,7 +401,6 @@
 
 <script type="text/ng-template" id="partials/user.html">
 
-
 	<div class="row">
 		<div class="col-md-6 col-md-offset-3">
 			<h1>Benutzerin <span ng-if="isNew">anlegen</span><span ng-if="!isNew">bearbeiten</span></h1>
@@ -423,14 +420,107 @@
 					</label>
 				</div>
 			</form>
-			<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
-			<button ng-if="isNew" class="btn btn-primary" ng-click="create()">Anlegen</button>
-			<button class="btn btn-default" ui-sref="users">Abbruch</button>
+			<div class="pull-right">
+				<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
+				<button ng-if="isNew" class="btn btn-primary" ng-click="create()">Anlegen</button>
+				<button class="btn btn-default" ui-sref="users">Abbruch</button>
+			</div>
 		</div>
 	</div>
 
 
 </script>
+
+<script type="text/ng-template" id="partials/fields.html">
+
+	<div class="row">
+		<div class="col-md-6 headline">
+			<h1>Datenfelder</h1>
+
+			<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
+		</div>
+
+		<div class="col-md-3">
+			<button class="btn btn-default" ui-sref="field({id: 'new'})">Datenfeld anlegen</button>
+		</div>
+
+		<div class="col-md-3">
+			<div class="pull-right has-feedback">
+				<label>Suche</label>
+				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
+				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
+			</div>
+		</div>
+	</div>
+
+
+	<table ng-table="tableParams" class="table table-striped">
+		<tbody>
+		<tr ng-repeat="p in $data">
+			<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
+			<td data-title="'Schlüssel'" filter="{ 'key': 'text' }" sortable="'key'" ng-bind="p.key"></td>
+			<td data-title="'Format'" filter="{ 'format': 'text' }" sortable="'format'" ng-bind="p.format"></td>
+			<td>
+				<span class="btn-right" ng-click="remove(p)" title="Datenfeld löschen"><i class="fa fa-trash"></i></span>
+				<span class="btn-right" ui-sref='field({id: p._id})' title="Datenfeld bearbeiten"><i class="fa fa-edit"></i></span>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+
+</script>
+
+<script type="text/ng-template" id="partials/field.html">
+
+	<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+			<h1>Feld <span ng-if="isNew">anlegen</span><span ng-if="!isNew">bearbeiten</span></h1>
+
+			<form class="form">
+				<div class="form-group">
+					<label>Name</label>
+					<input type="text" class="form-control" placeholder="Name" ng-model="field.name">
+				</div>
+				<div class="form-group">
+					<label>Schlüssel</label>
+					<input type="text" class="form-control" placeholder="Schlüssel" ng-model="field.key">
+				</div>
+				<div class="form-group">
+					<label>Typ</label>
+					<select class="form-control" ng-model="field.format">
+						<option value="string">Text</option>
+						<option value="number">Zahl</option>
+						<option value="link">Link</option>
+						<option value="address">Adresse</option>
+					</select>
+				</div>
+			</form>
+			<div class="pull-right">
+				<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
+				<button ng-if="isNew" class="btn btn-primary" ng-click="create()">Anlegen</button>
+				<button class="btn btn-default" ui-sref="users">Abbruch</button>
+			</div>
+		</div>
+	</div>
+
+</script>
+
+<script type="text/ng-template" id="partials/ask.html">
+
+	<div class="modal-header">
+		<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
+		<h4 class="modal-title">{{data.headline}}</h4>
+	</div>
+	<div class="modal-body">
+		<p>{{data.question}}</p>
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="ok()" translate>OK</button>
+		<button class="btn btn-warning" ng-click="cancel()" translate>Cancel</button>
+	</div>
+
+</script>
+
 
 </body>
 </html>

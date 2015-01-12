@@ -26,7 +26,7 @@ if (!config.hasOwnProperty("listen")) {
 }
 
 // load mongojs 
-var db = mongojs(config.db, ["entities", "relations", "users"]);
+var db = mongojs(config.db, ["entities", "relations", "users", "fields"]);
 
 // local modules
 var api = require("./lib/api.js")(config.api, db);
@@ -241,7 +241,13 @@ app.all("/api/relation/tags", function (req, res) {
 app.get("/api/users/list", function (req, res) {
 	debug("list users");
 	api.user_list(function (err, result) {
-		res.type("json").status("200").json({error: err, result: result});
+		res.type("json").status("200").json({error: err, result: result.map(function(u){
+			return {
+				_id: u._id,
+				name: u.name,
+				admin: u.admin
+			}
+		})});
 	});
 });
 
@@ -269,7 +275,7 @@ app.all("/api/users/get/:id", function (req, res) {
 	});
 });
 
-// update entity.
+// update user.
 app.post("/api/users/update/:id", function (req, res) {
 	debug("update user %s", req.params.id);
 	api.user_update(req.params.id, req.body.user, function (err, result) {
@@ -277,11 +283,58 @@ app.post("/api/users/update/:id", function (req, res) {
 	});
 });
 
+// get fields.
+app.get("/api/fields/list", function (req, res) {
+	debug("list fields");
+	api.field_list(function (err, result) {
+		result = result.sort(function (a, b) {
+			if (a.name < b.name) return -1;
+			if (a.name > b.name) return 1;
+			return 0;
+		});
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// create field.
+app.post("/api/fields/create", function (req, res) {
+	debug("create field", req.body.field);
+	api.field_create(req.body.field, function (err, result) {
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// delete field.
+app.all("/api/fields/delete/:id", function (req, res) {
+	debug("delete field %s", req.params.id);
+	api.field_delete(req.params.id, function (err, result) {
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// get field.
+app.all("/api/fields/get/:id", function (req, res) {
+	debug("get field %s", req.params.id);
+	api.field_get(req.params.id, function (err, result) {
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// update field.
+app.post("/api/fields/update/:id", function (req, res) {
+	debug("update field %s", req.params.id);
+	api.field_update(req.params.id, req.body.field, function (err, result) {
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
+// current user.
 app.get("/user", function (req, res) {
 	if (req.user) res.type("json").status("200").json({error: null, result: {name:req.user.name,admin:req.user.admin}});
 	else res.type("json").sendStatus(401);
 });
 
+// login user.
 app.post('/login', function (req, res, next) {
 	passport.authenticate('local', function (err, user, info) {
 		if (err) return next(err);

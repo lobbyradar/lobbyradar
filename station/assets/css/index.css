@@ -22,6 +22,13 @@
 	cursor: pointer;
 	border: solid 1px #ededed;
 	border-radius: 2px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-left: 8px;
+	padding-right: 6px;
+	margin-left: 3px;
+	margin-top: 0;
+	margin-bottom: 0;
 }
 
 .btn-right:hover {
@@ -76,4 +83,9 @@
 
 .missinginput {
 	border: 1px solid red;
+}
+
+.field-headline {
+	font-size: 1.1em;
+	font-weight: bold;
 }

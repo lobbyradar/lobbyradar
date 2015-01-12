@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('Station', ['ui.router', 'ngTable', 'ngResource']);
+var app = angular.module('Station', ['ui.router', 'ngTable', 'ngResource', 'ui.bootstrap']);
 
 app.config(function ($stateProvider, $urlRouterProvider) {
 	'use strict';
@@ -32,6 +32,16 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			templateUrl: "partials/organisations.html",
 			controller: 'OrganisationsCtrl'
 		})
+		.state('fields', {
+			url: "/fields",
+			templateUrl: "partials/fields.html",
+			controller: 'FieldsCtrl'
+		})
+		.state('field', {
+			url: "/field/:id",
+			templateUrl: "partials/field.html",
+			controller: 'FieldEditCtrl'
+		})
 		.state('users', {
 			url: "/users",
 			templateUrl: "partials/users.html",
@@ -49,31 +59,10 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 		});
 });
 
-app.factory('api', function ($resource) {
+app.factory('organisations', function ($resource) {
 	'use strict';
 	return $resource('/api/entity/:cmd/:id', {
-			//apikey: 'ffalt'
-		}, {
-			list: {
-				method: 'GET',
-				params: {cmd: 'list'}
-			},
-			item: {
-				method: 'GET',
-				params: {cmd: 'get'}
-			},
-			save: {
-				method: 'POST',
-				params: {cmd: 'update'}
-			}
-		}
-	);
-});
-
-app.factory('users', function ($resource) {
-	'use strict';
-	return $resource('/api/users/:cmd/:id', {
-			//apikey: 'ffalt'
+			type: 'entity'
 		}, {
 			list: {
 				method: 'GET',
@@ -90,6 +79,91 @@ app.factory('users', function ($resource) {
 			create: {
 				method: 'POST',
 				params: {cmd: 'create'}
+			},
+			remove: {
+				method: 'GET',
+				params: {cmd: 'delete'}
+			}
+		}
+	);
+});
+
+app.factory('persons', function ($resource) {
+	'use strict';
+	return $resource('/api/entity/:cmd/:id', {type: 'person'}, {
+			list: {
+				method: 'GET',
+				params: {cmd: 'list'}
+			},
+			item: {
+				method: 'GET',
+				params: {cmd: 'get'}
+			},
+			save: {
+				method: 'POST',
+				params: {cmd: 'update'}
+			},
+			create: {
+				method: 'POST',
+				params: {cmd: 'create'}
+			},
+			remove: {
+				method: 'GET',
+				params: {cmd: 'delete'}
+			}
+		}
+	);
+});
+
+app.factory('users', function ($resource) {
+	'use strict';
+	return $resource('/api/users/:cmd/:id', {}, {
+			list: {
+				method: 'GET',
+				params: {cmd: 'list'}
+			},
+			item: {
+				method: 'GET',
+				params: {cmd: 'get'}
+			},
+			save: {
+				method: 'POST',
+				params: {cmd: 'update'}
+			},
+			create: {
+				method: 'POST',
+				params: {cmd: 'create'}
+			},
+			remove: {
+				method: 'GET',
+				params: {cmd: 'delete'}
+			}
+		}
+	);
+});
+
+app.factory('fields', function ($resource) {
+	'use strict';
+	return $resource('/api/fields/:cmd/:id', {}, {
+			list: {
+				method: 'GET',
+				params: {cmd: 'list'}
+			},
+			item: {
+				method: 'GET',
+				params: {cmd: 'get'}
+			},
+			save: {
+				method: 'POST',
+				params: {cmd: 'update'}
+			},
+			create: {
+				method: 'POST',
+				params: {cmd: 'create'}
+			},
+			remove: {
+				method: 'GET',
+				params: {cmd: 'delete'}
 			}
 		}
 	);
@@ -138,7 +212,33 @@ app.controller('AppCtrl', function ($rootScope, $scope) {
 
 });
 
-var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api, type) {
+var okcancelModalDialog = function ($modal, data, cb) {
+	var modalInstance = $modal.open({
+		templateUrl: 'partials/ask.html',
+		controller: function ($scope, $modalInstance, data) {
+			$scope.data = data;
+			$scope.ok = function () {
+				$modalInstance.close($scope.data);
+			};
+			$scope.cancel = function () {
+				$modalInstance.dismiss('cancel');
+			};
+		},
+		resolve: {
+			data: function () {
+				return data;
+			}
+		}
+	});
+
+	modalInstance.result.then(function () {
+		cb(data);
+	}, function () {
+//			$log.info('Modal dismissed at: ' + new Date());
+	});
+};
+
+var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api) {
 
 	$scope.loading = true;
 
@@ -155,6 +255,24 @@ var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api, ty
 	$scope.resetFilter = function () {
 		$scope.filter.text = '';
 		$scope.tableParams.reload();
+	};
+
+	$scope.remove = function (o) {
+		okcancelModalDialog($modal,
+			{
+				headline: 'Eintrag löschen?',
+				question: 'Soll "' + o.name + '" gelöscht werden?'
+			}
+			, function () {
+				api.remove({id: o._id}, function () {
+					list = list.filter(function (oe) {
+						return oe != o;
+					});
+					$scope.refilter();
+				}, function (err) {
+					console.error(err);
+				})
+			});
 	};
 
 	var getData = function ($defer, params) {
@@ -187,8 +305,7 @@ var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api, ty
 		}
 	);
 
-	api.list({type: type},
-		function (data) {
+	api.list(function (data) {
 			list = data.result;
 			$scope.$watch("filter.text", $scope.refilter);
 			$scope.tableParams.reload();
@@ -201,22 +318,107 @@ var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api, ty
 
 };
 
-app.controller('PersonsCtrl', function ($scope, $resource, $filter, ngTableParams, api) {
-	'use strict';
-	typedListCtrl($scope, $resource, $filter, ngTableParams, api, 'person');
+app.controller('PersonsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, persons) {
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, persons);
 });
 
-app.controller('OrganisationsCtrl', function ($scope, $resource, $filter, ngTableParams, api) {
-	typedListCtrl($scope, $resource, $filter, ngTableParams, api, 'entity');
+app.controller('OrganisationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, organisations) {
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, organisations);
 });
 
-var typedEditCtrl = function ($scope, $state, $stateParams, api) {
+app.controller('FieldsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, fields) {
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, fields);
+});
+
+app.controller('UsersCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, users) {
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, users);
+});
+
+app.controller('UsersCtr2l', function ($scope, $state, $stateParams, $filter, ngTableParams, users) {
+
+	var list = [];
+
+	var getData = function ($defer, params) {
+		var orderedData = list;//$scope.filter.text.length ? $filter('filter')(list, {'name': $scope.filter.text}) : list;
+
+		orderedData = params.sorting() ?
+			$filter('orderBy')(orderedData, params.orderBy()) :
+			orderedData;
+
+		params.total(orderedData.length);
+		var current = orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count());
+		$defer.resolve(current);
+	};
+
+	$scope.tableParams = new ngTableParams(
+		{
+			page: 1,
+			count: 10,
+			sorting: {
+				name: 'asc'
+			}
+		},
+		{
+			total: 0,
+			getData: getData
+		}
+	);
+
+	users.list(function (data) {
+			list = data.result;
+			$scope.tableParams.reload();
+		},
+		function (err) {
+			console.error(err);
+		}
+	);
+
+	$scope.remove = function (o) {
+		okcancelModalDialog($modal,
+			{
+				headline: 'Eintrag löschen?',
+				question: 'Soll "' + o.name + '" gelöscht werden?'
+			}
+			, function () {
+				api.remove({id: o._id}, function () {
+					list = list.filter(function (oe) {
+						return oe != o;
+					});
+					$scope.refilter();
+				}, function (err) {
+					console.error(err);
+				})
+			});
+	};
+
+});
+
+var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, type, mode) {
+
+	$scope.isNew = ($stateParams.id == 'new');
 
 	$scope.edit = {};
 
-	api.item({id: $stateParams.id},
-		function (data) {
-			$scope.item = data.result;
+	if ($scope.isNew) {
+		$scope.item = {
+			aliases: [],
+			data: [],
+			tags: [],
+			type: type
+		};
+	} else {
+		api.item({id: $stateParams.id},
+			function (data) {
+				$scope.item = data.result;
+			},
+			function (err) {
+				console.error(err);
+			}
+		);
+	}
+
+	fields.list(function (data) {
+			$scope.fields = data.result;
 		},
 		function (err) {
 			console.error(err);
@@ -248,18 +450,32 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 		}
 	};
 
-	$scope.addData = function (format) {
+	$scope.addData = function (o) {
 		$scope.item.data.push({
-			format: format
+			format: o.format,
+			key: o.key,
+			desc: o.name
 		});
 	};
 
 	$scope.back = function () {
-		$state.go($scope.isPerson ? 'persons' : 'organisations');
+		$state.go(mode);
 	};
 
 	$scope.save = function () {
 		api.save({id: $stateParams.id}, {ent: $scope.item},
+			function (data) {
+				if (data.error) return alert(JSON.stringify(data.error));
+				$scope.back();
+			},
+			function (err) {
+				console.error(err);
+			}
+		);
+	};
+
+	$scope.create = function () {
+		api.create({ent: $scope.item},
 			function (data) {
 				if (data.error) return alert(JSON.stringify(data.error));
 				$scope.back();
@@ -275,16 +491,14 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 	};
 };
 
-app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, api) {
+app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, persons, fields) {
 	$scope.modename = 'Person';
-	$scope.isPerson = true;
-	typedEditCtrl($scope, $state, $stateParams, api);
+	typedEditCtrl($scope, $state, $stateParams, persons, fields, 'person', 'persons');
 });
 
-app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, api) {
+app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, organisations, fields) {
 	$scope.modename = 'Organisation';
-	$scope.isPerson = false;
-	typedEditCtrl($scope, $state, $stateParams, api);
+	typedEditCtrl($scope, $state, $stateParams, organisations, fields, 'organisation', 'organisations');
 });
 
 app.controller('LoginCtrl', function ($scope, $state, $stateParams, $resource, $rootScope, auth) {
@@ -337,7 +551,6 @@ app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
 
 	if (!$scope.isNew) {
 		users.item({id: $stateParams.id},
-			{user: $scope.user},
 			function (data) {
 				if (data.err) return alert(data.err);
 				$scope.user = data.result;
@@ -352,44 +565,49 @@ app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
 
 });
 
-app.controller('UsersCtrl', function ($scope, $state, $stateParams, $filter, ngTableParams, users) {
+app.controller('FieldEditCtrl', function ($scope, $state, $stateParams, fields) {
 
-	var list = [];
+	$scope.isNew = ($stateParams.id == 'new');
 
-	var getData = function ($defer, params) {
-		var orderedData = list;//$scope.filter.text.length ? $filter('filter')(list, {'name': $scope.filter.text}) : list;
-
-		orderedData = params.sorting() ?
-			$filter('orderBy')(orderedData, params.orderBy()) :
-			orderedData;
-
-		params.total(orderedData.length);
-		var current = orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count());
-		$defer.resolve(current);
+	$scope.create = function () {
+		fields.create({field: $scope.field},
+			function (data) {
+				if (data.err) return alert(data.err);
+				$state.go('fields');
+			},
+			function (err) {
+				console.error(err);
+			}
+		);
 	};
 
-	$scope.tableParams = new ngTableParams(
-		{
-			page: 1,
-			count: 10,
-			sorting: {
-				name: 'asc'
+	$scope.save = function () {
+		fields.save({id: $stateParams.id},
+			{field: $scope.field},
+			function (data) {
+				if (data.err) return alert(data.err);
+				$state.go('fields');
+			},
+			function (err) {
+				console.error(err);
 			}
-		},
-		{
-			total: 0,
-			getData: getData
-		}
-	);
+		);
+	};
 
-	users.list(function (data) {
-			list = data.result;
-			$scope.tableParams.reload();
-		},
-		function (err) {
-			console.error(err);
-		}
-	);
+	if (!$scope.isNew) {
+		fields.item({id: $stateParams.id},
+			function (data) {
+				if (data.err) return alert(data.err);
+				$scope.field = data.result;
+			},
+			function (err) {
+				console.error(err);
+			}
+		);
+	} else {
+		$scope.field = {format: 'string'};
+	}
+
 });
 
 app.directive('ngEnter', function () {
