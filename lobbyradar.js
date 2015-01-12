@@ -287,8 +287,8 @@ app.get("/api/fields/list", function (req, res) {
 
 // create field.
 app.post("/api/fields/create", function (req, res) {
-	debug("create field", req.body.user);
-	api.field_create(req.body.user, function (err, result) {
+	debug("create field", req.body.field);
+	api.field_create(req.body.field, function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });
@@ -312,7 +312,7 @@ app.all("/api/fields/get/:id", function (req, res) {
 // update field.
 app.post("/api/fields/update/:id", function (req, res) {
 	debug("update field %s", req.params.id);
-	api.field_update(req.params.id, req.body.user, function (err, result) {
+	api.field_update(req.params.id, req.body.field, function (err, result) {
 		res.type("json").status("200").json({error: err, result: result});
 	});
 });

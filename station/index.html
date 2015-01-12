@@ -16,6 +16,7 @@
 	<script src="assets/bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
 	<script src="assets/bower_components/angular-resource/angular-resource.min.js"></script>
 	<script src="assets/bower_components/ng-table/ng-table.min.js"></script>
+	<script src="assets/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
 	<script src="assets/js/station.js"></script>
 </head>
 <body ng-controller="AppCtrl">
@@ -153,8 +154,6 @@
 <script type="text/ng-template" id="partials/editor.html">
 
 	<h1><span ng-bind="modename"></span> bearbeiten</h1>
-
-	<!--<p>ID: <span ng-bind="item._id"></span></p>-->
 
 	<form role="form">
 
@@ -452,6 +451,39 @@
 		</tr>
 		</tbody>
 	</table>
+
+</script>
+
+<script type="text/ng-template" id="partials/field.html">
+
+	<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+			<h1>Feld <span ng-if="isNew">anlegen</span><span ng-if="!isNew">bearbeiten</span></h1>
+
+			<form class="form">
+				<div class="form-group">
+					<label>Name</label>
+					<input type="text" class="form-control" placeholder="Name" ng-model="field.name">
+				</div>
+				<div class="form-group">
+					<label>Schlüssel</label>
+					<input type="text" class="form-control" placeholder="Schlüssel" ng-model="field.key">
+				</div>
+				<div class="form-group">
+					<label>Typ</label>
+					<select class="form-control" ng-model="field.type">
+						<option value="text">Text</option>
+						<option value="number">Zahl</option>
+						<option value="link">Link</option>
+						<option value="address">Adresse</option>
+					</select>
+				</div>
+			</form>
+			<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
+			<button ng-if="isNew" class="btn btn-primary" ng-click="create()">Anlegen</button>
+			<button class="btn btn-default" ui-sref="users">Abbruch</button>
+		</div>
+	</div>
 
 </script>
 

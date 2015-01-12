@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('Station', ['ui.router', 'ngTable', 'ngResource']);
+var app = angular.module('Station', ['ui.router', 'ngTable', 'ngResource', 'ui.bootstrap']);
 
 app.config(function ($stateProvider, $urlRouterProvider) {
 	'use strict';
@@ -37,6 +37,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			templateUrl: "partials/fields.html",
 			controller: 'FieldsCtrl'
 		})
+		.state('field', {
+			url: "/field/:id",
+			templateUrl: "partials/field.html",
+			controller: 'FieldEditCtrl'
+		})
 		.state('users', {
 			url: "/users",
 			templateUrl: "partials/users.html",
@@ -57,7 +62,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 app.factory('organisations', function ($resource) {
 	'use strict';
 	return $resource('/api/entity/:cmd/:id', {
-			type:'entity'
+			type: 'entity'
 		}, {
 			list: {
 				method: 'GET',
@@ -77,7 +82,7 @@ app.factory('organisations', function ($resource) {
 
 app.factory('persons', function ($resource) {
 	'use strict';
-	return $resource('/api/entity/:cmd/:id', {type:'person'}, {
+	return $resource('/api/entity/:cmd/:id', {type: 'person'}, {
 			list: {
 				method: 'GET',
 				params: {cmd: 'list'}
@@ -246,7 +251,6 @@ var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api) {
 };
 
 app.controller('PersonsCtrl', function ($scope, $resource, $filter, ngTableParams, persons) {
-	'use strict';
 	typedListCtrl($scope, $resource, $filter, ngTableParams, persons);
 });
 
@@ -255,10 +259,10 @@ app.controller('OrganisationsCtrl', function ($scope, $resource, $filter, ngTabl
 });
 
 app.controller('FieldsCtrl', function ($scope, $resource, $filter, ngTableParams, fields) {
-	typedListCtrl($scope, $resource, $filter, ngTableParams, fields, 'field');
+	typedListCtrl($scope, $resource, $filter, ngTableParams, fields);
 });
 
-var typedEditCtrl = function ($scope, $state, $stateParams, api) {
+var typedEditCtrl = function ($scope, $state, $stateParams, api, fields) {
 
 	$scope.edit = {};
 
@@ -270,6 +274,15 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 			console.error(err);
 		}
 	);
+
+	fields.list(function (data) {
+			$scope.fields = data.result;
+		},
+		function (err) {
+			console.error(err);
+		}
+	);
+
 
 	$scope.addEntry = function (id, a) {
 		if ($scope.canAddEntry(id, a)) {
@@ -323,16 +336,16 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api) {
 	};
 };
 
-app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, api) {
+app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, persons, fields) {
 	$scope.modename = 'Person';
 	$scope.isPerson = true;
-	typedEditCtrl($scope, $state, $stateParams, api);
+	typedEditCtrl($scope, $state, $stateParams, persons, fields);
 });
 
-app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, api) {
+app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, organisations, fields) {
 	$scope.modename = 'Organisation';
 	$scope.isPerson = false;
-	typedEditCtrl($scope, $state, $stateParams, api);
+	typedEditCtrl($scope, $state, $stateParams, organisations, fields);
 });
 
 app.controller('LoginCtrl', function ($scope, $state, $stateParams, $resource, $rootScope, auth) {
@@ -385,7 +398,6 @@ app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
 
 	if (!$scope.isNew) {
 		users.item({id: $stateParams.id},
-			{user: $scope.user},
 			function (data) {
 				if (data.err) return alert(data.err);
 				$scope.user = data.result;
@@ -396,6 +408,51 @@ app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
 		);
 	} else {
 		$scope.user = {};
+	}
+
+});
+
+app.controller('FieldEditCtrl', function ($scope, $state, $stateParams, fields) {
+
+	$scope.isNew = ($stateParams.id == 'new');
+
+	$scope.create = function () {
+		fields.create({field: $scope.field},
+			function (data) {
+				if (data.err) return alert(data.err);
+				$state.go('fields');
+			},
+			function (err) {
+				console.error(err);
+			}
+		);
+	};
+
+	$scope.save = function () {
+		fields.save({id: $stateParams.id},
+			{field: $scope.field},
+			function (data) {
+				if (data.err) return alert(data.err);
+				$state.go('fields');
+			},
+			function (err) {
+				console.error(err);
+			}
+		);
+	};
+
+	if (!$scope.isNew) {
+		fields.item({id: $stateParams.id},
+			function (data) {
+				if (data.err) return alert(data.err);
+				$scope.field = data.result;
+			},
+			function (err) {
+				console.error(err);
+			}
+		);
+	} else {
+		$scope.field = {type:'text'};
 	}
 
 });
