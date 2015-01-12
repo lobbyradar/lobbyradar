@@ -32,6 +32,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			templateUrl: "partials/organisations.html",
 			controller: 'OrganisationsCtrl'
 		})
+		.state('fields', {
+			url: "/fields",
+			templateUrl: "partials/fields.html",
+			controller: 'FieldsCtrl'
+		})
 		.state('users', {
 			url: "/users",
 			templateUrl: "partials/users.html",
@@ -49,11 +54,30 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 		});
 });
 
-app.factory('api', function ($resource) {
+app.factory('organisations', function ($resource) {
 	'use strict';
 	return $resource('/api/entity/:cmd/:id', {
-			//apikey: 'ffalt'
+			type:'entity'
 		}, {
+			list: {
+				method: 'GET',
+				params: {cmd: 'list'}
+			},
+			item: {
+				method: 'GET',
+				params: {cmd: 'get'}
+			},
+			save: {
+				method: 'POST',
+				params: {cmd: 'update'}
+			}
+		}
+	);
+});
+
+app.factory('persons', function ($resource) {
+	'use strict';
+	return $resource('/api/entity/:cmd/:id', {type:'person'}, {
 			list: {
 				method: 'GET',
 				params: {cmd: 'list'}
@@ -72,9 +96,30 @@ app.factory('api', function ($resource) {
 
 app.factory('users', function ($resource) {
 	'use strict';
-	return $resource('/api/users/:cmd/:id', {
-			//apikey: 'ffalt'
-		}, {
+	return $resource('/api/users/:cmd/:id', {}, {
+			list: {
+				method: 'GET',
+				params: {cmd: 'list'}
+			},
+			item: {
+				method: 'GET',
+				params: {cmd: 'get'}
+			},
+			save: {
+				method: 'POST',
+				params: {cmd: 'update'}
+			},
+			create: {
+				method: 'POST',
+				params: {cmd: 'create'}
+			}
+		}
+	);
+});
+
+app.factory('fields', function ($resource) {
+	'use strict';
+	return $resource('/api/fields/:cmd/:id', {}, {
 			list: {
 				method: 'GET',
 				params: {cmd: 'list'}
@@ -138,7 +183,7 @@ app.controller('AppCtrl', function ($rootScope, $scope) {
 
 });
 
-var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api, type) {
+var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api) {
 
 	$scope.loading = true;
 
@@ -187,8 +232,7 @@ var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api, ty
 		}
 	);
 
-	api.list({type: type},
-		function (data) {
+	api.list(function (data) {
 			list = data.result;
 			$scope.$watch("filter.text", $scope.refilter);
 			$scope.tableParams.reload();
@@ -201,13 +245,17 @@ var typedListCtrl = function ($scope, $resource, $filter, ngTableParams, api, ty
 
 };
 
-app.controller('PersonsCtrl', function ($scope, $resource, $filter, ngTableParams, api) {
+app.controller('PersonsCtrl', function ($scope, $resource, $filter, ngTableParams, persons) {
 	'use strict';
-	typedListCtrl($scope, $resource, $filter, ngTableParams, api, 'person');
+	typedListCtrl($scope, $resource, $filter, ngTableParams, persons);
 });
 
-app.controller('OrganisationsCtrl', function ($scope, $resource, $filter, ngTableParams, api) {
-	typedListCtrl($scope, $resource, $filter, ngTableParams, api, 'entity');
+app.controller('OrganisationsCtrl', function ($scope, $resource, $filter, ngTableParams, organisations) {
+	typedListCtrl($scope, $resource, $filter, ngTableParams, organisations);
+});
+
+app.controller('FieldsCtrl', function ($scope, $resource, $filter, ngTableParams, fields) {
+	typedListCtrl($scope, $resource, $filter, ngTableParams, fields, 'field');
 });
 
 var typedEditCtrl = function ($scope, $state, $stateParams, api) {

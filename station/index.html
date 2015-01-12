@@ -38,7 +38,13 @@
 				<li class="active" ui-sref-active="active"><a href ui-sref="start">Start</a></li>
 				<li ui-sref-active="active"><a href ui-sref="persons">Personen</a></li>
 				<li ui-sref-active="active"><a href ui-sref="organisations">Organisationen</a></li>
-				<li ui-sref-active="active" ng-if="loggedInUser.admin"><a href ui-sref="users">Benutzerinnen</a></li>
+				<li class="dropdown" ng-if="loggedInUser.admin">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Stammdaten <span class="caret"></span></a>
+					<ul class="dropdown-menu" role="menu">
+						<li ui-sref-active="active"><a href ui-sref="fields">Datenfelder</a></li>
+						<li ui-sref-active="active"><a href ui-sref="users">Benutzerinnen</a></li>
+					</ul>
+				</li>
 			</ul>
 		</div>
 	</div>
@@ -431,6 +437,24 @@
 
 
 </script>
+
+<script type="text/ng-template" id="partials/fields.html">
+
+	<button class="btn btn-default" ui-sref="field({id: 'new'})">Feld anlegen</button>
+
+	<table ng-table="tableParams" class="table table-striped">
+		<tbody>
+		<tr ng-repeat="p in $data">
+			<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
+			<td data-title="'Schlüssel'" filter="{ 'key': 'text' }" sortable="'key'" ng-bind="p.key"></td>
+			<td data-title="'Typ'" filter="{ 'type': 'text' }" sortable="'type'" ng-bind="p.type"></td>
+			<td><span ui-sref='field({id: p._id})'><i class="fa fa-edit btn-right"></i></span></td>
+		</tr>
+		</tbody>
+	</table>
+
+</script>
+
 
 </body>
 </html>
