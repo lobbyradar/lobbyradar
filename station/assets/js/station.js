@@ -169,6 +169,17 @@ app.factory('fields', function ($resource) {
 	);
 });
 
+app.factory('tags', function ($resource) {
+	'use strict';
+	return $resource('/api/tags/:cmd', {}, {
+			list: {
+				method: 'GET',
+				params: {cmd: 'list'}
+			}
+		}
+	);
+});
+
 app.factory('auth', function ($resource) {
 	'use strict';
 	return $resource('/:cmd', {}, {
@@ -393,7 +404,7 @@ app.controller('UsersCtr2l', function ($scope, $state, $stateParams, $filter, ng
 
 });
 
-var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, type, mode) {
+var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, type, mode) {
 
 	$scope.isNew = ($stateParams.id == 'new');
 
@@ -424,6 +435,41 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, type, m
 			console.error(err);
 		}
 	);
+
+	$scope.tags = [];
+
+	tags.list(function (data) {
+			$scope.tags = data.result;
+		},
+		function (err) {
+			console.error(err);
+		}
+	);
+
+	//typeahead callbacks
+
+	var dataset = function () {
+		return {
+			name: 'tags',
+			displayKey: "value",
+			source: function (q, callback) {
+				var matches, substrRegex;
+				matches = [];
+				substrRegex = new RegExp(q, 'i');
+				$.each($scope.tags, function (i, s) {
+					if (substrRegex.test(s)) {
+						matches.push({value: s});
+					}
+				});
+				callback(matches);
+			}
+		};
+	};
+	$scope.typeaheadOptionsTags = {
+		minLength: 1,
+		highlight: true
+	};
+	$scope.datasetTags = dataset();
 
 	$scope.addEntry = function (id, a) {
 		if ($scope.canAddEntry(id, a)) {
@@ -491,14 +537,14 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, type, m
 	};
 };
 
-app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, persons, fields) {
+app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, persons, fields, tags) {
 	$scope.modename = 'Person';
-	typedEditCtrl($scope, $state, $stateParams, persons, fields, 'person', 'persons');
+	typedEditCtrl($scope, $state, $stateParams, persons, fields, tags, 'person', 'persons');
 });
 
-app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, organisations, fields) {
+app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, organisations, fields, tags) {
 	$scope.modename = 'Organisation';
-	typedEditCtrl($scope, $state, $stateParams, organisations, fields, 'organisation', 'organisations');
+	typedEditCtrl($scope, $state, $stateParams, organisations, fields, tags, 'organisation', 'organisations');
 });
 
 app.controller('LoginCtrl', function ($scope, $state, $stateParams, $resource, $rootScope, auth) {
@@ -621,5 +667,126 @@ app.directive('ngEnter', function () {
 				event.preventDefault();
 			}
 		});
+	};
+});
+
+app.directive('ngtypeahead', function () {
+	return {
+		restrict: 'AC',       // Only apply on an attribute or class
+		require: '?ngModel',  // The two-way data bound value that is returned by the directive
+		scope: {
+			options: '=',       // The typeahead configuration options (https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#options)
+			datasets: '='       // The typeahead datasets to use (https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#datasets)
+		},
+		link: function (scope, element, attrs, ngModel) {
+			// Flag if user is selecting or not
+			var selecting = false;
+			// Create the typeahead on the element
+			element.typeahead(scope.options, scope.datasets);
+
+			element.keypress(function (e) {
+				if (e.which == 13) {
+					scope.$apply(function () {
+						scope.$emit('typeahead:enter', e, element.val(), scope.datasets);
+					});
+					return true;
+				}
+			});
+
+			// Parses what is going to be set to model
+			ngModel.$parsers.push(function (fromView) {
+				var _ref = null;
+				if (((_ref = scope.options) != null ? _ref.editable : void 0) === false) {
+					ngModel.$setValidity('typeahead', !selecting);
+					if (selecting) {
+						return undefined;
+					}
+				}
+				return fromView;
+			});
+
+
+			function getCursorPosition(element) {
+				var position = 0;
+				element = element[0];
+
+				// IE Support.
+				if (document.selection) {
+					var range = document.selection.createRange();
+					range.moveStart('character', -element.value.length);
+					position = range.text.length;
+				}
+				// Other browsers.
+				else if (typeof element.selectionStart === 'number') {
+					position = element.selectionStart;
+				}
+				return position;
+			}
+
+			function setCursorPosition(element, position) {
+				element = element[0];
+				if (document.selection) {
+					var range = element.createTextRange();
+					range.move('character', position);
+					range.select();
+				}
+				else if (typeof element.selectionStart === 'number') {
+					element.focus();
+					element.setSelectionRange(position, position);
+				}
+			}
+
+			function updateScope(event, object, suggestion, dataset) {
+				// for some reason $apply will place [Object] into element, this hacks around it
+				//var preserveVal = element.val();
+				scope.$apply(function () {
+					selecting = false;
+					ngModel.$setViewValue(suggestion[scope.datasets.displayKey]);
+					scope.$emit(event, object, suggestion, scope.datasets);
+				});
+				//element.val(preserveVal);
+			}
+
+			// Update the value binding when a value is manually selected from the dropdown.
+			element.bind('typeahead:selected', function (object, suggestion, dataset) {
+				updateScope('typeahead:selected', object, suggestion, dataset);
+			});
+
+			// Update the value binding when a query is autocompleted.
+			element.bind('typeahead:autocompleted', function (object, suggestion, dataset) {
+				updateScope('typeahead:autocompleted', object, suggestion, dataset);
+			});
+
+			// Propagate the opened event
+			element.bind('typeahead:opened', function () {
+				scope.$emit('typeahead:opened');
+			});
+
+			// Propagate the closed event
+			element.bind('typeahead:closed', function () {
+				element.typeahead('val', ngModel.$viewValue);
+				//element.val(ngModel.$viewValue);
+				scope.$emit('typeahead:closed');
+			});
+
+			// Propagate the cursorchanged event
+			element.bind('typeahead:cursorchanged', function (event, suggestion, dataset) {
+				scope.$emit('typeahead:cursorchanged', event, suggestion, dataset);
+			});
+
+			// Update the value binding when the user manually enters some text
+			element.bind('input',
+				function () {
+					var preservePos = getCursorPosition(element);
+					scope.$apply(function () {
+						var value = element.val();
+						selecting = true;
+						ngModel.$setViewValue(value);
+					});
+					setCursorPosition(element, preservePos);
+					scope.$emit('typeahead:changed', element.val(), scope.datasets);
+				}
+			);
+		}
 	};
 });

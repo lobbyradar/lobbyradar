@@ -89,3 +89,105 @@
 	font-size: 1.1em;
 	font-weight: bold;
 }
+
+.twitter-typeahead {
+	width: 100%;
+}
+
+/* typeahead */
+
+span.twitter-typeahead .tt-dropdown-menu {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 1000;
+	display: none;
+	float: left;
+	min-width: 160px;
+	padding: 5px 0;
+	margin: 2px 0 0;
+	list-style: none;
+	font-size: 14px;
+	text-align: left;
+	background-color: #ffffff;
+	border: 1px solid #cccccc;
+	border: 1px solid rgba(0, 0, 0, 0.15);
+	border-radius: 4px;
+	-webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+	background-clip: padding-box;
+}
+span.twitter-typeahead .tt-suggestion > p {
+	display: block;
+	padding: 6px 20px;
+	clear: both;
+	font-weight: normal;
+	line-height: 1.42857143;
+	color: #333333;
+	white-space: nowrap;
+}
+span.twitter-typeahead .tt-suggestion > p:hover,
+span.twitter-typeahead .tt-suggestion > p:focus {
+	color: #ffffff;
+	text-decoration: none;
+	outline: 0;
+	background-color: #428bca;
+}
+span.twitter-typeahead .tt-suggestion.tt-cursor {
+	color: #ffffff;
+	background-color: #428bca;
+}
+span.twitter-typeahead {
+	width: 100%;
+}
+.input-group span.twitter-typeahead {
+	display: block !important;
+}
+.input-group span.twitter-typeahead .tt-dropdown-menu {
+	top: 32px !important;
+}
+.input-group.input-group-lg span.twitter-typeahead .tt-dropdown-menu {
+	top: 44px !important;
+}
+.input-group.input-group-sm span.twitter-typeahead .tt-dropdown-menu {
+	top: 28px !important;
+}
+
+/*
+.tt-input.fixed {
+	border-color: #3C763D;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, .075) inset;
+	background-color: #DFF0D8
+}
+
+.tt-suggestion {
+	display: block;
+	padding: 3px 20px
+}
+
+.tt-suggestion.tt-is-under-cursor {
+	color: #fff;
+	cursor: pointer;
+	background-color: #0081c2;
+	background-image: -moz-linear-gradient(top, #08c, #0077b3);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#08c), to(#0077b3));
+	background-image: -webkit-linear-gradient(top, #08c, #0077b3);
+	background-image: -o-linear-gradient(top, #08c, #0077b3);
+	background-image: linear-gradient(to bottom, #08c, #0077b3);
+	background-repeat: repeat-x
+}
+
+.tt-suggestion.tt-is-under-cursor a {
+	color: #fff;
+	cursor: pointer
+}
+
+.tt-suggestion p {
+	margin: 0;
+	cursor: pointer
+}
+
+.tt-cursor {
+	background-color: #bd0
+}
+*/

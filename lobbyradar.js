@@ -328,6 +328,14 @@ app.post("/api/fields/update/:id", function (req, res) {
 	});
 });
 
+// get tags.
+app.all("/api/tags/list", function (req, res) {
+	debug("get tags");
+	api.tags(function (err, result) {
+		res.type("json").status("200").json({error: err, result: result});
+	});
+});
+
 // current user.
 app.get("/user", function (req, res) {
 	if (req.user) res.type("json").status("200").json({error: null, result: {name:req.user.name,admin:req.user.admin}});
@@ -417,7 +425,9 @@ app.all("*", function (req, res) {
 	res.status(404).send("404");
 });
 
-api.user_create({name: 'admin', pass: 'totalsupergehaim007', admin: true}, function () {});
+if (config.defaultadmin) {
+	api.user_create({name: config.defaultadmin.name, pass: config.defaultadmin.pass, admin: true}, function () {});
+}
 
 // determine listen method
 if (config.listen.hasOwnProperty("host") && config.listen.hasOwnProperty("port")) {

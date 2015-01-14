@@ -11,5 +11,9 @@ module.exports = {
 		// port: 9000
 	},
 	db: "mongodb://127.0.0.1/lobbyradar",
-	nsa: null, // "udp4://server:port/"
+	nsa: null, // "udp4://server:port/",
+	defaultadmin:{
+		name: "admin",
+		pass: "totalsupergehaim007"
+	}
 };

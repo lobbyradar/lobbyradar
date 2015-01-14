@@ -12,6 +12,7 @@
 	<link rel="stylesheet" href="assets/css/index.css">
 	<script src="assets/bower_components/jquery/dist/jquery.min.js"></script>
 	<script src="assets/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="assets/bower_components/typeahead.js/dist/typeahead.jquery.min.js"></script>
 	<script src="assets/bower_components/angular/angular.min.js"></script>
 	<script src="assets/bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
 	<script src="assets/bower_components/angular-resource/angular-resource.min.js"></script>
@@ -124,13 +125,6 @@
 			</div>
 		</div>
 
-		<!--<div class="row">-->
-		<!--<div class="col-md-3"><p><strong>Page:</strong> {{tableParams.page()}}</p></div>-->
-		<!--<div class="col-md-3"><p><strong>Count per page:</strong> {{tableParams.count()}}</p></div>-->
-		<!--<div class="col-md-3"><p><strong>Total:</strong> {{tableParams.total()}}</p></div>-->
-		<!--<div class="col-md-3"><p><strong>Sorting:</strong> {{tableParams.sorting()|json}}</p></div>-->
-		<!--</div>-->
-
 		<table ng-table="tableParams" template-pagination="partials/pager" show-filter="false" class="table table-striped">
 			<tbody>
 			<tr ng-repeat="p in $data">
@@ -214,12 +208,11 @@
 					<div ng-repeat="o in item.aliases" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Alias entfernen" ng-click="removeEntry('aliases', o)"></i></div>
 				</div>
 			</div>
-
 			<div class="form-group col-md-6">
 				<label>Schlagworte</label>
 
 				<div class="has-feedback">
-					<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" ng-enter="addEntry('tags', edit.tags)">
+					<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" options="typeaheadOptionsTags" datasets="datasetTags" ng-enter="addEntry('tags', edit.tags)" ngtypeahead>
 					<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
 				</div>
 				<div class="label-list">
