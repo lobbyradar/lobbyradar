@@ -129,6 +129,7 @@
 			<tbody>
 			<tr ng-repeat="p in $data">
 				<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
+				<td data-title="'Schlagworte'" filter="{ 'tags': 'text' }" sortable="'tags'" ng-bind="p.tags"></td>
 				<td>
 					<span class="btn-right" ng-click="remove(p)" title="Person löschen"><i class="fa fa-trash"></i></span>
 					<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
@@ -171,6 +172,7 @@
 			<tbody>
 			<tr ng-repeat="p in $data">
 				<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
+				<td data-title="'Schlagworte'" filter="{ 'tags': 'text' }" sortable="'tags'" ng-bind="p.tags"></td>
 				<td>
 					<span class="btn-right" ng-click="remove(p)" title="Organisation löschen"><i class="fa fa-trash"></i></span>
 					<span class="btn-right" ui-sref='organisation({id: p._id})' title="Organisation bearbeiten"><i class="fa fa-edit"></i></span>
@@ -212,7 +214,6 @@
 				<label>Schlagworte</label>
 
 				<div class="has-feedback">
-					<!--//ng-enter="addEntry('tags', edit.tags)"-->
 					<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" options="typeaheadOptionsTags" datasets="datasetTags" ngtypeahead>
 					<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
 				</div>
@@ -306,6 +307,18 @@
 				<div class="form-group col-md-12">
 					<!--<label>Text</label>-->
 					<input type="text" class="form-control" placeholder="Text" ng-model="d.value">
+				</div>
+			</form>
+		</div>
+
+		<div ng-switch-when="bool" class="row">
+			<form class="form">
+				<div class="form-group col-md-12">
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" ng-model="d.value"> <span ng-if="d.value"><b>Ja</b>/Nein</span><span ng-if="!d.value">Ja/<b>Nein</b></span>
+						</label>
+					</div>
 				</div>
 			</form>
 		</div>
@@ -485,6 +498,7 @@
 						<option value="string">Text</option>
 						<option value="number">Zahl</option>
 						<option value="link">Link</option>
+						<option value="bool">Ja/Nein-Wert</option>
 						<option value="address">Adresse</option>
 					</select>
 				</div>

@@ -291,7 +291,13 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		//	$filter('filter')(list, params.filter()) :
 		//	list;
 
-		var orderedData = $scope.filter.text.length ? $filter('filter')(list, {'name': $scope.filter.text}) : list;
+		var orderedData = $scope.filter.text.length == 0 ? list : list.filter(function (o) {
+			return (
+			(o.name.indexOf($scope.filter.text) >= 0) ||
+			((o.tags ? o.tags : []).join(',').indexOf($scope.filter.text) >= 0)
+			);
+		});
+		//$filter('filter')(list, {'name': $scope.filter.text}) : list;
 
 		orderedData = params.sorting() ?
 			$filter('orderBy')(orderedData, params.orderBy()) :
@@ -469,7 +475,6 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, t
 	var typeaheadenter = function (sender, event, value, daset, clear) {
 		if (daset.name == 'tags') {
 			if ($scope.canAddEntry('tags', value)) {
-				console.log('value', value);
 				$scope.item['tags'].push(value);
 				$scope.edit['tags'] = '';
 				clear();
