@@ -138,6 +138,14 @@ app.get("/api/entity/list", function (req, res) {
 	});
 });
 
+// get entities for backend.
+app.get("/api/entity/list2", function (req, res) {
+	debug("list full entities");
+	api.ent_list_full(req.query, req.fields, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
 // delete entity. 
 app.all("/api/entity/delete/:id", function (req, res) {
 	debug("delete entity %s", req.params.id);
@@ -368,7 +376,6 @@ app.all("/api", function (req, res) {
 app.all("/entity/:id", function (req, res) {
 	api.ent_get(req.params.id, function (err, ent) {
 		api.ent_rels(ent._id, function (err, rels) {
-			console.log(rels);
 			ent.relations = rels;
 			res.render("entity", {
 				"err": err,

@@ -66,7 +66,7 @@ app.factory('organisations', function ($resource) {
 		}, {
 			list: {
 				method: 'GET',
-				params: {cmd: 'list'}
+				params: {cmd: 'list2'}
 			},
 			item: {
 				method: 'GET',
@@ -93,7 +93,7 @@ app.factory('persons', function ($resource) {
 	return $resource('/api/entity/:cmd/:id', {type: 'person'}, {
 			list: {
 				method: 'GET',
-				params: {cmd: 'list'}
+				params: {cmd: 'list2'}
 			},
 			item: {
 				method: 'GET',
@@ -256,7 +256,8 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	var list = [];
 
 	$scope.filter = {
-		text: ''
+		text: '',
+		special:false
 	};
 
 	$scope.refilter = function () {
@@ -286,10 +287,12 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 			});
 	};
 
+	$scope.toggleSpecialFilter = function () {
+		$scope.filter.special = !$scope.filter.special;
+		$scope.refilter();
+	};
+
 	var getData = function ($defer, params) {
-		//var orderedData = params.filter() ?
-		//	$filter('filter')(list, params.filter()) :
-		//	list;
 
 		var orderedData = $scope.filter.text.length == 0 ? list : list.filter(function (o) {
 			return (
@@ -297,7 +300,13 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 			((o.tags ? o.tags : []).join(',').indexOf($scope.filter.text) >= 0)
 			);
 		});
-		//$filter('filter')(list, {'name': $scope.filter.text}) : list;
+
+		if ($scope.filter.special) {
+			orderedData = orderedData.filter(function (o) {
+				var names = o.name.split(' ');
+				return (names.length <= 1) || (names.length > 2);
+			});
+		}
 
 		orderedData = params.sorting() ?
 			$filter('orderBy')(orderedData, params.orderBy()) :

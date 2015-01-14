@@ -106,16 +106,23 @@
 	<div ng-show="!loading">
 
 		<div class="row">
-			<div class="col-md-6 headline">
+			<div class="col-md-4 headline">
 				<h1>Personen</h1>
 
 				<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
 			</div>
 
-			<div class="col-md-3">
+			<div class="col-md-2">
 				<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>
 			</div>
 
+			<div class="col-md-3">
+				<div class="checkbox pull-right">
+					<label>
+						<input type="checkbox" ng-checked="specialnonstandardfilter" ng-click="toggleSpecialFilter()"> Nicht-Standard-Namen
+					</label>
+				</div>
+			</div>
 			<div class="col-md-3">
 				<div class="pull-right has-feedback">
 					<label>Suche</label>
@@ -130,6 +137,7 @@
 			<tr ng-repeat="p in $data">
 				<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
 				<td data-title="'Schlagworte'" filter="{ 'tags': 'text' }" sortable="'tags'" ng-bind="p.tags"></td>
+				<td data-title="'Verbindungen'" filter="{ 'connections': 'text' }" sortable="'connections'" ng-bind="p.connections"></td>
 				<td>
 					<span class="btn-right" ng-click="remove(p)" title="Person löschen"><i class="fa fa-trash"></i></span>
 					<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
@@ -173,6 +181,7 @@
 			<tr ng-repeat="p in $data">
 				<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
 				<td data-title="'Schlagworte'" filter="{ 'tags': 'text' }" sortable="'tags'" ng-bind="p.tags"></td>
+				<td data-title="'Verbindungen'" filter="{ 'connections': 'text' }" sortable="'connections'" ng-bind="p.connections"></td>
 				<td>
 					<span class="btn-right" ng-click="remove(p)" title="Organisation löschen"><i class="fa fa-trash"></i></span>
 					<span class="btn-right" ui-sref='organisation({id: p._id})' title="Organisation bearbeiten"><i class="fa fa-edit"></i></span>
@@ -296,7 +305,6 @@
 		<div ng-switch-when="number" class="row">
 			<form class="form">
 				<div class="form-group col-md-4">
-					<!--<label>Wert</label>-->
 					<input type="number" class="form-control" placeholder="Zahl" ng-model="d.value">
 				</div>
 			</form>
@@ -305,7 +313,6 @@
 		<div ng-switch-when="string" class="row">
 			<form class="form">
 				<div class="form-group col-md-12">
-					<!--<label>Text</label>-->
 					<input type="text" class="form-control" placeholder="Text" ng-model="d.value">
 				</div>
 			</form>
@@ -343,6 +350,13 @@
 		<button type="button" class="btn btn-default" ng-click="back()">Abbruch</button>
 	</div>
 
+	<hr/>
+
+	<!--<div>-->
+		<!--<div ng-repeat="o in item.relations">-->
+			<!--<span ng-bind="o"></span>-->
+		<!--</div>-->
+	<!--</div>-->
 
 </script>
 
