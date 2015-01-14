@@ -447,29 +447,38 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, t
 	);
 
 	//typeahead callbacks
-
-	var dataset = function () {
-		return {
-			name: 'tags',
-			displayKey: "value",
-			source: function (q, callback) {
-				var matches, substrRegex;
-				matches = [];
-				substrRegex = new RegExp(q, 'i');
-				$.each($scope.tags, function (i, s) {
-					if (substrRegex.test(s)) {
-						matches.push({value: s});
-					}
-				});
-				callback(matches);
-			}
-		};
-	};
 	$scope.typeaheadOptionsTags = {
 		minLength: 1,
 		highlight: true
 	};
-	$scope.datasetTags = dataset();
+	$scope.datasetTags = {
+		name: 'tags',
+		displayKey: "value",
+		source: function (q, callback) {
+			var matches, substrRegex;
+			matches = [];
+			substrRegex = new RegExp(q, 'i');
+			$.each($scope.tags, function (i, s) {
+				if (substrRegex.test(s)) {
+					matches.push({value: s});
+				}
+			});
+			callback(matches);
+		}
+	};
+	var typeaheadenter = function (sender, event, value, daset, clear) {
+		if (daset.name == 'tags') {
+			if ($scope.canAddEntry('tags', value)) {
+				console.log('value', value);
+				$scope.item['tags'].push(value);
+				$scope.edit['tags'] = '';
+				clear();
+			}
+		}
+	};
+
+	$scope.$on("typeahead:enter", typeaheadenter);
+	$scope.$on("typeahead:selected", typeaheadenter);
 
 	$scope.addEntry = function (id, a) {
 		if ($scope.canAddEntry(id, a)) {
@@ -520,7 +529,7 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, t
 		);
 	};
 
-	$scope.create = function () {
+	$scope.createnew = function () {
 		api.create({ent: $scope.item},
 			function (data) {
 				if (data.error) return alert(JSON.stringify(data.error));
@@ -570,7 +579,7 @@ app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
 
 	$scope.isNew = ($stateParams.id == 'new');
 
-	$scope.create = function () {
+	$scope.createnew = function () {
 		users.create({user: $scope.user},
 			function (data) {
 				if (data.err) return alert(data.err);
@@ -615,7 +624,7 @@ app.controller('FieldEditCtrl', function ($scope, $state, $stateParams, fields) 
 
 	$scope.isNew = ($stateParams.id == 'new');
 
-	$scope.create = function () {
+	$scope.createnew = function () {
 		fields.create({field: $scope.field},
 			function (data) {
 				if (data.err) return alert(data.err);
@@ -663,7 +672,6 @@ app.directive('ngEnter', function () {
 				scope.$apply(function () {
 					scope.$eval(attrs.ngEnter);
 				});
-
 				event.preventDefault();
 			}
 		});
@@ -687,7 +695,9 @@ app.directive('ngtypeahead', function () {
 			element.keypress(function (e) {
 				if (e.which == 13) {
 					scope.$apply(function () {
-						scope.$emit('typeahead:enter', e, element.val(), scope.datasets);
+						scope.$emit('typeahead:enter', e, element.val(), scope.datasets, function () {
+							element.typeahead('val', '');
+						});
 					});
 					return true;
 				}
@@ -704,7 +714,6 @@ app.directive('ngtypeahead', function () {
 				}
 				return fromView;
 			});
-
 
 			function getCursorPosition(element) {
 				var position = 0;
@@ -742,14 +751,16 @@ app.directive('ngtypeahead', function () {
 				scope.$apply(function () {
 					selecting = false;
 					ngModel.$setViewValue(suggestion[scope.datasets.displayKey]);
-					scope.$emit(event, object, suggestion, scope.datasets);
+					scope.$emit(event, object, suggestion, scope.datasets, function () {
+						element.typeahead('val', '');
+					});
 				});
 				//element.val(preserveVal);
 			}
 
 			// Update the value binding when a value is manually selected from the dropdown.
 			element.bind('typeahead:selected', function (object, suggestion, dataset) {
-				updateScope('typeahead:selected', object, suggestion, dataset);
+				updateScope('typeahead:selected', object, suggestion.value, dataset);
 			});
 
 			// Update the value binding when a query is autocompleted.

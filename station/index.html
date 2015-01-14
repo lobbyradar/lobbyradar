@@ -212,7 +212,8 @@
 				<label>Schlagworte</label>
 
 				<div class="has-feedback">
-					<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" options="typeaheadOptionsTags" datasets="datasetTags" ng-enter="addEntry('tags', edit.tags)" ngtypeahead>
+					<!--//ng-enter="addEntry('tags', edit.tags)"-->
+					<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" options="typeaheadOptionsTags" datasets="datasetTags" ngtypeahead>
 					<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
 				</div>
 				<div class="label-list">
@@ -325,7 +326,7 @@
 
 	<div class="pull-right">
 		<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
-		<button ng-if="isNew" class="btn btn-primary" ng-click="create()">Anlegen</button>
+		<button ng-if="isNew" class="btn btn-primary" ng-click="createnew()">Anlegen</button>
 		<button type="button" class="btn btn-default" ng-click="back()">Abbruch</button>
 	</div>
 
@@ -415,7 +416,7 @@
 			</form>
 			<div class="pull-right">
 				<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
-				<button ng-if="isNew" class="btn btn-primary" ng-click="create()">Anlegen</button>
+				<button ng-if="isNew" class="btn btn-primary" ng-click="createnew()">Anlegen</button>
 				<button class="btn btn-default" ui-sref="users">Abbruch</button>
 			</div>
 		</div>
@@ -490,7 +491,7 @@
 			</form>
 			<div class="pull-right">
 				<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
-				<button ng-if="isNew" class="btn btn-primary" ng-click="create()">Anlegen</button>
+				<button ng-if="isNew" class="btn btn-primary" ng-click="createnew()">Anlegen</button>
 				<button class="btn btn-default" ui-sref="users">Abbruch</button>
 			</div>
 		</div>
