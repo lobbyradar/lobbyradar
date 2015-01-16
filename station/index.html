@@ -143,43 +143,43 @@
 
 	<!--<div ng-show="!loading">-->
 
-		<table ng-table="tableParams" template-pagination="partials/pager" show-filter="false" class="table table-striped">
+	<table ng-table="tableParams" template-pagination="partials/pager" show-filter="false" class="table table-striped">
 
-			<thead>
-			<tr>
-				<th
-						class="sortable" ng-class="{
+		<thead>
+		<tr>
+			<th
+					class="sortable" ng-class="{
                     'sort-asc': tableParams.isSortBy('name', 'asc'),
                     'sort-desc': tableParams.isSortBy('name', 'desc')
                   }"
-						ng-click="tableParams.sorting('name', tableParams.isSortBy('name', 'asc') ? 'desc' : 'asc')">
-					Name
-				</th>
+					ng-click="tableParams.sorting('name', tableParams.isSortBy('name', 'asc') ? 'desc' : 'asc')">
+				Name
+			</th>
 
-				<th ng-repeat="f in q.fields"
-					class="sortable" ng-class="{
+			<th ng-repeat="f in q.fields"
+				class="sortable" ng-class="{
                     'sort-asc': tableParams.isSortBy(f.key, 'asc'),
                     'sort-desc': tableParams.isSortBy(f.key, 'desc')
                   }"
-					ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
-					{{f.name}}
-				</th>
+				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+				{{f.name}}
+			</th>
 
-				<th class="text-right">Aktionen</th>
-			</tr>
-			</thead>
+			<th class="text-right">Aktionen</th>
+		</tr>
+		</thead>
 
-			<tbody>
-			<tr ng-repeat="p in $data">
-				<td ng-bind="p.name"></td>
-				<td ng-repeat="f in q.fields" ng-bind="getDispayValues(f,p)"></td>
-				<td>
-					<span class="btn-right" ng-click="remove(p)" title="Person löschen"><i class="fa fa-trash"></i></span>
-					<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
-				</td>
-			</tr>
-			</tbody>
-		</table>
+		<tbody>
+		<tr ng-repeat="p in $data">
+			<td ng-bind="p.name"></td>
+			<td ng-repeat="f in q.fields" ng-bind="getDispayValues(f,p)"></td>
+			<td>
+				<span class="btn-right" ng-click="remove(p)" title="Person löschen"><i class="fa fa-trash"></i></span>
+				<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
+			</td>
+		</tr>
+		</tbody>
+	</table>
 	<!--</div>-->
 
 </script>
@@ -422,11 +422,28 @@
 
 	<hr/>
 
-	<!--<div>-->
-	<!--<div ng-repeat="o in item.relations">-->
-	<!--<span ng-bind="o"></span>-->
-	<!--</div>-->
-	<!--</div>-->
+	<h1>Verbindungen</h1>
+	<table class="table table-striped">
+		<head>
+			<tr>
+				<th>Name</th>
+				<th>Art</th>
+				<th>Schlagworte</th>
+			</tr>
+		</head>
+		<tbody>
+		<tr ng-repeat="o in item.relations">
+			<td ng-bind="o.entity.name"></td>
+			<td ng-bind="o.type"></td>
+			<!--<td ng-bind="o.weight"></td>-->
+			<!--<td ng-bind="o.updated"></td>-->
+			<!--<td ng-bind="o.created"></td>-->
+			<td ng-bind="o.tags"></td>
+			<!--<td ng-bind="o.entities"></td>-->
+			<!--<td ng-bind="o.data"></td>-->
+		</tr>
+		</tbody>
+	</table>
 
 </script>
 

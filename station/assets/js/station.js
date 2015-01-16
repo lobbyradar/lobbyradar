@@ -509,7 +509,7 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, t
 			type: type
 		};
 	} else {
-		api.item({id: $stateParams.id},
+		api.item({id: $stateParams.id, relations: true},
 			function (data) {
 				$scope.item = data.result;
 			},
