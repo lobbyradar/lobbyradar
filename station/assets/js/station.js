@@ -179,6 +179,20 @@ app.factory('tags', function ($resource) {
 		}
 	);
 });
+app.factory('relations', function ($resource) {
+	'use strict';
+	return $resource('/api/relation/:cmd/:id', {}, {
+			list: {
+				method: 'GET',
+				params: {cmd: 'list'}
+			},
+			remove: {
+				method: 'GET',
+				params: {cmd: 'delete'}
+			}
+		}
+	);
+});
 
 app.factory('auth', function ($resource) {
 	'use strict';
@@ -243,6 +257,36 @@ var okcancelModalDialog = function ($modal, data, cb) {
 	});
 
 	modalInstance.result.then(function () {
+		cb(data);
+	}, function () {
+//			$log.info('Modal dismissed at: ' + new Date());
+	});
+};
+
+var editModalDialog = function ($modal, data, templateUrl, cb) {
+	var modalInstance = $modal.open({
+		templateUrl: templateUrl,
+		controller: function ($scope, $modalInstance, data) {
+
+			$scope.data = data;
+
+			$scope.ok = function (form) {
+				if (form.$valid)
+					$modalInstance.close($scope.data);
+			};
+
+			$scope.cancel = function () {
+				$modalInstance.dismiss('cancel');
+			};
+		},
+		resolve: {
+			data: function () {
+				return data;
+			}
+		}
+	});
+
+	modalInstance.result.then(function (data) {
 		cb(data);
 	}, function () {
 //			$log.info('Modal dismissed at: ' + new Date());
@@ -418,6 +462,23 @@ var entitiesListCtrl = function ($scope, $resource, $filter, $modal, ngTablePara
 		}
 	);
 
+	$scope.relationsDialog = function (item) {
+		api.item({id: item._id, relations: true},
+			function (data) {
+				editModalDialog($modal, {
+					item: data.result
+				}, 'partials/relations-modal.html', function (data) {
+					if (data) {
+						alert('ok');
+					}
+				});
+			},
+			function (err) {
+				console.error(err);
+			}
+		);
+
+	};
 };
 
 app.controller('PersonsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, persons, fields) {
@@ -710,6 +771,27 @@ app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
 
 });
 
+app.controller('RelationsListCtrl', function ($scope, $modal, relations) {
+
+	$scope.remove = function (rel) {
+		okcancelModalDialog($modal,
+			{
+				headline: 'Verbindung löschen?',
+				question: 'Soll "' + $scope.entity.name + '"-"' + rel.entity.name + '" gelöscht werden?'
+			}
+			, function () {
+				relations.remove({id: rel._id}, function () {
+					$scope.relations = $scope.relations.filter(function (oe) {
+						return oe != rel;
+					});
+				}, function (err) {
+					console.error(err);
+				})
+			});
+	};
+
+});
+
 app.controller('FieldEditCtrl', function ($scope, $state, $stateParams, fields) {
 
 	$scope.isNew = ($stateParams.id == 'new');
@@ -888,6 +970,22 @@ app.directive('ngtypeahead', function () {
 					scope.$emit('typeahead:changed', element.val(), scope.datasets);
 				}
 			);
+		}
+	};
+});
+
+app.directive('ngrelations', function () {
+	return {
+		restrict: 'A',
+		templateUrl: 'partials/relations.html',
+		scope: {
+			"relations": "=",
+			"entity": "="
+		},
+		link: function (scope, element, attrs) {
+			//scope.$watch('relations', function(v) {
+			//	console.log(v);
+			//});
 		}
 	};
 });

@@ -175,6 +175,7 @@
 			<td ng-repeat="f in q.fields" ng-bind="getDispayValues(f,p)"></td>
 			<td>
 				<span class="btn-right" ng-click="remove(p)" title="Person löschen"><i class="fa fa-trash"></i></span>
+				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
 				<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
 			</td>
 		</tr>
@@ -254,6 +255,7 @@
 			<td ng-repeat="f in q.fields" ng-bind="getDispayValues(f,p)"></td>
 			<td>
 				<span class="btn-right" ng-click="remove(p)" title="Organisation löschen"><i class="fa fa-trash"></i></span>
+				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
 				<span class="btn-right" ui-sref='organisation({id: p._id})' title="Organisation bearbeiten"><i class="fa fa-edit"></i></span>
 			</td>
 		</tr>
@@ -423,28 +425,57 @@
 	<hr/>
 
 	<h1>Verbindungen</h1>
-	<table class="table table-striped">
-		<head>
-			<tr>
-				<th>Name</th>
-				<th>Art</th>
-				<th>Schlagworte</th>
-			</tr>
-		</head>
-		<tbody>
-		<tr ng-repeat="o in item.relations">
-			<td ng-bind="o.entity.name"></td>
-			<td ng-bind="o.type"></td>
-			<!--<td ng-bind="o.weight"></td>-->
-			<!--<td ng-bind="o.updated"></td>-->
-			<!--<td ng-bind="o.created"></td>-->
-			<td ng-bind="o.tags"></td>
-			<!--<td ng-bind="o.entities"></td>-->
-			<!--<td ng-bind="o.data"></td>-->
-		</tr>
-		</tbody>
-	</table>
+	<div ngrelations data-relations="item.relations" data-entity="item"></div>
 
+</script>
+
+<script type="text/ng-template" id="partials/relations-modal.html">
+
+	<div class="modal-header">
+		<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
+		<h4 class="modal-title">
+			Verbindungen {{data.item.name}}
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<div ngrelations data-relations="data.item.relations" data-entity="data.item"></div>
+	</div>
+
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="ok(item)" translate>OK</button>
+		<button class="btn btn-warning" ng-click="cancel()" translate>Cancel</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="partials/relations.html">
+	<div ng-controller="RelationsListCtrl">
+		<table class="table table-striped">
+			<head>
+				<tr>
+					<th>Name</th>
+					<th>Art</th>
+					<th>Schlagworte</th>
+					<th>Aktionen</th>
+				</tr>
+			</head>
+			<tbody>
+			<tr ng-repeat="o in relations">
+				<td ng-bind="o.entity.name"></td>
+				<td ng-bind="o.type"></td>
+				<!--<td ng-bind="o.weight"></td>-->
+				<!--<td ng-bind="o.updated"></td>-->
+				<!--<td ng-bind="o.created"></td>-->
+				<td ng-bind="o.tags"></td>
+				<!--<td ng-bind="o.entities"></td>-->
+				<!--<td ng-bind="o.data"></td>-->
+				<td>
+					<span class="btn-right" ng-click="remove(o)" title="Verbindung löschen"><i class="fa fa-trash"></i></span>
+				</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
 </script>
 
 <script type="text/ng-template" id="partials/users.html">
