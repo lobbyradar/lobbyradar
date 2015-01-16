@@ -99,45 +99,80 @@
 
 <script type="text/ng-template" id="partials/persons.html">
 
+	<div class="row">
+		<div class="col-md-4 headline">
+			<h1>Personen</h1>
+
+			<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
+
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" ng-checked="specialnonstandardfilter" ng-click="toggleSpecialFilter()"> Nicht-Standard-Namen filtern
+				</label>
+			</div>
+
+		</div>
+
+		<div class="col-md-2">
+			<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>
+		</div>
+
+		<div class="col-md-3">
+			<div class="btn-group">
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+					Daten anzeigen <span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" role="menu">
+					<li ng-repeat="o in fields" ng-class="{active:o.visible}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="col-md-3">
+			<div class="pull-right has-feedback">
+				<label>Suche</label>
+				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
+				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
+			</div>
+		</div>
+
+	</div>
 	<div ng-if="loading" class="loading">
 		<h1><i class="fa fa-spin fa-spinner"></i> Personen-Liste wird geladen</h1>
 	</div>
 
-	<div ng-show="!loading">
-
-		<div class="row">
-			<div class="col-md-4 headline">
-				<h1>Personen</h1>
-
-				<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
-			</div>
-
-			<div class="col-md-2">
-				<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>
-			</div>
-
-			<div class="col-md-3">
-				<div class="checkbox pull-right">
-					<label>
-						<input type="checkbox" ng-checked="specialnonstandardfilter" ng-click="toggleSpecialFilter()"> Nicht-Standard-Namen
-					</label>
-				</div>
-			</div>
-			<div class="col-md-3">
-				<div class="pull-right has-feedback">
-					<label>Suche</label>
-					<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
-					<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
-				</div>
-			</div>
-		</div>
+	<!--<div ng-show="!loading">-->
 
 		<table ng-table="tableParams" template-pagination="partials/pager" show-filter="false" class="table table-striped">
+
+			<thead>
+			<tr>
+				<th
+						class="sortable" ng-class="{
+                    'sort-asc': tableParams.isSortBy('name', 'asc'),
+                    'sort-desc': tableParams.isSortBy('name', 'desc')
+                  }"
+						ng-click="tableParams.sorting('name', tableParams.isSortBy('name', 'asc') ? 'desc' : 'asc')">
+					Name
+				</th>
+
+				<th ng-repeat="f in q.fields"
+					class="sortable" ng-class="{
+                    'sort-asc': tableParams.isSortBy(f.key, 'asc'),
+                    'sort-desc': tableParams.isSortBy(f.key, 'desc')
+                  }"
+					ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+					{{f.name}}
+				</th>
+
+				<th class="text-right">Aktionen</th>
+			</tr>
+			</thead>
+
 			<tbody>
 			<tr ng-repeat="p in $data">
-				<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
-				<td data-title="'Schlagworte'" filter="{ 'tags': 'text' }" sortable="'tags'" ng-bind="p.tags"></td>
-				<td data-title="'Verbindungen'" filter="{ 'connections': 'text' }" sortable="'connections'" ng-bind="p.connections"></td>
+				<td ng-bind="p.name"></td>
+				<td ng-repeat="f in q.fields" ng-bind="getDispayValues(f,p)"></td>
 				<td>
 					<span class="btn-right" ng-click="remove(p)" title="Person löschen"><i class="fa fa-trash"></i></span>
 					<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
@@ -145,51 +180,86 @@
 			</tr>
 			</tbody>
 		</table>
-	</div>
+	<!--</div>-->
 
 </script>
 
 <script type="text/ng-template" id="partials/organisations.html">
+
+	<div class="row">
+		<div class="col-md-4 headline">
+			<h1>Organisationen</h1>
+
+			<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
+		</div>
+
+		<div class="col-md-2">
+			<button class="btn btn-default" ui-sref="organisation({id: 'new'})">Organisation anlegen</button>
+		</div>
+
+		<div class="col-md-3">
+			<div class="btn-group">
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+					Daten anzeigen <span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" role="menu">
+					<li ng-repeat="o in fields" ng-class="{active:o.visible}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="col-md-3">
+			<div class="pull-right has-feedback">
+				<label>Suche</label>
+				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
+				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
+			</div>
+		</div>
+	</div>
 	<div ng-if="loading" class="loading">
 		<h1><i class="fa fa-spin fa-spinner"></i> Organisationen-Liste wird geladen</h1>
 	</div>
 
-	<div ng-show="!loading">
+	<!--<div ng-show="!loading">-->
 
-		<div class="row">
-			<div class="col-md-6 headline">
-				<h1>Organisationen</h1>
+	<table ng-table="tableParams" template-pagination="partials/pager" show-filter="false" class="table table-striped">
 
-				<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
-			</div>
+		<thead>
+		<tr>
+			<th
+					class="sortable" ng-class="{
+                    'sort-asc': tableParams.isSortBy('name', 'asc'),
+                    'sort-desc': tableParams.isSortBy('name', 'desc')
+                  }"
+					ng-click="tableParams.sorting('name', tableParams.isSortBy('name', 'asc') ? 'desc' : 'asc')">
+				Name
+			</th>
 
-			<div class="col-md-3">
-				<button class="btn btn-default" ui-sref="organisation({id: 'new'})">Organisation anlegen</button>
-			</div>
+			<th ng-repeat="f in q.fields"
+				class="sortable" ng-class="{
+                    'sort-asc': tableParams.isSortBy(f.key, 'asc'),
+                    'sort-desc': tableParams.isSortBy(f.key, 'desc')
+                  }"
+				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+				{{f.name}}
+			</th>
 
-			<div class="col-md-3">
-				<div class="pull-right has-feedback">
-					<label>Suche</label>
-					<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
-					<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
-				</div>
-			</div>
-		</div>
+			<th class="text-right">Aktionen</th>
+		</tr>
+		</thead>
 
-		<table ng-table="tableParams" template-pagination="partials/pager" show-filter="false" class="table table-striped">
-			<tbody>
-			<tr ng-repeat="p in $data">
-				<td data-title="'Name'" filter="{ 'name': 'text' }" sortable="'name'" ng-bind="p.name"></td>
-				<td data-title="'Schlagworte'" filter="{ 'tags': 'text' }" sortable="'tags'" ng-bind="p.tags"></td>
-				<td data-title="'Verbindungen'" filter="{ 'connections': 'text' }" sortable="'connections'" ng-bind="p.connections"></td>
-				<td>
-					<span class="btn-right" ng-click="remove(p)" title="Organisation löschen"><i class="fa fa-trash"></i></span>
-					<span class="btn-right" ui-sref='organisation({id: p._id})' title="Organisation bearbeiten"><i class="fa fa-edit"></i></span>
-				</td>
-			</tr>
-			</tbody>
-		</table>
-	</div>
+		<tbody>
+		<tr ng-repeat="p in $data">
+			<td ng-bind="p.name"></td>
+			<td ng-repeat="f in q.fields" ng-bind="getDispayValues(f,p)"></td>
+			<td>
+				<span class="btn-right" ng-click="remove(p)" title="Organisation löschen"><i class="fa fa-trash"></i></span>
+				<span class="btn-right" ui-sref='organisation({id: p._id})' title="Organisation bearbeiten"><i class="fa fa-edit"></i></span>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+	<!--</div>-->
 
 </script>
 
@@ -353,9 +423,9 @@
 	<hr/>
 
 	<!--<div>-->
-		<!--<div ng-repeat="o in item.relations">-->
-			<!--<span ng-bind="o"></span>-->
-		<!--</div>-->
+	<!--<div ng-repeat="o in item.relations">-->
+	<!--<span ng-bind="o"></span>-->
+	<!--</div>-->
 	<!--</div>-->
 
 </script>

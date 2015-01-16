@@ -141,7 +141,7 @@ app.get("/api/entity/list", function (req, res) {
 // get entities for backend.
 app.get("/api/entity/list2", function (req, res) {
 	debug("list full entities");
-	api.ent_list_full(req.query, req.fields, function (err, result) {
+	api.ent_list_full(req.query, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });

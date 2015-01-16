@@ -249,7 +249,7 @@ var okcancelModalDialog = function ($modal, data, cb) {
 	});
 };
 
-var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api) {
+var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api, get_fields) {
 
 	$scope.loading = true;
 
@@ -257,11 +257,12 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 
 	$scope.filter = {
 		text: '',
-		special:false
+		special: false
 	};
 
 	$scope.refilter = function () {
-		$scope.tableParams.reload();
+		if (list.length)
+			$scope.tableParams.reload();
 	};
 
 	$scope.resetFilter = function () {
@@ -330,12 +331,87 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 			getData: getData
 		}
 	);
+	$scope.$watch("filter.text", $scope.refilter);
 
-	api.list(function (data) {
-			list = data.result;
-			$scope.$watch("filter.text", $scope.refilter);
-			$scope.tableParams.reload();
-			$scope.loading = false;
+	$scope.reload = function () {
+		$scope.loading = true;
+		api.list(get_fields ? get_fields() : null, function (data) {
+				list = data.result;
+				$scope.tableParams.reload();
+				$scope.loading = false;
+			},
+			function (err) {
+				console.error(err);
+			}
+		);
+	};
+
+	$scope.reload();
+};
+
+var entitiesListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api, fields) {
+
+	$scope.q = {
+		fields: []
+	};
+	var fixedfields = [
+		{name: 'Schlagworte', key: 'tags', format: 'strings', _type: 'fields'},
+		{name: 'Aliase', key: 'aliases', format: 'strings', _type: 'fields'},
+		{name: 'Anzahl Verbindungen', key: 'connections', format: 'number', _type: 'extras'}
+	];
+
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, api, function () {
+		var q = {};
+		$scope.q.fields.forEach(function (f) {
+			var type = f._type || 'keys';
+			q[type] = q[type] || [];
+			q[type].push(f.key);
+		});
+		for (var key in q) {
+			q[key] = q[key].join(',');
+		}
+		return q;
+	});
+
+	$scope.getDispayValues = function (field, entity) {
+		var result = [];
+		if (['extras', 'fields'].indexOf(field._type) >= 0) {
+			if (entity[field.key] !== undefined) {
+				result.push({format: field.format, value: entity[field.key]});
+			}
+		} else {
+			if (entity.data && entity.data.length)
+				entity.data.forEach(function (d) {
+					if (field.key == d.key) {
+						result.push(d);
+					}
+				})
+		}
+		return result.map(function (v) {
+			if (!v.value) return '';
+			if (v.format == 'strings') return v.value.join(', ');
+			else if (v.format == 'bool') return v.value ? 'ja' : 'nein';
+			else if (v.format == 'link') return v.value.url;
+			else if (v.format == 'number') return v.value;
+			else if (v.format == 'address') return 'TODO adresse to line'; //FIXME
+			return v.value;
+		}).join(', ');
+	};
+
+	$scope.toggleField = function (field) {
+		if (!field.visible)
+			$scope.q.fields.push(field);
+		else {
+			$scope.q.fields = $scope.q.fields.filter(function (f) {
+				return f !== field;
+			})
+		}
+		field.visible = !field.visible;
+		$scope.reload();
+	};
+
+	fields.list(function (data) {
+			$scope.fields = fixedfields.concat(data.result);
 		},
 		function (err) {
 			console.error(err);
@@ -344,12 +420,12 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 
 };
 
-app.controller('PersonsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, persons) {
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, persons);
+app.controller('PersonsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, persons, fields) {
+	entitiesListCtrl($scope, $resource, $filter, $modal, ngTableParams, persons, fields);
 });
 
-app.controller('OrganisationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, organisations) {
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, organisations);
+app.controller('OrganisationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, organisations, fields) {
+	entitiesListCtrl($scope, $resource, $filter, $modal, ngTableParams, organisations, fields);
 });
 
 app.controller('FieldsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, fields) {
