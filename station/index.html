@@ -41,7 +41,7 @@
 				<li ui-sref-active="active"><a href ui-sref="persons">Personen</a></li>
 				<li ui-sref-active="active"><a href ui-sref="organisations">Organisationen</a></li>
 				<li class="dropdown" ng-if="loggedInUser.admin">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Stammdaten <span class="caret"></span></a>
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Einstellungen <span class="caret"></span></a>
 					<ul class="dropdown-menu" role="menu">
 						<li ui-sref-active="active"><a href ui-sref="fields">Datenfelder</a></li>
 						<li ui-sref-active="active"><a href ui-sref="users">Benutzerinnen</a></li>
@@ -173,7 +173,7 @@
 		<tr ng-repeat="p in $data">
 			<td ng-bind="p.name"></td>
 			<td ng-repeat="f in q.fields" ng-bind="getDispayValues(f,p)"></td>
-			<td>
+			<td class="col-action">
 				<span class="btn-right" ng-click="remove(p)" title="Person löschen"><i class="fa fa-trash"></i></span>
 				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
 				<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
@@ -253,7 +253,7 @@
 		<tr ng-repeat="p in $data">
 			<td ng-bind="p.name"></td>
 			<td ng-repeat="f in q.fields" ng-bind="getDispayValues(f,p)"></td>
-			<td>
+			<td class="col-action">
 				<span class="btn-right" ng-click="remove(p)" title="Organisation löschen"><i class="fa fa-trash"></i></span>
 				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
 				<span class="btn-right" ui-sref='organisation({id: p._id})' title="Organisation bearbeiten"><i class="fa fa-edit"></i></span>

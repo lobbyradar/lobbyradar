@@ -179,12 +179,21 @@ app.factory('tags', function ($resource) {
 		}
 	);
 });
+
 app.factory('relations', function ($resource) {
 	'use strict';
 	return $resource('/api/relation/:cmd/:id', {}, {
 			list: {
 				method: 'GET',
 				params: {cmd: 'list'}
+			},
+			save: {
+				method: 'POST',
+				params: {cmd: 'update'}
+			},
+			create: {
+				method: 'POST',
+				params: {cmd: 'create'}
 			},
 			remove: {
 				method: 'GET',
