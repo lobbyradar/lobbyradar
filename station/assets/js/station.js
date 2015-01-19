@@ -302,6 +302,31 @@ var editModalDialog = function ($modal, data, templateUrl, cb) {
 	});
 };
 
+var infoModalDialog = function ($modal, data, templateUrl, cb) {
+	var modalInstance = $modal.open({
+		templateUrl: templateUrl,
+		controller: function ($scope, $modalInstance, data) {
+
+			$scope.data = data;
+
+			$scope.ok = function () {
+				$modalInstance.dismiss('cancel');
+			};
+		},
+		resolve: {
+			data: function () {
+				return data;
+			}
+		}
+	});
+
+	modalInstance.result.then(function (data) {
+		cb(data);
+	}, function () {
+//			$log.info('Modal dismissed at: ' + new Date());
+	});
+};
+
 var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api, get_fields) {
 
 	$scope.loading = true;
@@ -474,7 +499,7 @@ var entitiesListCtrl = function ($scope, $resource, $filter, $modal, ngTablePara
 	$scope.relationsDialog = function (item) {
 		api.item({id: item._id, relations: true},
 			function (data) {
-				editModalDialog($modal, {
+				infoModalDialog($modal, {
 					item: data.result
 				}, 'partials/relations-modal.html', function (data) {
 					if (data) {
