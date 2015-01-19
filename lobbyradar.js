@@ -122,10 +122,17 @@ app.post("/api/entity/create", function (req, res) {
 	});
 });
 
-// get entity. 
+// get entity.
 app.all("/api/entity/get/:id", function (req, res) {
 	debug("get entity %s", req.params.id);
 	api.ent_get(req.params.id, function (err, result) {
+		console.log(req.query);
+		if (result && req.query && req.query.relations) {
+			return api.ent_rels(result._id, function (err, rels) {
+				result.relations = rels;
+				res.type("json").status("200").json({error: nice_error(err), result: result});
+			});
+		}
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -141,12 +148,12 @@ app.get("/api/entity/list", function (req, res) {
 // get entities for backend.
 app.get("/api/entity/list2", function (req, res) {
 	debug("list full entities");
-	api.ent_list_full(req.query, req.fields, function (err, result) {
+	api.ent_list_full(req.query, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
 
-// delete entity. 
+// delete entity.
 app.all("/api/entity/delete/:id", function (req, res) {
 	debug("delete entity %s", req.params.id);
 	api.ent_delete(req.params.id, function (err, result) {
@@ -154,7 +161,7 @@ app.all("/api/entity/delete/:id", function (req, res) {
 	});
 });
 
-// update entity. 
+// update entity.
 app.post("/api/entity/update/:id", function (req, res) {
 	debug("update entity %s", req.params.id);
 	api.ent_update(req.params.id, req.body.ent, function (err, result) {
@@ -162,7 +169,7 @@ app.post("/api/entity/update/:id", function (req, res) {
 	});
 });
 
-// upmerge entity. 
+// upmerge entity.
 app.post("/api/entity/upmerge/:id", function (req, res) {
 	debug("upmerge entity %s", req.params.id);
 	api.ent_upmerge(req.params.id, req.body.ent, function (err, result) {
@@ -170,7 +177,7 @@ app.post("/api/entity/upmerge/:id", function (req, res) {
 	});
 });
 
-// entity types. 
+// entity types.
 app.all("/api/entity/types", function (req, res) {
 	debug("entity types");
 	api.ent_types(function (err, result) {
@@ -194,7 +201,7 @@ app.all("/api/entity/export", function (req, res) {
 	});
 });
 
-// create relation. 
+// create relation.
 app.post("/api/relation/create", function (req, res) {
 	debug("create relation for \"%s\"", req.body.rel.name);
 	api.rel_create(req.body.rel, function (err, result) {
@@ -202,7 +209,7 @@ app.post("/api/relation/create", function (req, res) {
 	});
 });
 
-// get relation. 
+// get relation.
 app.all("/api/relation/get/:id", function (req, res) {
 	debug("get relation %s", req.params.id);
 	api.rel_get(req.params.id, function (err, result) {
@@ -210,7 +217,7 @@ app.all("/api/relation/get/:id", function (req, res) {
 	});
 });
 
-// delete relation. 
+// delete relation.
 app.all("/api/relation/delete/:id", function (req, res) {
 	debug("delete relation %s", req.params.id);
 	api.rel_delete(req.params.id, function (err, result) {
@@ -218,7 +225,7 @@ app.all("/api/relation/delete/:id", function (req, res) {
 	});
 });
 
-// update relation. 
+// update relation.
 app.post("/api/relation/update/:id", function (req, res) {
 	debug("update relation %s", req.params.id);
 	api.rel_update(req.params.id, req.body.rel, function (err, result) {
@@ -226,7 +233,7 @@ app.post("/api/relation/update/:id", function (req, res) {
 	});
 });
 
-// upmerge relation. 
+// upmerge relation.
 app.post("/api/relation/upmerge/:id", function (req, res) {
 	debug("upmerge relation %s", req.params.id);
 	api.rel_upmerge(req.params.id, req.body.rel, function (err, result) {
@@ -234,7 +241,7 @@ app.post("/api/relation/upmerge/:id", function (req, res) {
 	});
 });
 
-// relation types. 
+// relation types.
 app.all("/api/relation/types", function (req, res) {
 	debug("relation types");
 	api.rel_types(function (err, result) {
@@ -253,20 +260,24 @@ app.all("/api/relation/tags", function (req, res) {
 // get users.
 app.get("/api/users/list", function (req, res) {
 	debug("list users");
+	if (!req.user || !req.user.admin) res.sendStatus(401);
 	api.user_list(function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: (!result) ? null : result.map(function(u){
+		result = (!result) ? null : result.map(function(u){
+			//remove password
 			return {
 				_id: u._id,
 				name: u.name,
 				admin: u.admin
 			}
-		})});
+		});
+		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
 
 // create user.
 app.post("/api/users/create", function (req, res) {
 	debug("create user", req.body.user);
+	if (!req.user || !req.user.admin) res.sendStatus(401);
 	api.user_create(req.body.user, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
@@ -275,6 +286,7 @@ app.post("/api/users/create", function (req, res) {
 // delete user.
 app.all("/api/users/delete/:id", function (req, res) {
 	debug("delete user %s", req.params.id);
+	if (!req.user || !req.user.admin) res.sendStatus(401);
 	api.user_delete(req.params.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
@@ -283,6 +295,7 @@ app.all("/api/users/delete/:id", function (req, res) {
 // get user.
 app.all("/api/users/get/:id", function (req, res) {
 	debug("get user %s", req.params.id);
+	if (!req.user || !req.user.admin) res.sendStatus(401);
 	api.user_get(req.params.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
@@ -291,6 +304,7 @@ app.all("/api/users/get/:id", function (req, res) {
 // update user.
 app.post("/api/users/update/:id", function (req, res) {
 	debug("update user %s", req.params.id);
+	if (!req.user || !req.user.admin) res.sendStatus(401);
 	api.user_update(req.params.id, req.body.user, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
@@ -300,11 +314,6 @@ app.post("/api/users/update/:id", function (req, res) {
 app.get("/api/fields/list", function (req, res) {
 	debug("list fields");
 	api.field_list(function (err, result) {
-		result = result.sort(function (a, b) {
-			if (a.name < b.name) return -1;
-			if (a.name > b.name) return 1;
-			return 0;
-		});
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
