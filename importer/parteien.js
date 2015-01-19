@@ -16,6 +16,7 @@ var db = mongojs(config.db, ["entities","relations"]);
 var api = require(path.resolve(__dirname, "../lib/api.js"))(config.api, db);
 
 var parteien = [{ 
+	"importer": "parteien",
 	"name": "SPD",
 	"slug": "spd",
 	"type": "entity",
@@ -40,6 +41,7 @@ var parteien = [{
 	],
 	"search": ["spd", "sozialdemokratische partei deutschlands", "sozialdemokratische partei", "sozialdemokraten"] 
 },{
+	"importer": "parteien",
 	"name": "Die Grünen",
 	"slug": "die grünen",
 	"type": "entity",
@@ -67,6 +69,7 @@ var parteien = [{
 	],
 	"search": ["bündnis 90 die grünen", "grüne", "die grünen", "bündins 90", "bündnisgrüne", "buendnis 90 die gruenen", "gruene", "die gruenen", "buendins 90", "buendnisgruene"]
 },{
+	"importer": "parteien",
 	"name": "Die Linke",
 	"slug": "die linke",
 	"type": "entity",
@@ -94,6 +97,7 @@ var parteien = [{
 	],
 	"search": ["die linke", "partei die linke", "linkspartei", "linke", "linkspartei pds", "pds", "wasg", "partei des demokratischen sozialismus", "arbeit und soziale gerechtigkeit die wahlalternative", "wahlalternative", "wahlalternative arbeit und soziale gerechtigkeit"]
 },{
+	"importer": "parteien",
 	"name": "FDP",
 	"slug": "fdp",
 	"type": "entity",
@@ -119,6 +123,7 @@ var parteien = [{
 	],
 	"search": ["fdp", "freie demokratische partei", "freie demokraten", "die liberalen", "liberale", "freidemokraten", "f d p"]
 },{
+	"importer": "parteien",
 	"name": "CDU",
 	"slug": "cdu",
 	"type": "entity",
@@ -146,6 +151,7 @@ var parteien = [{
 	],
 	"search": ["cdu","christlich demokratische union deutschlands","christlich demokratische union","christdemokraten"]
 },{
+	"importer": "parteien",
 	"name": "CSU",
 	"slug": "csu",
 	"type": "entity",

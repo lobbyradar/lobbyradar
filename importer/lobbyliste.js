@@ -62,6 +62,7 @@ var retrieve = function(p, fn){
 var convert_lobbyliste = function(data, fn){
 
 	var result = {
+		importer: "lobbyliste",
 		created: (new Date()),
 		updated: (new Date()),
 		type: "entity",
@@ -150,6 +151,7 @@ var extract_lobbyliste_people = function(data, fn) {
 		
 		// FIXME: put original name to data in scraper for aliases
 		var result = {
+			importer: "lobbyliste",
 			created: (new Date()),
 			updated: (new Date()),
 			type: "person",
@@ -240,6 +242,7 @@ var import_lobbyliste = function(cb){
 								// create relation
 								q.push(function(next){
 									api.rel_create({
+										importer: "lobbyliste",
 										entities: [ent_id, pers_id],
 										type: "executive",
 										tags: [],
