@@ -384,6 +384,7 @@ app.all("/api", function (req, res) {
 // index page
 app.all("/entity/:id", function (req, res) {
 	api.ent_get(req.params.id, function (err, ent) {
+		if (err) res.render("entity", { "err": err });
 		api.ent_rels(ent._id, function (err, rels) {
 			ent.relations = rels;
 			res.render("entity", {
