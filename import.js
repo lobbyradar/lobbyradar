@@ -19,15 +19,23 @@ var importer = require("./importer");
 // reset database
 debug("resetting data");
 api.reset("i know what i am doing", function(){
-	// run lobbyliste importer
-	debug("importing lobbyliste");
-	importer.lobbyliste(function(){
-		// run thinktank importer
-		debug("importing thinktanks");
-		importer.thinktank(function(){
-			// done
-			debug("done");
-			process.exit();
+	// run parteien importer
+	debug("importing parteien");
+	importer.parteien(function(){
+		// run lobbyliste importer
+		debug("importing lobbyliste");
+		importer.lobbyliste(function(){
+			// run thinktank importer
+			debug("importing thinktanks");
+			importer.thinktank(function(){
+				// run seitenwechsler importer
+				debug("importing seitenwechsler");
+				importer.seitenwechsler(function(){
+					// done
+					debug("done");
+					process.exit();
+				});
+			});
 		});
 	});
 });
