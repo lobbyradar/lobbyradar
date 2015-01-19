@@ -180,23 +180,37 @@ var parteien = [{
 	"search": ["csu", "christlich soziale union in bayern", "christlich soziale union", "christlich soziale union in bayern e v"]
 }];
 
-var q = async.queue(function(fn, next){
-	fn(next);
-},5);
-q.drain = function(){
-	debug("import done");
-	process.exit();
-};
-
-parteien.forEach(function(ent){
-	q.push(function(next){
-		api.ent_creaxtend(ent, function(err, ent_id){
-			next();
-			if (err) return debug("error: %s", err);
-			debug("entity created %s", ent.name);
+var execute = function(done){
+	var q = async.queue(function(fn, next){
+		fn(next);
+	},5);
+	q.drain = function(){
+		debug("import done");
+		done();
+	};
+	parteien.forEach(function(ent){
+		q.push(function(next){
+			api.ent_creaxtend(ent, function(err, ent_id){
+				next();
+				if (err) return debug("error: %s", err);
+				debug("entity created %s", ent.name);
+			});
 		});
 	});
-});
+};
 
+if (module.parent === null) {
+	// execute in standalone mode
+	debug("resetting data");
+	api.reset("i know what i am doing", function(){
+		execute(function(){
+			debug("import finished");
+			process.exit();
+		});
+	});
+} else {
+	// export in required mode
+	module.exports = execute;
+};
 
 
