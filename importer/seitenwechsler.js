@@ -198,7 +198,7 @@ var execute = function(finish){
 						created: (new Date()),
 						updated: (new Date()),
 						type: "entity", // string
-						tags: ent.tags, // array of strings
+						tags: set.tags, // array of strings
 						name: set.entity, // string
 						aliases: aliases(set.entity, set.kuerzel), // array of strings
 						data: [{
@@ -229,7 +229,7 @@ var execute = function(finish){
 									importer: "seitenwechsler",
 									entities: [ent_id, employ_id],
 									type: "position",
-									tags: ent.tags,
+									tags: set.tags,
 									weight: 1,
 									data: [{
 										key: "source",
