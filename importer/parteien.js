@@ -183,7 +183,7 @@ var parteien = [{
 var execute = function(done){
 	var q = async.queue(function(fn, next){
 		fn(next);
-	},5);
+	},1);
 	q.drain = function(){
 		debug("import done");
 		done();

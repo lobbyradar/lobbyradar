@@ -214,7 +214,7 @@ var import_lobbyliste = function(cb){
 	// async queue
 	var q = async.queue(function(fn, next){
 		fn(next);
-	},5);
+	},1);
 	q.drain = function(){
 		debug("lobbyliste done");
 		cb();
