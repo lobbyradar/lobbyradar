@@ -1,3 +1,7 @@
+body {
+	font-family: "Roboto Slab";
+}
+
 .form-control-full {
 	width: 100% !important;
 }
@@ -88,6 +92,11 @@
 .field-headline {
 	font-size: 1.1em;
 	font-weight: bold;
+}
+
+.col-action {
+	width:120px;
+	/*background: #000;*/
 }
 
 .twitter-typeahead {

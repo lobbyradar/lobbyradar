@@ -179,12 +179,21 @@ app.factory('tags', function ($resource) {
 		}
 	);
 });
+
 app.factory('relations', function ($resource) {
 	'use strict';
 	return $resource('/api/relation/:cmd/:id', {}, {
 			list: {
 				method: 'GET',
 				params: {cmd: 'list'}
+			},
+			save: {
+				method: 'POST',
+				params: {cmd: 'update'}
+			},
+			create: {
+				method: 'POST',
+				params: {cmd: 'create'}
 			},
 			remove: {
 				method: 'GET',
@@ -276,6 +285,31 @@ var editModalDialog = function ($modal, data, templateUrl, cb) {
 			};
 
 			$scope.cancel = function () {
+				$modalInstance.dismiss('cancel');
+			};
+		},
+		resolve: {
+			data: function () {
+				return data;
+			}
+		}
+	});
+
+	modalInstance.result.then(function (data) {
+		cb(data);
+	}, function () {
+//			$log.info('Modal dismissed at: ' + new Date());
+	});
+};
+
+var infoModalDialog = function ($modal, data, templateUrl, cb) {
+	var modalInstance = $modal.open({
+		templateUrl: templateUrl,
+		controller: function ($scope, $modalInstance, data) {
+
+			$scope.data = data;
+
+			$scope.ok = function () {
 				$modalInstance.dismiss('cancel');
 			};
 		},
@@ -465,7 +499,7 @@ var entitiesListCtrl = function ($scope, $resource, $filter, $modal, ngTablePara
 	$scope.relationsDialog = function (item) {
 		api.item({id: item._id, relations: true},
 			function (data) {
-				editModalDialog($modal, {
+				infoModalDialog($modal, {
 					item: data.result
 				}, 'partials/relations-modal.html', function (data) {
 					if (data) {
