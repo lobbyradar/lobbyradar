@@ -20,7 +20,7 @@ var parteien = [{
 	"name": "SPD",
 	"slug": "spd",
 	"type": "entity",
-	"tags": ["partei"],
+	"tags": ["partei","spd"],
 	"aliases": ["Sozialdemokratische Partei Deutschlands", "Sozialdemokratische Partei", "Sozialdemokraten"],
 	"data": [ 
 		{ "key": "address",
@@ -45,7 +45,7 @@ var parteien = [{
 	"name": "Die Grünen",
 	"slug": "die grünen",
 	"type": "entity",
-	"tags": ["partei"],
+	"tags": ["partei","grüne"],
 	"aliases": ["BÜNDNIS 90/DIE GRÜNEN", "Grüne", "Die Grünen", "Bündins 90", "Bündins 90/Die Grünen", "Bündnisgrüne"],
 	"data": [ 
 		{ "key": "address",
@@ -73,7 +73,7 @@ var parteien = [{
 	"name": "Die Linke",
 	"slug": "die linke",
 	"type": "entity",
-	"tags": ["partei"],
+	"tags": ["partei","linke"],
 	"aliases": ["Die Linke", "Partei DIE LINKE", "DIE LINKE.", "Linkspartei", "Linke", "Linkspartei.PDS", "PDS", "WASG", "Partei des Demokratischen Sozialismus", "Arbeit & soziale Gerechtigkeit – Die Wahlalternative", "Wahlalternative", "Wahlalternative Arbeit und soziale Gerechtigkeit"],
 	"data": [ 
 		{ "key": "address",
@@ -101,7 +101,7 @@ var parteien = [{
 	"name": "FDP",
 	"slug": "fdp",
 	"type": "entity",
-	"tags": ["partei"],
+	"tags": ["partei","fdp"],
 	"aliases": ["Freie Demokratische Partei", "Freie Demokraten", "Die Liberalen", "Liberale", "Freidemokraten", "F.D.P."],
 	"data": [ 
 		{ "key": "address",
@@ -127,7 +127,7 @@ var parteien = [{
 	"name": "CDU",
 	"slug": "cdu",
 	"type": "entity",
-	"tags": ["partei"],
+	"tags": ["partei","cdu"],
 	"aliases": ["CDU","Christlich Demokratische Union Deutschlands","Christlich Demokratische Union","Christdemokraten"],
 	"data": [ 
 		{ "key": "address",
@@ -155,7 +155,7 @@ var parteien = [{
 	"name": "CSU",
 	"slug": "csu",
 	"type": "entity",
-	"tags": ["partei"],
+	"tags": ["partei","csu"],
 	"aliases": ["CSU", "Christlich-Soziale Union in Bayern", "Christlich-Soziale Union", "Christlich Soziale Union", "Christlich-Soziale Union in Bayern e.V."],
 	"data": [ 
 		{ "key": "address",
