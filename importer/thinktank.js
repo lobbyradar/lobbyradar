@@ -61,6 +61,7 @@ var retrieve = function(p, fn){
 
 var convert_thinktank = function(data, fn){
 	var result = {
+		importer: "thinktanks",
 		created: (new Date()),
 		updated: (new Date()),
 		type: "entity", // string
@@ -233,6 +234,7 @@ var extract_thinktank_people = function(data, fn) {
 
 		// FIXME: put original name to data in scraper for aliases
 		var result = {
+			importer: "thinktanks",
 			created: (new Date()),
 			updated: (new Date()),
 			type: "person",
@@ -302,6 +304,7 @@ var import_thinktanks = function(finish){
 								// create relation
 								q.push(function(next){
 									api.rel_create({
+										importer: "thinktanks",
 										entities: [ent_id, pers_id],
 										type: "executive",
 										tags: [],

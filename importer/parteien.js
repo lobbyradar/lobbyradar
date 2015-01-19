@@ -16,10 +16,11 @@ var db = mongojs(config.db, ["entities","relations"]);
 var api = require(path.resolve(__dirname, "../lib/api.js"))(config.api, db);
 
 var parteien = [{ 
+	"importer": "parteien",
 	"name": "SPD",
 	"slug": "spd",
 	"type": "entity",
-	"tags": ["partei"],
+	"tags": ["partei","spd"],
 	"aliases": ["Sozialdemokratische Partei Deutschlands", "Sozialdemokratische Partei", "Sozialdemokraten"],
 	"data": [ 
 		{ "key": "address",
@@ -40,10 +41,11 @@ var parteien = [{
 	],
 	"search": ["spd", "sozialdemokratische partei deutschlands", "sozialdemokratische partei", "sozialdemokraten"] 
 },{
+	"importer": "parteien",
 	"name": "Die Grünen",
 	"slug": "die grünen",
 	"type": "entity",
-	"tags": ["partei"],
+	"tags": ["partei","grüne"],
 	"aliases": ["BÜNDNIS 90/DIE GRÜNEN", "Grüne", "Die Grünen", "Bündins 90", "Bündins 90/Die Grünen", "Bündnisgrüne"],
 	"data": [ 
 		{ "key": "address",
@@ -67,10 +69,11 @@ var parteien = [{
 	],
 	"search": ["bündnis 90 die grünen", "grüne", "die grünen", "bündins 90", "bündnisgrüne", "buendnis 90 die gruenen", "gruene", "die gruenen", "buendins 90", "buendnisgruene"]
 },{
+	"importer": "parteien",
 	"name": "Die Linke",
 	"slug": "die linke",
 	"type": "entity",
-	"tags": ["partei"],
+	"tags": ["partei","linke"],
 	"aliases": ["Die Linke", "Partei DIE LINKE", "DIE LINKE.", "Linkspartei", "Linke", "Linkspartei.PDS", "PDS", "WASG", "Partei des Demokratischen Sozialismus", "Arbeit & soziale Gerechtigkeit – Die Wahlalternative", "Wahlalternative", "Wahlalternative Arbeit und soziale Gerechtigkeit"],
 	"data": [ 
 		{ "key": "address",
@@ -94,10 +97,11 @@ var parteien = [{
 	],
 	"search": ["die linke", "partei die linke", "linkspartei", "linke", "linkspartei pds", "pds", "wasg", "partei des demokratischen sozialismus", "arbeit und soziale gerechtigkeit die wahlalternative", "wahlalternative", "wahlalternative arbeit und soziale gerechtigkeit"]
 },{
+	"importer": "parteien",
 	"name": "FDP",
 	"slug": "fdp",
 	"type": "entity",
-	"tags": ["partei"],
+	"tags": ["partei","fdp"],
 	"aliases": ["Freie Demokratische Partei", "Freie Demokraten", "Die Liberalen", "Liberale", "Freidemokraten", "F.D.P."],
 	"data": [ 
 		{ "key": "address",
@@ -119,10 +123,11 @@ var parteien = [{
 	],
 	"search": ["fdp", "freie demokratische partei", "freie demokraten", "die liberalen", "liberale", "freidemokraten", "f d p"]
 },{
+	"importer": "parteien",
 	"name": "CDU",
 	"slug": "cdu",
 	"type": "entity",
-	"tags": ["partei"],
+	"tags": ["partei","cdu"],
 	"aliases": ["CDU","Christlich Demokratische Union Deutschlands","Christlich Demokratische Union","Christdemokraten"],
 	"data": [ 
 		{ "key": "address",
@@ -146,10 +151,11 @@ var parteien = [{
 	],
 	"search": ["cdu","christlich demokratische union deutschlands","christlich demokratische union","christdemokraten"]
 },{
+	"importer": "parteien",
 	"name": "CSU",
 	"slug": "csu",
 	"type": "entity",
-	"tags": ["partei"],
+	"tags": ["partei","csu"],
 	"aliases": ["CSU", "Christlich-Soziale Union in Bayern", "Christlich-Soziale Union", "Christlich Soziale Union", "Christlich-Soziale Union in Bayern e.V."],
 	"data": [ 
 		{ "key": "address",
@@ -174,23 +180,37 @@ var parteien = [{
 	"search": ["csu", "christlich soziale union in bayern", "christlich soziale union", "christlich soziale union in bayern e v"]
 }];
 
-var q = async.queue(function(fn, next){
-	fn(next);
-},5);
-q.drain = function(){
-	debug("import done");
-	process.exit();
-};
-
-parteien.forEach(function(ent){
-	q.push(function(next){
-		api.ent_creaxtend(ent, function(err, ent_id){
-			next();
-			if (err) return debug("error: %s", err);
-			debug("entity created %s", ent.name);
+var execute = function(done){
+	var q = async.queue(function(fn, next){
+		fn(next);
+	},5);
+	q.drain = function(){
+		debug("import done");
+		done();
+	};
+	parteien.forEach(function(ent){
+		q.push(function(next){
+			api.ent_creaxtend(ent, function(err, ent_id){
+				next();
+				if (err) return debug("error: %s", err);
+				debug("entity created %s", ent.name);
+			});
 		});
 	});
-});
+};
 
+if (module.parent === null) {
+	// execute in standalone mode
+	debug("resetting data");
+	api.reset("i know what i am doing", function(){
+		execute(function(){
+			debug("import finished");
+			process.exit();
+		});
+	});
+} else {
+	// export in required mode
+	module.exports = execute;
+};
 
 
