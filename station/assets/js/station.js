@@ -32,6 +32,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			templateUrl: "partials/organisations.html",
 			controller: 'OrganisationsCtrl'
 		})
+		.state('relations', {
+			url: "/relations",
+			templateUrl: "partials/relations.html",
+			controller: 'RelationsCtrl'
+		})
 		.state('fields', {
 			url: "/fields",
 			templateUrl: "partials/fields.html",
@@ -531,63 +536,8 @@ app.controller('UsersCtrl', function ($scope, $resource, $filter, $modal, ngTabl
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, users);
 });
 
-app.controller('UsersCtr2l', function ($scope, $state, $stateParams, $filter, ngTableParams, users) {
-
-	var list = [];
-
-	var getData = function ($defer, params) {
-		var orderedData = list;//$scope.filter.text.length ? $filter('filter')(list, {'name': $scope.filter.text}) : list;
-
-		orderedData = params.sorting() ?
-			$filter('orderBy')(orderedData, params.orderBy()) :
-			orderedData;
-
-		params.total(orderedData.length);
-		var current = orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count());
-		$defer.resolve(current);
-	};
-
-	$scope.tableParams = new ngTableParams(
-		{
-			page: 1,
-			count: 10,
-			sorting: {
-				name: 'asc'
-			}
-		},
-		{
-			total: 0,
-			getData: getData
-		}
-	);
-
-	users.list(function (data) {
-			list = data.result;
-			$scope.tableParams.reload();
-		},
-		function (err) {
-			console.error(err);
-		}
-	);
-
-	$scope.remove = function (o) {
-		okcancelModalDialog($modal,
-			{
-				headline: 'Eintrag löschen?',
-				question: 'Soll "' + o.name + '" gelöscht werden?'
-			}
-			, function () {
-				api.remove({id: o._id}, function () {
-					list = list.filter(function (oe) {
-						return oe != o;
-					});
-					$scope.refilter();
-				}, function (err) {
-					console.error(err);
-				})
-			});
-	};
-
+app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, relations) {
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, relations);
 });
 
 var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, type, mode) {
@@ -805,7 +755,7 @@ app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
 
 });
 
-app.controller('RelationsListCtrl', function ($scope, $modal, relations) {
+app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations) {
 
 	$scope.remove = function (rel) {
 		okcancelModalDialog($modal,
@@ -1011,7 +961,7 @@ app.directive('ngtypeahead', function () {
 app.directive('ngrelations', function () {
 	return {
 		restrict: 'A',
-		templateUrl: 'partials/relations.html',
+		templateUrl: 'partials/relations-owned.html',
 		scope: {
 			"relations": "=",
 			"entity": "="

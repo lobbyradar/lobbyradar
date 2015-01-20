@@ -38,10 +38,18 @@
 		<div id="navbar" class="navbar-collapse collapse">
 			<ul class="nav navbar-nav navbar-right" ng-if="loggedInUser">
 				<li class="active" ui-sref-active="active"><a href ui-sref="start">Start</a></li>
-				<li ui-sref-active="active"><a href ui-sref="persons">Personen</a></li>
-				<li ui-sref-active="active"><a href ui-sref="organisations">Organisationen</a></li>
+
 				<li class="dropdown" ng-if="loggedInUser.admin">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Einstellungen <span class="caret"></span></a>
+					<a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Daten <span class="caret"></span></a>
+					<ul class="dropdown-menu" role="menu">
+						<li ui-sref-active="active"><a href ui-sref="persons">Personen</a></li>
+						<li ui-sref-active="active"><a href ui-sref="organisations">Organisationen</a></li>
+						<!--<li ui-sref-active="active"><a href ui-sref="relations">Verbindungen</a></li>-->
+					</ul>
+				</li>
+
+				<li class="dropdown" ng-if="loggedInUser.admin">
+					<a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Einstellungen <span class="caret"></span></a>
 					<ul class="dropdown-menu" role="menu">
 						<li ui-sref-active="active"><a href ui-sref="fields">Datenfelder</a></li>
 						<li ui-sref-active="active"><a href ui-sref="users">Benutzerinnen</a></li>
@@ -447,8 +455,8 @@
 	</div>
 </script>
 
-<script type="text/ng-template" id="partials/relations.html">
-	<div ng-controller="RelationsListCtrl">
+<script type="text/ng-template" id="partials/relations-owned.html">
+	<div ng-controller="RelationsOwnedListCtrl">
 		<table class="table table-striped">
 			<head>
 				<tr>
@@ -475,6 +483,23 @@
 			</tbody>
 		</table>
 	</div>
+</script>
+
+<script type="text/ng-template" id="partials/relation.html">
+	<form role="form">
+
+		<div class="form-group col-md-6">
+			<label>Bezug 1</label>
+			<input type="text" class="form-control" placeholder="Bezug 1" ng-model="item.one" >
+		</div>
+
+		<div class="form-group col-md-6">
+			<label>Bezug 2</label>
+			<input type="text" class="form-control" placeholder="Bezug 2" ng-model="item.two" >
+		</div>
+
+	</form>
+
 </script>
 
 <script type="text/ng-template" id="partials/users.html">
@@ -657,6 +682,86 @@
 		<button class="btn btn-primary" ng-click="ok()" translate>OK</button>
 		<button class="btn btn-warning" ng-click="cancel()" translate>Abbruch</button>
 	</div>
+
+</script>
+
+<script type="text/ng-template" id="partials/relations.html">
+
+	<div class="row">
+		<div class="col-md-4 headline">
+			<h1>Verbindungen</h1>
+
+			<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
+		</div>
+
+		<div class="col-md-2">
+			<button class="btn btn-default" ui-sref="releation({id: 'new'})">Verbindung anlegen</button>
+		</div>
+
+		<div class="col-md-3">
+			<div class="btn-group">
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+					Daten anzeigen <span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" role="menu">
+					<li ng-repeat="o in fields" ng-class="{active:o.visible}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="col-md-3">
+			<div class="pull-right has-feedback">
+				<label>Suche</label>
+				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
+				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
+			</div>
+		</div>
+	</div>
+	<div ng-if="loading" class="loading">
+		<h1><i class="fa fa-spin fa-spinner"></i> Verbindungen-Liste wird geladen</h1>
+	</div>
+
+	<!--<div ng-show="!loading">-->
+
+	<table ng-table="tableParams" template-pagination="partials/pager" show-filter="false" class="table table-striped">
+
+		<thead>
+		<tr>
+			<th
+					class="sortable" ng-class="{
+                    'sort-asc': tableParams.isSortBy('name', 'asc'),
+                    'sort-desc': tableParams.isSortBy('name', 'desc')
+                  }"
+					ng-click="tableParams.sorting('name', tableParams.isSortBy('name', 'asc') ? 'desc' : 'asc')">
+				Name
+			</th>
+
+			<th ng-repeat="f in q.fields"
+				class="sortable" ng-class="{
+                    'sort-asc': tableParams.isSortBy(f.key, 'asc'),
+                    'sort-desc': tableParams.isSortBy(f.key, 'desc')
+                  }"
+				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+				{{f.name}}
+			</th>
+
+			<th class="text-right">Aktionen</th>
+		</tr>
+		</thead>
+
+		<tbody>
+		<tr ng-repeat="p in $data">
+			<td ng-bind="p.one"></td>
+			<td ng-bind="p.two"></td>
+			<td ng-repeat="f in q.fields" ng-bind="getDispayValues(f,p)"></td>
+			<td class="col-action">
+				<span class="btn-right" ng-click="remove(p)" title="Verbindung löschen"><i class="fa fa-trash"></i></span>
+				<span class="btn-right" ui-sref='relation({id: p._id})' title="Verbindung bearbeiten"><i class="fa fa-edit"></i></span>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+	<!--</div>-->
 
 </script>
 
