@@ -66,7 +66,7 @@ var convert_lobbyliste = function(data, fn){
 		created: (new Date()),
 		updated: (new Date()),
 		type: "entity",
-		tags: ["lobby"],
+		tags: ["lobbyorganisation","lobbyismus"],
 		name: data.name,
 		slug: api.unify(data.name),
 		aliases: [],
@@ -155,7 +155,7 @@ var extract_lobbyliste_people = function(data, fn) {
 			created: (new Date()),
 			updated: (new Date()),
 			type: "person",
-			tags: ["lobby"],
+			tags: ["lobbyist","lobbyismus"],
 			name: person.name,
 			slug: api.unify(person.name),
 			aliases: [],
@@ -214,7 +214,7 @@ var import_lobbyliste = function(cb){
 	// async queue
 	var q = async.queue(function(fn, next){
 		fn(next);
-	},5);
+	},1);
 	q.drain = function(){
 		debug("lobbyliste done");
 		cb();

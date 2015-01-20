@@ -384,6 +384,8 @@ app.all("/api", function (req, res) {
 // index page
 app.all("/entity/:id", function (req, res) {
 	api.ent_get(req.params.id, function (err, ent) {
+		if (err) return res.render("entity", { "err": err });
+		if (ent === null || !ent.hasOwnProperty("_id")) return res.status(404).render("entity", { "err": "Diese Entität existiert nicht" });
 		api.ent_rels(ent._id, function (err, rels) {
 			ent.relations = rels;
 			res.render("entity", {

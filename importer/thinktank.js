@@ -276,7 +276,7 @@ var extract_thinktank_people = function(data, fn) {
 var import_thinktanks = function(finish){
 	var q = async.queue(function(fn, next){
 		fn(next);
-	},5);
+	},1);
 	q.drain = function(){
 		debug("thinktanks done");
 		finish();
