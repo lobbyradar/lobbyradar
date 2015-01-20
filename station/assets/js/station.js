@@ -380,7 +380,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 
 		var orderedData = $scope.filter.text.length == 0 ? list : list.filter(function (o) {
 			return (
-			(o.name.indexOf($scope.filter.text) >= 0) ||
+			((o.name || '').indexOf($scope.filter.text) >= 0) ||
 			((o.tags ? o.tags : []).join(',').indexOf($scope.filter.text) >= 0)
 			);
 		});
@@ -537,7 +537,27 @@ app.controller('UsersCtrl', function ($scope, $resource, $filter, $modal, ngTabl
 });
 
 app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, relations) {
+
+	$scope.q = {
+		fields: [
+			{name: 'Schlagworte', key: 'tags', format: 'strings', _type: 'fields'},
+			{name: 'Typ', key: 'type', format: 'string', _type: 'fields'},
+		]
+	};
+
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, relations);
+
+	$scope.getDispayValues = function (field, entity) {
+		var v = entity[field.key];
+		if (v == undefined) return '';
+		if (field.format == 'strings') return v.join(', ');
+		else if (field.format == 'bool') return v ? 'ja' : 'nein';
+		else if (field.format == 'link') return v.url;
+		else if (field.format == 'number') return v;
+		else if (field.format == 'address') return 'TODO adresse to line'; //FIXME
+		return v;
+	};
+
 });
 
 var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, type, mode) {

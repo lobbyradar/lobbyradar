@@ -257,6 +257,14 @@ app.all("/api/relation/tags", function (req, res) {
 	});
 });
 
+// list of relations.
+app.all("/api/relation/list", function (req, res) {
+	debug("relation list");
+	api.rels_full(function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
 // get users.
 app.get("/api/users/list", function (req, res) {
 	debug("list users");
