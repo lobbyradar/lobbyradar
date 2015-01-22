@@ -1,5 +1,7 @@
 'use strict';
 
+// ------------------- app -------------------
+
 var app = angular.module('Station', ['ui.router', 'ngTable', 'ngResource', 'ui.bootstrap']);
 
 app.config(function ($stateProvider, $urlRouterProvider) {
@@ -37,6 +39,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			templateUrl: "partials/relations.html",
 			controller: 'RelationsCtrl'
 		})
+		.state('relation', {
+			url: "/relation/:id",
+			templateUrl: "partials/relation.html",
+			controller: 'RelationEditCtrl'
+		})
 		.state('fields', {
 			url: "/fields",
 			templateUrl: "partials/fields.html",
@@ -63,6 +70,8 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			controller: 'LoginCtrl'
 		});
 });
+
+// ------------------- factories -------------------
 
 app.factory('organisations', function ($resource) {
 	'use strict';
@@ -115,6 +124,21 @@ app.factory('persons', function ($resource) {
 			remove: {
 				method: 'GET',
 				params: {cmd: 'delete'}
+			}
+		}
+	);
+});
+
+app.factory('entities', function ($resource) {
+	'use strict';
+	return $resource('/api/entity/:cmd/:id', {}, {
+			list: {
+				method: 'GET',
+				params: {cmd: 'list2'}
+			},
+			item: {
+				method: 'GET',
+				params: {cmd: 'get'}
 			}
 		}
 	);
@@ -192,6 +216,10 @@ app.factory('relations', function ($resource) {
 				method: 'GET',
 				params: {cmd: 'list'}
 			},
+			item: {
+				method: 'GET',
+				params: {cmd: 'get'}
+			},
 			save: {
 				method: 'POST',
 				params: {cmd: 'update'}
@@ -203,6 +231,10 @@ app.factory('relations', function ($resource) {
 			remove: {
 				method: 'GET',
 				params: {cmd: 'delete'}
+			},
+			tags: {
+				method: 'GET',
+				params: {cmd: 'tags'}
 			}
 		}
 	);
@@ -227,6 +259,8 @@ app.factory('auth', function ($resource) {
 	);
 });
 
+// ------------------- main -------------------
+
 app.run(function ($rootScope, $state, auth) {
 
 	$rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
@@ -234,6 +268,7 @@ app.run(function ($rootScope, $state, auth) {
 			if (!$rootScope.loggedInUser) {
 				event.preventDefault();
 				auth.loggedIn(function (data) {
+					if (data.error) return reportServerError($scope, data.error);
 					$rootScope.loggedInUser = data.result;
 					$state.go(toState.name, toParams);
 				}, function () {
@@ -246,10 +281,7 @@ app.run(function ($rootScope, $state, auth) {
 
 });
 
-app.controller('AppCtrl', function ($rootScope, $scope) {
-	'use strict';
-
-});
+// ------------------- modals -------------------
 
 var okcancelModalDialog = function ($modal, data, cb) {
 	var modalInstance = $modal.open({
@@ -331,6 +363,18 @@ var infoModalDialog = function ($modal, data, templateUrl, cb) {
 //			$log.info('Modal dismissed at: ' + new Date());
 	});
 };
+
+var reportServerError = function ($scope, err) {
+	console.error(err);
+	alert(err);
+};
+
+// ------------------- controllers -------------------
+
+app.controller('AppCtrl', function ($rootScope, $scope) {
+	'use strict';
+
+});
 
 var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api, get_fields) {
 
@@ -418,7 +462,9 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 
 	$scope.reload = function () {
 		$scope.loading = true;
-		api.list(get_fields ? get_fields() : null, function (data) {
+		api.list(get_fields ? get_fields() : null,
+			function (data) {
+				if (data.error) return reportServerError($scope, data.error);
 				list = data.result;
 				$scope.tableParams.reload();
 				$scope.loading = false;
@@ -494,6 +540,7 @@ var entitiesListCtrl = function ($scope, $resource, $filter, $modal, ngTablePara
 	};
 
 	fields.list(function (data) {
+			if (data.error) return reportServerError($scope, data.error);
 			$scope.fields = fixedfields.concat(data.result);
 		},
 		function (err) {
@@ -504,6 +551,7 @@ var entitiesListCtrl = function ($scope, $resource, $filter, $modal, ngTablePara
 	$scope.relationsDialog = function (item) {
 		api.item({id: item._id, relations: true},
 			function (data) {
+				if (data.error) return reportServerError($scope, data.error);
 				infoModalDialog($modal, {
 					item: data.result
 				}, 'partials/relations-modal.html', function (data) {
@@ -560,6 +608,27 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 
 });
 
+app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations) {
+
+	$scope.remove = function (rel) {
+		okcancelModalDialog($modal,
+			{
+				headline: 'Verbindung löschen?',
+				question: 'Soll "' + $scope.entity.name + '"-"' + rel.entity.name + '" gelöscht werden?'
+			}
+			, function () {
+				relations.remove({id: rel._id}, function () {
+					$scope.relations = $scope.relations.filter(function (oe) {
+						return oe != rel;
+					});
+				}, function (err) {
+					console.error(err);
+				})
+			});
+	};
+
+});
+
 var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, type, mode) {
 
 	$scope.isNew = ($stateParams.id == 'new');
@@ -576,6 +645,7 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, t
 	} else {
 		api.item({id: $stateParams.id, relations: true},
 			function (data) {
+				if (data.error) return reportServerError($scope, data.error);
 				$scope.item = data.result;
 			},
 			function (err) {
@@ -585,6 +655,7 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, t
 	}
 
 	fields.list(function (data) {
+			if (data.error) return reportServerError($scope, data.error);
 			$scope.fields = data.result;
 		},
 		function (err) {
@@ -594,7 +665,8 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, t
 
 	$scope.tags = [];
 
-	tags.list(function (data) {
+	tags.list({type: 'entities'}, function (data) {
+			if (data.error) return reportServerError($scope, data.error);
 			$scope.tags = data.result;
 		},
 		function (err) {
@@ -623,6 +695,7 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, t
 		}
 	};
 	var typeaheadenter = function (sender, event, value, daset, clear) {
+		if (value.value) value = value.value;
 		if (daset.name == 'tags') {
 			if ($scope.canAddEntry('tags', value)) {
 				$scope.item['tags'].push(value);
@@ -672,28 +745,38 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, t
 		$state.go(mode);
 	};
 
+	if (!$scope.validate) {
+		$scope.validate = function (cb) {
+			cb();
+		};
+	}
+
 	$scope.save = function () {
-		api.save({id: $stateParams.id}, {ent: $scope.item},
-			function (data) {
-				if (data.error) return alert(JSON.stringify(data.error));
-				$scope.back();
-			},
-			function (err) {
-				console.error(err);
-			}
-		);
+		$scope.validate(function () {
+			api.save({id: $stateParams.id}, {ent: $scope.item},
+				function (data) {
+					if (data.error) return reportServerError($scope, data.error);
+					$scope.back();
+				},
+				function (err) {
+					console.error(err);
+				}
+			);
+		});
 	};
 
 	$scope.createnew = function () {
-		api.create({ent: $scope.item},
-			function (data) {
-				if (data.error) return alert(JSON.stringify(data.error));
-				$scope.back();
-			},
-			function (err) {
-				console.error(err);
-			}
-		);
+		$scope.validate(function () {
+			api.create({ent: $scope.item},
+				function (data) {
+					if (data.error) return reportServerError($scope, data.error);
+					$scope.back();
+				},
+				function (err) {
+					console.error(err);
+				}
+			);
+		});
 	};
 
 	$scope.needsInput = function (s) {
@@ -701,14 +784,24 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, t
 	};
 };
 
+var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, type, mode, modename) {
+	$scope.modename = modename;
+	$scope.validate = function (cb) {
+		$scope.item.auto = false;
+		if ($scope.edit.tags && ($scope.edit.tags.length > 0)) {
+			$scope.addEntry('tags', $scope.edit.tags);
+		}
+		cb();
+	};
+	typedEditCtrl($scope, $state, $stateParams, api, fields, tags, type, mode);
+};
+
 app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, persons, fields, tags) {
-	$scope.modename = 'Person';
-	typedEditCtrl($scope, $state, $stateParams, persons, fields, tags, 'person', 'persons');
+	typedEntityEditCtrl($scope, $state, $stateParams, persons, fields, tags, 'person', 'persons', 'Person');
 });
 
 app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, organisations, fields, tags) {
-	$scope.modename = 'Organisation';
-	typedEditCtrl($scope, $state, $stateParams, organisations, fields, tags, 'organisation', 'organisations');
+	typedEntityEditCtrl($scope, $state, $stateParams, organisations, fields, tags, 'organisation', 'organisations', 'Organisation');
 });
 
 app.controller('LoginCtrl', function ($scope, $state, $stateParams, $resource, $rootScope, auth) {
@@ -719,6 +812,7 @@ app.controller('LoginCtrl', function ($scope, $state, $stateParams, $resource, $
 		auth.login(
 			$scope.login,
 			function (data) {
+				if (data.error) return reportServerError($scope, data.error);
 				$rootScope.loggedInUser = data.result;
 				$state.go('start');
 			},
@@ -730,116 +824,239 @@ app.controller('LoginCtrl', function ($scope, $state, $stateParams, $resource, $
 	};
 });
 
-app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
+var typedSimpleEditCtrl = function ($scope, $state, $stateParams, api, type, mode, modename) {
+
+	$scope.modename = modename;
 
 	$scope.isNew = ($stateParams.id == 'new');
 
+	if (!$scope.validate) {
+		$scope.validate = function (cb) {
+			cb();
+		};
+	}
+
 	$scope.createnew = function () {
-		users.create({user: $scope.user},
-			function (data) {
-				if (data.err) return alert(data.err);
-				$state.go('users');
-			},
-			function (err) {
-				console.error(err);
-			}
-		);
+		$scope.validate(function () {
+			var o = {};
+			o[type] = $scope[type];
+			api.create(o,
+				function (data) {
+					if (data.error) return reportServerError($scope, data.error);
+					$state.go(mode);
+				},
+				function (err) {
+					console.error(err);
+				}
+			);
+		});
 	};
 
 	$scope.save = function () {
-		users.save({id: $stateParams.id},
-			{user: $scope.user},
-			function (data) {
-				if (data.err) return alert(data.err);
-				$state.go('users');
-			},
-			function (err) {
-				console.error(err);
-			}
-		);
+		$scope.validate(function () {
+			var o = {};
+			o[type] = $scope[type];
+			api.save({id: $stateParams.id}, o,
+				function (data) {
+					if (data.error) return reportServerError($scope, data.error);
+					$state.go(mode);
+				},
+				function (err) {
+					console.error(err);
+				}
+			);
+		});
+	};
+
+	$scope.back = function () {
+		$state.go(mode);
 	};
 
 	if (!$scope.isNew) {
-		users.item({id: $stateParams.id},
+		api.item({id: $stateParams.id},
 			function (data) {
-				if (data.err) return alert(data.err);
-				$scope.user = data.result;
+				if (data.error) return reportServerError($scope, data.error);
+				$scope[type] = data.result;
 			},
 			function (err) {
 				console.error(err);
 			}
 		);
-	} else {
-		$scope.user = {};
 	}
+
+};
+
+app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relations, entities, tags) {
+
+	$scope.edit = {
+		one_org: {},
+		two_org: {}
+	};
+
+	$scope.validate = function (cb) {
+		$scope.relation.auto = false;
+		if ($scope.edit.tags && ($scope.edit.tags.length > 0)) {
+			$scope.addEntry('tags', $scope.edit.tags);
+		}
+		cb();
+	};
+	$scope.relation = {
+		tags: [],
+		entities: ['', '']
+	};
+
+	typedSimpleEditCtrl($scope, $state, $stateParams, relations, 'relation', 'relations', 'Verbindung');
+
+	$scope.tags = [];
+
+	tags.list({type: 'relations'},
+		function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			$scope.tags = data.result;
+		},
+		function (err) {
+			console.error(err);
+		}
+	);
+
+	$scope.typeaheadOptionsEntities = {
+		minLength: 2,
+		highlight: true
+	};
+
+	var datasetEntity = function (prop) {
+		return {
+			name: 'entities',
+			prop: prop,
+			displayKey: "name",
+			source: function (q, callback) {
+				entities.list({search: q},
+					function (data) {
+						if (data.error) return reportServerError($scope, data.error);
+						callback(data.result);
+					}, function (err) {
+						console.error(err);
+					});
+			}
+		};
+	};
+
+	$scope.datasetEntitiesOne = datasetEntity('one');
+	$scope.datasetEntitiesTwo = datasetEntity('two');
+
+	//typeahead callbacks
+	$scope.typeaheadOptionsTags = {
+		minLength: 1,
+		highlight: true
+	};
+	$scope.datasetTags = {
+		name: 'tags',
+		displayKey: "value",
+		source: function (q, callback) {
+			var matches, substrRegex;
+			matches = [];
+			substrRegex = new RegExp(q, 'i');
+			$.each($scope.tags, function (i, s) {
+				if (substrRegex.test(s)) {
+					matches.push({value: s});
+				}
+			});
+			callback(matches);
+		}
+	};
+
+	var typeaheadenter = function (sender, event, value, daset, clear) {
+		if (daset.name == 'tags') {
+			if (value.value) value = value.value;
+			if ($scope.canAddEntry('tags', value)) {
+				$scope.relation['tags'].push(value);
+				$scope.edit['tags'] = '';
+				clear();
+			}
+		} else if ((daset.name == 'entities') && (typeof value !== 'string')) {
+			$scope.edit[daset.prop + '_org'].name = value;
+			$scope.edit[daset.prop] = value;
+			if (!$scope.relation.entities) $scope.relation.entities = [];
+			$scope.relation.entities[daset.prop == 'one' ? 0 : 1] = value._id;
+		}
+	};
+
+	$scope.$on("typeahead:enter", typeaheadenter);
+	$scope.$on("typeahead:selected", typeaheadenter);
+	$scope.$on("typeahead:changed", function (sender, value, daset) {
+		if (daset.name == 'entities') {
+			if ($scope.edit[daset.prop + '_org'].name !== value)
+				$scope.edit[daset.prop]._id = null;
+		}
+	});
+
+	$scope.addEntry = function (id, a) {
+		if ($scope.canAddEntry(id, a)) {
+			$scope.relation[id].push(a);
+			$scope.edit[id] = '';
+		}
+	};
+
+	$scope.canAddEntry = function (id, a) {
+		return ($scope.relation && a && (a.length > 0) && ($scope.relation[id].indexOf(a) < 0));
+	};
+
+	$scope.removeEntry = function (id, a) {
+		var i = $scope.relation[id].indexOf(a);
+		if (i >= 0) {
+			$scope.relation[id].splice(i, 1);
+		}
+	};
+
+	$scope.removeData = function (d) {
+		var i = $scope.relation.data.indexOf(d);
+		if (i >= 0) {
+			$scope.relation.data.splice(i, 1);
+		}
+	};
+
+	$scope.addData = function (o) {
+		$scope.relation.data.push({
+			format: o.format,
+			key: o.key,
+			desc: o.name
+		});
+	};
+
+	$scope.$watch('relation', function (v) {
+		if (v && v.entities) {
+			if (v.entities[0])
+				entities.item({id: v.entities[0]}, function (data) {
+					if (data.error) return reportServerError($scope, data.error);
+					$scope.edit.oneorg = data.result.name;
+					$scope.edit.one = data.result;
+				}, function (err) {
+					console.error(err);
+				});
+			if (v.entities[1])
+				entities.item({id: v.entities[1]}, function (data) {
+					if (data.error) return reportServerError($scope, data.error);
+					$scope.edit.twoorg = data.result.name;
+					$scope.edit.two = data.result;
+				}, function (err) {
+					console.error(err);
+				});
+		}
+	});
 
 });
 
-app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations) {
-
-	$scope.remove = function (rel) {
-		okcancelModalDialog($modal,
-			{
-				headline: 'Verbindung löschen?',
-				question: 'Soll "' + $scope.entity.name + '"-"' + rel.entity.name + '" gelöscht werden?'
-			}
-			, function () {
-				relations.remove({id: rel._id}, function () {
-					$scope.relations = $scope.relations.filter(function (oe) {
-						return oe != rel;
-					});
-				}, function (err) {
-					console.error(err);
-				})
-			});
-	};
-
+app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
+	$scope.user = {};
+	typedSimpleEditCtrl($scope, $state, $stateParams, users, 'user', 'users', 'Benutzerin');
 });
 
 app.controller('FieldEditCtrl', function ($scope, $state, $stateParams, fields) {
-
-	$scope.isNew = ($stateParams.id == 'new');
-
-	$scope.createnew = function () {
-		fields.create({field: $scope.field},
-			function (data) {
-				if (data.err) return alert(data.err);
-				$state.go('fields');
-			},
-			function (err) {
-				console.error(err);
-			}
-		);
-	};
-
-	$scope.save = function () {
-		fields.save({id: $stateParams.id},
-			{field: $scope.field},
-			function (data) {
-				if (data.err) return alert(data.err);
-				$state.go('fields');
-			},
-			function (err) {
-				console.error(err);
-			}
-		);
-	};
-
-	if (!$scope.isNew) {
-		fields.item({id: $stateParams.id},
-			function (data) {
-				if (data.err) return alert(data.err);
-				$scope.field = data.result;
-			},
-			function (err) {
-				console.error(err);
-			}
-		);
-	} else {
-		$scope.field = {format: 'string'};
-	}
-
+	$scope.field = {format: 'string'};
+	typedSimpleEditCtrl($scope, $state, $stateParams, fields, 'field', 'fields', 'Feld');
 });
+
+// ------------------- directives -------------------
 
 app.directive('ngEnter', function () {
 	return function (scope, element, attrs) {
@@ -936,7 +1153,7 @@ app.directive('ngtypeahead', function () {
 
 			// Update the value binding when a value is manually selected from the dropdown.
 			element.bind('typeahead:selected', function (object, suggestion, dataset) {
-				updateScope('typeahead:selected', object, suggestion.value, dataset);
+				updateScope('typeahead:selected', object, suggestion, dataset);
 			});
 
 			// Update the value binding when a query is autocompleted.
@@ -993,3 +1210,19 @@ app.directive('ngrelations', function () {
 		}
 	};
 });
+
+app.directive('ngdatafields', function () {
+	return {
+		restrict: 'A',
+		templateUrl: 'partials/datafields.html',
+		scope: {
+			"fields": "="
+		},
+		link: function (scope, element, attrs) {
+			//scope.$watch('fields', function(v) {
+			//	console.log(v);
+			//});
+		}
+	};
+});
+

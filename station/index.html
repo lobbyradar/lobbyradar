@@ -316,103 +316,7 @@
 
 	<hr/>
 
-	<div ng-repeat="d in item.data" ng-switch="d.format">
-		<p class="field-headline"><span ng-bind="d.desc"></span><i class="glyphicon glyphicon-remove btn-right" title="{{d.desc}} entfernen" ng-click="removeData(d)"></i></p>
-
-		<div ng-switch-when="link" class="row">
-			<form class="form">
-				<div class="form-group col-md-9">
-					<label>Link</label>
-					<input type="url" class="form-control" placeholder="Link" ng-model="d.value.url">
-				</div>
-				<div class="form-group col-md-3">
-					<label>Bemerkung</label>
-					<input type="text" class="form-control" placeholder="Bemerkung" ng-model="d.value.remark">
-				</div>
-			</form>
-		</div>
-
-		<div ng-switch-when="address" class="row">
-			<form class="form">
-
-				<div class="form-group col-md-12">
-					<label>Name</label>
-					<input type="text" class="form-control" placeholder="Name" ng-model="d.value.name">
-				</div>
-
-				<div class="form-group col-md-12">
-					<label>Straße/Postfach</label>
-					<input type="text" class="form-control" placeholder="Adresse" ng-model="d.value.addr">
-				</div>
-
-				<div class="form-group col-md-4">
-					<label>Postleitzahl</label>
-					<input type="text" class="form-control" placeholder="Postleitzahl" ng-model="d.value.postcode">
-				</div>
-
-				<div class="form-group col-md-4">
-					<label>Stadt</label>
-					<input type="text" class="form-control" placeholder="Stadt" ng-model="d.value.city">
-				</div>
-
-				<div class="form-group col-md-4">
-					<label>Land</label>
-					<input type="text" class="form-control" placeholder="Land" ng-model="d.value.country">
-				</div>
-
-				<div class="form-group col-md-6">
-					<label>Telefon</label>
-					<input type="text" class="form-control" placeholder="Telefon" ng-model="d.value.tel">
-				</div>
-
-				<div class="form-group col-md-6">
-					<label>Fax</label>
-					<input type="text" class="form-control" placeholder="Fax" ng-model="d.value.fax">
-				</div>
-
-				<div class="form-group col-md-6">
-					<label>E-Mail</label>
-					<input type="text" class="form-control" placeholder="E-Mail" ng-model="d.value.email">
-				</div>
-
-				<div class="form-group col-md-6">
-					<label>www</label>
-					<input type="text" class="form-control" placeholder="www" ng-model="d.value.www">
-				</div>
-			</form>
-		</div>
-
-		<div ng-switch-when="number" class="row">
-			<form class="form">
-				<div class="form-group col-md-4">
-					<input type="number" class="form-control" placeholder="Zahl" ng-model="d.value">
-				</div>
-			</form>
-		</div>
-
-		<div ng-switch-when="string" class="row">
-			<form class="form">
-				<div class="form-group col-md-12">
-					<input type="text" class="form-control" placeholder="Text" ng-model="d.value">
-				</div>
-			</form>
-		</div>
-
-		<div ng-switch-when="bool" class="row">
-			<form class="form">
-				<div class="form-group col-md-12">
-					<div class="checkbox">
-						<label>
-							<input type="checkbox" ng-model="d.value"> <span ng-if="d.value"><b>Ja</b>/Nein</span><span ng-if="!d.value">Ja/<b>Nein</b></span>
-						</label>
-					</div>
-				</div>
-			</form>
-		</div>
-
-		<hr/>
-
-	</div>
+	<div ngdatafields data-fields="item.data"></div>
 
 	<div class="btn-group">
 		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
@@ -483,23 +387,6 @@
 			</tbody>
 		</table>
 	</div>
-</script>
-
-<script type="text/ng-template" id="partials/relation.html">
-	<form role="form">
-
-		<div class="form-group col-md-6">
-			<label>Bezug 1</label>
-			<input type="text" class="form-control" placeholder="Bezug 1" ng-model="item.one" >
-		</div>
-
-		<div class="form-group col-md-6">
-			<label>Bezug 2</label>
-			<input type="text" class="form-control" placeholder="Bezug 2" ng-model="item.two" >
-		</div>
-
-	</form>
-
 </script>
 
 <script type="text/ng-template" id="partials/users.html">
@@ -695,7 +582,7 @@
 		</div>
 
 		<div class="col-md-3">
-			<!--<button class="btn btn-default" ui-sref="releation({id: 'new'})">Verbindung anlegen</button>-->
+			<button class="btn btn-default" ui-sref="relation({id: 'new'})">Verbindung anlegen</button>
 		</div>
 
 		<div class="col-md-3">
@@ -715,17 +602,14 @@
 		<thead>
 		<tr>
 			<th class="sortable" ng-class="{'sort-asc': tableParams.isSortBy('name', 'asc'), 'sort-desc': tableParams.isSortBy('name', 'desc')}"
-					ng-click="tableParams.sorting('name', tableParams.isSortBy('name', 'asc') ? 'desc' : 'asc')">
-				Name
+				ng-click="tableParams.sorting('name', tableParams.isSortBy('name', 'asc') ? 'desc' : 'asc')">Name
 			</th>
 			<th ng-repeat="f in q.fields"
 				class="sortable" ng-class="{
                     'sort-asc': tableParams.isSortBy(f.key, 'asc'),
                     'sort-desc': tableParams.isSortBy(f.key, 'desc')
                   }"
-				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
-				{{f.name}}
-			</th>
+				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')" ng-bind="f.name"></th>
 			<th class="text-right">Aktionen</th>
 		</tr>
 		</thead>
@@ -736,11 +620,173 @@
 			<td ng-repeat="f in q.fields" ng-bind="getDispayValues(f,p)"></td>
 			<td class="col-action">
 				<span class="btn-right" ng-click="remove(p)" title="Verbindung löschen"><i class="fa fa-trash"></i></span>
-				<!--<span class="btn-right" ui-sref='relation({id: p._id})' title="Verbindung bearbeiten"><i class="fa fa-edit"></i></span>-->
+				<span class="btn-right" ui-sref='relation({id: p._id})' title="Verbindung bearbeiten"><i class="fa fa-edit"></i></span>
 			</td>
 		</tr>
 		</tbody>
 	</table>
+
+</script>
+
+<script type="text/ng-template" id="partials/datafields.html">
+	<div ng-repeat="d in fields" ng-switch="d.format">
+		<p class="field-headline"><span ng-bind="d.desc"></span><i class="glyphicon glyphicon-remove btn-right" title="{{d.desc}} entfernen" ng-click="removeData(d)"></i></p>
+
+		<div ng-switch-when="link" class="row">
+			<form class="form">
+				<div class="form-group col-md-9">
+					<label>Link</label>
+					<input type="url" class="form-control" placeholder="Link" ng-model="d.value.url">
+				</div>
+				<div class="form-group col-md-3">
+					<label>Bemerkung</label>
+					<input type="text" class="form-control" placeholder="Bemerkung" ng-model="d.value.remark">
+				</div>
+			</form>
+		</div>
+
+		<div ng-switch-when="address" class="row">
+			<form class="form">
+
+				<div class="form-group col-md-12">
+					<label>Name</label>
+					<input type="text" class="form-control" placeholder="Name" ng-model="d.value.name">
+				</div>
+
+				<div class="form-group col-md-12">
+					<label>Straße/Postfach</label>
+					<input type="text" class="form-control" placeholder="Adresse" ng-model="d.value.addr">
+				</div>
+
+				<div class="form-group col-md-4">
+					<label>Postleitzahl</label>
+					<input type="text" class="form-control" placeholder="Postleitzahl" ng-model="d.value.postcode">
+				</div>
+
+				<div class="form-group col-md-4">
+					<label>Stadt</label>
+					<input type="text" class="form-control" placeholder="Stadt" ng-model="d.value.city">
+				</div>
+
+				<div class="form-group col-md-4">
+					<label>Land</label>
+					<input type="text" class="form-control" placeholder="Land" ng-model="d.value.country">
+				</div>
+
+				<div class="form-group col-md-6">
+					<label>Telefon</label>
+					<input type="text" class="form-control" placeholder="Telefon" ng-model="d.value.tel">
+				</div>
+
+				<div class="form-group col-md-6">
+					<label>Fax</label>
+					<input type="text" class="form-control" placeholder="Fax" ng-model="d.value.fax">
+				</div>
+
+				<div class="form-group col-md-6">
+					<label>E-Mail</label>
+					<input type="text" class="form-control" placeholder="E-Mail" ng-model="d.value.email">
+				</div>
+
+				<div class="form-group col-md-6">
+					<label>www</label>
+					<input type="text" class="form-control" placeholder="www" ng-model="d.value.www">
+				</div>
+			</form>
+		</div>
+
+		<div ng-switch-when="number" class="row">
+			<form class="form">
+				<div class="form-group col-md-4">
+					<input type="number" class="form-control" placeholder="Zahl" ng-model="d.value">
+				</div>
+			</form>
+		</div>
+
+		<div ng-switch-when="string" class="row">
+			<form class="form">
+				<div class="form-group col-md-12">
+					<input type="text" class="form-control" placeholder="Text" ng-model="d.value">
+				</div>
+			</form>
+		</div>
+
+		<div ng-switch-when="bool" class="row">
+			<form class="form">
+				<div class="form-group col-md-12">
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" ng-model="d.value"> <span ng-if="d.value"><b>Ja</b>/Nein</span><span ng-if="!d.value">Ja/<b>Nein</b></span>
+						</label>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<hr/>
+
+	</div>
+
+</script>
+
+<script type="text/ng-template" id="partials/relation.html">
+
+	<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+			<h1>Verbindung <span ng-if="isNew">anlegen</span><span ng-if="!isNew">bearbeiten</span></h1>
+
+			<form class="form">
+				<div class="form-group">
+					<label>Bezug 1</label>
+
+					<div class="has-feedback">
+						<input type="text" class="form-control" placeholder="Bezug 1" ng-model="edit.one.name" options="typeaheadOptionsEntities" datasets="datasetEntitiesOne" ngtypeahead>
+						<span ng-show="edit.one._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label>Bezug 2</label>
+
+					<div class="has-feedback">
+						<input type="text" class="form-control" placeholder="Bezug 2" ng-model="edit.two.name" options="typeaheadOptionsEntities" datasets="datasetEntitiesTwo" ngtypeahead>
+						<span ng-show="edit.two._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label>Typ</label>
+					<input type="text" class="form-control" placeholder="Typ" ng-model="relation.type">
+				</div>
+				<div class="form-group">
+					<label>Schlagworte</label>
+
+					<div class="has-feedback">
+						<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" options="typeaheadOptionsTags" datasets="datasetTags" ngtypeahead>
+						<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
+					</div>
+					<div class="label-list">
+						<div ng-repeat="o in relation.tags" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Tag entfernen" ng-click="removeEntry('tags', o)"></i></div>
+					</div>
+				</div>
+				<div ngdatafields data-fields="relation.data"></div>
+			</form>
+
+			<!--<div class="btn-group">-->
+			<!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">-->
+			<!--Datenfeld hinzufügen <span class="caret"></span>-->
+			<!--</button>-->
+
+			<!--<ul class="dropdown-menu up" role="menu">-->
+			<!--<li ng-repeat="o in fields"><a href ng-click="addData(o)" ng-bind="o.name"></a></li>-->
+			<!--</ul>-->
+			<!--</div>-->
+
+			<div class="pull-right">
+				<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
+				<button ng-if="isNew" class="btn btn-primary" ng-click="createnew()">Anlegen</button>
+				<button class="btn btn-default" ng-click="back()">Abbruch</button>
+			</div>
+		</div>
+	</div>
 
 </script>
 

@@ -126,7 +126,6 @@ app.post("/api/entity/create", function (req, res) {
 app.all("/api/entity/get/:id", function (req, res) {
 	debug("get entity %s", req.params.id);
 	api.ent_get(req.params.id, function (err, result) {
-		console.log(req.query);
 		if (result && req.query && req.query.relations) {
 			return api.ent_rels(result._id, function (err, rels) {
 				result.relations = rels;
@@ -203,8 +202,8 @@ app.all("/api/entity/export", function (req, res) {
 
 // create relation.
 app.post("/api/relation/create", function (req, res) {
-	debug("create relation for \"%s\"", req.body.rel.name);
-	api.rel_create(req.body.rel, function (err, result) {
+	debug("create relation");
+	api.rel_create(req.body.rel||req.body.relation, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -228,7 +227,7 @@ app.all("/api/relation/delete/:id", function (req, res) {
 // update relation.
 app.post("/api/relation/update/:id", function (req, res) {
 	debug("update relation %s", req.params.id);
-	api.rel_update(req.params.id, req.body.rel, function (err, result) {
+	api.rel_update(req.params.id, req.body.rel||req.body.relation, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -361,7 +360,7 @@ app.post("/api/fields/update/:id", function (req, res) {
 // get tags.
 app.all("/api/tags/list", function (req, res) {
 	debug("get tags");
-	api.tags(function (err, result) {
+	api.tags(req.query.type, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
