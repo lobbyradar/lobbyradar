@@ -317,7 +317,7 @@ var editModalDialog = function ($modal, data, templateUrl, cb) {
 			$scope.data = data;
 
 			$scope.ok = function (form) {
-				if (form.$valid)
+				if (!form || form.$valid)
 					$modalInstance.close($scope.data);
 			};
 
@@ -627,6 +627,20 @@ app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations) {
 			});
 	};
 
+	$scope.edit = function (rel) {
+		editModalDialog($modal,
+			{
+				relation: angular.copy(rel)
+			},
+			'partials/relation-modal.html'
+			, function (data) {
+				$scope.relations = $scope.relations.map(function (oe) {
+					if (data.relation._id == oe._id) return data.relation;
+					return oe;
+				});
+			});
+	};
+
 });
 
 var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, type, mode) {
@@ -886,7 +900,7 @@ var typedSimpleEditCtrl = function ($scope, $state, $stateParams, api, type, mod
 
 };
 
-app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relations, entities, tags) {
+var relationEditCtrl = function ($scope, $state, relations, entities, tags, aftersave) {
 
 	$scope.edit = {
 		one_org: {},
@@ -900,12 +914,47 @@ app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relat
 		}
 		cb();
 	};
+
 	$scope.relation = {
 		tags: [],
 		entities: ['', '']
 	};
 
-	typedSimpleEditCtrl($scope, $state, $stateParams, relations, 'relation', 'relations', 'Verbindung');
+	$scope.modename = 'Verbindung';
+
+	$scope.createnew = function () {
+		$scope.validate(function () {
+			var o = {relation: $scope.relation};
+			relations.create(o,
+				function (data) {
+					if (data.error) return reportServerError($scope, data.error);
+					aftersave();
+				},
+				function (err) {
+					console.error(err);
+				}
+			);
+		});
+	};
+
+	$scope.save = function () {
+		$scope.validate(function () {
+			var o = {relation: $scope.relation};
+			relations.save({id: $scope.relation._id}, o,
+				function (data) {
+					if (data.error) return reportServerError($scope, data.error);
+					aftersave();
+				},
+				function (err) {
+					console.error(err);
+				}
+			);
+		});
+	};
+
+	$scope.back = function () {
+		$state.go('relations');
+	};
 
 	$scope.tags = [];
 
@@ -1044,6 +1093,32 @@ app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relat
 		}
 	});
 
+};
+
+app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relations, entities, tags) {
+	$scope.isNew = ($stateParams.id == 'new');
+	relationEditCtrl($scope, $state, relations, entities, tags, function () {
+		$state.go('relations');
+	});
+	if (!$scope.isNew) {
+		relations.item({id: $stateParams.id},
+			function (data) {
+				if (data.error) return reportServerError($scope, data.error);
+				$scope.relation = data.result;
+			},
+			function (err) {
+				console.error(err);
+			}
+		);
+	}
+});
+
+app.controller('RelationModalEditCtrl', function ($scope, $state, relations, entities, tags) {
+	$scope.isNew = false;
+	relationEditCtrl($scope, $state, relations, entities, tags, function () {
+		$scope.ok();
+	});
+	$scope.relation = $scope.data.relation;
 });
 
 app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
