@@ -528,7 +528,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	$scope.reload();
 };
 
-var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, ngTableParams, api, fields, tags) {
+var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, ngTableParams, api, fields, tags, mode) {
 
 	$scope.q = {
 		fields: []
@@ -544,7 +544,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 	$scope.q.fields.push(fixedfields[1]);
 	$scope.q.fields.push(fixedfields[2]);
 
-	fields.list({type: 'entities'}, function (data) {
+	fields.list({mode: mode}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
 			$scope.fields = fixedfields.concat(data.result);
 		}
@@ -756,11 +756,11 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 };
 
 app.controller('PersonsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, persons, fields, tags) {
-	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, persons, fields, tags);
+	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, persons, fields, tags, 'persons');
 });
 
 app.controller('OrganisationsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, fields, tags) {
-	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, fields, tags);
+	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, fields, tags, 'organisations');
 });
 
 app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, relations, fields, tags) {
@@ -778,7 +778,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 	$scope.q.fields.push(fixedfields[1]);
 	$scope.q.fields.push(fixedfields[2]);
 
-	fields.list({type: 'relations'}, function (data) {
+	fields.list({mode: 'relations'}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
 			$scope.fields = fixedfields.concat(data.result);
 		},
@@ -787,8 +787,30 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 		}
 	);
 
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, relations);
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, relations, function () {
+		var q = {};
+		$scope.q.fields.forEach(function (f) {
+			var type = f._type || 'keys';
+			q[type] = q[type] || [];
+			q[type].push(f.key);
+		});
+		for (var key in q) {
+			q[key] = q[key].join(',');
+		}
+		return q;
+	});
 
+	$scope.toggleField = function (field) {
+		if (!field.visible)
+			$scope.q.fields.push(field);
+		else {
+			$scope.q.fields = $scope.q.fields.filter(function (f) {
+				return f !== field;
+			})
+		}
+		field.visible = !field.visible;
+		$scope.reload();
+	};
 
 	$scope.editData = function (field, r) {
 		var result = [];
@@ -971,7 +993,15 @@ app.controller('TagEdit', function ($scope) {
 	};
 });
 
-var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, type, mode) {
+var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, type, mode, modename) {
+	$scope.modename = modename;
+	$scope.validate = function (cb) {
+		$scope.item.auto = false;
+		if ($scope.edit.tags && ($scope.edit.tags.length > 0)) {
+			$scope.addEntry('tags', $scope.edit.tags);
+		}
+		cb();
+	};
 
 	$scope.isNew = ($stateParams.id == 'new');
 
@@ -996,7 +1026,7 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, t
 		);
 	}
 
-	fields.list({type: 'entities'}, function (data) {
+	fields.list({mode: mode}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
 			$scope.fields = data.result;
 		},
@@ -1126,18 +1156,6 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, t
 	};
 };
 
-var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, type, mode, modename) {
-	$scope.modename = modename;
-	$scope.validate = function (cb) {
-		$scope.item.auto = false;
-		if ($scope.edit.tags && ($scope.edit.tags.length > 0)) {
-			$scope.addEntry('tags', $scope.edit.tags);
-		}
-		cb();
-	};
-	typedEditCtrl($scope, $state, $stateParams, api, fields, tags, type, mode);
-};
-
 app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, persons, fields, tags) {
 	typedEntityEditCtrl($scope, $state, $stateParams, persons, fields, tags, 'person', 'persons', 'Person');
 });
@@ -1245,7 +1263,8 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 
 	$scope.relation = {
 		tags: [],
-		entities: ['', '']
+		entities: ['', ''],
+		data:[]
 	};
 
 	$scope.modename = 'Verbindung';
@@ -1423,8 +1442,18 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 
 };
 
-app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relations, entities, tags) {
+app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relations, entities, tags, fields) {
+
 	$scope.isNew = (!$stateParams.id) || ($stateParams.id == 'new');
+	fields.list({mode: 'relations'}, function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			$scope.fields = data.result;
+		},
+		function (err) {
+			console.error(err);
+		}
+	);
+
 	relationEditCtrl($scope, $state, relations, entities, tags, function () {
 		$state.go('relations');
 	});
@@ -1448,7 +1477,6 @@ app.controller('RelationModalEditCtrl', function ($scope, $state, relations, ent
 	});
 	$scope.relation = $scope.data.relation;
 });
-
 
 app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, entities) {
 

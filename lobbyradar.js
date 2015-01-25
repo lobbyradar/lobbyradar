@@ -259,7 +259,7 @@ app.all("/api/relation/tags", function (req, res) {
 // list of relations.
 app.all("/api/relation/list", function (req, res) {
 	debug("relation list");
-	api.rels_full(function (err, result) {
+	api.rels_full(req.query, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -320,7 +320,7 @@ app.post("/api/users/update/:id", function (req, res) {
 // get fields.
 app.get("/api/fields/list", function (req, res) {
 	debug("list fields");
-	api.field_list(function (err, result) {
+	api.field_list(req.query.mode, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });

@@ -85,12 +85,14 @@
 				</tr>
 				<tr>
 					<td>Anzahl pro Seite:</td>
-					<td><div class="btn-group small">
-						<button type="button" ng-class="{'active':params.count() == 10}" ng-click="params.count(10)" class="btn btn-default">10</button>
-						<button type="button" ng-class="{'active':params.count() == 25}" ng-click="params.count(25)" class="btn btn-default">25</button>
-						<button type="button" ng-class="{'active':params.count() == 50}" ng-click="params.count(50)" class="btn btn-default">50</button>
-						<button type="button" ng-class="{'active':params.count() == 100}" ng-click="params.count(100)" class="btn btn-default">100</button>
-					</div></td>
+					<td>
+						<div class="btn-group small">
+							<button type="button" ng-class="{'active':params.count() == 10}" ng-click="params.count(10)" class="btn btn-default">10</button>
+							<button type="button" ng-class="{'active':params.count() == 25}" ng-click="params.count(25)" class="btn btn-default">25</button>
+							<button type="button" ng-class="{'active':params.count() == 50}" ng-click="params.count(50)" class="btn btn-default">50</button>
+							<button type="button" ng-class="{'active':params.count() == 100}" ng-click="params.count(100)" class="btn btn-default">100</button>
+						</div>
+					</td>
 				</tr>
 			</table>
 		</div>
@@ -280,7 +282,7 @@
 		</div>
 
 		<div class="col-md-3">
-			<div class="btn-group hidden">
+			<div class="btn-group">
 				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
 					Daten anzeigen <span class="caret"></span>
 				</button>
@@ -426,7 +428,7 @@
 <script type="text/ng-template" id="partials/relations-owned.html">
 	<div ng-controller="RelationsOwnedListCtrl">
 		<p>
-		<button class="btn btn-default" ng-click="enter()">Verbindung anlegen</button>
+			<button class="btn btn-default" ng-click="enter()">Verbindung anlegen</button>
 		</p>
 		<table class="table table-striped">
 			<head>
@@ -587,7 +589,7 @@
 	<table ng-table="tableParams" template-pagination="partials/pager-blank.html" class="table table-striped">
 		<thead>
 		<tr>
-		   <th class="sortable" ng-class="{
+			<th class="sortable" ng-class="{
                     'sort-asc': tableParams.isSortBy('name', 'asc'),
                     'sort-desc': tableParams.isSortBy('name', 'desc')
                   }" ng-click="tableParams.sorting('name', tableParams.isSortBy('name', 'asc') ? 'desc' : 'asc')">Name
@@ -605,6 +607,10 @@
                   }" ng-click="tableParams.sorting('format', tableParams.isSortBy('format', 'asc') ? 'desc' : 'asc')">Format
 				<span ng-class="{'fa-sort-asc':tableParams.isSortBy('format', 'asc'),'fa-sort-desc':tableParams.isSortBy('format', 'desc')}" class="fa"></span>
 			</th>
+			<th class="sortable" ng-class="{'sort-asc': tableParams.isSortBy('mode', 'asc'), 'sort-desc': tableParams.isSortBy('mode', 'desc')}"
+				ng-click="tableParams.sorting('mode', tableParams.isSortBy('mode', 'asc') ? 'desc' : 'asc')">Typ
+				<span ng-class="{'fa-sort-asc':tableParams.isSortBy('mode', 'asc'),'fa-sort-desc':tableParams.isSortBy('mode', 'desc')}" class="fa"></span>
+			</th>
 			<th class="text-right">Aktionen</th>
 		</tr>
 		</thead>
@@ -613,6 +619,7 @@
 			<td ng-bind="p.name"></td>
 			<td ng-bind="p.key"></td>
 			<td ng-bind="globals.fieldtypes[p.format]"></td>
+			<td ng-bind="p.mode"></td>
 			<td>
 				<span class="btn-right" ng-click="remove(p)" title="Datenfeld löschen"><i class="fa fa-trash"></i></span>
 				<span class="btn-right" ui-sref='field({id: p._id})' title="Datenfeld bearbeiten"><i class="fa fa-edit"></i></span>
@@ -639,9 +646,17 @@
 					<input type="text" class="form-control" placeholder="Schlüssel" ng-model="field.key">
 				</div>
 				<div class="form-group">
-					<label>Typ</label>
+					<label>Format</label>
 					<select class="form-control" ng-model="field.format">
 						<option ng-repeat="fieldtype in fieldtypes" value="{{fieldtype.id}}" ng-bind="fieldtype.name"></option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label>Typ</label>
+					<select class="form-control" ng-model="field.mode">
+						<option value="persons">Personen</option>
+						<option value="organisations">Organisationen</option>
+						<option value="relations">Verknüpfungen</option>
 					</select>
 				</div>
 			</form>
@@ -874,15 +889,15 @@
 		<div ngdatafields data-fields="relation.data"></div>
 	</form>
 
-	<!--<div class="btn-group">-->
-	<!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">-->
-	<!--Datenfeld hinzufügen <span class="caret"></span>-->
-	<!--</button>-->
+	<div class="btn-group">
+		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+			Datenfeld hinzufügen <span class="caret"></span>
+		</button>
 
-	<!--<ul class="dropdown-menu up" role="menu">-->
-	<!--<li ng-repeat="o in fields"><a href ng-click="addData(o)" ng-bind="o.name"></a></li>-->
-	<!--</ul>-->
-	<!--</div>-->
+		<ul class="dropdown-menu up" role="menu">
+			<li ng-repeat="o in fields"><a href ng-click="addData(o)" ng-bind="o.name"></a></li>
+		</ul>
+	</div>
 
 </script>
 
