@@ -337,7 +337,7 @@
 	<hr/>
 
 	<h1>Verbindungen</h1>
-	<div ngrelations data-relations="item.relations" data-entity="item"></div>
+	<div ng-include="'partials/relations-owned.html'"></div>
 
 </script>
 
@@ -351,7 +351,7 @@
 	</div>
 
 	<div class="modal-body">
-		<div ngrelations data-relations="data.item.relations" data-entity="data.item"></div>
+		<div ng-include="'partials/relations-owned.html'" ng-init="item=data.item;"></div>
 	</div>
 
 	<div class="modal-footer">
@@ -361,6 +361,9 @@
 
 <script type="text/ng-template" id="partials/relations-owned.html">
 	<div ng-controller="RelationsOwnedListCtrl">
+		<p>
+		<button class="btn btn-default" ng-click="enter()">Verbindung anlegen</button>
+		</p>
 		<table class="table table-striped">
 			<head>
 				<tr>
@@ -743,7 +746,8 @@
 			<div ng-include="'partials/relation-edits.html'"></div>
 		</div>
 		<div class="modal-footer">
-			<button class="btn btn-primary" ng-click="store()" translate>Speichern</button>
+			<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
+			<button ng-if="isNew" class="btn btn-primary" ng-click="createnew()">Anlegen</button>
 			<button class="btn btn-warning" ng-click="cancel()" translate>Abbruch</button>
 		</div>
 	</div>

@@ -584,65 +584,6 @@ app.controller('UsersCtrl', function ($scope, $resource, $filter, $modal, ngTabl
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, users);
 });
 
-app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, relations) {
-
-	$scope.q = {
-		fields: [
-			{name: 'Schlagworte', key: 'tags', format: 'strings', _type: 'fields'},
-			{name: 'Typ', key: 'type', format: 'string', _type: 'fields'},
-		]
-	};
-
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, relations);
-
-	$scope.getDispayValues = function (field, entity) {
-		var v = entity[field.key];
-		if (v == undefined) return '';
-		if (field.format == 'strings') return v.join(', ');
-		else if (field.format == 'bool') return v ? 'ja' : 'nein';
-		else if (field.format == 'link') return v.url;
-		else if (field.format == 'number') return v;
-		else if (field.format == 'address') return 'TODO adresse to line'; //FIXME
-		return v;
-	};
-
-});
-
-app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations) {
-
-	$scope.remove = function (rel) {
-		okcancelModalDialog($modal,
-			{
-				headline: 'Verbindung löschen?',
-				question: 'Soll "' + $scope.entity.name + '"-"' + rel.entity.name + '" gelöscht werden?'
-			}
-			, function () {
-				relations.remove({id: rel._id}, function () {
-					$scope.relations = $scope.relations.filter(function (oe) {
-						return oe != rel;
-					});
-				}, function (err) {
-					console.error(err);
-				})
-			});
-	};
-
-	$scope.edit = function (rel) {
-		editModalDialog($modal,
-			{
-				relation: angular.copy(rel)
-			},
-			'partials/relation-modal.html'
-			, function (data) {
-				$scope.relations = $scope.relations.map(function (oe) {
-					if (data.relation._id == oe._id) return data.relation;
-					return oe;
-				});
-			});
-	};
-
-});
-
 var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, type, mode) {
 
 	$scope.isNew = ($stateParams.id == 'new');
@@ -928,6 +869,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 			relations.create(o,
 				function (data) {
 					if (data.error) return reportServerError($scope, data.error);
+					$scope.relation._id = data.result;
 					aftersave();
 				},
 				function (err) {
@@ -1096,7 +1038,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 };
 
 app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relations, entities, tags) {
-	$scope.isNew = ($stateParams.id == 'new');
+	$scope.isNew = (!$stateParams.id) || ($stateParams.id == 'new');
 	relationEditCtrl($scope, $state, relations, entities, tags, function () {
 		$state.go('relations');
 	});
@@ -1114,11 +1056,95 @@ app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relat
 });
 
 app.controller('RelationModalEditCtrl', function ($scope, $state, relations, entities, tags) {
-	$scope.isNew = false;
+	$scope.isNew = !$scope.data.relation._id;
 	relationEditCtrl($scope, $state, relations, entities, tags, function () {
 		$scope.ok();
 	});
 	$scope.relation = $scope.data.relation;
+});
+
+app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, relations) {
+
+	$scope.q = {
+		fields: [
+			{name: 'Schlagworte', key: 'tags', format: 'strings', _type: 'fields'},
+			{name: 'Typ', key: 'type', format: 'string', _type: 'fields'},
+		]
+	};
+
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, relations);
+
+	$scope.getDispayValues = function (field, entity) {
+		var v = entity[field.key];
+		if (v == undefined) return '';
+		if (field.format == 'strings') return v.join(', ');
+		else if (field.format == 'bool') return v ? 'ja' : 'nein';
+		else if (field.format == 'link') return v.url;
+		else if (field.format == 'number') return v;
+		else if (field.format == 'address') return 'TODO adresse to line'; //FIXME
+		return v;
+	};
+
+});
+
+app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, entities) {
+
+	$scope.remove = function (rel) {
+		okcancelModalDialog($modal,
+			{
+				headline: 'Verbindung löschen?',
+				question: 'Soll "' + $scope.item.name + '"-"' + rel.entity.name + '" gelöscht werden?'
+			}
+			, function (data) {
+				if (data.error) return reportServerError($scope, data.error);
+				relations.remove({id: rel._id}, function () {
+					$scope.relations = $scope.relations.filter(function (oe) {
+						return oe != rel;
+					});
+				}, function (err) {
+					console.error(err);
+				})
+			});
+	};
+
+	$scope.edit = function (rel) {
+		editModalDialog($modal,
+			{
+				relation: angular.copy(rel)
+			},
+			'partials/relation-modal.html'
+			, function (data) {
+				if (data.error) return reportServerError($scope, data.error);
+				$scope.relations = $scope.relations.map(function (oe) {
+					if (data.relation._id == oe._id) return data.relation;
+					return oe;
+				});
+			});
+	};
+
+	$scope.enter = function () {
+		editModalDialog($modal,
+			{
+				relation: {
+					entities: [$scope.item._id, '']
+				}
+			},
+			'partials/relation-modal.html'
+			, function (result) {
+				entities.item({id: $scope.item._id, relations: true}, function (data) {
+					if (data.error) return reportServerError($scope, data.error);
+					$scope.relations = data.result.relations;
+				}, function (err) {
+					console.error(err);
+				});
+			});
+	};
+
+
+	$scope.$watch('item', function (item) {
+		if (item)
+			$scope.relations = item.relations;
+	})
 });
 
 app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
@@ -1266,22 +1292,6 @@ app.directive('ngtypeahead', function () {
 					scope.$emit('typeahead:changed', element.val(), scope.datasets);
 				}
 			);
-		}
-	};
-});
-
-app.directive('ngrelations', function () {
-	return {
-		restrict: 'A',
-		templateUrl: 'partials/relations-owned.html',
-		scope: {
-			"relations": "=",
-			"entity": "="
-		},
-		link: function (scope, element, attrs) {
-			//scope.$watch('relations', function(v) {
-			//	console.log(v);
-			//});
 		}
 	};
 });
