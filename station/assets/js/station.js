@@ -389,26 +389,6 @@ app.controller('AppCtrl', function ($rootScope, $scope) {
 		}
 	};
 
-	//$rootScope.getDispayValues = function (field, entity) {
-	//	var v = entity[field.key];
-	//	if (v == undefined) return '';
-	//	if (field.format == 'strings') return v.join(', ');
-	//	else if (field.format == 'tags') return v.join(', ');
-	//	else if (field.format == 'bool') return v ? 'ja' : 'nein';
-	//	else if (field.format == 'link') return v.url;
-	//	else if (field.format == 'number') return v;
-	//	else if (field.format == 'address') {
-	//		var sl = [];
-	//		if (v.name) sl.push(v.name);
-	//		if (v.addr) sl.push(v.addr);
-	//		if (v.postcode) sl.push(v.postcode);
-	//		if (v.city) sl.push(v.city);
-	//		if (v.country) sl.push(v.country);
-	//		return sl.join('; ');
-	//	}
-	//	return v;
-	//};
-
 	$scope.getDispayValues = function (field, entity) {
 		var result = [];
 		if (['extras', 'fields'].indexOf(field._type) >= 0) {
@@ -564,14 +544,17 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 	$scope.q.fields.push(fixedfields[1]);
 	$scope.q.fields.push(fixedfields[2]);
 
-	fields.list(function (data) {
+	fields.list({type: 'entities'}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
 			$scope.fields = fixedfields.concat(data.result);
-		},
+		}
+
+		,
 		function (err) {
 			console.error(err);
 		}
-	);
+	)
+	;
 
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, api, function () {
 		var q = {};
@@ -780,6 +763,183 @@ app.controller('OrganisationsCtrl', function ($scope, $location, $resource, $fil
 	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, fields, tags);
 });
 
+app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, relations, fields, tags) {
+
+	$scope.q = {
+		fields: []
+	};
+	var fixedfields = [
+		{name: 'Name', key: 'name', format: 'string', _type: 'extras', visible: true},
+		{name: 'Art', key: 'type', format: 'string', _type: 'fields', visible: true},
+		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields', visible: true}
+	];
+
+	$scope.q.fields.push(fixedfields[0]);
+	$scope.q.fields.push(fixedfields[1]);
+	$scope.q.fields.push(fixedfields[2]);
+
+	fields.list({type: 'relations'}, function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			$scope.fields = fixedfields.concat(data.result);
+		},
+		function (err) {
+			console.error(err);
+		}
+	);
+
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, relations);
+
+
+	$scope.editData = function (field, r) {
+		var result = [];
+		relations.item({id: r._id}, function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			var rel = data.result;
+			if (['extras', 'fields'].indexOf(field._type) >= 0) {
+				if (rel[field.key] !== undefined) {
+					var o = {
+						key: field.key,
+						desc: field.name,
+						format: field.format,
+						value: rel[field.key],
+						fixed: true
+					};
+					if (field.key == 'tags') {
+						o.typeaheadOptions = {
+							minLength: 1,
+							highlight: true
+						};
+						o.dataset = {
+							name: 'tags',
+							displayKey: "value",
+							source: function (q, callback) {
+								var matches = [];
+								var search = function () {
+									var substrRegex = new RegExp(q, 'i');
+									$.each(o.tags, function (i, s) {
+										if (substrRegex.test(s)) {
+											matches.push({value: s});
+										}
+									});
+									callback(matches);
+								};
+								if (o.tags) return search();
+								tags.list({type: 'relations'}, function (data) {
+										if (data.error) {
+											callback(matches);
+											return reportServerError($scope, data.error);
+										}
+										o.tags = data.result;
+										search();
+									},
+									function (err) {
+										callback(matches);
+										console.error(err);
+									}
+								);
+							}
+						};
+					}
+					result.push(o);
+				}
+			} else {
+				if (rel.data && rel.data.length)
+					rel.data.forEach(function (d) {
+						if (field.key == d.key) {
+							result.push(d);
+						}
+					});
+				if (result.length == 0) {
+					result.push({
+						desc: field.name,
+						format: field.format,
+						key: field.key
+					})
+				}
+			}
+			editModalDialog($modal,
+				{
+					entity: rel,
+					fields: angular.copy(result),
+					validate: function (data, cb) {
+						data.fields.forEach(function (f) {
+							if (f.fixed) {
+								//update fixed field
+								rel[f.key] = f.value;
+							} else {
+								var i = -1;
+								if (f.id) {
+									var oldfield = rel.data.filter(function (fe) {
+										return fe.id == f.id;
+									})[0];
+									i = rel.data.indexOf(oldfield);
+								}
+								if (i >= 0) {
+									//update field
+									rel.data[i] = f;
+								} else {
+									//new field
+									rel.data.push(f);
+								}
+							}
+						});
+						//check deleted fields
+						result.forEach(function (f) {
+							if (f.id) {
+								var datafield = data.fields.filter(function (fe) {
+									return fe.id == f.id;
+								})[0];
+								if (!datafield) {
+									var oldfield = rel.data.filter(function (fe) {
+										return fe.id == f.id;
+									})[0];
+									var i = rel.data.indexOf(oldfield);
+									if (i >= 0) {
+										rel.data.splice(i, 1);
+									}
+								}
+							}
+						});
+						relations.save({id: rel._id}, {relation: rel},
+							function (data) {
+								if (data.error) return reportServerError($scope, data.error);
+								r.data = rel.data;
+								r.type = rel.type;
+								r.tags = rel.tags;
+								//r.name = rel.name;
+								cb();
+							},
+							function (err) {
+								console.error(err);
+							}
+						);
+					},
+					removeData: function (d, list) {
+						var i = list.indexOf(d);
+						if (i >= 0) {
+							list.splice(i, 1);
+						}
+					},
+					newField: function (list) {
+						list.push({
+								desc: field.name,
+								format: field.format,
+								key: field.key
+							}
+						);
+					}
+				},
+				'partials/fieldsedit-modal.html'
+				, function (data) {
+					$scope.refilter();
+				});
+		}, function (err) {
+			console.error(err);
+		});
+	};
+
+});
+
 app.controller('FieldsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, fields) {
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, fields);
 });
@@ -836,7 +996,7 @@ var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, t
 		);
 	}
 
-	fields.list(function (data) {
+	fields.list({type: 'entities'}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
 			$scope.fields = data.result;
 		},
@@ -1108,8 +1268,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 
 	$scope.save = function () {
 		$scope.validate(function () {
-			var o = {relation: $scope.relation};
-			relations.save({id: $scope.relation._id}, o,
+			relations.save({id: $scope.relation._id}, {relation: $scope.relation},
 				function (data) {
 					if (data.error) return reportServerError($scope, data.error);
 					aftersave();
@@ -1290,19 +1449,6 @@ app.controller('RelationModalEditCtrl', function ($scope, $state, relations, ent
 	$scope.relation = $scope.data.relation;
 });
 
-app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, relations) {
-
-	$scope.q = {
-		fields: [
-			{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'},
-			{name: 'Art', key: 'type', format: 'string', _type: 'fields'},
-		]
-	};
-
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, relations);
-
-
-});
 
 app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, entities) {
 
