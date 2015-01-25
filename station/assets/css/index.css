@@ -2,6 +2,10 @@ body {
 	font-family: "Roboto Slab";
 }
 
+.small .btn {
+	font-size: 0.8em;
+}
+
 .form-control-full {
 	width: 100% !important;
 }
@@ -10,6 +14,18 @@ body {
 	cursor: pointer;
 	pointer-events: inherit !important;
 }
+
+.sortable .fa-sort-asc {
+	position: absolute;
+	margin-top: 7px;
+	margin-left: 4px;
+}
+
+.sortable .fa-sort-desc {
+	position: relative;
+	margin-top: -8px;
+}
+
 
 .label-list {
 	margin-top: 4px;
@@ -36,6 +52,23 @@ body {
 }
 
 .btn-right:hover {
+	border-color: #c3c3c3;
+}
+
+.btn-left {
+	cursor: pointer;
+	border: solid 1px #ededed;
+	border-radius: 2px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-left: 8px;
+	padding-right: 6px;
+	margin-left: 3px;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.btn-left:hover {
 	border-color: #c3c3c3;
 }
 
@@ -95,7 +128,7 @@ body {
 }
 
 .col-action {
-	width:120px;
+	width: 120px;
 	/*background: #000;*/
 }
 
@@ -126,6 +159,7 @@ span.twitter-typeahead .tt-dropdown-menu {
 	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
 	background-clip: padding-box;
 }
+
 span.twitter-typeahead .tt-suggestion > p {
 	display: block;
 	padding: 6px 20px;
@@ -135,6 +169,7 @@ span.twitter-typeahead .tt-suggestion > p {
 	color: #333333;
 	white-space: nowrap;
 }
+
 span.twitter-typeahead .tt-suggestion > p:hover,
 span.twitter-typeahead .tt-suggestion > p:focus {
 	color: #ffffff;
@@ -142,22 +177,28 @@ span.twitter-typeahead .tt-suggestion > p:focus {
 	outline: 0;
 	background-color: #428bca;
 }
+
 span.twitter-typeahead .tt-suggestion.tt-cursor {
 	color: #ffffff;
 	background-color: #428bca;
 }
+
 span.twitter-typeahead {
 	width: 100%;
 }
+
 .input-group span.twitter-typeahead {
 	display: block !important;
 }
+
 .input-group span.twitter-typeahead .tt-dropdown-menu {
 	top: 32px !important;
 }
+
 .input-group.input-group-lg span.twitter-typeahead .tt-dropdown-menu {
 	top: 44px !important;
 }
+
 .input-group.input-group-sm span.twitter-typeahead .tt-dropdown-menu {
 	top: 28px !important;
 }

@@ -317,6 +317,11 @@ var editModalDialog = function ($modal, data, templateUrl, cb) {
 			$scope.data = data;
 
 			$scope.ok = function (form) {
+				if ($scope.data.validate) {
+					return $scope.data.validate($scope.data, function () {
+						$modalInstance.close($scope.data);
+					})
+				}
 				if (!form || form.$valid)
 					$modalInstance.close($scope.data);
 			};
@@ -373,6 +378,71 @@ var reportServerError = function ($scope, err) {
 
 app.controller('AppCtrl', function ($rootScope, $scope) {
 	'use strict';
+	$rootScope.globals = {
+		fieldtypes: {
+			"string": "Text",
+			"tags": "Text-Liste",
+			"number": "Zahl",
+			"link": "Link",
+			"bool": "Ja/Nein-Wert",
+			"address": "Adresse"
+		}
+	};
+
+	//$rootScope.getDispayValues = function (field, entity) {
+	//	var v = entity[field.key];
+	//	if (v == undefined) return '';
+	//	if (field.format == 'strings') return v.join(', ');
+	//	else if (field.format == 'tags') return v.join(', ');
+	//	else if (field.format == 'bool') return v ? 'ja' : 'nein';
+	//	else if (field.format == 'link') return v.url;
+	//	else if (field.format == 'number') return v;
+	//	else if (field.format == 'address') {
+	//		var sl = [];
+	//		if (v.name) sl.push(v.name);
+	//		if (v.addr) sl.push(v.addr);
+	//		if (v.postcode) sl.push(v.postcode);
+	//		if (v.city) sl.push(v.city);
+	//		if (v.country) sl.push(v.country);
+	//		return sl.join('; ');
+	//	}
+	//	return v;
+	//};
+
+	$scope.getDispayValues = function (field, entity) {
+		var result = [];
+		if (['extras', 'fields'].indexOf(field._type) >= 0) {
+			if (entity[field.key] !== undefined) {
+				result.push({format: field.format, value: entity[field.key]});
+			}
+		} else {
+			if (entity.data && entity.data.length)
+				entity.data.forEach(function (d) {
+					if (field.key == d.key) {
+						result.push(d);
+					}
+				})
+		}
+		return result.map(function (v) {
+			if (!v.value) return '';
+			if ((v.format == 'strings') || (v.format == 'tags')) return v.value.join(', ');
+			else if (v.format == 'bool') return v.value ? 'ja' : 'nein';
+			else if (v.format == 'link') return v.value.url;
+			else if (v.format == 'number') return v.value;
+			else if (v.format == 'address') {
+				var sl = [];
+				if (v.value) {
+					if (v.value.name) sl.push(v.value.name);
+					if (v.value.addr) sl.push(v.value.addr);
+					if (v.value.postcode) sl.push(v.value.postcode);
+					if (v.value.city) sl.push(v.value.city);
+					if (v.value.country) sl.push(v.value.country);
+				}
+				return sl.join('; ');
+			}
+			return v.value;
+		}).join(', ');
+	};
 
 });
 
@@ -478,16 +548,28 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	$scope.reload();
 };
 
-var entitiesListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api, fields) {
+var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, ngTableParams, api, fields, tags) {
 
 	$scope.q = {
 		fields: []
 	};
 	var fixedfields = [
-		{name: 'Schlagworte', key: 'tags', format: 'strings', _type: 'fields'},
-		{name: 'Aliase', key: 'aliases', format: 'strings', _type: 'fields'},
+		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields', visible:true},
+		{name: 'Aliase', key: 'aliases', format: 'tags', _type: 'fields', visible:true},
 		{name: 'Anzahl Verbindungen', key: 'connections', format: 'number', _type: 'extras'}
 	];
+
+	$scope.q.fields.push(fixedfields[1]);
+	$scope.q.fields.push(fixedfields[0]);
+
+	fields.list(function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			$scope.fields = fixedfields.concat(data.result);
+		},
+		function (err) {
+			console.error(err);
+		}
+	);
 
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, api, function () {
 		var q = {};
@@ -502,29 +584,151 @@ var entitiesListCtrl = function ($scope, $resource, $filter, $modal, ngTablePara
 		return q;
 	});
 
-	$scope.getDispayValues = function (field, entity) {
+	$scope.editData = function (field, e) {
 		var result = [];
-		if (['extras', 'fields'].indexOf(field._type) >= 0) {
-			if (entity[field.key] !== undefined) {
-				result.push({format: field.format, value: entity[field.key]});
-			}
-		} else {
-			if (entity.data && entity.data.length)
-				entity.data.forEach(function (d) {
-					if (field.key == d.key) {
-						result.push(d);
+		api.item({id: e._id}, function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			var entity = data.result;
+			if (['extras', 'fields'].indexOf(field._type) >= 0) {
+				if (entity[field.key] !== undefined) {
+					var o = {
+						key: field.key,
+						desc: field.name,
+						format: field.format,
+						value: entity[field.key],
+						fixed: true
+					};
+					if (field.key == 'tags') {
+						o.typeaheadOptions = {
+							minLength: 1,
+							highlight: true
+						};
+						o.dataset = {
+							name: 'tags',
+							displayKey: "value",
+							source: function (q, callback) {
+								var matches = [];
+								var search = function () {
+									var substrRegex = new RegExp(q, 'i');
+									$.each(o.tags, function (i, s) {
+										if (substrRegex.test(s)) {
+											matches.push({value: s});
+										}
+									});
+									callback(matches);
+								};
+								if (o.tags) return search();
+								tags.list({type: 'entities'}, function (data) {
+										if (data.error) {
+											callback(matches);
+											return reportServerError($scope, data.error);
+										}
+										o.tags = data.result;
+										search();
+									},
+									function (err) {
+										callback(matches);
+										console.error(err);
+									}
+								);
+							}
+						};
 					}
-				})
-		}
-		return result.map(function (v) {
-			if (!v.value) return '';
-			if (v.format == 'strings') return v.value.join(', ');
-			else if (v.format == 'bool') return v.value ? 'ja' : 'nein';
-			else if (v.format == 'link') return v.value.url;
-			else if (v.format == 'number') return v.value;
-			else if (v.format == 'address') return 'TODO adresse to line'; //FIXME
-			return v.value;
-		}).join(', ');
+					result.push(o);
+				}
+			} else {
+				if (entity.data && entity.data.length)
+					entity.data.forEach(function (d) {
+						if (field.key == d.key) {
+							result.push(d);
+						}
+					});
+				if (result.length == 0) {
+					result.push({
+						desc: field.name,
+						format: field.format,
+						key: field.key
+					})
+				}
+			}
+			editModalDialog($modal,
+				{
+					entity: entity,
+					fields: angular.copy(result),
+					validate: function (data, cb) {
+						data.fields.forEach(function (f) {
+							if (f.fixed) {
+								//update fixed field
+								entity[f.key] = f.value;
+							} else {
+								var i = -1;
+								if (f.id) {
+									var oldfield = entity.data.filter(function (fe) {
+										return fe.id == f.id;
+									})[0];
+									i = entity.data.indexOf(oldfield);
+								}
+								if (i >= 0) {
+									//update field
+									entity.data[i] = f;
+								} else {
+									//new field
+									entity.data.push(f);
+								}
+							}
+						});
+						//check deleted fields
+						result.forEach(function (f) {
+							if (f.id) {
+								var datafield = data.fields.filter(function (fe) {
+									return fe.id == f.id;
+								})[0];
+								if (!datafield) {
+									var oldfield = entity.data.filter(function (fe) {
+										return fe.id == f.id;
+									})[0];
+									var i = entity.data.indexOf(oldfield);
+									if (i >= 0) {
+										entity.data.splice(i, 1);
+									}
+								}
+							}
+						});
+						api.save({id: entity._id}, {ent: entity},
+							function (data) {
+								if (data.error) return reportServerError($scope, data.error);
+								e.data = entity.data;
+								e.aliases = entity.aliases;
+								e.tags = entity.tags;
+								cb();
+							},
+							function (err) {
+								console.error(err);
+							}
+						);
+					},
+					removeData: function (d, list) {
+						var i = list.indexOf(d);
+						if (i >= 0) {
+							list.splice(i, 1);
+						}
+					},
+					newField: function (list) {
+						list.push({
+								desc: field.name,
+								format: field.format,
+								key: field.key
+							}
+						);
+					}
+				},
+				'partials/fieldsedit-modal.html'
+				, function (data) {
+					$scope.refilter();
+				});
+		}, function (err) {
+			console.error(err);
+		});
 	};
 
 	$scope.toggleField = function (field) {
@@ -536,17 +740,11 @@ var entitiesListCtrl = function ($scope, $resource, $filter, $modal, ngTablePara
 			})
 		}
 		field.visible = !field.visible;
+		//$location.search('fields', $scope.q.fields.map(function (f) {
+		//	return f.key;
+		//}).join(','));
 		$scope.reload();
 	};
-
-	fields.list(function (data) {
-			if (data.error) return reportServerError($scope, data.error);
-			$scope.fields = fixedfields.concat(data.result);
-		},
-		function (err) {
-			console.error(err);
-		}
-	);
 
 	$scope.relationsDialog = function (item) {
 		api.item({id: item._id, relations: true},
@@ -566,14 +764,17 @@ var entitiesListCtrl = function ($scope, $resource, $filter, $modal, ngTablePara
 		);
 
 	};
+
+	//var searchObject = $location.search();
+	//console.log(searchObject);
 };
 
-app.controller('PersonsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, persons, fields) {
-	entitiesListCtrl($scope, $resource, $filter, $modal, ngTableParams, persons, fields);
+app.controller('PersonsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, persons, fields, tags) {
+	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, persons, fields, tags);
 });
 
-app.controller('OrganisationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, organisations, fields) {
-	entitiesListCtrl($scope, $resource, $filter, $modal, ngTableParams, organisations, fields);
+app.controller('OrganisationsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, fields, tags) {
+	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, fields, tags);
 });
 
 app.controller('FieldsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, fields) {
@@ -582,6 +783,29 @@ app.controller('FieldsCtrl', function ($scope, $resource, $filter, $modal, ngTab
 
 app.controller('UsersCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, users) {
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, users);
+});
+
+app.controller('TagEdit', function ($scope) {
+
+	$scope.addTagEntry = function (field, a) {
+		if ($scope.canAddTagEntry(field, a)) {
+			field.value = field.value || [];
+			field.value.push(a);
+			$scope.edit[field.key] = '';
+		}
+	};
+
+	$scope.canAddTagEntry = function (field, a) {
+		return ((!field.value) || (a && (a.length > 0) && (field.value.indexOf(a) < 0)));
+	};
+
+	$scope.removeTagEntry = function (field, a) {
+		field.value = field.value || [];
+		var i = field.value.indexOf(a);
+		if (i >= 0) {
+			field.value.splice(i, 1);
+		}
+	};
 });
 
 var typedEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, type, mode) {
@@ -1067,23 +1291,13 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 
 	$scope.q = {
 		fields: [
-			{name: 'Schlagworte', key: 'tags', format: 'strings', _type: 'fields'},
-			{name: 'Typ', key: 'type', format: 'string', _type: 'fields'},
+			{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'},
+			{name: 'Art', key: 'type', format: 'string', _type: 'fields'},
 		]
 	};
 
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, relations);
 
-	$scope.getDispayValues = function (field, entity) {
-		var v = entity[field.key];
-		if (v == undefined) return '';
-		if (field.format == 'strings') return v.join(', ');
-		else if (field.format == 'bool') return v ? 'ja' : 'nein';
-		else if (field.format == 'link') return v.url;
-		else if (field.format == 'number') return v;
-		else if (field.format == 'address') return 'TODO adresse to line'; //FIXME
-		return v;
-	};
 
 });
 
@@ -1096,7 +1310,6 @@ app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, en
 				question: 'Soll "' + $scope.item.name + '"-"' + rel.entity.name + '" gelöscht werden?'
 			}
 			, function (data) {
-				if (data.error) return reportServerError($scope, data.error);
 				relations.remove({id: rel._id}, function () {
 					$scope.relations = $scope.relations.filter(function (oe) {
 						return oe != rel;
@@ -1114,7 +1327,6 @@ app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, en
 			},
 			'partials/relation-modal.html'
 			, function (data) {
-				if (data.error) return reportServerError($scope, data.error);
 				$scope.relations = $scope.relations.map(function (oe) {
 					if (data.relation._id == oe._id) return data.relation;
 					return oe;
@@ -1152,9 +1364,19 @@ app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
 	typedSimpleEditCtrl($scope, $state, $stateParams, users, 'user', 'users', 'Benutzerin');
 });
 
-app.controller('FieldEditCtrl', function ($scope, $state, $stateParams, fields) {
+app.controller('FieldEditCtrl', function ($scope, $rootScope, $state, $stateParams, fields) {
+	$scope.fieldtypes = [];
+	for (var key in $rootScope.globals.fieldtypes) {
+		$scope.fieldtypes.push({id: key, name: $rootScope.globals.fieldtypes[key]});
+	}
 	$scope.field = {format: 'string'};
 	typedSimpleEditCtrl($scope, $state, $stateParams, fields, 'field', 'fields', 'Feld');
+});
+
+app.controller('PagerCtrl', function ($scope) {
+	$scope.pagecount = function () {
+		return Math.floor($scope.params.total() / $scope.params.count()) + 1;
+	}
 });
 
 // ------------------- directives -------------------
@@ -1181,117 +1403,123 @@ app.directive('ngtypeahead', function () {
 			datasets: '='       // The typeahead datasets to use (https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#datasets)
 		},
 		link: function (scope, element, attrs, ngModel) {
-			// Flag if user is selecting or not
-			var selecting = false;
-			// Create the typeahead on the element
-			element.typeahead(scope.options, scope.datasets);
 
-			element.keypress(function (e) {
-				if (e.which == 13) {
+			function init() {
+				// Flag if user is selecting or not
+				var selecting = false;
+				// Create the typeahead on the element
+				element.typeahead(scope.options, scope.datasets);
+
+				element.keypress(function (e) {
+					if (e.which == 13) {
+						scope.$apply(function () {
+							scope.$emit('typeahead:enter', e, element.val(), scope.datasets, function () {
+								element.typeahead('val', '');
+							});
+						});
+						return true;
+					}
+				});
+
+				// Parses what is going to be set to model
+				ngModel.$parsers.push(function (fromView) {
+					var _ref = null;
+					if (((_ref = scope.options) != null ? _ref.editable : void 0) === false) {
+						ngModel.$setValidity('typeahead', !selecting);
+						if (selecting) {
+							return undefined;
+						}
+					}
+					return fromView;
+				});
+
+				function getCursorPosition(element) {
+					var position = 0;
+					element = element[0];
+
+					// IE Support.
+					if (document.selection) {
+						var range = document.selection.createRange();
+						range.moveStart('character', -element.value.length);
+						position = range.text.length;
+					}
+					// Other browsers.
+					else if (typeof element.selectionStart === 'number') {
+						position = element.selectionStart;
+					}
+					return position;
+				}
+
+				function setCursorPosition(element, position) {
+					element = element[0];
+					if (document.selection) {
+						var range = element.createTextRange();
+						range.move('character', position);
+						range.select();
+					}
+					else if (typeof element.selectionStart === 'number') {
+						element.focus();
+						element.setSelectionRange(position, position);
+					}
+				}
+
+				function updateScope(event, object, suggestion, dataset) {
+					// for some reason $apply will place [Object] into element, this hacks around it
+					//var preserveVal = element.val();
 					scope.$apply(function () {
-						scope.$emit('typeahead:enter', e, element.val(), scope.datasets, function () {
+						selecting = false;
+						ngModel.$setViewValue(suggestion[scope.datasets.displayKey]);
+						scope.$emit(event, object, suggestion, scope.datasets, function () {
 							element.typeahead('val', '');
 						});
 					});
-					return true;
+					//element.val(preserveVal);
 				}
-			});
 
-			// Parses what is going to be set to model
-			ngModel.$parsers.push(function (fromView) {
-				var _ref = null;
-				if (((_ref = scope.options) != null ? _ref.editable : void 0) === false) {
-					ngModel.$setValidity('typeahead', !selecting);
-					if (selecting) {
-						return undefined;
-					}
-				}
-				return fromView;
-			});
-
-			function getCursorPosition(element) {
-				var position = 0;
-				element = element[0];
-
-				// IE Support.
-				if (document.selection) {
-					var range = document.selection.createRange();
-					range.moveStart('character', -element.value.length);
-					position = range.text.length;
-				}
-				// Other browsers.
-				else if (typeof element.selectionStart === 'number') {
-					position = element.selectionStart;
-				}
-				return position;
-			}
-
-			function setCursorPosition(element, position) {
-				element = element[0];
-				if (document.selection) {
-					var range = element.createTextRange();
-					range.move('character', position);
-					range.select();
-				}
-				else if (typeof element.selectionStart === 'number') {
-					element.focus();
-					element.setSelectionRange(position, position);
-				}
-			}
-
-			function updateScope(event, object, suggestion, dataset) {
-				// for some reason $apply will place [Object] into element, this hacks around it
-				//var preserveVal = element.val();
-				scope.$apply(function () {
-					selecting = false;
-					ngModel.$setViewValue(suggestion[scope.datasets.displayKey]);
-					scope.$emit(event, object, suggestion, scope.datasets, function () {
-						element.typeahead('val', '');
-					});
+				// Update the value binding when a value is manually selected from the dropdown.
+				element.bind('typeahead:selected', function (object, suggestion, dataset) {
+					updateScope('typeahead:selected', object, suggestion, dataset);
 				});
-				//element.val(preserveVal);
+
+				// Update the value binding when a query is autocompleted.
+				element.bind('typeahead:autocompleted', function (object, suggestion, dataset) {
+					updateScope('typeahead:autocompleted', object, suggestion, dataset);
+				});
+
+				// Propagate the opened event
+				element.bind('typeahead:opened', function () {
+					scope.$emit('typeahead:opened');
+				});
+
+				// Propagate the closed event
+				element.bind('typeahead:closed', function () {
+					element.typeahead('val', ngModel.$viewValue);
+					//element.val(ngModel.$viewValue);
+					scope.$emit('typeahead:closed');
+				});
+
+				// Propagate the cursorchanged event
+				element.bind('typeahead:cursorchanged', function (event, suggestion, dataset) {
+					scope.$emit('typeahead:cursorchanged', event, suggestion, dataset);
+				});
+
+				// Update the value binding when the user manually enters some text
+				element.bind('input',
+					function () {
+						var preservePos = getCursorPosition(element);
+						scope.$apply(function () {
+							var value = element.val();
+							selecting = true;
+							ngModel.$setViewValue(value);
+						});
+						setCursorPosition(element, preservePos);
+						scope.$emit('typeahead:changed', element.val(), scope.datasets);
+					}
+				);
 			}
 
-			// Update the value binding when a value is manually selected from the dropdown.
-			element.bind('typeahead:selected', function (object, suggestion, dataset) {
-				updateScope('typeahead:selected', object, suggestion, dataset);
-			});
-
-			// Update the value binding when a query is autocompleted.
-			element.bind('typeahead:autocompleted', function (object, suggestion, dataset) {
-				updateScope('typeahead:autocompleted', object, suggestion, dataset);
-			});
-
-			// Propagate the opened event
-			element.bind('typeahead:opened', function () {
-				scope.$emit('typeahead:opened');
-			});
-
-			// Propagate the closed event
-			element.bind('typeahead:closed', function () {
-				element.typeahead('val', ngModel.$viewValue);
-				//element.val(ngModel.$viewValue);
-				scope.$emit('typeahead:closed');
-			});
-
-			// Propagate the cursorchanged event
-			element.bind('typeahead:cursorchanged', function (event, suggestion, dataset) {
-				scope.$emit('typeahead:cursorchanged', event, suggestion, dataset);
-			});
-
-			// Update the value binding when the user manually enters some text
-			element.bind('input',
-				function () {
-					var preservePos = getCursorPosition(element);
-					scope.$apply(function () {
-						var value = element.val();
-						selecting = true;
-						ngModel.$setViewValue(value);
-					});
-					setCursorPosition(element, preservePos);
-					scope.$emit('typeahead:changed', element.val(), scope.datasets);
-				}
-			);
+			if (scope.options && scope.datasets)
+				init();
 		}
 	};
 });
