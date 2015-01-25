@@ -554,13 +554,15 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 		fields: []
 	};
 	var fixedfields = [
-		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields', visible:true},
-		{name: 'Aliase', key: 'aliases', format: 'tags', _type: 'fields', visible:true},
+		{name: 'Name', key: 'name', format: 'string', _type: 'fields', visible: true},
+		{name: 'Aliase', key: 'aliases', format: 'tags', _type: 'fields', visible: true},
+		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields', visible: true},
 		{name: 'Anzahl Verbindungen', key: 'connections', format: 'number', _type: 'extras'}
 	];
 
-	$scope.q.fields.push(fixedfields[1]);
 	$scope.q.fields.push(fixedfields[0]);
+	$scope.q.fields.push(fixedfields[1]);
+	$scope.q.fields.push(fixedfields[2]);
 
 	fields.list(function (data) {
 			if (data.error) return reportServerError($scope, data.error);
@@ -700,6 +702,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 								e.data = entity.data;
 								e.aliases = entity.aliases;
 								e.tags = entity.tags;
+								e.name = entity.name;
 								cb();
 							},
 							function (err) {

@@ -164,16 +164,6 @@
 
 		<thead>
 		<tr>
-			<th
-					class="sortable" ng-class="{
-                    'sort-asc': tableParams.isSortBy('name', 'asc'),
-                    'sort-desc': tableParams.isSortBy('name', 'desc')
-                  }"
-					ng-click="tableParams.sorting('name', tableParams.isSortBy('name', 'asc') ? 'desc' : 'asc')">
-				<span>Name</span>
-				<span ng-class="{'fa-sort-asc':tableParams.isSortBy('name', 'asc'),'fa-sort-desc':tableParams.isSortBy('name', 'desc')}" class="fa"></span>
-			</th>
-
 			<th ng-repeat="f in q.fields"
 				class="sortable" ng-class="{
                     'sort-asc': tableParams.isSortBy(f.key, 'asc'),
@@ -190,7 +180,6 @@
 
 		<tbody>
 		<tr ng-repeat="p in $data">
-			<td ng-bind="p.name"></td>
 			<td ng-repeat="f in q.fields">
 				<span ng-bind="getDispayValues(f,p)"></span>
 				<span ng-show="f._type!=='extras'" class="btn-left" title="{{f.name}} bearbeiten" ng-click="editData(f,p)"><i class="fa fa-pencil"></i></span>
@@ -246,12 +235,6 @@
 
 		<thead>
 		<tr>
-			<th class="sortable" ng-class="{
-                    'sort-asc': tableParams.isSortBy('name', 'asc'),
-                    'sort-desc': tableParams.isSortBy('name', 'desc')
-                  }" ng-click="tableParams.sorting('name', tableParams.isSortBy('name', 'asc') ? 'desc' : 'asc')">Name
-			<span ng-class="{'fa-sort-asc':tableParams.isSortBy('name', 'asc'),'fa-sort-desc':tableParams.isSortBy('name', 'desc')}" class="fa"></span>
-			</th>
 			<th ng-repeat="f in q.fields"
 				class="sortable" ng-class="{
                     'sort-asc': tableParams.isSortBy(f.key, 'asc'),
@@ -267,7 +250,6 @@
 
 		<tbody>
 		<tr ng-repeat="p in $data">
-			<td ng-bind="p.name"></td>
 			<td ng-repeat="f in q.fields">
 				<span ng-bind="getDispayValues(f,p)"></span>
 				<span ng-show="f._type!=='extras'" class="btn-left" title="{{f.name}} bearbeiten" ng-click="editData(f,p)"><i class="fa fa-pencil"></i></span>
