@@ -31,9 +31,13 @@ api.reset("i know what i am doing", function(){
 				// run seitenwechsler importer
 				debug("importing seitenwechsler");
 				importer.seitenwechsler(function(){
-					// done
-					debug("done");
-					process.exit();
+					// run parteispenden importer
+					debug("importing parteispenden");
+					importer.parteispenden(function(){
+						// done
+						debug("done");
+						process.exit();
+					});
 				});
 			});
 		});
