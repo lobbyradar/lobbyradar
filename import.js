@@ -17,7 +17,7 @@ var api = require(path.resolve(__dirname, "./lib/api.js"))(config.api, db);
 var importer = require("./importer");
 
 // reset database
-debug("resetting data");
+debug("resetting all data");
 api.reset("i know what i am doing", function(){
 	// run parteien importer
 	debug("importing parteien");

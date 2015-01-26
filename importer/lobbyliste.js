@@ -279,7 +279,7 @@ var execute = function(fn){
 if (module.parent === null) {
 	// execute in standalone mode
 	debug("resetting data");
-	api.reset("i know what i am doing", function(){
+	api.purge("lobbyliste", function(){
 		execute(function(){
 			debug("import finished");
 			process.exit();

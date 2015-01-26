@@ -310,7 +310,7 @@ var execute = function(finish){
 if (module.parent === null) {
 	// execute in standalone mode
 	debug("resetting data");
-	api.reset("i know what i am doing", function(){
+	api.purge("seitenwechsler", function(){
 		execute(function(){
 			debug("import finished");
 			process.exit();
