@@ -1,14 +1,23 @@
 $( document ).ready(function() {
   
 
-// $( ".lobbysearch" ).focus(function() {
-//     $( ".result-list" ).slideToggle( "slow" );
-// });
-//   $('.lobbysearch').keypress(function (e) {
-//   if (e.which == 13) {
-//     $( ".result-list" ).slideToggle( "slow" );
-//   }
-// });
+$( ".lobbysearch" ).focus(function() {
+    $( ".result-list" ).slideDown( "slow" );
+    $( ".overlay" ).fadeOut( "slow" );
+});
+
+
+
+$( ".logo-name" ).click(function() {
+    $( ".result-list" ).slideUp( "slow" );
+    $( ".overlay" ).fadeIn( "slow" );
+});
+
+  $('.lobbysearch').keypress(function (e) {
+  if (e.which == 13) {
+    $( ".result-list" ).slideToggle( "slow" );
+  }
+});
 
 //    $("#joschka").click(function () {
 //           // $(".result-list").hide("slide", { direction: "left" }, 1000);
