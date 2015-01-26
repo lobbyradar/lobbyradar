@@ -5,3 +5,5 @@ apitest.js
 importer/data/old
 bower_components
 scripts
+.codekit-cache
+config.codekit
