@@ -17,7 +17,7 @@ var api = require(path.resolve(__dirname, "./lib/api.js"))(config.api, db);
 var importer = require("./importer");
 
 // reset database
-debug("resetting data");
+debug("resetting all data");
 api.reset("i know what i am doing", function(){
 	// run parteien importer
 	debug("importing parteien");
@@ -31,9 +31,13 @@ api.reset("i know what i am doing", function(){
 				// run seitenwechsler importer
 				debug("importing seitenwechsler");
 				importer.seitenwechsler(function(){
-					// done
-					debug("done");
-					process.exit();
+					// run parteispenden importer
+					debug("importing parteispenden");
+					importer.parteispenden(function(){
+						// done
+						debug("done");
+						process.exit();
+					});
 				});
 			});
 		});
