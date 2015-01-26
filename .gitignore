@@ -4,3 +4,5 @@ node_modules
 apitest.js
 data
 bower_components
+.codekit-cache
+config.codekit
