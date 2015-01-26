@@ -2,5 +2,6 @@ config.js
 lobbyradar.sock
 node_modules
 apitest.js
-data
+importer/data/old
 bower_components
+scripts
