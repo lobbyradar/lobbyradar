@@ -1,0 +1,1 @@
+$(document).ready(function(){var i=$(window).width(),e=$(window).height();$(".fullscreen").css({width:i,height:e}),$(window).resize(function(){$(".fullscreen").css({width:i,height:e})})});

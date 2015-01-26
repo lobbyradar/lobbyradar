@@ -1,8 +1,12 @@
 {{>header}}
 {{>navigation}}
+
+    <div class="fullscreen">
+
 <div class="container" id="main">
 	{{#list}}
-		<h1>
+	<div class="row">
+		<h1 style="display:none">
 			{{#hl_all}}Alle Einträge{{/hl_all}}
 			{{#hl_person}}Personen{{/hl_person}}
 			{{#hl_entity}}Organisationen{{/hl_entity}}
@@ -12,8 +16,20 @@
 		
 		 {{#letter_a}}class="active"{{/letter_a}}
 		
-		<nav>
-			<ul class="pagination">
+	           <div class="col-md-5 viewport-visual"></div>
+
+		<div class="col-md-7">
+		 <div class="well radarbox">
+           <div class="search-header">
+            <form class="" role="form">
+            <div class="form-group">
+              <input type="text" placeholder="Suchen Sie nach Politikern, Firmen und Journalisten" class="lobbysearch form-control">
+            </div>
+          </form>
+          </div>
+			<nav>
+
+			<ul class="pagination" style="display:none;">
 				<li{{#letter_a}} class="active"{{/letter_a}}><a href="/list/{{type}}/a">A</a></li>
 				<li{{#letter_b}} class="active"{{/letter_b}}><a href="/list/{{type}}/b">B</a></li>
 				<li{{#letter_c}} class="active"{{/letter_c}}><a href="/list/{{type}}/c">C</a></li>
@@ -42,8 +58,7 @@
 				<li{{#letter_z}} class="active"{{/letter_z}}><a href="/list/{{type}}/z">Z</a></li>
 			</ul>
 		</nav>
-		
-		<div class="table-responsive">
+		<div class="table-responsive result-list">
 			<table class="table table-striped table-hover table-condensed">
 				<thead>
 					<tr>
@@ -60,7 +75,8 @@
 				{{/item}}
 				</tbody>
 			</table>
-		</div>
+		</div></div></div>
+</div></div>
 	{{/list}}
 	{{#entity}}
 		<h1>{{name}}</h1>
@@ -71,5 +87,7 @@
 		{{/item}}
 		</ul>
 	{{/entity}}
+</div>
+		</div>		
 </div>
 {{>footer}}
