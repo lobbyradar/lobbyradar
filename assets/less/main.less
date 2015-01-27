@@ -1,11 +1,10 @@
 .fullscreen {
 
-  margin-top:125px;
+  margin-top:0px;
   margin-bottom:-20px;
   position: fixed;
   overflow: scroll;
    background: #11354b; /* Old browsers */
-  background: url(/img/earth.png) no-repeat center center fixed; 
   background: -moz-linear-gradient(top,  #11354b 0%, #a1bdc9 65%, #a1bdc9 77%, #6392a8 100%); /* FF3.6+ */
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#11354b), color-stop(65%,#a1bdc9), color-stop(77%,#a1bdc9), color-stop(100%,#6392a8)); /* Chrome,Safari4+ */
   background: -webkit-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Chrome10+,Safari5.1+ */
@@ -17,6 +16,7 @@
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
+  // background: url(../images/earth.png) no-repeat center center fixed; 
 
 }
 
@@ -34,19 +34,49 @@ line.link {
 
 .radarbox {
   position: relative;
-  z-index: 99!important;
-  margin-top:40px;
+  z-index: 1!important;
+  margin-top:170px;
+  padding:0px 19px;
+  min-height:0px;
+  border:0px;
+  margin-right: 42px;
+}
+
+.hamburger {
+  margin:3px 13px 0px 10px;
+  i {font-size: 1.7rem;}
 }
 
 .search-header {
   background:@zdf-blue;
+    background:transparent!important;
+  display:none;
   margin:-20px;
-  padding:20px 20px 10px 20px;
-  box-shadow: 0px 0px 55px grey;
-      z-index: 9999!important;
-    position: relative;
-
+  padding:0px;
+  box-shadow: 0px 0px 15px @zdf-blue;    
+  z-index: 9999!important;
+  position: relative;
+  input {
+    padding:15px;
+  }
 }
+
+
+.overlay {
+  background:rgba(12,12,12,0.6);
+  width:100%;
+  height:100%;
+  position: fixed;
+  top: 0px;
+  overflow: scroll;
+  left:0px;
+  z-index:0;
+  color:white!important;
+  .container {
+    margin-top:170px;
+  }
+}
+
 
 .zdf-header-grey {
   width: 100%;
@@ -60,6 +90,13 @@ line.link {
   .zdf-logo {
     margin-top:7px;
   }
+  .mini-nav {
+        margin-top:12px;
+  text-align:right;
+  }
+  a {
+    color:white;
+  }
 }
 .zdf-header-blue {
   top:46px;
@@ -67,25 +104,39 @@ line.link {
     z-index:999;
     width:100%;
     overflow:hidden;
-    background: rgba(20,59,82,0.9);
+    background: rgba(20,59,82,0.5);
   border-bottom: 1px solid rgba(20,59,82,1);
+  .input-group {
+    margin-top:19px;
+    .form-control {
+      height:42px;
+    }
+    input {
+      padding-top:5px;
+    }
 
+    .input-group-btn button{
+      height:42px;
+    }
+  }
   .navbar-brand {
-    padding:25px 0px;
+    padding:30px 0px;
     color:white;
     font-size:32px;
     font-family: "Arial";
 
     .logo-name {
       float: left;
-      margin: -80px 0px 0px 40px;
+      // margin: -80px 0px 0px 40px;
+      // margin: -80px 0px 0px 40px; // only needed with fa-stack)
     }
-
+  .fa-stack {display:none;}
     .fa-bullseye {
       color:rgba(255,255,255,0.3);
       position: relative;
       margin: -91px 0px 0px -79px;
       float:left;
+
     }
     .symbol {
       color:rgba(255,255,255,1);
@@ -127,15 +178,14 @@ svg {
   margin-top:17px;
 }
 
-
-
 .result-list {
-    margin-top:40px;
-        position: relative;
-
-      z-index: 99!important;
-
+  margin-top:40px;
+  position: relative;
+  display:none;
+  padding:19px 0px;
+  z-index: 99!important;
 }
+
 .result-single {
   padding-top:40px;
   display: none;

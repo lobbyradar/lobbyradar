@@ -1,7 +1,8 @@
 {{>header}}
 {{>navigation}}
 
-    <div class="fullscreen">
+
+<div class="fullscreen">
 
 <div class="container" id="main">
 	{{#list}}
@@ -16,15 +17,12 @@
 		
 		 {{#letter_a}}class="active"{{/letter_a}}
 		
-	           <div class="col-md-5 viewport-visual"></div>
+	   <div class="col-md-6 viewport-visual"></div>
 
-		<div class="col-md-7">
+		<div class="col-md-6">
 		 <div class="well radarbox">
            <div class="search-header">
-            <form class="" role="form">
-            <div class="form-group">
-              <input type="text" placeholder="Suchen Sie nach Politikern, Firmen und Journalisten" class="lobbysearch form-control">
-            </div>
+         
           </form>
           </div>
 			<nav>
@@ -65,7 +63,7 @@
 						<th>Name</th>
 						<th>Verbindungen</th>
 					</tr>
-				</thead>
+				</thead><!--
 				<tbody>
 				{{#item}}
 					<tr>
@@ -73,11 +71,41 @@
 						<td>{{connections}}</td>
 					</tr>
 				{{/item}}
-				</tbody>
+				</tbody> -->
 			</table>
 		</div></div></div>
 </div></div>
 	{{/list}}
+		<div class="overlay">
+		<div class="container">
+		<div class="row">
+			<div class="col-md-6 col-md-offset-6">
+				<h2><br/><br/></h2>
+			</div>
+		</div>
+
+		<div class="row">
+		<div class="col-md-6">
+		<h1>Wer macht was, und vor allem wann und mit wem?</h1>
+		<p class="lead">
+		Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas faucibus mollis interdum.
+		</p>
+		<p>Curabitur blandit tempus porttitor. Maecenas sed diam eget risus varius blandit sit amet non magna. Maecenas sed diam eget risus varius blandit sit amet non magna. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.</p>
+
+<p>
+	
+
+</p>
+		</div>
+
+		<div class="col-md-6">
+		<iframe width="560" height="315" src="//www.youtube.com/embed/tA-E_38oWLI" frameborder="0" allowfullscreen></iframe>
+<button class="btn-ext btn-block btn btn-lg btn-primary" data-toggle="modal" data-target="#myModal">Installier dir den Durchblick!</button>
+	</div>
+	</div>
+	</div>
+
+	</div>
 	{{#entity}}
 		<h1>{{name}}</h1>
 		{{#err}}<p>Fehler {{.}}</p>{{/err}}
@@ -88,6 +116,9 @@
 		</ul>
 	{{/entity}}
 </div>
+
 		</div>		
+
 </div>
+
 {{>footer}}
