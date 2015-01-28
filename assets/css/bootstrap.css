@@ -6443,11 +6443,6 @@ line.link {
   display: none;
   opacity: 0;
 }
-svg {
-  position: fixed!important;
-  top: 0;
-  left: 0;
-}
 .viewport-visual {
   min-height: 250px;
 }
