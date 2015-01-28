@@ -19,6 +19,17 @@
   // background: url(../images/earth.png) no-repeat center center fixed; 
 
 }
+#networkviz-wrapper {
+  position: fixed;
+  width:100%;
+  height:100%;
+}
+
+#networkviz {
+  svg {
+    position: relative!important;
+  }
+}
 
 circle.node {
   cursor: pointer;
@@ -172,6 +183,8 @@ svg {
 
 .viewport-visual {
   min-height:250px;
+  border:1px solid red;
+  margin-top:170px;
 }
 
 .btn-ext {
@@ -184,6 +197,7 @@ svg {
   display:none;
   padding:19px 0px;
   z-index: 99!important;
+  background:white;
 }
 
 .result-single {

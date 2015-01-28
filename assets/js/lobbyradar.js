@@ -7,6 +7,9 @@ $( ".lobbysearch" ).focus(function() {
 });
 
 
+$( "#networkviz" ).draggable();
+
+
 
 $( ".logo-name" ).click(function() {
     $( ".result-list" ).slideUp( "slow" );

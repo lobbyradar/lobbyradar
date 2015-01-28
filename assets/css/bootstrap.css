@@ -6312,6 +6312,14 @@ button.close {
   -o-background-size: cover;
   background-size: cover;
 }
+#networkviz-wrapper {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+#networkviz svg {
+  position: relative!important;
+}
 circle.node {
   cursor: pointer;
   stroke: #000;
@@ -6443,8 +6451,15 @@ line.link {
   display: none;
   opacity: 0;
 }
+svg {
+  position: fixed!important;
+  top: 0;
+  left: 0;
+}
 .viewport-visual {
   min-height: 250px;
+  border: 1px solid red;
+  margin-top: 170px;
 }
 .btn-ext {
   margin-top: 17px;
@@ -6455,6 +6470,7 @@ line.link {
   display: none;
   padding: 19px 0px;
   z-index: 99!important;
+  background: white;
 }
 .result-single {
   padding-top: 40px;

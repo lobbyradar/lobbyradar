@@ -1,15 +1,15 @@
 $(function () {
-	var width = 450;
-	var height = 450;
-	var linkLength = 100
+	var width = 2000; 
+	var height = 2000; 
+	var linkLength = 100;
 
 	var container = $('#networkviz');
 	if (container.length < 1) return;
 
 	var network = networkviz_api.getNetwork('54c2a4b4fe6a42c82bbaafac', 2);
 	network.center.fixed = true;
-	network.center.x = width/2;
-	network.center.y = height/2;
+	network.center.x = width/6;
+	network.center.y = height/6;
 
 	var force = d3.layout.force()
 	    .size([width, height])
@@ -35,6 +35,7 @@ $(function () {
 		.linkStrength(1)
 		.gravity(1)
 		.alpha(0.001)
+		.charge(-30) //ff
 		.theta(0.8);
 
 	links = links.data(network.links)
@@ -65,7 +66,7 @@ $(function () {
 
 	function tick() {
 		frameCount++;
-		if (frameCount % 20 == 0) {
+		if (frameCount % 2 == 0) {
 			var time = (new Date()).getTime();
 			console.log(frameCount*1000/(time-startTime));
 		}
@@ -184,8 +185,9 @@ var networkviz_api = (function () {
 				var node = nodes[key];
 
 				node.index = index;
-				node.radius = Math.sqrt(node.count);
-				
+				// node.radius = Math.sqrt(node.count);
+				node.radius = 20; //ff
+
 				var color = colors[node.type];
 				if (color === undefined) console.log(node.type)
 				node.color = color;
