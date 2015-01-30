@@ -103,6 +103,10 @@ var nice_error= function(err){
 // check api key for api
 app.use("/api", function (req, res, next) {
 	debug("request to api");
+	if (["GET","HEAD"].indexOf(req.method) >= 0) {
+		debug("api access public");
+		return next();
+	}
 	if (req.user)  {
 		debug("api access by user %s", req.user.name);
 		return next();
@@ -112,6 +116,15 @@ app.use("/api", function (req, res, next) {
 	if (!config.api.keys.hasOwnProperty(apikey)) return res.status(403).json({error: new Error("Access Denied. Please provide a valid API Key (#2)").toString()});
 	debug("api access by %s", config.api.keys[apikey]);
 	next();
+});
+
+// search api
+app.get("/api/search", function (req, res) {
+	if (!req.query.hasOwnProperty("q")) return res.type("json").status("200").json({error: null, result: []});
+	debug("search for \"%s\"", api.unify(req.query.q));
+	api.ent_list({words: req.query.q}, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
 });
 
 // create entity. 
@@ -388,7 +401,7 @@ app.all("/api", function (req, res) {
 	res.type("json").status("200").json({error: null});
 });
 
-// index page
+// entity page
 app.all("/entity/:id", function (req, res) {
 	api.ent_get(req.params.id, function (err, ent) {
 		if (err) return res.render("entity", { "err": err });

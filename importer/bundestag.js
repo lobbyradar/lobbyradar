@@ -599,14 +599,22 @@ var execute = function(finish){
 
 if (module.parent === null) {
 	// execute in standalone mode
-	debug("purging data");
-	api.purge("bundestag", function(){
-		debug("data purged");
+	if (process.argv.length === 3) {
+		debug("skip purging data");
 		execute(function(){
 			debug("import finished");
 			process.exit();
 		});
-	});
+	} else {
+		debug("purging data");
+		api.purge("bundestag", function(){
+			debug("data purged");
+			execute(function(){
+				debug("import finished");
+				process.exit();
+			});
+		});
+	}
 } else {
 	// export in required mode
 	module.exports = execute;

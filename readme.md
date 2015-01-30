@@ -5,114 +5,6 @@
 * match address formats
 * put original name into people field
 
-## API
-
-### `ent_check(ent, callback)`
-
-Check an entity. This is of course automatically called by other methods.
-
-### `ent_create(ent, callback)`
-
-Create a new entity
-
-### `ent_delete(id, callback)`
-
-Delete an entity and all relations
-
-### `ent_update(id, ent, callback)`
-
-Fully replace an entity with a new version. Use with care.
-
-### `ent_merge(ent, callback)`
-
-Merge two entities
-
-_not implemented yet_
-
-### `ent_split(id, a, b, bcallback)`
-
-Split an entity into two
-
-_not implemented yet_
-
-### `ent_upmerge(id, ent, callback)`
-
-Extend an entity with new data.
-
-### `ent_creaxtend(ent, callback)`
-
-Extend matching entity or create new one if none matching. This is used by importers.
-
-### `ent_types(callback)`
-
-List all distinct entity types
-
-### `ent_tags(callback)`
-
-List all distinct entity tags
-
-### `ent_rels(id, callback)`
-
-Get all relations for an entity
-
-### `ent_list([cond], callback)`
-
-Get all entities, filter by condition:
-
-``` javascript
-{
-	letter: "A", // beginning with letter a
-	type: "person" // only entities of specific type
-}
-```
-
-### `ent_match(ent, callback)`
-
-Get an entity which matches another entity by type and name.
-
-### `ent_export(callback)`
-
-Export all entities with relations in the following format:
-
-``` javascript
-{
-	<id>: [
-		<type>,
-		[<name>, <alias>, <alias>],
-		[<related_id>, <related_id>]
-	],
-	<id>: [ ... ]
-}
-```
-
-### `rel_check(rel, callback)`
-
-Check a relation. This is of course automatically called by other methods.
-
-### `rel_create(rel, callback)`
-
-Create a new relation
-
-### `rel_delete(id, callback)`
-
-Delete a relation.
-
-### `rel_update(id, rel, callback)`
-
-Fully replace a relation with a new version. Use with care.
-
-### `rel_upmerge(id, rel, callback)`
-
-Extend a relation with new data.
-
-### `rel_types(callback)`
-
-List all distinct relation types
-
-### `rel_tags(callback)`
-
-List all distinct relation tags
-
 ## Data Structure
 
 ### Entity Object
@@ -120,6 +12,7 @@ List all distinct relation tags
 ``` javascript
 {
 	_id: id,	// mongodb id
+	importer: "str", // importer string
 	created: (new Date()), // date object
 	updated: (new Date()), // date object
 	type: "person", // string
@@ -128,19 +21,14 @@ List all distinct relation tags
 	slug: "name", // ascii representation of name
 	aliases: ["Name", "Alt. Name"], // array of strings
 	data: [{
-		"key": "address",
-		"value": {what:ever},
-		"desc": "Description",
-		"format": "address", // string, number, address, list, date, ...
-		"auto": true,
+		id: id, // ObjectID()
+		key: "address",
+		value: {what:ever},
+		desc: "Description",
+		format: "address", // string, number, address, list, date, ...
+		auto: true,
 		created: (new Date()), // date object
 		updated: (new Date()) // date object
-	}],	
-	sources: [{
-		url: "",
-		created: (new Date()),
-		updated: (new Date()),
-		remark: "" // string
 	}],
 	search: [
 		"name",
@@ -153,27 +41,23 @@ List all distinct relation tags
 
 ``` javascript
 {
-	id: id, // mongodb id
+	_id: id, // mongodb id
+	importer: "str", // importer string
 	created: (new Date()), // date object
 	updated: (new Date()), // date object
 	entities: [id, id], // from, to; mongodb ids
 	type: "employee", // string
-	tags: [""], // array of strings
+	tags: ["tag"], // array of strings
 	weight: 0, // float, 0..1
 	data: [{
-		"key": "address",
-		"value": {what:ever},
-		"desc": "Description",
-		"format": "address", // string, number, address, list, date, ...
-		"auto": true,
+		id: id, // ObjectID()
+		key: "address",
+		value: {what:ever},
+		desc: "Description",
+		format: "address", // string, number, address, list, date, ...
+		auto: true,
 		created: (new Date()), // date object
 		updated: (new Date()) // date object
-	}],
-	sources: [{ 
-		url: "",
-		created: (new Date()), // date object
-		updated: (new Date()), // date object
-		remark: ""
 	}]
 }
 ``` 

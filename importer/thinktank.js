@@ -303,7 +303,7 @@ var import_thinktanks = function(finish){
 								debug("person created %s", person.name);
 								// create relation
 								q.push(function(next){
-									api.rel_create({
+									api.rel_creaxtend({
 										importer: "thinktanks",
 										entities: [ent_id, pers_id],
 										type: "executive",

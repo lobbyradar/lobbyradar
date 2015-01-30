@@ -241,7 +241,7 @@ var import_lobbyliste = function(cb){
 								debug("person created %s", person.name);
 								// create relation
 								q.push(function(next){
-									api.rel_create({
+									api.rel_creaxtend({
 										importer: "lobbyliste",
 										entities: [ent_id, pers_id],
 										type: "executive",
