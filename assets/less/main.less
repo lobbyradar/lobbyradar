@@ -1,270 +1,57 @@
-/* Small devices (tablets, 768px and up) */
+//                                                                ,,  
+//   .g8"""bgd                                                  `7MM  
+// .dP'     `M                                                    MM  
+// dM'       `   .gP"Ya  `7MMpMMMb.   .gP"Ya  `7Mb,od8  ,6"Yb.    MM  
+// MM           ,M'   Yb   MM    MM  ,M'   Yb   MM' "' 8)   MM    MM  
+// MM.    `7MMF'8M""""""   MM    MM  8M""""""   MM      ,pm9MM    MM  
+// `Mb.     MM  YM.    ,   MM    MM  YM.    ,   MM     8M   MM    MM  
+//   `"bmmmdPY   `Mbmmd' .JMML  JMML. `Mbmmd' .JMML.   `Moo9^Yo..JMML.
+ 
+// ########################################################################################################################
+
 @media (min-width: @screen-sm-min) { }
-
-/* Medium devices (desktops, 992px and up) */
 @media (min-width: @screen-md-min) { }
-
-/* Large devices (large desktops, 1200px and up) */
 @media (min-width: @screen-lg-min) {  }
 
-
-
-
-.fullscreen {
-
-  margin-top:0px;
-  margin-bottom:-20px;
-  position: fixed;
-  overflow: scroll;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  background: #11354b; /* Old browsers */
-  background: -moz-linear-gradient(top,  #11354b 0%, #a1bdc9 65%, #a1bdc9 77%, #6392a8 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#11354b), color-stop(65%,#a1bdc9), color-stop(77%,#a1bdc9), color-stop(100%,#6392a8)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Opera 11.10+ */
-  background: -ms-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* IE10+ */
-  background: linear-gradient(to bottom,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* W3C */
-
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#11354b', endColorstr='#6392a8',GradientType=0 ); /* IE6-9 */
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-  // background: url(../images/earth.png) no-repeat center center fixed; 
-}
-#networkviz-wrapper {
-  position: fixed;
-  width:100%;
-  height:100%;
-  top:0;
-  left:0;
-}
-
-#networkviz {
-  left: -1087px; // This is for show
-  top: -1201px; // should be set by current active entity
-  cursor:-moz-grab;
-  cursor:-webkit-grab;
-  // cursor: url(https://mail.google.com/mail/images/2/openhand.cur), default !important;
-  // background: -moz-radial-gradient(top,  #11354b 0%, #a1bdc9 65%, #a1bdc9 77%, #6392a8 100%); /* FF3.6+ */
-  // background: -webkit-gradient(radial, left top, left bottom, color-stop(0%,#11354b), color-stop(65%,#a1bdc9), color-stop(77%,#a1bdc9), color-stop(100%,#6392a8)); /* Chrome,Safari4+ */
-  // background: -webkit-radial-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Chrome10+,Safari5.1+ */
-  // background: -o-radial-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Opera 11.10+ */
-  // background: -ms-radial-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* IE10+ */
-  // background: radial-gradient(to bottom,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* W3C */
-
-  &.ui-draggable-dragging {
-    cursor:grabbing;
-    cursor:-moz-grabbing;
-    cursor:-webkit-grabbing;
-    // cursor: url(https://mail.google.com/mail/images/2/closedhand.cur), default !important;
-  }
-
-  svg {
-    position: relative!important;
-  }
-}
-
-circle.node {
-  cursor: pointer;
-  stroke: #000;
-  stroke-width: .5px;
-}
-
-line.link {
-  fill: none;
-  stroke: #9ecae1;
-  stroke-width: 1.5px;
-}
-
-.radarbox {
-  position: relative;
-  z-index: 1!important;
-  margin-top:170px;
-  padding:0px 19px;
-  min-height:0px;
-  border:0px;
-  margin-right: 42px;
-}
-
-.hamburger {
-  margin:3px 13px 0px 10px;
-  i {font-size: 1.7rem;}
-}
-
-.search-header {
-  background:@zdf-blue;
-    background:transparent!important;
-  display:none;
-  margin:-20px;
-  padding:0px;
-  box-shadow: 0px 0px 15px @zdf-blue;    
-  z-index: 9999!important;
-  position: relative;
-  input {
-    padding:15px;
-  }
-}
-
-
-
-.overlay {
-  background:rgba(12,12,12,0.6);
-  width:100%;
-  height:100%;
-  position: fixed;
-  top: 0px;
-  overflow: scroll;
-  left:0px;
-  z-index:999;
-  color:white!important;
-  .container { margin-top:120px; }
-}
-
-@media (min-width: @screen-md-min) {
-  .overlay .container { margin-top:150px; }
-}
-
-.zdf-header-grey {
-  width: 100%;
-  background: url(../images/zdf-header-grey.png) repeat-x 0 0 transparent;
-  height: 46px!important;
-  min-height: 46px!important;
-  top:0px;
-  position: absolute;
-  min-width: 0px;
-  z-index:1030;
-  border:0px!important;
-  margin-bottom:0px;
-.miz-logo {
-  width:80px;
-  height:auto;
-  float:left;
-}
-.navbar-toggle {
-  border:0px;
-}
-.navbar-brand {
-  margin-left:0px!important;
-  img.zdf-logo-lobbyradar {
-    width:150px;
-    margin:5px 10px 0px 10px;
-  }
-}
-  .navbar-toggle {
-    margin:6px;
-
-    .icon-bar {
-      background-color:white;
-    }
-  }
-
-  .navbar-collapse {
-    border-top:0px;
-
-    &.in,
-    &.collapsing {
-      background-color:#7b7b7b;
-    }
-  }
-  ul.nav {
-
-        // background-color:#7b7b7b;
-
-    a {
-      color:white; 
-      margin:13px;
-      padding:0px;
-      font-size:14px;
-    }
-
-  }
-  @media (min-width: @screen-md-min) {
-
-  ul.navbar-nav a {
-    border-left:1px solid white;
-    padding-left:7px;
-  }
-
-  ul.navbar-right a {
-    border-right:1px solid white;
-    border-left:0px solid white;
-    padding-right:7px;
-  }
-}
-
-
-  .navbar-brand {
-    padding:3px 0px;
-    height: 46px;
-    img {display:inline;}
-  }
-
-  .zdf-logo {
-    margin-top:7px;
-    max-width:45px;
-    max-height:26px;
-        float:left;
-
-  }
-
-  .zdf-nav {
-    margin-top:11px;
-    margin-left:7px;
-    text-align:left;
-    font-size:14px;
-    float:left;
-
-    a {
-      padding-left:10px;
-      border-left:1px solid white;
-    }
-  }
-  .mini-nav {
-    margin-top:12px;
-    text-align:right;
-    font-size:14px;
-    a {
-      padding-right:10px;
-      padding-left:10px;
-      border-right:1px solid white;
-
-      &:last-child {
-        border-right:0px;
-        padding-right:0px;
-      }
-    }
-
-  }
-  a {
-    color:white;
-  }
-}
-
-
-.videoWrapper {
+.videoWrapper { // responsive videos, ration 16:9
   position: relative;
   padding-bottom: 56.25%; /* 16:9 */
   padding-top: 25px;
   height: 0;
+
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
 }
-.videoWrapper iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
+
+                                                               
+//              ,,                                                      
+// `7MM"""Yp, `7MM                         `7MM"""Yp,                   
+//   MM    Yb   MM                           MM    Yb                   
+//   MM    dP   MM `7MM  `7MM  .gP"Ya        MM    dP  ,6"Yb.  `7Mb,od8 
+//   MM"""bg.   MM   MM    MM ,M'   Yb       MM"""bg. 8)   MM    MM' "' 
+//   MM    `Y   MM   MM    MM 8M""""""       MM    `Y  ,pm9MM    MM     
+//   MM    ,9   MM   MM    MM YM.    ,       MM    ,9 8M   MM    MM     
+// .JMMmmmd9  .JMML. `Mbod"YML.`Mbmmd'     .JMMmmmd9  `Moo9^Yo..JMML.   
+                                                                     
+// ########################################################################################################################
+                                                                     
 
 .zdf-header-blue .search-form  {
   margin-bottom:20px;
   margin-top:19px;
+
   .form-control {
     height:42px;
   }
   input {
     padding-top:5px;
+      border: 0px;
+  border-radius: 0px;
   }
   .input-group-btn button{
     height:42px;
@@ -329,22 +116,302 @@ line.link {
 }
 
 @media (max-width: 767px) {
-    .zdf-header-blue,
-    .zdf-header-grey {
+    .zdf-header-blue {
         position: relative!important;
         top: auto;
     }
+}                                                                   
+                                                                   
+                                                                                                       
+                                                                        
+                                                                        
+//   .g8"""bgd                                `7MM"""Yp,                   
+// .dP'     `M                                  MM    Yb                   
+// dM'       ` `7Mb,od8 .gP"Ya `7M'   `MF'      MM    dP  ,6"Yb.  `7Mb,od8 
+// MM            MM' "',M'   Yb  VA   ,V        MM"""bg. 8)   MM    MM' "' 
+// MM.    `7MMF' MM    8M""""""   VA ,V         MM    `Y  ,pm9MM    MM     
+// `Mb.     MM   MM    YM.    ,    VVV          MM    ,9 8M   MM    MM     
+//   `"bmmmdPY .JMML.   `Mbmmd'    ,V         .JMMmmmd9  `Moo9^Yo..JMML.   
+//                                ,V                                       
+//                             OOb"                
+
+// ########################################################################################################################
+
+
+.zdf-header-grey {
+  width: 100%;
+  background: url(../images/zdf-header-grey.png) repeat-x 0 0 transparent;
+  height: 46px!important;
+  min-height: 46px!important;
+  top:0px;
+  position: absolute;
+  min-width: 0px;
+  z-index:1030;
+  border:0px!important;
+  margin-bottom:0px;
+.miz-logo {
+  width:80px;
+  height:auto;
+  float:left;
+}
+.navbar-toggle {
+  border:0px;
+}
+.navbar-brand {
+  margin-left:0px!important;
+  img.zdf-logo-lobbyradar {
+    width:150px;
+    margin:5px 10px 0px 10px;
+  }
+}
+  .navbar-toggle {
+    margin:6px;
+
+    .icon-bar {
+      background-color:white;
+    }
+  }
+
+  .navbar-collapse {
+    border-top:0px;
+
+    &.in,
+    &.collapsing {
+      background-color:#7b7b7b;
+    }
+  }
+  ul.nav {
+
+        // background-color:#7b7b7b;
+
+    a {
+      color:white; 
+      margin:13px;
+      padding:0px;
+      font-size:14px;
+    }
+
+  }
+  @media (min-width: @screen-md-min) {
+
+  ul.navbar-nav a {
+    border-left:1px solid white;
+    padding-left:7px;
+  }
+
+  ul.navbar-right li a {
+    border-right:1px solid white;
+    border-left:0px solid white;
+    padding-right:7px;
+    padding-left:7px;
+    margin-left:0px;
+    margin-right:0px;
+  }
+    ul.navbar-right li:last-child  a{
+          border-right:0px solid white;
+    padding-right:0px;
+
+    } 
 }
 
 
-.jumbotron {
-    position: relative;
-    z-index: 9999!important;
-    margin-bottom:-20px;
-    display: none;
+  .navbar-brand {
+    padding:3px 0px;
+    height: 46px;
+    img {display:inline;}
+  }
+
+  .zdf-logo {
+    margin-top:7px;
+    max-width:45px;
+    max-height:26px;
+        float:left;
+
+  }
+
+  .zdf-nav {
+    margin-top:11px;
+    margin-left:7px;
+    text-align:left;
+    font-size:14px;
+    float:left;
+
+    a {
+      padding-left:10px;
+      border-left:1px solid white;
+    }
+  }
+  .mini-nav {
+    margin-top:12px;
+    text-align:right;
+    font-size:14px;
+    a {
+      padding-right:10px;
+      padding-left:10px;
+      border-right:1px solid white;
+
+      &:last-child {
+        border-right:0px;
+        padding-right:0px;
+      }
+    }
+
+  }
+  a {
+    color:white;
+  }
+}
+                                             
+@media (max-width: 767px) {
+  .zdf-header-grey {
+      position: relative!important;
+      top: auto;
+  }
+}                                                                   
+                                               
+// `7MMF'              mm                       
+//   MM                MM                       
+//   MM  `7MMpMMMb.  mmMMmm  `7Mb,od8  ,pW"Wq.  
+//   MM    MM    MM    MM      MM' "' 6W'   `Wb 
+//   MM    MM    MM    MM      MM     8M     M8 
+//   MM    MM    MM    MM      MM     YA.   ,A9 
+// .JMML..JMML  JMML.  `Mbmo .JMML.    `Ybmd9'  
+                                             
+// ########################################################################################################################
+                                             
+
+.overlay {
+  background:rgba(12,12,12,0.6);
+  width:100%;
+  height:100%;
+  position: fixed;
+  top: 0px;
+  overflow: scroll;
+  left:0px;
+  z-index:999;
+  color:white!important;
+  .container { margin-top:120px; }
 }
 
+@media (min-width: @screen-md-min) {
+  .overlay .container { margin-top:150px; }
+}
+                                
+                                
+                                      
+                                      
+// `7MM"""YMM       db        .g8""8q.   
+//   MM    `7      ;MM:     .dP'    `YM. 
+//   MM   d       ,V^MM.    dM'      `MM 
+//   MM""MM      ,M  `MM    MM        MM 
+//   MM   Y      AbmmmqMA   MM.      ,MP 
+//   MM         A'     VML  `Mb.    ,dP' 
+// .JMML.     .AMA.   .AMMA.  `"bmmd"'   
+//                                MMb    
+//                                 `bood'              
 
+// ########################################################################################################################
+
+
+.faq-page {
+  padding-top:70px;
+  min-height:100%;
+  background: #11354b; /* Old browsers */
+  background: -moz-linear-gradient(top,  #11354b 0%, #a1bdc9 65%, #a1bdc9 77%, #6392a8 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#11354b), color-stop(65%,#a1bdc9), color-stop(77%,#a1bdc9), color-stop(100%,#6392a8)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* W3C */
+
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#11354b', endColorstr='#6392a8',GradientType=0 ); /* IE6-9 */
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+
+}
+
+                                                                                     
+//                                                               ,,                        
+// `7MM"""YMM               mm                                   db                        
+//   MM    `7               MM                                                             
+//   MM   d    `7M'   `MF'mmMMmm   .gP"Ya  `7MMpMMMb.  ,pP"Ybd `7MM   ,pW"Wq.  `7MMpMMMb.  
+//   MMmmMM      `VA ,V'    MM    ,M'   Yb   MM    MM  8I   `"   MM  6W'   `Wb   MM    MM  
+//   MM   Y  ,     XMX      MM    8M""""""   MM    MM  `YMMMa.   MM  8M     M8   MM    MM  
+//   MM     ,M   ,V' VA.    MM    YM.    ,   MM    MM  L.   I8   MM  YA.   ,A9   MM    MM  
+// .JMMmmmmMMM .AM.   .MA.  `Mbmo  `Mbmmd' .JMML  JMML.M9mmmP' .JMML. `Ybmd9'  .JMML  JMML.
+                                                                                        
+// ########################################################################################################################
+
+.modal { color:#111; }                                                                                        
+                                                                                                                  
+//                 ,,                                 ,,    ,,                             ,,                        
+// `7MMF'   `7MF'  db                               `7MM    db                     mm      db                        
+//   `MA     ,V                                       MM                           MM                                
+//    VM:   ,V   `7MM  ,pP"Ybd `7MM  `7MM   ,6"Yb.    MM  `7MM  ,pP"Ybd  ,6"Yb.  mmMMmm  `7MM   ,pW"Wq.  `7MMpMMMb.  
+//     MM.  M'     MM  8I   `"   MM    MM  8)   MM    MM    MM  8I   `" 8)   MM    MM      MM  6W'   `Wb   MM    MM  
+//     `MM A'      MM  `YMMMa.   MM    MM   ,pm9MM    MM    MM  `YMMMa.  ,pm9MM    MM      MM  8M     M8   MM    MM  
+//      :MM;       MM  L.   I8   MM    MM  8M   MM    MM    MM  L.   I8 8M   MM    MM      MM  YA.   ,A9   MM    MM  
+//       VF      .JMML.M9mmmP'   `Mbod"YML.`Moo9^Yo..JMML..JMML.M9mmmP' `Moo9^Yo.  `Mbmo .JMML. `Ybmd9'  .JMML  JMML.
+
+// ########################################################################################################################
+                                                                                                                  
+.fullscreen {
+
+  margin-top:0px;
+  margin-bottom:-20px;
+  position: fixed;
+  overflow: scroll;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #11354b; /* Old browsers */
+  background: -moz-linear-gradient(top,  #11354b 0%, #a1bdc9 65%, #a1bdc9 77%, #6392a8 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#11354b), color-stop(65%,#a1bdc9), color-stop(77%,#a1bdc9), color-stop(100%,#6392a8)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* W3C */
+
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#11354b', endColorstr='#6392a8',GradientType=0 ); /* IE6-9 */
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  // background: url(../images/earth.png) no-repeat center center fixed; 
+}
+#networkviz-wrapper {
+  position: fixed;
+  width:100%;
+  height:100%;
+  top:0;
+  left:0;
+}
+
+#networkviz {
+  left: -1087px; // This is for show
+  top: -1201px; // should be set by current active entity
+  cursor:-moz-grab;
+  cursor:-webkit-grab;
+  // cursor: url(https://mail.google.com/mail/images/2/openhand.cur), default !important;
+  // background: -moz-radial-gradient(top,  #11354b 0%, #a1bdc9 65%, #a1bdc9 77%, #6392a8 100%); /* FF3.6+ */
+  // background: -webkit-gradient(radial, left top, left bottom, color-stop(0%,#11354b), color-stop(65%,#a1bdc9), color-stop(77%,#a1bdc9), color-stop(100%,#6392a8)); /* Chrome,Safari4+ */
+  // background: -webkit-radial-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Chrome10+,Safari5.1+ */
+  // background: -o-radial-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Opera 11.10+ */
+  // background: -ms-radial-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* IE10+ */
+  // background: radial-gradient(to bottom,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* W3C */
+
+  &.ui-draggable-dragging {
+    cursor:grabbing;
+    cursor:-moz-grabbing;
+    cursor:-webkit-grabbing;
+    // cursor: url(https://mail.google.com/mail/images/2/closedhand.cur), default !important;
+  }
+
+  svg {
+    position: relative!important;
+  }
+}                                                                                                               
 svg {
   position: fixed!important;
   top: 0;
@@ -366,16 +433,17 @@ svg {
   }
   border:0px;
 }
-@media (min-width: @screen-sm-min) {
-  .viewport-info { margin-top:170px; }
-}
-
-@media (min-width: @screen-md-min) {
-  .result-list, .result-single { margin-right:40px; }
-}
-.btn-ext {
-  margin-top:17px;
-}
+                                                               
+//                                            ,,                  
+// `7MM"""Mq.                               `7MM    mm            
+//   MM   `MM.                                MM    MM            
+//   MM   ,M9   .gP"Ya  ,pP"Ybd `7MM  `7MM    MM  mmMMmm  ,pP"Ybd 
+//   MMmmdM9   ,M'   Yb 8I   `"   MM    MM    MM    MM    8I   `" 
+//   MM  YM.   8M"""""" `YMMMa.   MM    MM    MM    MM    `YMMMa. 
+//   MM   `Mb. YM.    , L.   I8   MM    MM    MM    MM    L.   I8 
+// .JMML. .JMM. `Mbmmd' M9mmmP'   `Mbod"YML..JMML.  `Mbmo M9mmmP' 
+                                                        
+// ########################################################################################################################
 
 .result-list {
   position: relative;
@@ -405,28 +473,65 @@ svg {
   margin-bottom:10px;
 }
 
-
-
-
-.modal {
-  color:#111;
+@media (min-width: @screen-sm-min) {
+  .viewport-info { margin-top:170px; }
 }
 
-.faq-page {
-  padding-top:70px;
-  min-height:100%;
-  background: #11354b; /* Old browsers */
-  background: -moz-linear-gradient(top,  #11354b 0%, #a1bdc9 65%, #a1bdc9 77%, #6392a8 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#11354b), color-stop(65%,#a1bdc9), color-stop(77%,#a1bdc9), color-stop(100%,#6392a8)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Opera 11.10+ */
-  background: -ms-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* IE10+ */
-  background: linear-gradient(to bottom,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* W3C */
-
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#11354b', endColorstr='#6392a8',GradientType=0 ); /* IE6-9 */
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-
+@media (min-width: @screen-md-min) {
+  .result-list, .result-single { margin-right:40px; }
 }
+
+
+//                                               ,,                      
+// `7MMF'                                        db                mm    
+//   MM                                                            MM    
+//   MM  `7MMpMMMb.pMMMb.  `7MMpdMAo. `7Mb,od8 `7MM  `7MMpMMMb.  mmMMmm  
+//   MM    MM    MM    MM    MM   `Wb   MM' "'   MM    MM    MM    MM    
+//   MM    MM    MM    MM    MM    M8   MM       MM    MM    MM    MM    
+//   MM    MM    MM    MM    MM   ,AP   MM       MM    MM    MM    MM    
+// .JMML..JMML  JMML  JMML.  MMbmmd'  .JMML.   .JMML..JMML  JMML.  `Mbmo 
+//                           MM                                          
+//                         .JMML.                                                                                                    
+                                                               
+// ########################################################################################################################
+
+.radarbox {
+  position: relative;
+  z-index: 1!important;
+  margin-top:170px;
+  padding:0px 19px;
+  min-height:0px;
+  border:0px;
+  margin-right: 42px;
+}
+
+.hamburger {
+  margin:3px 13px 0px 10px;
+  i {font-size: 1.7rem;}
+}
+
+.search-header {
+  background:@zdf-blue;
+    background:transparent!important;
+  display:none;
+  margin:-20px;
+  padding:0px;
+  box-shadow: 0px 0px 15px @zdf-blue;    
+  z-index: 9999!important;
+  position: relative;
+  input {
+    padding:15px;
+  }
+}
+
+.jumbotron {
+    position: relative;
+    z-index: 9999!important;
+    margin-bottom:-20px;
+    display: none;
+}
+
+.btn-ext {
+  margin-top:17px;
+}
+
