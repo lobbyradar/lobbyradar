@@ -1,13 +1,13 @@
 $(function () {
-	var width = 1500; 
-	var height = 1500; 
-	var linkLength = 130;
+	var width = 3000; 
+	var height = 3000; 
+	var linkLength = 280;
 
 	var container = $('#networkviz');
 	if (container.length < 1) return;
 
 	var network = networkviz_api.getNetwork('54c2a4b4fe6a42c82bbaafac', 2);
-	network.center.fixed = true;
+	network.center.fixed = false;
 	network.center.x = width/2;
 	network.center.y = height/2;
 
@@ -39,7 +39,7 @@ $(function () {
 
 	links = links.data(network.links)
 		.enter().append('line')
-		.style('stroke', 'rgba(255,255,255,0.1)')
+		.style('stroke', 'rgba(20,59,82,0.7)')
 
 	nodes = nodes.data(network.nodes)
 		.enter().append('circle')
