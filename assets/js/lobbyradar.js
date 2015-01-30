@@ -13,6 +13,13 @@ $( document ).ready(function() {
     $( ".overlay" ).fadeIn( "slow" ); 
   });
 
+  $( ".navbar-brand .zdf-logo-lobbyradar" ).click(function() {
+    $( ".result-list" ).slideUp( "slow" );
+    $( ".result-single" ).slideUp( "slow" );
+
+    $( ".overlay" ).fadeIn( "slow" ); 
+  });
+
   $('.lobbysearch').keypress(function (e) {
   
     if (e.which === 13) {
