@@ -1,18 +1,20 @@
 {{>header}}
-{{>navigation}}
+{{>nav-grey}}
+{{>nav-blue}}
+
 
 <div class="fullscreen">
 
 	<div class="container" id="main">
 		
 		<div class="row">
-
-			<div class="col-sm-6 viewport-visual">
-				<span>active entities should move inside this viewport</span>
+			
+			<div class="col-sm-6 viewport-info col-sm-push-6">
+				{{>vizinfo}}
 			</div>
 
-			<div class="col-sm-6 viewport-info">
-				{{>vizinfo}}
+			<div class="col-sm-6 col-sm-pull-6 viewport-visual">
+				<span>active entities should move inside this viewport</span>
 			</div>
 
 		</div>
