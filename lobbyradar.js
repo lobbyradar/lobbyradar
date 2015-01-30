@@ -103,7 +103,8 @@ var nice_error= function(err){
 // check api key for api
 app.use("/api", function (req, res, next) {
 	debug("request to api");
-	if (["GET","HEAD"].indexOf(req.method) >= 0) {
+
+	if (!(/^\/(users|fields)\//i.test(req.url)) && ["GET","HEAD"].indexOf(req.method) >= 0) {
 		debug("api access public");
 		return next();
 	}
