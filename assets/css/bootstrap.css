@@ -6324,6 +6324,10 @@ button.close {
   top: 0;
   left: 0;
 }
+#networkviz {
+  left: -1087px;
+  top: -1201px;
+}
 #networkviz svg {
   position: relative!important;
 }
@@ -6397,10 +6401,32 @@ line.link {
   margin-top: 7px;
   max-width: 45px;
   max-height: 26px;
+  float: left;
+}
+.zdf-header-grey .zdf-nav {
+  margin-top: 11px;
+  margin-left: 7px;
+  text-align: left;
+  font-size: 14px;
+  float: left;
+}
+.zdf-header-grey .zdf-nav a {
+  padding-left: 10px;
+  border-left: 1px solid white;
 }
 .zdf-header-grey .mini-nav {
   margin-top: 12px;
   text-align: right;
+  font-size: 14px;
+}
+.zdf-header-grey .mini-nav a {
+  padding-right: 10px;
+  padding-left: 10px;
+  border-right: 1px solid white;
+}
+.zdf-header-grey .mini-nav a:last-child {
+  border-right: 0px;
+  padding-right: 0px;
 }
 .zdf-header-grey a {
   color: white;
@@ -6482,15 +6508,6 @@ line.link {
   margin-bottom: -20px;
   display: none;
 }
-#map {
-  width: 750px;
-  height: 750px;
-  position: fixed!important;
-  top: 0;
-  left: 0;
-  display: none;
-  opacity: 0;
-}
 svg {
   position: fixed!important;
   top: 0;
@@ -6498,14 +6515,16 @@ svg {
 }
 .viewport-visual {
   min-height: 250px;
+  margin-top: 170px;
   border: 1px solid red;
-  margin-top: 190px;
+  border: 0px;
 }
 .viewport-visual span {
   font-size: 70%;
   font-family: monospace;
   color: red;
   margin-left: -10px;
+  display: none;
 }
 @media (min-width: 768px) {
   .viewport-info {
@@ -6513,7 +6532,8 @@ svg {
   }
 }
 @media (min-width: 992px) {
-  .result-list {
+  .result-list,
+  .result-single {
     margin-right: 40px;
   }
 }
@@ -6526,12 +6546,17 @@ svg {
   padding: 19px;
   z-index: 99!important;
   background: white;
+  color: #111;
 }
 .result-single {
   padding-top: 40px;
   display: none;
   position: relative;
   top: 0;
+  background: white;
+  color: #111;
+  padding: 19px;
+  z-index: 99!important;
 }
 .avatar {
   max-width: 100px;
