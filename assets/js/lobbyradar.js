@@ -2,7 +2,6 @@ $( document ).ready(function() {
   
 
 $( ".lobbysearch" ).focus(function() {
-    $( ".result-list" ).slideDown( "slow" );
     $( ".overlay" ).fadeOut( "slow" );
 });
 
@@ -17,8 +16,10 @@ $( ".logo-name" ).click(function() {
 });
 
   $('.lobbysearch').keypress(function (e) {
-  if (e.which == 13) {
-    $( ".result-list" ).slideToggle( "slow" );
+  if (e.which === 13) {
+    // $( ".result-list" ).slideToggle( "slow" );
+    $( ".result-list" ).slideDown( "slow" );
+    return false;
   }
 });
 
