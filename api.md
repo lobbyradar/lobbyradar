@@ -115,8 +115,9 @@ Retrieve an array of all Entities matching the conditions in `cond`
 
 ``` javascript
 {
-	letter: "a", 		// match words starting with a specific letter
-	type: "entity"		// match a certein type
+	letter: "a", 			// match words starting with a specific letter
+	words: "some words",	// match against words
+	type: "entity"			// match a certein type
 }
 ```
 
