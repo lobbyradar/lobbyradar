@@ -392,7 +392,7 @@ app.all("/api", function (req, res) {
 	res.type("json").status("200").json({error: null});
 });
 
-// index page
+// entity page
 app.all("/entity/:id", function (req, res) {
 	api.ent_get(req.params.id, function (err, ent) {
 		if (err) return res.render("entity", { "err": err });
