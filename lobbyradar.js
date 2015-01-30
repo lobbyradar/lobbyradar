@@ -450,6 +450,10 @@ app.all("/", function (req, res) {
 	});
 });
 
+app.get("/faq", function (req, res) {
+		res.render("faq", {});
+});
+
 // everything else is 404
 app.all("*", function (req, res) {
 	res.status(404).send("404");
