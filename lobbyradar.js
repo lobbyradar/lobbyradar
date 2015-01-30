@@ -118,6 +118,15 @@ app.use("/api", function (req, res, next) {
 	next();
 });
 
+// search api
+app.get("/api/search", function (req, res) {
+	if (!req.query.hasOwnProperty("q")) return res.type("json").status("200").json({error: null, result: []});
+	debug("search for \"%s\"", api.unify(req.query.q));
+	api.ent_list({words: req.query.q}, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
 // create entity. 
 app.post("/api/entity/create", function (req, res) {
 	debug("create entity for \"%s\"", req.body.ent.name);
