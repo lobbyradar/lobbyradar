@@ -34,9 +34,13 @@ api.reset("i know what i am doing", function(){
 					// run parteispenden importer
 					debug("importing parteispenden");
 					importer.parteispenden(function(){
-						// done
-						debug("done");
-						process.exit();
+						// run dax importer
+						debug("importing dax");
+						importer.dax(function(){
+							// done
+							debug("done");
+							process.exit();
+						});
 					});
 				});
 			});
