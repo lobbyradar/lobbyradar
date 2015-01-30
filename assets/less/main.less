@@ -1,10 +1,24 @@
+/* Small devices (tablets, 768px and up) */
+@media (min-width: @screen-sm-min) { }
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: @screen-md-min) { }
+
+/* Large devices (large desktops, 1200px and up) */
+@media (min-width: @screen-lg-min) {  }
+
+
+
+
 .fullscreen {
 
   margin-top:0px;
   margin-bottom:-20px;
   position: fixed;
   overflow: scroll;
-   background: #11354b; /* Old browsers */
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #11354b; /* Old browsers */
   background: -moz-linear-gradient(top,  #11354b 0%, #a1bdc9 65%, #a1bdc9 77%, #6392a8 100%); /* FF3.6+ */
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#11354b), color-stop(65%,#a1bdc9), color-stop(77%,#a1bdc9), color-stop(100%,#6392a8)); /* Chrome,Safari4+ */
   background: -webkit-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Chrome10+,Safari5.1+ */
@@ -17,12 +31,13 @@
   -o-background-size: cover;
   background-size: cover;
   // background: url(../images/earth.png) no-repeat center center fixed; 
-
 }
 #networkviz-wrapper {
   position: fixed;
   width:100%;
   height:100%;
+  top:0;
+  left:0;
 }
 
 #networkviz {
@@ -73,6 +88,7 @@ line.link {
 }
 
 
+
 .overlay {
   background:rgba(12,12,12,0.6);
   width:100%;
@@ -81,13 +97,14 @@ line.link {
   top: 0px;
   overflow: scroll;
   left:0px;
-  z-index:0;
+  z-index:999;
   color:white!important;
-  .container {
-    margin-top:170px;
-  }
+  .container { margin-top:70px; }
 }
 
+@media (min-width: @screen-md-min) {
+  .overlay .container { margin-top:150px; }
+}
 
 .zdf-header-grey {
   width: 100%;
@@ -100,6 +117,8 @@ line.link {
 
   .zdf-logo {
     margin-top:7px;
+    max-width:45px;
+    max-height:26px;
   }
   .mini-nav {
         margin-top:12px;
@@ -109,6 +128,39 @@ line.link {
     color:white;
   }
 }
+
+
+.videoWrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  padding-top: 25px;
+  height: 0;
+}
+.videoWrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.zdf-header-blue .search-form  {
+  margin-bottom:20px;
+  .form-control {
+    height:42px;
+  }
+  input {
+    padding-top:5px;
+  }
+  .input-group-btn button{
+    height:42px;
+  }
+}
+
+@media (min-width: @screen-sm-min) { 
+  .zdf-header-blue .search-form  {margin-top:19px;}
+}
+
 .zdf-header-blue {
   top:46px;
   position: absolute;
@@ -117,19 +169,7 @@ line.link {
     overflow:hidden;
     background: rgba(20,59,82,0.5);
   border-bottom: 1px solid rgba(20,59,82,1);
-  .input-group {
-    margin-top:19px;
-    .form-control {
-      height:42px;
-    }
-    input {
-      padding-top:5px;
-    }
-
-    .input-group-btn button{
-      height:42px;
-    }
-  }
+  
   .navbar-brand {
     padding:30px 0px;
     color:white;
@@ -157,6 +197,18 @@ line.link {
     }
   }
 }
+
+
+
+@media (max-width: 767px) {
+    .zdf-header-blue,
+    .zdf-header-grey {
+        position: relative!important;
+        top: auto;
+    }
+}
+
+
 .jumbotron {
     position: relative;
     z-index: 9999!important;
@@ -184,20 +236,34 @@ svg {
 .viewport-visual {
   min-height:250px;
   border:1px solid red;
-  margin-top:170px;
-}
+  margin-top:190px;
 
+  span {
+    font-size:70%;
+    font-family:monospace;
+    color:red;
+    margin-left:-10px;
+  }
+}
+@media (min-width: @screen-sm-min) {
+  .viewport-info { margin-top:170px; }
+}
+@media (min-width: @screen-md-min) {
+
+.result-list {margin-right:40px; }
+}
 .btn-ext {
   margin-top:17px;
 }
 
 .result-list {
-  margin-top:40px;
   position: relative;
   display:none;
-  padding:19px 0px;
+  padding:19px;
   z-index: 99!important;
   background:white;
+
+
 }
 
 .result-single {
@@ -215,6 +281,5 @@ svg {
 }
 
 .navbar-brand img {
-  margin-left:-20px;
   margin-top:-15px;
 }
