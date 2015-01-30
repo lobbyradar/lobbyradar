@@ -450,6 +450,7 @@ app.all("/", function (req, res) {
 	});
 });
 
+// FAQ Page (static)
 app.get("/faq", function (req, res) {
 		res.render("faq", {});
 });
