@@ -189,7 +189,7 @@ var execute = function(finish){
 							
 							// add relation
 							q.push(function(nx){
-								api.rel_create({
+								api.rel_creaxtend({
 									importer: "dax",
 									entities: [ent_id, pers_id],
 									type: "executive",
