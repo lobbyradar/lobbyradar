@@ -168,8 +168,8 @@ app.get("/api/entity/list2", function (req, res) {
 
 // delete entity.
 app.post("/api/entity/delete/:id", function (req, res) {
-	debug("delete entity %s", req.params.id);
-	api.ent_delete(req.params.id, function (err, result) {
+	debug("delete entity %s", req.params.id||req.body.id);
+	api.ent_delete(req.params.id||req.body.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -232,8 +232,8 @@ app.all("/api/relation/get/:id", function (req, res) {
 
 // delete relation.
 app.post("/api/relation/delete/:id", function (req, res) {
-	debug("delete relation %s", req.params.id);
-	api.rel_delete(req.params.id, function (err, result) {
+	debug("delete relation %s", req.params.id||req.body.id);
+	api.rel_delete(req.params.id||req.body.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
