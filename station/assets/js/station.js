@@ -95,7 +95,7 @@ app.factory('organisations', function ($resource) {
 				params: {cmd: 'create'}
 			},
 			remove: {
-				method: 'GET',
+				method: 'POST',
 				params: {cmd: 'delete'}
 			}
 		}
@@ -122,7 +122,7 @@ app.factory('persons', function ($resource) {
 				params: {cmd: 'create'}
 			},
 			remove: {
-				method: 'GET',
+				method: 'POST',
 				params: {cmd: 'delete'}
 			}
 		}
@@ -164,7 +164,7 @@ app.factory('users', function ($resource) {
 				params: {cmd: 'create'}
 			},
 			remove: {
-				method: 'GET',
+				method: 'POST',
 				params: {cmd: 'delete'}
 			}
 		}
@@ -191,7 +191,7 @@ app.factory('fields', function ($resource) {
 				params: {cmd: 'create'}
 			},
 			remove: {
-				method: 'GET',
+				method: 'POST',
 				params: {cmd: 'delete'}
 			}
 		}
@@ -229,7 +229,7 @@ app.factory('relations', function ($resource) {
 				params: {cmd: 'create'}
 			},
 			remove: {
-				method: 'GET',
+				method: 'POST',
 				params: {cmd: 'delete'}
 			},
 			tags: {
