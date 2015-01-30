@@ -103,7 +103,8 @@ var nice_error= function(err){
 // check api key for api
 app.use("/api", function (req, res, next) {
 	debug("request to api");
-	if (["GET","HEAD"].indexOf(req.method) >= 0) {
+
+	if (!(/^\/(users|fields)\//i.test(req.url)) && ["GET","HEAD"].indexOf(req.method) >= 0) {
 		debug("api access public");
 		return next();
 	}
@@ -166,25 +167,25 @@ app.get("/api/entity/list2", function (req, res) {
 });
 
 // delete entity.
-app.all("/api/entity/delete/:id", function (req, res) {
-	debug("delete entity %s", req.params.id);
-	api.ent_delete(req.params.id, function (err, result) {
+app.post("/api/entity/delete/:id", function (req, res) {
+	debug("delete entity %s", req.params.id||req.body.id);
+	api.ent_delete(req.params.id||req.body.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
 
 // update entity.
 app.post("/api/entity/update/:id", function (req, res) {
-	debug("update entity %s", req.params.id);
-	api.ent_update(req.params.id, req.body.ent, function (err, result) {
+	debug("update entity %s", req.params.id||req.body.id);
+	api.ent_update(req.params.id||req.body.id, req.body.ent, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
 
 // upmerge entity.
 app.post("/api/entity/upmerge/:id", function (req, res) {
-	debug("upmerge entity %s", req.params.id);
-	api.ent_upmerge(req.params.id, req.body.ent, function (err, result) {
+	debug("upmerge entity %s", req.params.id||req.body.id);
+	api.ent_upmerge(req.params.id||req.body.id, req.body.ent, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -230,25 +231,25 @@ app.all("/api/relation/get/:id", function (req, res) {
 });
 
 // delete relation.
-app.all("/api/relation/delete/:id", function (req, res) {
-	debug("delete relation %s", req.params.id);
-	api.rel_delete(req.params.id, function (err, result) {
+app.post("/api/relation/delete/:id", function (req, res) {
+	debug("delete relation %s", req.params.id||req.body.id);
+	api.rel_delete(req.params.id||req.body.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
 
 // update relation.
 app.post("/api/relation/update/:id", function (req, res) {
-	debug("update relation %s", req.params.id);
-	api.rel_update(req.params.id, req.body.rel||req.body.relation, function (err, result) {
+	debug("update relation %s", req.params.id||req.body.id);
+	api.rel_update(req.params.id||req.body.id, req.body.rel||req.body.relation, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
 
 // upmerge relation.
 app.post("/api/relation/upmerge/:id", function (req, res) {
-	debug("upmerge relation %s", req.params.id);
-	api.rel_upmerge(req.params.id, req.body.rel, function (err, result) {
+	debug("upmerge relation %s", req.params.id||req.body.id);
+	api.rel_upmerge(req.params.id||req.body.id, req.body.rel, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -305,9 +306,9 @@ app.post("/api/users/create", function (req, res) {
 
 // delete user.
 app.all("/api/users/delete/:id", function (req, res) {
-	debug("delete user %s", req.params.id);
+	debug("delete user %s", req.params.id||req.body.id);
 	if (!req.user || !req.user.admin) res.sendStatus(401);
-	api.user_delete(req.params.id, function (err, result) {
+	api.user_delete(req.params.id||req.body.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -323,9 +324,9 @@ app.all("/api/users/get/:id", function (req, res) {
 
 // update user.
 app.post("/api/users/update/:id", function (req, res) {
-	debug("update user %s", req.params.id);
+	debug("update user %s", req.params.id||req.body.id);
 	if (!req.user || !req.user.admin) res.sendStatus(401);
-	api.user_update(req.params.id, req.body.user, function (err, result) {
+	api.user_update(req.params.id||req.body.id, req.body.user, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -348,8 +349,8 @@ app.post("/api/fields/create", function (req, res) {
 
 // delete field.
 app.all("/api/fields/delete/:id", function (req, res) {
-	debug("delete field %s", req.params.id);
-	api.field_delete(req.params.id, function (err, result) {
+	debug("delete field %s", req.params.id||req.body.id);
+	api.field_delete(req.params.id||req.body.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -364,8 +365,8 @@ app.all("/api/fields/get/:id", function (req, res) {
 
 // update field.
 app.post("/api/fields/update/:id", function (req, res) {
-	debug("update field %s", req.params.id);
-	api.field_update(req.params.id, req.body.field, function (err, result) {
+	debug("update field %s", req.params.id||req.body.id);
+	api.field_update(req.params.id||req.body.id, req.body.field, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });

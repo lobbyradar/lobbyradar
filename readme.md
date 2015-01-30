@@ -5,6 +5,64 @@
 * match address formats
 * put original name into people field
 
+## HTTP API
+
+### `GET /api/search?q={query}`
+
+Search Entities by names and aliases
+
+### `GET /api/entity/get/{id}`
+
+Get data for an entity specified by `id`
+
+### `GET /api/entity/get/{id}`
+
+Get data for an entity specified by `id`
+
+### `GET /api/entity/list?letter={letter|}&words={words|}&type={person|entity|}`
+
+List all entities specified by starting `letter`, containing `words` and matching `type`
+
+### `GET /api/entity/types`
+
+List entity types
+
+### `GET /api/entity/tags`
+
+List entity tags
+
+### `GET /api/entity/export`
+
+Export entities as subset of 
+
+{"54c71ad952d7180000c4d68f":["person",["Elvira Drobinski-Weiß","Elvira Drobinski-Weiß"],["54c906fbb10251e22a64a57d","54c71adb52d7180000c4d882","54c71adb52d7180000c4d889","54c71adb52d7180000c4d896","54c71adb52d7180000c4d898","54c71adb52d7180000c4d88a","54bd232aeccdc50000052328","54c71adc52d7180000c4d8e0","54c71adf52d7180000c4d97d","54cb80ad23abb47ea0fd3b37","54cb80ad23abb47ea0fd3b38"]]
+
+``` javascript
+{
+	id: [							// entity id
+		type,						// entity type
+		[name, alias, ...],	// name and aliases
+		[id, ...]				// ids of related entities
+	]
+}
+``` 
+
+### `GET /api/relation/types`
+
+List relation types
+
+### `GET /api/relation/tags`
+
+List relation tags
+
+### `GET /api/relation/list`
+
+List all relations
+
+## Data API
+
+See [api.md](./api.md)
+
 ## Data Structure
 
 ### Entity Object
