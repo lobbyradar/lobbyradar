@@ -1,10 +1,12 @@
 var imageSize = 8192;
-var scale = 1;
+var maxIterations = 1;
+var tileFolder = './tiles/';
+var tileSize = 256;
 
 var fs = require('fs');
+var path = require('path');
 var d3 = require('d3');
 var gm = require('gm');
-var im = gm.subClass({ imageMagick: true });
 
 var nodes = JSON.parse(fs.readFileSync('nodes.json', 'utf8')).result;
 var links = JSON.parse(fs.readFileSync('links.json', 'utf8')).result;
@@ -64,21 +66,24 @@ var force = d3.layout.force()
 
 force.on('tick', function () {
 	interation++;
-	console.log(interation)
-	force.alpha(0.1);
-	if (interation % 1 == 0) {
-		finalize();
-		writePNG(interation+'.png');
-		force.stop();
-	}
-})
 
-force.on('end', finalize)
+	var alpha = 0.1 * Math.pow(0.05, interation/maxIterations);
+	force.alpha(alpha);
+
+	if (interation >= maxIterations) {
+		force.stop();
+		savePositions();
+		saveTiles(2);
+		return
+	}
+
+	if (interation % 100 == 0) savePositions();
+})
 
 force.start();
 
 
-function finalize() {
+function savePositions() {
 	//return
 	console.log('write positions');
 	var positions = nodes.map(function (node) {
@@ -93,6 +98,137 @@ function finalize() {
 	})
 	positions = JSON.stringify(positions, null, '\t');
 	fs.writeFileSync('positions.json', positions, 'utf8');
+}
+
+function saveTiles(maxDepth) {
+	var maxProcesses = 4;
+
+	var activeProcesses = 0;
+	var todos = [];
+
+	todos.push(function () {
+		render(0,0,0,nodes,links)
+	})
+
+	nextTodo();
+
+	function nextTodo() {
+		while ((activeProcesses < maxProcesses) && (todos.length > 0)) {
+			var todo = todos.shift();
+			activeProcesses++;
+			setImmediate(todo);
+		}
+	}
+
+	function finishedTodo() {
+		activeProcesses--;
+		nextTodo();
+	}
+
+	function render(x0, y0, z0, nodes, links) {
+		var foldername = path.join(tileFolder, z0+'/'+y0 );
+		var filename = foldername+'/'+x0+'.png';
+
+		ensureFolder(foldername);
+
+		console.log('write "'+filename+'"');
+
+		var scale = imageSize/(tileSize*Math.pow(2,z0));
+		var cx = imageSize*(1/2 - x0/Math.pow(2,z0));
+		var cy = imageSize*(1/2 - y0/Math.pow(2,z0));
+
+		console.log(scale, cx, cy);
+		//process.exit();
+
+		if (z0 < maxDepth) {
+			todos.push(function () { render(x0*2+0, y0*2+0, z0+1, nodes, links) });
+			todos.push(function () { render(x0*2+1, y0*2+0, z0+1, nodes, links) });
+			todos.push(function () { render(x0*2+0, y0*2+1, z0+1, nodes, links) });
+			todos.push(function () { render(x0*2+1, y0*2+1, z0+1, nodes, links) });
+		}
+
+		var strokeOpacity = 0.7;
+		var strokeWidth = (0.5/scale);
+		if (strokeWidth < 1) {
+			strokeOpacity *= strokeWidth;
+			strokeWidth = 1;
+		}
+
+		var commands = [
+			'push graphic-context',
+			'viewbox 0 0 '+tileSize+' '+tileSize,
+				'push graphic-context',
+					'fill white',
+					'rectangle 0 0 '+tileSize+' '+tileSize,
+				'pop graphic-context',
+				'push graphic-context',
+					'stroke "rgb(20,59,82)"',
+					'fill none',
+					'stroke-opacity '+strokeOpacity,
+					'stroke-width '+strokeWidth,
+					'stroke-antialias 1',
+					links.map(line).join('\n'),
+				'pop graphic-context',
+				'push graphic-context',
+					'fill "#fa7d18"',
+					nodes.filter(function (n) { return n.type == 'person' }).map(circle).join('\n'),
+				'pop graphic-context',
+				'push graphic-context',
+					'fill "#a3db19"',
+					nodes.filter(function (n) { return n.type != 'person' }).map(circle).join('\n'),
+				'pop graphic-context',
+			'pop graphic-context'
+		].join('\n');
+
+		function circle(node) {
+			return 'circle ' + [
+				(node.x + cx         )/scale,
+				(node.y + cy         )/scale,
+				(node.x + cx + node.r)/scale,
+				(node.y + cy         )/scale
+			].join(',');
+		}
+
+
+		function line(link) {
+			var n1 = link.source;
+			var n2 = link.target;
+			return 'line ' + [
+				(n1.x + cx)/scale,
+				(n1.y + cy)/scale,
+				(n2.x + cx)/scale,
+				(n2.y + cy)/scale
+			].join(',');
+		}
+
+		
+		var t = gm(new Buffer(commands));
+		
+		t.addSrcFormatter(function (a) {
+			a.forEach(function (e,i) { a[i] = 'MVG:'+e });
+		});
+		t.in('-size');
+		t.in(tileSize+'x'+tileSize);
+		t.in('-depth');
+		t.in('16');
+
+		t.write(filename, function (err) {
+			if (err) {
+				console.error(err);
+			} else {
+				console.log(filename);
+			}
+			finishedTodo();
+		});
+
+	}
+
+	function ensureFolder(folder) {
+		if (!fs.existsSync(folder)) {
+			ensureFolder(path.dirname(folder));
+			fs.mkdirSync(folder);
+		}
+	}
 }
 
 function writePNG(filename) {
