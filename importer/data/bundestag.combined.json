@@ -41268,7 +41268,7 @@
 				"entity": "Parteivorstand der Sozialdemokratischen Partei Deutschlands",
 				"ort": "Berlin",
 				"aliases": [
-					"SPD"
+					"SPD Parteivorstand"
 				],
 				"position": null,
 				"taetigkeit": "Seminardurchführung, Training",
@@ -41286,7 +41286,7 @@
 				"entity": "Parteivorstand der Sozialdemokratischen Partei Deutschlands",
 				"ort": "Berlin",
 				"aliases": [
-					"SPD"
+					"SPD Parteivorstand"
 				],
 				"position": null,
 				"taetigkeit": null,
@@ -46098,9 +46098,7 @@
 				"periodical": "einmalig",
 				"entity": "Verwaltungsgesellschaft Bürohaus Berlin Stresemannstr./Wilhelmstr. mbH",
 				"ort": "Berlin",
-				"aliases": [
-					"SPD"
-				],
+				"aliases": [],
 				"position": "Beteiligung treuhänderisch für den Parteivorstand der SPD",
 				"taetigkeit": null,
 				"taetigkeit_ort": null,
@@ -96445,9 +96443,7 @@
 				"periodical": "monatlich",
 				"entity": "Sozialdemokratische Partei Europas",
 				"ort": "Brüssel",
-				"aliases": [
-					"SPD"
-				],
+				"aliases": [],
 				"position": "Generalsekretär",
 				"taetigkeit": null,
 				"taetigkeit_ort": null,
