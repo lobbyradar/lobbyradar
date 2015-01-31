@@ -1,186 +1,205 @@
 $( document ).ready(function() {
-  
 
-$( ".lobbysearch" ).focus(function() {
-    $( ".result-list" ).slideDown( "slow" );
-    $( ".overlay" ).fadeOut( "slow" );
-});
+	$( ".lobbysearch" ).focus(function() {
+		$( ".result-list" ).slideDown( "slow" );
+		$( ".overlay" ).fadeOut( "slow" );
+	});
 
+	$( ".logo-name" ).click(function() {
+		$( ".result-list" ).slideUp( "slow" );
+		$( ".overlay" ).fadeIn( "slow" );
+	});
 
+	$('.lobbysearch').keypress(function (e) {
+		if (e.which == 13) {
+			$( ".result-list" ).slideToggle( "slow" );
+		}
+	});
 
-$( ".logo-name" ).click(function() {
-    $( ".result-list" ).slideUp( "slow" );
-    $( ".overlay" ).fadeIn( "slow" );
-});
+	// lazy typeahead
+	(function(){
+		var req = null;
+		$(".lobbysearch").keyup(function(evt){
+			if ($(this).val().length >= 3) {
+				// abort previous request
+				if (req) req.abort();
+				req = $.getJSON("/api/entity/list", {
+					words: $(this).val()
+				}, function(data){
+					// build new result
+					var $tb = $("<tbody></tbody>");
+					if (data.hasOwnProperty("result") && data.result instanceof Array) $(data.result).each(function(idx,e){
+						$tb.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a href="/entity/'+e._id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.connections+'</a></td></tr>');
+					});
+										
+					// clear current view
+					$(".result-list table tbody", "#main").remove();
+					$(".result-list table", "#main").append($tb);
 
-  $('.lobbysearch').keypress(function (e) {
-  if (e.which == 13) {
-    $( ".result-list" ).slideToggle( "slow" );
-  }
-});
+					// reset request
+					req = null;
+				});
+			};
+		});
+	})();
 
-//    $("#joschka").click(function () {
-//           // $(".result-list").hide("slide", { direction: "left" }, 1000);
-//           $(".result-list").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
-//           $(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},1000);
+	//    $("#joschka").click(function () {
+	//           // $(".result-list").hide("slide", { direction: "left" }, 1000);
+	//           $(".result-list").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
+	//           $(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},1000);
 
-//           return false;
-//     });
+	//           return false;
+	//     });
 
-//       $("#back").click(function () {
-//           // $(".result-list").hide("slide", { direction: "left" }, 1000);
-//                     $(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
+	//       $("#back").click(function () {
+	//           // $(".result-list").hide("slide", { direction: "left" }, 1000);
+	//                     $(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
 
-//           $(".result-list").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},1000);
+	//           $(".result-list").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},1000);
 
-//           return false;
-//     });
+	//           return false;
+	//     });
 
-// $("#change-visual").click(function () {
-//           // $(".result-list").hide("slide", { direction: "left" }, 1000);
-//           $("#map").animate({opacity:"toggle", easing: "easeOutQuint"},500);
-//           $("svg").animate({opacity:"toggle", easing: "easeOutQuint"},1000);
-//           $('.fullscreen').css({
-//   'width': winWidth,
-//   'height': winHeight,
-// });
-//           return false;
-//     });
+	// $("#change-visual").click(function () {
+	//           // $(".result-list").hide("slide", { direction: "left" }, 1000);
+	//           $("#map").animate({opacity:"toggle", easing: "easeOutQuint"},500);
+	//           $("svg").animate({opacity:"toggle", easing: "easeOutQuint"},1000);
+	//           $('.fullscreen').css({
+	//   'width': winWidth,
+	//   'height': winHeight,
+	// });
+	//           return false;
+	//     });
 
-  // global vars
-var winWidth = $(window).width();
-var winHeight = $(window).height();
+	// global vars
+	var winWidth = $(window).width();
+	var winHeight = $(window).height();
  
-// set initial div height / width
-$('.fullscreen').css({
-  'width': winWidth,
-  'height': winHeight,
-});
+	// set initial div height / width
+	$('.fullscreen').css({
+		'width': winWidth,
+		'height': winHeight
+	});
 
+	// make sure div stays full width/height on resize
+	$(window).resize(function(){
+		$('.fullscreen').css({
+			'width': winWidth,
+			'height': winHeight,
+		});
+	});
 
-// make sure div stays full width/height on resize
+	// var w = winWidth,
+	//     h = winHeight,
+	//     node,
+	//     link,
+	//     root;
 
-  $(window).resize(function(){
-    $('.fullscreen').css({
-      'width': winWidth,
-      'height': winHeight,
-    });
-  });
+	// var force = d3.layout.force()
+	//     .on("tick", tick)
+	//     .charge(function(d) { return d._children ? -d.size / 1 : -300; })
+	//     .linkDistance(function(d) { return d.target._children ? 20 : 30; })
+	//     .size([w-400, h - 60]);
 
+	// var vis = d3.select(".fullscreen").append("svg:svg")
+	//     .attr("width", w)
+	//     .attr("height", h);
 
+	// d3.json("flare.json", function(json) {
+	//   root = json;
+	//   root.fixed = true;
+	//   root.x = w / 2;
+	//   root.y = h / 2 - 80;
+	//   update();
+	// });
 
+	// function update() {
+	//   var nodes = flatten(root),
+	//       links = d3.layout.tree().links(nodes);
 
-// var w = winWidth,
-//     h = winHeight,
-//     node,
-//     link,
-//     root;
+	//   // Restart the force layout.
+	//   force
+	//       .nodes(nodes)
+	//       .links(links)
+	//       .start();
 
-// var force = d3.layout.force()
-//     .on("tick", tick)
-//     .charge(function(d) { return d._children ? -d.size / 1 : -300; })
-//     .linkDistance(function(d) { return d.target._children ? 20 : 30; })
-//     .size([w-400, h - 60]);
+	//   // Update the links…
+	//   link = vis.selectAll("line.link")
+	//       .data(links, function(d) { return d.target.id; });
 
-// var vis = d3.select(".fullscreen").append("svg:svg")
-//     .attr("width", w)
-//     .attr("height", h);
+	//   // Enter any new links.
+	//   link.enter().insert("svg:line", ".node")
+	//       .attr("class", "link")
+	//       .attr("x1", function(d) { return d.source.x; })
+	//       .attr("y1", function(d) { return d.source.y; })
+	//       .attr("x2", function(d) { return d.target.x; })
+	//       .attr("y2", function(d) { return d.target.y; });
 
-// d3.json("flare.json", function(json) {
-//   root = json;
-//   root.fixed = true;
-//   root.x = w / 2;
-//   root.y = h / 2 - 80;
-//   update();
-// });
+	//   // Exit any old links.
+	//   link.exit().remove();
 
-// function update() {
-//   var nodes = flatten(root),
-//       links = d3.layout.tree().links(nodes);
+	//   // Update the nodes…
+	//   node = vis.selectAll("circle.node")
+	//       .data(nodes, function(d) { return d.id; })
+	//       .style("fill", color);
 
-//   // Restart the force layout.
-//   force
-//       .nodes(nodes)
-//       .links(links)
-//       .start();
+	//   node.transition()
+	//       .attr("r", function(d) { return d.children ? 4.5 : Math.sqrt(d.size) / 10; });
 
-//   // Update the links…
-//   link = vis.selectAll("line.link")
-//       .data(links, function(d) { return d.target.id; });
+	//   // Enter any new nodes.
+	//   node.enter().append("svg:circle")
+	//       .attr("class", "node")
+	//       .attr("cx", function(d) { return d.x; })
+	//       .attr("cy", function(d) { return d.y; })
+	//       .attr("r", function(d) { return d.children ? 4.5 : Math.sqrt(d.size) / 10; })
+	//       .style("fill", color)
+	//       .on("click", click)
+	//       .call(force.drag);
 
-//   // Enter any new links.
-//   link.enter().insert("svg:line", ".node")
-//       .attr("class", "link")
-//       .attr("x1", function(d) { return d.source.x; })
-//       .attr("y1", function(d) { return d.source.y; })
-//       .attr("x2", function(d) { return d.target.x; })
-//       .attr("y2", function(d) { return d.target.y; });
+	//   // Exit any old nodes.
+	//   node.exit().remove();
+	// }
 
-//   // Exit any old links.
-//   link.exit().remove();
+	// function tick() {
+	//   link.attr("x1", function(d) { return d.source.x; })
+	//       .attr("y1", function(d) { return d.source.y; })
+	//       .attr("x2", function(d) { return d.target.x; })
+	//       .attr("y2", function(d) { return d.target.y; });
 
-//   // Update the nodes…
-//   node = vis.selectAll("circle.node")
-//       .data(nodes, function(d) { return d.id; })
-//       .style("fill", color);
+	//   node.attr("cx", function(d) { return d.x; })
+	//       .attr("cy", function(d) { return d.y; });
+	// }
 
-//   node.transition()
-//       .attr("r", function(d) { return d.children ? 4.5 : Math.sqrt(d.size) / 10; });
+	// // Color leaf nodes orange, and packages white or blue.
+	// function color(d) {
+	//   return d._children ? "#062b3e" : d.children ? "#c6dbef" : "#fd8d3c";
+	// }
 
-//   // Enter any new nodes.
-//   node.enter().append("svg:circle")
-//       .attr("class", "node")
-//       .attr("cx", function(d) { return d.x; })
-//       .attr("cy", function(d) { return d.y; })
-//       .attr("r", function(d) { return d.children ? 4.5 : Math.sqrt(d.size) / 10; })
-//       .style("fill", color)
-//       .on("click", click)
-//       .call(force.drag);
+	// // Toggle children on click.
+	// function click(d) {
+	//   if (d.children) {
+	//     d._children = d.children;
+	//     d.children = null;
+	//   } else {
+	//     d.children = d._children;
+	//     d._children = null;
+	//   }
+	//   update();
+	// }
 
-//   // Exit any old nodes.
-//   node.exit().remove();
-// }
+	// // Returns a list of all nodes under the root.
+	// function flatten(root) {
+	//   var nodes = [], i = 0;
 
-// function tick() {
-//   link.attr("x1", function(d) { return d.source.x; })
-//       .attr("y1", function(d) { return d.source.y; })
-//       .attr("x2", function(d) { return d.target.x; })
-//       .attr("y2", function(d) { return d.target.y; });
+	//   function recurse(node) {
+	//     if (node.children) node.size = node.children.reduce(function(p, v) { return p + recurse(v); }, 0);
+	//     if (!node.id) node.id = ++i;
+	//     nodes.push(node);
+	//     return node.size;
+	//   }
 
-//   node.attr("cx", function(d) { return d.x; })
-//       .attr("cy", function(d) { return d.y; });
-// }
-
-// // Color leaf nodes orange, and packages white or blue.
-// function color(d) {
-//   return d._children ? "#062b3e" : d.children ? "#c6dbef" : "#fd8d3c";
-// }
-
-// // Toggle children on click.
-// function click(d) {
-//   if (d.children) {
-//     d._children = d.children;
-//     d.children = null;
-//   } else {
-//     d.children = d._children;
-//     d._children = null;
-//   }
-//   update();
-// }
-
-// // Returns a list of all nodes under the root.
-// function flatten(root) {
-//   var nodes = [], i = 0;
-
-//   function recurse(node) {
-//     if (node.children) node.size = node.children.reduce(function(p, v) { return p + recurse(v); }, 0);
-//     if (!node.id) node.id = ++i;
-//     nodes.push(node);
-//     return node.size;
-//   }
-
-//   root.size = recurse(root);
-//   return nodes;
-// }
+	//   root.size = recurse(root);
+	//   return nodes;
+	// }
 
 });
