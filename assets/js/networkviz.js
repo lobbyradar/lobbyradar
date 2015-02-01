@@ -67,7 +67,7 @@ $(function () {
 		frameCount++;
 		if (frameCount % 2 == 0) {
 			var time = (new Date()).getTime();
-			console.log(frameCount*1000/(time-startTime));
+			// console.log(frameCount*1000/(time-startTime));
 		}
 
 		var strength = 0.3/force.alpha();
