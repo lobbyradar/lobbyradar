@@ -1,5 +1,8 @@
 $( document ).ready(function() {
-  
+  // global vars
+  var winWidth = $(window).width();
+  var winHeight = $(window).height();
+
   $( ".lobbysearch" ).focus(function() {
     $( ".overlay" ).fadeOut( "slow" );
   });
@@ -70,12 +73,6 @@ $( document ).ready(function() {
 
           return false;
     });
-
-
-
-  // global vars
-  var winWidth = $(window).width();
-  var winHeight = $(window).height();
    
   // set initial div height / width
   $('.fullscreen').css({
@@ -83,14 +80,46 @@ $( document ).ready(function() {
     'height': winHeight,
   });
 
+  // lazy typeahead
+  (function(){
+    var req = null;
+    $(".lobbysearch").keyup(function(evt){
+      if ($(this).val().length >= 3) {
+        // abort previous request
+        if (req) req.abort();
+        req = $.getJSON("/api/entity/list", {
+          words: $(this).val()
+        }, function(data){
+          // build new result
+          var $tb = $("<tbody></tbody>");
+          if (data.hasOwnProperty("result") && data.result instanceof Array) $(data.result).each(function(idx,e){
+            $tb.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a href="/entity/'+e._id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.connections+'</a></td></tr>');
+          });
+                    
+          // clear current view
+          $(".result-list table tbody", "#main").remove();
+          $(".result-list table", "#main").append($tb);
 
-  // make sure div stays full width/height on resize
-
-  $(window).resize(function(){
-    $('.fullscreen').css({
-      'width': winWidth,
-      'height': winHeight,
+          // reset request
+          req = null;
+        });
+      };
     });
+  })();
+ 
+  // set initial div height / width
+  $('.fullscreen').css({
+    'width': winWidth,
+    'height': winHeight
   });
 
+});
+
+
+// make sure div stays full width/height on resize
+$(window).resize(function(){
+  $('.fullscreen').css({
+    'width': winWidth,
+    'height': winHeight,
+  });
 });

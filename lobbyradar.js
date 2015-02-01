@@ -9,6 +9,7 @@ var moment = require("moment");
 var crypto = require("crypto");
 var debug = require("debug")("app");
 var path = require("path");
+var unq = require("unq");
 var nsa = require("nsa");
 var fs = require("fs");
 var passportlocal = require("passport-local");
@@ -409,6 +410,33 @@ app.all("/entity/:id", function (req, res) {
 		if (ent === null || !ent.hasOwnProperty("_id")) return res.status(404).render("entity", { "err": "Diese Entität existiert nicht" });
 		api.ent_rels(ent._id, function (err, rels) {
 			ent.relations = rels;
+			// rework data
+			ent.data = ent.data.filter(function(d){
+				switch (d.key) {
+					case "source":
+						if (!ent.hasOwnProperty("sources")) ent.sources = [];
+						ent.sources.push(d.value);
+					break;
+					case "address":
+						if (!ent.hasOwnProperty("addresses")) ent.addresses = [];
+						ent.addresses.push(d.value);
+					break;
+					// other stuff here
+					default: return true; break;
+				}
+				return false;
+			});
+
+			// dates
+			ent.created = moment(ent.created).format("DD.MM.YYYY hh:mm");
+			ent.updated = moment(ent.updated).format("DD.MM.YYYY hh:mm");
+
+			// aliases and tags
+			if (ent.aliases.length > 0) ent.has_aliases = true;
+			if (ent.tags.length > 0) ent.has_tags = true;
+			if (ent.sources && ent.sources.length > 0) ent.has_sources = true;
+			if (ent.addresses && ent.addresses.length > 0) ent.has_addresses = true;
+			
 			res.render("entity", {
 				"err": err,
 				"entity": ent
