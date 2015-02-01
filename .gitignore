@@ -7,4 +7,5 @@ bower_components
 scripts
 .codekit-cache
 config.codekit
-/lobbynetwork/tiles/*
+lobbynetwork/positions.json
+lobbynetwork/tiles
