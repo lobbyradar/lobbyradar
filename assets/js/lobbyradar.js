@@ -1,7 +1,8 @@
-$( document ).ready(function() {
   // global vars
   var winWidth = $(window).width();
   var winHeight = $(window).height();
+
+$( document ).ready(function() {
 
   $( ".lobbysearch" ).focus(function() {
     $( ".overlay" ).fadeOut( "slow" );
@@ -12,25 +13,23 @@ $( document ).ready(function() {
   $( ".logo-name" ).click(function() {
     $( ".result-list" ).slideUp( "slow" );
     $( ".result-single" ).slideUp( "slow" );
-
     $( ".overlay" ).fadeIn( "slow" ); 
   });
 
   $( ".navbar-brand .zdf-logo-lobbyradar" ).click(function() {
     $( ".result-list" ).slideUp( "slow" );
     $( ".result-single" ).slideUp( "slow" );
-
     $( ".overlay" ).fadeIn( "slow" ); 
   });
 
   $('.lobbysearch').keypress(function (e) {
-  
     if (e.which === 13) {
       // $( ".result-list" ).slideToggle( "slow" );
       $( ".result-list" ).slideDown( "slow" );
+      console.log('pressed enter');
       return false;
+      event.preventDefault();
     }
-  
   });
 
   // http://stackoverflow.com/questions/16437182/issue-with-a-scrollable-div-on-ipad
@@ -57,7 +56,7 @@ $( document ).ready(function() {
     e.stopPropagation();
   });
 
-   $("tr a").click(function () {
+  $("tr a").click(function () {
           // $(".result-list").hide("slide", { direction: "left" }, 1000);
           $(".result-list").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
           $(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},1000);
@@ -84,20 +83,30 @@ $( document ).ready(function() {
   (function(){
     var req = null;
     $(".lobbysearch").keyup(function(evt){
-      if ($(this).val().length >= 3) {
+      console.log($(this).val());
+      // if ($(this).val().length >= 3) {
+      if (evt.which === 13) { // only send request when enter is pressed. TODO: search button
         // abort previous request
+
+
         if (req) req.abort();
         req = $.getJSON("/api/entity/list", {
           words: $(this).val()
         }, function(data){
           // build new result
+          console.log('build new result');
           var $tb = $("<tbody></tbody>");
           if (data.hasOwnProperty("result") && data.result instanceof Array) $(data.result).each(function(idx,e){
             $tb.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a href="/entity/'+e._id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.connections+'</a></td></tr>');
           });
-                    
+          
+          $( ".result-list" ).slideDown( "slow" );
+          console.log('pressed enter');
+  
           // clear current view
+          console.log('clear current view');
           $(".result-list table tbody", "#main").remove();
+          console.log('append new results');
           $(".result-list table", "#main").append($tb);
 
           // reset request
@@ -105,6 +114,8 @@ $( document ).ready(function() {
         });
       };
     });
+
+
   })();
  
   // set initial div height / width
