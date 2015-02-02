@@ -75,6 +75,7 @@ force.on('tick', function () {
 	if (interation >= maxIterations) {
 		force.stop();
 		savePositions();
+		exportPositions();
 		saveTiles(maxTileLevel);
 	}
 
@@ -82,6 +83,35 @@ force.on('tick', function () {
 })
 
 force.start();
+
+
+function exportPositions() {
+	console.log('export positions');
+	
+	var z = tileSize*Math.pow(2,maxTileLevel)/imageSize;
+	var positions = nodes.map(function (node) {
+		return {
+			id: node.id,
+			name: node.name,
+			type: node.type,
+			r: Math.round(node.r*z),
+			x: Math.round(node.x*z),
+			y: Math.round(node.y*z)
+		}
+	});
+
+	positions.sort(function (a,b) {
+		return (a.id < b.id) ? -1 : 1;
+	})
+
+	var result = {};
+	Object.keys(positions[0]).forEach(function (key) {
+		result[key] = positions.map(function (entry) { return entry[key] });
+	});
+
+	result = 'var node_positions = '+JSON.stringify(result, null, '\t')+';';
+	fs.writeFileSync('./test/node_positions.js', result, 'utf8');
+}
 
 
 function savePositions() {
