@@ -107,6 +107,9 @@ function saveTiles(maxDepth) {
 
 	var activeProcesses = 0;
 	var todos = [];
+	var startTime = (new Date()).getTime();
+	var tileCount = 0;
+	var tileCountMax = Math.floor(Math.pow(4, maxDepth)/0.75);
 
 	todos.push(function () {
 		render(0,0,0,nodes,links);
@@ -128,6 +131,13 @@ function saveTiles(maxDepth) {
 	}
 
 	function render(x0, y0, z0, nodes, links) {
+		if (tileCount % 100 == 0) console.log([
+			tileCount,
+			(new Date()).getTime() - startTime,
+			(100*tileCount/tileCountMax).toFixed(1)+'%'
+		].join('\t'));
+		tileCount++;
+
 		var foldername = path.join(tileFolder, z0+'/'+y0 );
 		var filename = foldername+'/'+x0+'.png';
 
@@ -251,10 +261,11 @@ function saveTiles(maxDepth) {
 			if (err) {
 				console.error(err);
 			} else {
-				console.log(filename);
+				//console.log(filename);
 			}
 			finishedTodo();
 		});
+	}
 
 	function createEmptyTile(callback) {
 		var t = gm(tileSize, tileSize, '#ffffff');
