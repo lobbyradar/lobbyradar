@@ -12,7 +12,10 @@ module.exports = {
 	},
 	db: "mongodb://127.0.0.1/lobbyradar",
 	nsa: null, // "udp4://server:port/",
-	defaultadmin:{
+	search: {
+		reindex: "5min"
+	},
+	defaultadmin: {
 		name: "admin",
 		pass: "totalsupergehaim007"
 	}

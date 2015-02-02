@@ -73,7 +73,7 @@ force.on('tick', function () {
 	if (interation >= maxIterations) {
 		force.stop();
 		savePositions();
-		saveTiles(8);
+		saveTiles(7);
 		return
 	}
 
@@ -102,16 +102,20 @@ function savePositions() {
 
 function saveTiles(maxDepth) {
 	var maxProcesses = 4;
+	var emptyImageFilename = './empty.png';
+	var emptyImageBuffer;
 
 	var activeProcesses = 0;
 	var todos = [];
+	var startTime = (new Date()).getTime();
+	var tileCount = 0;
+	var tileCountMax = Math.floor(Math.pow(4, maxDepth)/0.75);
 
 	todos.push(function () {
 		render(0,0,0,nodes,links);
-		//render(0,0,0,[],links)
 	})
 
-	nextTodo();
+	createEmptyTile(nextTodo);
 
 	function nextTodo() {
 		while ((activeProcesses < maxProcesses) && (todos.length > 0)) {
@@ -127,6 +131,13 @@ function saveTiles(maxDepth) {
 	}
 
 	function render(x0, y0, z0, nodes, links) {
+		if (tileCount % 100 == 0) console.log([
+			tileCount,
+			(new Date()).getTime() - startTime,
+			(100*tileCount/tileCountMax).toFixed(1)+'%'
+		].join('\t'));
+		tileCount++;
+
 		var foldername = path.join(tileFolder, z0+'/'+y0 );
 		var filename = foldername+'/'+x0+'.png';
 
@@ -137,6 +148,13 @@ function saveTiles(maxDepth) {
 			prepareSubTile(x0*2+1, y0*2+0, z0+1);
 			prepareSubTile(x0*2+0, y0*2+1, z0+1);
 			prepareSubTile(x0*2+1, y0*2+1, z0+1);
+		}
+
+		if ((nodes.length == 0) && (links.length == 0)) {
+			// Empty Image
+			fs.writeFileSync(filename, emptyImageBuffer);
+			finishedTodo();
+			return;
 		}
 
 		var scale = imageSize/(tileSize*Math.pow(2,z0));
@@ -236,8 +254,8 @@ function saveTiles(maxDepth) {
 		});
 		t.in('-size');
 		t.in(tileSize+'x'+tileSize);
-		t.in('-depth');
-		t.in('16');
+		t.dither(true);
+		t.colors(64);
 
 		t.write(filename, function (err) {
 			if (err) {
@@ -247,7 +265,21 @@ function saveTiles(maxDepth) {
 			}
 			finishedTodo();
 		});
+	}
 
+	function createEmptyTile(callback) {
+		var t = gm(tileSize, tileSize, '#ffffff');
+		t.colors(2);
+
+		t.write(emptyImageFilename, function (err) {
+			if (err) {
+				console.error(err);
+			} else {
+				//console.log(filename);
+			}
+			emptyImageBuffer = fs.readFileSync(emptyImageFilename);
+			callback();
+		});
 	}
 
 	function ensureFolder(folder) {

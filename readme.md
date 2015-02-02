@@ -11,13 +11,13 @@
 
 Search Entities by names and aliases
 
-### `GET /api/entity/get/{id}`
+### `GET /api/autocomplete?q={query}`
 
-Get data for an entity specified by `id`
+Fast entity autocompletion search by names and aliases
 
-### `GET /api/entity/get/{id}`
+### `GET /api/entity/get/{id}?relations=true`
 
-Get data for an entity specified by `id`
+Get data for an entity specified by `id`. Include relations if `relations` parameter is set.
 
 ### `GET /api/entity/list?letter={letter|}&words={words|}&type={person|entity|}`
 
