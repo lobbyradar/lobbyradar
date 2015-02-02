@@ -73,7 +73,7 @@ force.on('tick', function () {
 	if (interation >= maxIterations) {
 		force.stop();
 		savePositions();
-		saveTiles(8);
+		saveTiles(7);
 		return
 	}
 
