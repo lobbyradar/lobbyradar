@@ -1,36 +1,236 @@
-  // global vars
-  var winWidth = $(window).width();
-  var winHeight = $(window).height();
+//    ____   ___          ___                ___ 
+//   6MMMMb/ `MM           MM                `MM 
+//  8P    YM  MM           MM                 MM 
+// 6M      Y  MM   _____   MM____      ___    MM 
+// MM         MM  6MMMMMb  MMMMMMb   6MMMMb   MM 
+// MM         MM 6M'   `Mb MM'  `Mb 8M'  `Mb  MM 
+// MM     ___ MM MM     MM MM    MM     ,oMM  MM 
+// MM     `M' MM MM     MM MM    MM ,6MM9'MM  MM 
+// YM      M  MM MM     MM MM    MM MM'   MM  MM 
+//  8b    d9  MM YM.   ,M9 MM.  ,M9 MM.  ,MM  MM 
+//   YMMMM9  _MM_ YMMMMM9 _MYMMMM9  `YMMM9'Yb_MM_
+                                                      
+var winWidth = $(window).width();
+var winHeight = $(window).height();
+
+// load an entity from ID and build up html
+// used in Deeplink and Detail from List
+function loadEntity(id) {
+  var req = null;
+  if (req) { req.abort(); }
+
+  req = $.getJSON("/api/entity/get/"+id, function(data){
+    var $content = '<div class="entity">';
+   
+    if (data.hasOwnProperty("result")) {
+      var entity = data.result;
+      console.log(data.result);
+      
+      $content += '<h1 class="name">'+entity.name+'</h1>';
+      if (entity.type == 'person') {
+        $content += '<i class="fa fa-user"></i>Person';
+      }
+      $(data.result.tags).each(function(idx,e){ 
+        $content += '<span class="label label-default">'+e+'</span>&nbsp;'; 
+      });
+
+      if (entity.aliases.length > 0) {
+        $content += '<h3>Alternative Schreibweisen</h3><p>';
+        $(entity.aliases).each(function(idx,e){ 
+          $content += e+';&nbsp;'; 
+        });
+        $content += '</p>';
+      }
+
+      if (entity.aliases.length > 0) {
+        $content += '<h3>Alternative Schreibweisen</h3><p>';
+        $(entity.aliases).each(function(idx,e){ 
+          $content += e+';&nbsp;'; 
+        });
+        $content += '</p>';
+      }
+
+      // TODO get connections @yetzt
+
+    }
+    $content += '</div>';
+    // clear current view
+    console.log('append new results');
+    $(".result-single .content .entity", "#main").remove();
+    $(".result-single .content ", "#main").append($content);
+    // reset request
+    req = null;
+  });
+}
+                                                                                  
+// ________                            ________                          ___             
+// `MMMMMMMb.                          `MMMMMMMb.                        `MM             
+//  MM    `Mb                           MM    `Mb                         MM             
+//  MM     MM   _____     ____          MM     MM   ____      ___     ____MM ____    ___ 
+//  MM     MM  6MMMMMb   6MMMMb.        MM     MM  6MMMMb   6MMMMb   6MMMMMM `MM(    )M' 
+//  MM     MM 6M'   `Mb 6M'   Mb        MM    .M9 6M'  `Mb 8M'  `Mb 6M'  `MM  `Mb    d'  
+//  MM     MM MM     MM MM    `'        MMMMMMM9' MM    MM     ,oMM MM    MM   YM.  ,P   
+//  MM     MM MM     MM MM              MM  \M\   MMMMMMMM ,6MM9'MM MM    MM    MM  M    
+//  MM     MM MM     MM MM              MM   \M\  MM       MM'   MM MM    MM    `Mbd'    
+//  MM    .M9 YM.   ,M9 YM.   d9        MM    \M\ YM    d9 MM.  ,MM YM.  ,MM     YMP     
+// _MMMMMMM9'  YMMMMM9   YMMMM9        _MM_    \M\_YMMMM9  `YMMM9'Yb.YMMMMMM_     M      
+//                                                                               d'      
+//                                                                           (8),P       
+//                                                                            YMM   
 
 $( document ).ready(function() {
 
+  // set initial div height / width
+  $('.fullscreen').css({  'width': winWidth, 'height': winHeight });
+  $('.faq-page  ').css({  'width': winWidth, 'height': winHeight });
+
+
   $(".lobbysearch").focus(function(){
-    $(".overlay").fadeOut("slow");
-  });
-
-  $( "#networkviz" ).draggable();
-
-  $( ".logo-name" ).click(function() {
-    $( ".result-list" ).slideUp( "slow" );
-    $( ".result-single" ).slideUp( "slow" );
-    $( ".overlay" ).fadeIn( "slow" ); 
-  });
-
-  $( ".navbar-brand .zdf-logo-lobbyradar" ).click(function() {
-    $( ".result-list" ).slideUp( "slow" );
-    $( ".result-single" ).slideUp( "slow" );
-    $( ".overlay" ).fadeIn( "slow" ); 
+    $(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
   });
 
   $('.lobbysearch').keypress(function (e) {
     if (e.which === 13) {
-      // $( ".result-list" ).slideToggle( "slow" );
       $( ".result-list" ).slideDown( "slow" );
-      console.log('pressed enter');
       return false;
       event.preventDefault();
     }
   });
+                                                           
+// ________                                    ____                  ___       
+// `MMMMMMMb.                                  `MM'     68b          `MM       
+//  MM    `Mb                                   MM      Y89           MM       
+//  MM     MM   ____     ____  __ ____          MM      ___ ___  __   MM   __  
+//  MM     MM  6MMMMb   6MMMMb `M6MMMMb         MM      `MM `MM 6MMb  MM   d'  
+//  MM     MM 6M'  `Mb 6M'  `Mb MM'  `Mb        MM       MM  MMM9 `Mb MM  d'   
+//  MM     MM MM    MM MM    MM MM    MM        MM       MM  MM'   MM MM d'    
+//  MM     MM MMMMMMMM MMMMMMMM MM    MM        MM       MM  MM    MM MMdM.    
+//  MM     MM MM       MM       MM    MM        MM       MM  MM    MM MMPYM.   
+//  MM    .M9 YM    d9 YM    d9 MM.  ,M9        MM    /  MM  MM    MM MM  YM.  
+// _MMMMMMM9'  YMMMM9   YMMMM9  MMYMMM9        _MMMMMMM _MM__MM_  _MM_MM_  YM._
+//                              MM                                             
+//                              MM                                             
+//                             _MM_                                            
+
+  // this kicks in when we get a deep link to an entity
+  if (window.location.href.indexOf("/entity/") > -1) {
+    $( "#backtolist" ).css( "display",'none' ); // There is no list to go back to 
+    $( ".overlay" ).css( "display",'none' ); // we dont need the intro
+
+    var str = window.location.href; // get the url 
+    var entityID = str.split("/")[4]; // extract ID
+    console.log('entity.entry, ID: '+entityID);
+
+    loadEntity(entityID);
+
+    $( ".result-single" ).slideDown( "slow" );  // show me the single panel
+  }
+
+
+//   ____                                     ___             ________                             ___                  
+//  6MMMMb\                                   `MM             `MMMMMMMb.                           `MM                  
+// 6M'    `                                    MM              MM    `Mb                            MM   /              
+// MM         ____      ___   ___  __   ____   MM  __          MM     MM   ____     ____  ___   ___ MM  /M       ____   
+// YM.       6MMMMb   6MMMMb  `MM 6MM  6MMMMb. MM 6MMb         MM     MM  6MMMMb   6MMMMb\`MM    MM MM /MMMMM   6MMMMb\ 
+//  YMMMMb  6M'  `Mb 8M'  `Mb  MM69 " 6M'   Mb MMM9 `Mb        MM    .M9 6M'  `Mb MM'    ` MM    MM MM  MM     MM'    ` 
+//      `Mb MM    MM     ,oMM  MM'    MM    `' MM'   MM        MMMMMMM9' MM    MM YM.      MM    MM MM  MM     YM.      
+//       MM MMMMMMMM ,6MM9'MM  MM     MM       MM    MM        MM  \M\   MMMMMMMM  YMMMMb  MM    MM MM  MM      YMMMMb  
+//       MM MM       MM'   MM  MM     MM       MM    MM        MM   \M\  MM            `Mb MM    MM MM  MM          `Mb 
+// L    ,M9 YM    d9 MM.  ,MM  MM     YM.   d9 MM    MM        MM    \M\ YM    d9 L    ,MM YM.   MM MM  YM.  , L    ,MM 
+// MYMMMM9   YMMMM9  `YMMM9'Yb_MM_     YMMMM9 _MM_  _MM_      _MM_    \M\_YMMMM9  MYMMMM9   YMMM9MM_MM_  YMMM9 MYMMMM9  
+
+  // lazy typeahead
+  (function(){
+    var req = null;
+    $('body').on('keyup', '.lobbysearch', function(evt) {
+      console.log($(this).val());
+      var $resultName = $(this).val();
+
+      if (evt.which === 13) { // only send request when enter is pressed. TODO: search button
+        // abort previous request
+        $(".result-list table tbody", "#main").html("<i class='fa-cog text-center fa-5x fa fa-spin'></i>");
+
+        if (req) req.abort();
+        req = $.getJSON("/api/entity/list", {
+          words: $(this).val()
+        }, function(data){
+
+          var $tb = $("<tbody></tbody>");
+
+          if (data.hasOwnProperty("result") && data.result instanceof Array) $(data.result).each(function(idx,e){
+            $tb.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="entity-detail" href="/entity/'+e._id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.connections+'</a></td></tr>');
+            $(".result-list p .result-name", "#main").html($resultName);
+          });
+          
+          $( ".result-list" ).slideDown( "slow" );
+  
+          document.location.hash = "";
+
+          $(".result-list table tbody", "#main").remove();
+          $(".result-list table ", "#main").append($tb);
+
+          // reset request
+          req = null;
+        });
+      };
+    });
+  })();
+
+                                                                                                                          
+                                                                                                                          
+// ________                                ___          __                                      ____                         
+// `MMMMMMMb.                          68b `MM         69MM                                     `MM'     68b                 
+//  MM    `Mb           /              Y89  MM        6M' `                                      MM      Y89           /     
+//  MM     MM   ____   /M        ___   ___  MM       _MM____  __   _____  ___  __    __          MM      ___   ____   /M     
+//  MM     MM  6MMMMb /MMMMM   6MMMMb  `MM  MM       MMMM`MM 6MM  6MMMMMb `MM 6MMb  6MMb         MM      `MM  6MMMMb\/MMMMM  
+//  MM     MM 6M'  `Mb MM     8M'  `Mb  MM  MM        MM  MM69 " 6M'   `Mb MM69 `MM69 `Mb        MM       MM MM'    ` MM     
+//  MM     MM MM    MM MM         ,oMM  MM  MM        MM  MM'    MM     MM MM'   MM'   MM        MM       MM YM.      MM     
+//  MM     MM MMMMMMMM MM     ,6MM9'MM  MM  MM        MM  MM     MM     MM MM    MM    MM        MM       MM  YMMMMb  MM     
+//  MM     MM MM       MM     MM'   MM  MM  MM        MM  MM     MM     MM MM    MM    MM        MM       MM      `Mb MM     
+//  MM    .M9 YM    d9 YM.  , MM.  ,MM  MM  MM        MM  MM     YM.   ,M9 MM    MM    MM        MM    /  MM L    ,MM YM.  , 
+// _MMMMMMM9'  YMMMM9   YMMM9 `YMMM9'Yb_MM__MM_      _MM__MM_     YMMMMM9 _MM_  _MM_  _MM_      _MMMMMMM _MM_MYMMMM9   YMMM9 
+                                                                                                                          
+                                                                                                                          
+  // bring back the list when the button in detail is clicked           
+  $('body').on('click', '#backtolist', function(event) {
+    $(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
+    $(".result-list").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},1000);
+    return false;
+
+
+    e.preventDefault();
+  });
+
+  // bring up the details when an entry is clicked from list                                                                                                               
+  $('body').on('click', '.entity-detail', function(e) {
+    e.preventDefault();
+    var req = null;
+    console.log('loading an entity from the list');
+    var str = this.href;
+    var entityID = str.split("/")[4];
+    console.log('entity.entry, ID: '+entityID);
+    loadEntity(entityID);
+    history.pushState('data', '', 'http://localhost:9000/entity/'+entityID);
+    $(".result-list").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
+    $(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},1000);
+  });
+
+
+                                                                                                        
+//     ________                 ___         ____                            ___ ___                        
+// 68b `MMMMMMMb.               `MM        6MMMMb\                          `MM `MM 68b                    
+// Y89  MM    `Mb                MM       6M'    `                           MM  MM Y89                    
+// ___  MM     MM    ___     ____MM       MM         ____  ___  __   _____   MM  MM ___ ___  __     __     
+// `MM  MM     MM  6MMMMb   6MMMMMM       YM.       6MMMMb.`MM 6MM  6MMMMMb  MM  MM `MM `MM 6MMb   6MMbMMM 
+//  MM  MM    .M9 8M'  `Mb 6M'  `MM        YMMMMb  6M'   Mb MM69 " 6M'   `Mb MM  MM  MM  MMM9 `Mb 6M'`Mb   
+//  MM  MMMMMMM9'     ,oMM MM    MM            `Mb MM    `' MM'    MM     MM MM  MM  MM  MM'   MM MM  MM   
+//  MM  MM        ,6MM9'MM MM    MM             MM MM       MM     MM     MM MM  MM  MM  MM    MM YM.,M9   
+//  MM  MM        MM'   MM MM    MM             MM MM       MM     MM     MM MM  MM  MM  MM    MM  YMM9    
+//  MM  MM        MM.  ,MM YM.  ,MM       L    ,M9 YM.   d9 MM     YM.   ,M9 MM  MM  MM  MM    MM (M       
+// _MM__MM_       `YMMM9'Yb.YMMMMMM_      MYMMMM9   YMMMM9 _MM_     YMMMMM9 _MM__MM__MM__MM_  _MM_ YMMMMb. 
+//                                                                                                6M    Yb 
+//                                                                                                YM.   d9 
+//                                                                                                 YMMMM9  
 
   // http://stackoverflow.com/questions/16437182/issue-with-a-scrollable-div-on-ipad
   $('body').on('touchmove','.scrollable',function(e) {
@@ -40,66 +240,7 @@ $( document ).ready(function() {
       e.stopPropagation();
     }
   });
-                                                                                  
-//   ____                        ___                __________                                         
-//  6MMMMb\68b                   `MM                `MMMMMMMMM                  68b                    
-// 6M'    `Y89                    MM                 MM      \            /     Y89   /                
-// MM      ___ ___  __     __     MM   ____          MM        ___  __   /M     ___  /M    ____    ___ 
-// YM.     `MM `MM 6MMb   6MMbMMM MM  6MMMMb         MM    ,   `MM 6MMb /MMMMM  `MM /MMMMM `MM(    )M' 
-//  YMMMMb  MM  MMM9 `Mb 6M'`Mb   MM 6M'  `Mb        MMMMMMM    MMM9 `Mb MM      MM  MM     `Mb    d'  
-//      `Mb MM  MM'   MM MM  MM   MM MM    MM        MM    `    MM'   MM MM      MM  MM      YM.  ,P   
-//       MM MM  MM    MM YM.,M9   MM MMMMMMMM        MM         MM    MM MM      MM  MM       MM  M    
-//       MM MM  MM    MM  YMM9    MM MM              MM         MM    MM MM      MM  MM       `Mbd'    
-// L    ,M9 MM  MM    MM (M       MM YM    d9        MM      /  MM    MM YM.  ,  MM  YM.  ,    YMP     
-// MYMMMM9 _MM__MM_  _MM_ YMMMMb._MM_ YMMMM9        _MMMMMMMMM _MM_  _MM_ YMMM9 _MM_  YMMM9     M      
-//                       6M    Yb                                                              d'      
-//                       YM.   d9                                                          (8),P       
-//                        YMMMM9                                                            YMM      
-
-  if (window.location.href.indexOf("/entity/") > -1) {
-
-        var req = null;
-
-    console.log('entity.page');
-    var str = window.location.href;
-    var entityID = str.split("/")[4];
-    console.log('entity.page, ID: '+entityID);
-    $( ".result-single" ).slideDown( "slow" );
-    $( ".overlay" ).css( "display",'none' ); 
-
-      if (req) req.abort();
-      req = $.getJSON("/api/entity/get/"+entityID, {
-      }, function(data){
-          // build new result
-          // console.log(data);
-          var $content = $('<div class="entity"></div>');
-          if (data.hasOwnProperty("result")) {
-            console.log(data.result);
-
-            // $content.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="entity-detail" href="/entity/'+e._id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.connections+'</a></td></tr>');
-            console.log('build up content');
-            if (data.result.type == 'person') $content.append('<iv class="fa fa-user"></i>');
-            $content.append('<div class="name">'+data.result.name+'</div>');
-          
-                $(data.result.tags).each(function(idx,e){
-                  $content.append('<div class="tags">'+e+'</div>');
-                });
-            
-          }
-          // clear current view
-
-          console.log('append new results');
-          $(".result-single .content ", "#main").append($content);
-
-          // reset request
-          req = null;
-      });
-  }
-
-
-
-
-
+  
   //uses body because jquery on events are called off of the element they are
   //added to, so bubbling would not work if we used document instead.
   $('body').on('touchstart','.scrollable',function(e) {
@@ -113,78 +254,20 @@ $( document ).ready(function() {
   //prevents preventDefault from being called on document if it sees a scrollable div
   $('body').on('touchmove','.scrollable',function(e) { e.stopPropagation(); });
 
-  // set initial div height / width
-  $('.fullscreen').css({ 'width': winWidth, 'height': winHeight });
 
-  // lazy typeahead
-  (function(){
-    var req = null;
-    $('body').on('keyup', '.lobbysearch', function(evt) {
-      console.log($(this).val());
-      var $resultName = $(this).val();
-      // if ($(this).val().length >= 3) {
-      if (evt.which === 13) { // only send request when enter is pressed. TODO: search button
-        // abort previous request
-        $(".result-list table tbody", "#main").html("<i class='fa-cog text-center fa-5x fa fa-spin'></i>");
+}); // document.ready end
 
-        if (req) req.abort();
-        req = $.getJSON("/api/entity/list", {
-          words: $(this).val()
-        }, function(data){
-          // build new result
-          console.log('build new result');
-          var $tb = $("<tbody></tbody>");
-          if (data.hasOwnProperty("result") && data.result instanceof Array) $(data.result).each(function(idx,e){
-            $tb.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="entity-detail" href="/entity/'+e._id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.connections+'</a></td></tr>');
-            $(".result-list p .result-name", "#main").html($resultName);
-          });
-          
-          $( ".result-list" ).slideDown( "slow" );
-          console.log('pressed enter');
-  
-          // clear current view
-          console.log('clear current view');
-          $(".result-list table tbody", "#main").remove();
-          console.log('append new results');
-          $(".result-list table ", "#main").append($tb);
-
-          // reset request
-          req = null;
-        });
-      };
-    });
-  })();
- 
-$('body').on('click', '#backtolist', function(event) {
-  // $(".result-list").hide("slide", { direction: "left" }, 1000);
-  $(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
-  $(".result-list").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},1000);
-  return false;
-  e.preventDefault();
-});
-
-// $('body').on('click', '.entity-detail', function(e) {
-//   $(".result-single", "#main").html("<i class='fa-cog text-center fa-5x fa fa-spin'></i>");
-
-//   e.preventDefault();
-//   var link = $(this).attr("href");
-//   $('.result-single').load(link, function(){
-
-//   });
-//   $(".result-list").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
-//   $(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},1000);
-//   return false;
-// });
-
-  // set initial div height / width
-  $('.fullscreen').css({
-    'width': winWidth,
-    'height': winHeight
-  });
-  $('.faq-page').css({ 'width': winWidth, 'height': winHeight });
-
-});
-
+// ____              ___                     ________                                          
+// `Mb(      db      )d' 68b                 `MMMMMMMb.                  68b                   
+//  YM.     ,PM.     ,P  Y89                  MM    `Mb                  Y89                   
+//  `Mb     d'Mb     d'  ___ ___  __          MM     MM   ____     ____  ___ _________  ____   
+//   YM.   ,P YM.   ,P   `MM `MM 6MMb         MM     MM  6MMMMb   6MMMMb\`MM MMMMMMMMP 6MMMMb  
+//   `Mb   d' `Mb   d'    MM  MMM9 `Mb        MM    .M9 6M'  `Mb MM'    ` MM /    dMP 6M'  `Mb 
+//    YM. ,P   YM. ,P     MM  MM'   MM        MMMMMMM9' MM    MM YM.      MM     dMP  MM    MM 
+//    `Mb d'   `Mb d'     MM  MM    MM        MM  \M\   MMMMMMMM  YMMMMb  MM    dMP   MMMMMMMM 
+//     YM,P     YM,P      MM  MM    MM        MM   \M\  MM            `Mb MM   dMP    MM       
+//     `MM'     `MM'      MM  MM    MM        MM    \M\ YM    d9 L    ,MM MM  dMP    /YM    d9 
+//      YP       YP      _MM__MM_  _MM_      _MM_    \M\_YMMMM9  MYMMMM9 _MM_dMMMMMMMM YMMMM9  
 
 // make sure div stays full width/height on resize
 $(window).resize(function(){
