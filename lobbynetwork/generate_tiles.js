@@ -108,7 +108,6 @@ function saveTiles(maxDepth) {
 
 	todos.push(function () {
 		render(0,0,0,nodes,links);
-		//render(0,0,0,[],links)
 	})
 
 	nextTodo();
@@ -128,7 +127,7 @@ function saveTiles(maxDepth) {
 
 	function render(x0, y0, z0, nodes, links) {
 		var foldername = path.join(tileFolder, z0+'/'+y0 );
-		var filename = foldername+'/'+x0+'.png';
+		var filename = foldername+'/'+x0+'.gif';
 
 		ensureFolder(foldername);
 
@@ -236,8 +235,8 @@ function saveTiles(maxDepth) {
 		});
 		t.in('-size');
 		t.in(tileSize+'x'+tileSize);
-		t.in('-depth');
-		t.in('16');
+		t.dither(true);
+		t.colors(64);
 
 		t.write(filename, function (err) {
 			if (err) {
