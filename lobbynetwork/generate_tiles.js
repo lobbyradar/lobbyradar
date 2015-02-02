@@ -131,7 +131,7 @@ function saveTiles(maxDepth) {
 	}
 
 	function render(x0, y0, z0, nodes, links) {
-		if (tileCount % 100 == 0) console.log([
+		if (tileCount % 500 == 0) console.log([
 			tileCount,
 			(new Date()).getTime() - startTime,
 			(100*tileCount/tileCountMax).toFixed(1)+'%'
@@ -261,7 +261,7 @@ function saveTiles(maxDepth) {
 			if (err) {
 				console.error(err);
 			} else {
-				console.log(filename);
+				//console.log(filename);
 			}
 			finishedTodo();
 		});
