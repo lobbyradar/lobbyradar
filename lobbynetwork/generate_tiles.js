@@ -133,7 +133,6 @@ function savePositions() {
 
 function saveTiles(maxDepth) {
 	var maxProcesses = 4;
-	var emptyImageFilename = './empty.png';
 	var emptyImageBuffer;
 
 	var activeProcesses = 0;
@@ -301,14 +300,9 @@ function saveTiles(maxDepth) {
 	function createEmptyTile(callback) {
 		var t = gm(tileSize, tileSize, '#ffffff');
 		t.colors(2);
-
-		t.write(emptyImageFilename, function (err) {
-			if (err) {
-				console.error(err);
-			} else {
-				//console.log(filename);
-			}
-			emptyImageBuffer = fs.readFileSync(emptyImageFilename);
+		t.toBuffer('PNG', function (err, buf) {
+			if (err) console.error(err);
+			emptyImageBuffer = buf;
 			callback();
 		});
 	}
