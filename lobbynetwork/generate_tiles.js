@@ -2,6 +2,8 @@ var imageSize = 8192;
 var maxIterations = 1;
 var tileFolder = './tiles/';
 var tileSize = 256;
+var maxTileLevel = 1;
+
 
 var fs = require('fs');
 var path = require('path');
@@ -73,8 +75,7 @@ force.on('tick', function () {
 	if (interation >= maxIterations) {
 		force.stop();
 		savePositions();
-		saveTiles(7);
-		return
+		saveTiles(maxTileLevel);
 	}
 
 	if (interation % 100 == 0) savePositions();
