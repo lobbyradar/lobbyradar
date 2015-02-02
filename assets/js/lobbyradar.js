@@ -41,15 +41,16 @@ function loadEntity(id) {
 	 
 		if (data.hasOwnProperty("result")) {
 			var entity = data.result;
-			console.log(data.result);
-			
+			// console.log(data.result);
+			console.log(data.result.relations);
+
 			// title 
 			$content += '<h1 class="name">';
 			if (entity.type == 'person') {
 				$content += '<i class="fa fa-user"></i>&nbsp;'; // PERSON
 			}
 			$(entity.data).each(function(idx,e){ 
-				if (e.key == 'partei') {
+				if (entity.type == 'entity' && e.key == 'partei') {
 					$content += '<i class="fa fa-bank"></i>&nbsp;'; // PARTEI
 				}
 			});
@@ -96,13 +97,22 @@ function loadEntity(id) {
 					$content += '<ul class="list-group">';
 					$(entity.relations).each(function(idx,e){ 
 						$content += '<li class="list-group-item">';
-						$(e.data).each(function(idx,d){ 
-						if (d.key == 'donation') {
+						if (e.type == 'donation') {
 							$content += '<i class="fa fa-money"></i>&nbsp;'; 
-						} else if (d.key == 'position') {
+						} else if (e.type == 'position') {
 							$content += '<i class="fa fa-user"></i>&nbsp;'; 
+						} else if (e.type == 'member') {
+							$content += '<i class="fa fa-group"></i>&nbsp;'; 
 						}
-						});
+						// $(e.data).each(function(idx,d){ 
+						// 	if (d.key == 'donation') {
+						// 		$content += '<i class="fa fa-money"></i>&nbsp;'; 
+						// 	} else if (d.key == 'position') {
+						// 		$content += '<i class="fa fa-user"></i>&nbsp;'; 
+						// 	} else if (d.type == 'member') {
+						// 		$content += '<i class="fa fa-group"></i>&nbsp;'; 
+						// 	}
+						// });
 						$content += '<a class="entity-connections" href="/entity/'
 						$content += e.entity._id; 
 						$content += '">';
