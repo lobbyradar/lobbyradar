@@ -31,6 +31,7 @@ var db = mongojs(config.db, ["entities", "relations", "users", "fields"]);
 
 // local modules
 var api = require("./lib/api.js")(config.api, db);
+var search = require("./lib/search.js")(config.search, api);
 
 // use nsa if configured
 if (config.hasOwnProperty("nsa") && (config.nsa)) {
