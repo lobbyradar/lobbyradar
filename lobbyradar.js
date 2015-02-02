@@ -480,6 +480,12 @@ app.all("/list/:type/:letter?", function (req, res) {
 	});
 });
 
+// autocomplete
+app.get("/api/autocomplete", function (req, res) {
+	search.autocomplete(req.query.q, function(err, result){
+		res.status(200).json(result);
+	});
+});
 
 // index page
 app.all("/", function (req, res) {
