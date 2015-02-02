@@ -19,7 +19,7 @@ function loadEntity(id) {
   var req = null;
   if (req) { req.abort(); }
 
-  req = $.getJSON("/api/entity/get/"+id, function(data){
+  req = $.getJSON("/api/entity/get/"+id, {relations:true}, function(data){
     var $content = '<div class="entity">';
    
     if (data.hasOwnProperty("result")) {
