@@ -99,6 +99,8 @@ function loadEntity(id) {
 						$(e.data).each(function(idx,d){ 
 						if (d.key == 'donation') {
 							$content += '<i class="fa fa-money"></i>&nbsp;'; 
+						} else if (d.key == 'position') {
+							$content += '<i class="fa fa-user"></i>&nbsp;'; 
 						}
 						});
 						$content += '<a class="entity-connections" href="/entity/'
@@ -141,7 +143,7 @@ function loadEntity(id) {
 // _MM_ YMMMMM9  `YMMM9'Yb.YMMMMMM_      _MMMMMMM _MM_MYMMMM9   YMMM9 
                                                                    
                                                                    
-                                                                   
+
 																																									
 // ________                            ________                          ___             
 // `MMMMMMMb.                          `MMMMMMMb.                        `MM             
