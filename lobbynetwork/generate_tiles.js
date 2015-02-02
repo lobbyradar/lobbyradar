@@ -261,7 +261,7 @@ function saveTiles(maxDepth) {
 			if (err) {
 				console.error(err);
 			} else {
-				//console.log(filename);
+				console.log(filename);
 			}
 			finishedTodo();
 		});
