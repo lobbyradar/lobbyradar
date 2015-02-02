@@ -26,14 +26,20 @@ function loadEntity(id) {
       var entity = data.result;
       console.log(data.result);
       
+      // title 
       $content += '<h1 class="name">'+entity.name+'</h1>';
+      
+      // icon
       if (entity.type == 'person') {
         $content += '<i class="fa fa-user"></i>Person';
       }
+
+      // tags
       $(data.result.tags).each(function(idx,e){ 
         $content += '<span class="label label-default">'+e+'</span>&nbsp;'; 
       });
 
+      // alias
       if (entity.aliases.length > 0) {
         $content += '<h3>Alternative Schreibweisen</h3><p>';
         $(entity.aliases).each(function(idx,e){ 
@@ -42,12 +48,24 @@ function loadEntity(id) {
         $content += '</p>';
       }
 
-      if (entity.aliases.length > 0) {
-        $content += '<h3>Alternative Schreibweisen</h3><p>';
-        $(entity.aliases).each(function(idx,e){ 
-          $content += e+';&nbsp;'; 
-        });
-        $content += '</p>';
+      // adress
+      if (entity.data.length > 0) {
+        if (entity.data[2] !== undefined) {
+          $content += '<h3>Adresse</h3><adress>';
+          var entityAdress = entity.data[2];
+          console.log(entityAdress);
+          $content += entityAdress.value.addr+'<br/>';
+          $content += entityAdress.value.street+'<br/>';
+  
+          $content += entityAdress.value.postcode+'&nbsp;';
+          $content += entityAdress.value.city+'<br/>';
+          $content += '<abbr title="Phone">P:</abbr>&nbsp;'+entityAdress.value.tel+'<br/>';
+          $content += '<abbr title="Fax">F:</abbr>&nbsp;'+entityAdress.value.fax+'<br/>';
+          $content += '<abbr title="Email">E:</abbr>&nbsp;'+entityAdress.value.email+'<br/>';
+          $content += '<abbr title="Web">W:</abbr>&nbsp;'+entityAdress.value.www+'<br/>';
+  
+          $content += '</adress>';
+        }
       }
 
       // TODO get connections @yetzt
@@ -195,9 +213,8 @@ $( document ).ready(function() {
   $('body').on('click', '#backtolist', function(event) {
     $(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
     $(".result-list").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},1000);
+    history.pushState(null, null, this.href);
     return false;
-
-
     e.preventDefault();
   });
 
@@ -210,7 +227,9 @@ $( document ).ready(function() {
     var entityID = str.split("/")[4];
     console.log('entity.entry, ID: '+entityID);
     loadEntity(entityID);
-    history.pushState('data', '', 'http://localhost:9000/entity/'+entityID);
+    //history.pushState('data', '', 'http://localhost:9000/entity/'+entityID);
+    history.pushState(null, null, this.href);
+
     $(".result-list").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
     $(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},1000);
   });
