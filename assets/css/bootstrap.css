@@ -6638,6 +6638,12 @@ svg {
   padding: 19px;
   z-index: 99!important;
 }
+.result-single #backtolist {
+  margin-bottom: 10px;
+}
+.result-single h1.name {
+  margin-top: 0px!important;
+}
 .result-single .list-group p {
   white-space: nowrap;
   overflow: hidden;
