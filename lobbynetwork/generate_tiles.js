@@ -109,7 +109,7 @@ function exportPositions() {
 		result[key] = positions.map(function (entry) { return entry[key] });
 	});
 
-	result = 'var node_positions = '+JSON.stringify(result, null, '\t')+';';
+	result = 'var node_positions = '+JSON.stringify(result)+';';
 	fs.writeFileSync('./test/node_positions.js', result, 'utf8');
 }
 
