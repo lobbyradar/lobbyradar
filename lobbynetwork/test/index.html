@@ -8,6 +8,8 @@
 		<script type="text/javascript">
 			function init() {
 
+				var f = 32768;
+
 				var projection = {
 					project: function (latlng) {
 						return new L.Point(latlng.lng/f, -latlng.lat/f);
@@ -24,8 +26,6 @@
 						return 256*Math.pow(2, zoom);
 					}
 				});
-
-				var f = 16384;
 
 				var map = L.map('map', {
 					minZoom: 0,

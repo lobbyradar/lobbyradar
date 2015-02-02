@@ -88,15 +88,14 @@ force.start();
 function exportPositions() {
 	console.log('export positions');
 	
-	var z = tileSize*Math.pow(2,maxTileLevel)/imageSize;
 	var positions = nodes.map(function (node) {
 		return {
 			id: node.id,
 			name: node.name,
 			type: node.type,
-			r: Math.round(node.r*z),
-			x: Math.round(node.x*z),
-			y: Math.round(node.y*z)
+			r: Math.round(node.r*4),
+			x: Math.round(node.x*4),
+			y: Math.round(node.y*4)
 		}
 	});
 
