@@ -5,17 +5,33 @@
 		<title>Lobbyradar Visualization Test</title>
 		<link rel="stylesheet" type="text/css" href="leaflet/leaflet.css">
 		<script type="text/javascript" src="leaflet/leaflet.js"></script>
+		<script type="text/javascript" src="node_positions.js"></script>
 		<script type="text/javascript">
 			function init() {
 
 				var f = 32768;
 
+				var positions = {};
+				var keys = Object.keys(node_positions);
+				var n = node_positions[keys[0]].length;
+				for (var i = 0; i < n; i++) {
+					var entry = {};
+					keys.forEach(function (key) {
+						entry[key] = node_positions[key][i];
+					})
+					entry.x += f/2;
+					entry.y += f/2;
+					positions[entry.id] = entry;
+				}
+				node_positions = positions;
+				console.log(positions);
+
 				var projection = {
 					project: function (latlng) {
-						return new L.Point(latlng.lng/f, -latlng.lat/f);
+						return L.point(latlng.lng/f, -latlng.lat/f);
 					},
 					unproject: function (point) {
-						return new L.LatLng(-point.y*f, point.x*f);
+						return L.latLng(-point.y*f, point.x*f);
 					}
 				};
 
@@ -30,9 +46,9 @@
 				var map = L.map('map', {
 					minZoom: 0,
 					maxZoom: 7,
-					zoom: 2,
+					zoom: 5,
 					center: [-0.5*f,0.5*f],
-					maxBounds: [[-f,0],[0,f]],
+					maxBounds: L.latLngBounds([-f,0],[0,f]),
 					crs: crs
 				});
 
@@ -47,6 +63,16 @@
 				})
 				
 				layer.addTo(map);
+
+				setTimeout(function () {
+					show('54bd3c8d8b934da063412627')
+				}, 1000);
+
+				function show(id) {
+					if (!node_positions[id]) return;
+					var node = node_positions[id];
+					map.panTo(L.latLng(-node.y, node.x))
+				}
 			}
 		</script>
 		<style type="text/css">
