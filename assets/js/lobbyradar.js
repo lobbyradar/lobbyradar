@@ -183,9 +183,7 @@ $( document ).ready(function() {
 
       console.log($(this).val());
       var $resultName = $(this).val();
-
-      if (evt.which === 13) { // only send request when enter is pressed. TODO: search button
-        // abort previous request
+      if ($(this).val().length >= 3) { // autocomplete after 3 letters
 
         $( ".result-single" ).slideUp( "slow" );
 
@@ -195,11 +193,12 @@ $( document ).ready(function() {
         req = $.getJSON("/api/autocomplete", {
           q: $(this).val()
         }, function(data){
+        console.log(data);
 
           var $tb = $("<tbody></tbody>");
 
-          if (data.hasOwnProperty("result") && data.result instanceof Array) $(data.result).each(function(idx,e){
-            $tb.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="entity-detail" href="/entity/'+e._id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.connections+'</a></td></tr>');
+          if (data instanceof Array && data.length > 0) $(data).each(function(idx,e){
+            $tb.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="entity-detail" href="/entity/'+e.id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.connections+'</a></td></tr>');
             $(".result-list p .result-name", "#main").html($resultName);
           });
 
@@ -213,7 +212,6 @@ $( document ).ready(function() {
           req = null;
         });
 
-        console.log(req);
       };
     });
   })();
