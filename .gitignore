@@ -7,3 +7,7 @@ bower_components
 scripts
 .codekit-cache
 config.codekit
+lobbynetwork/positions.json
+lobbynetwork/tiles
+
+lobbynetwork/empty.png

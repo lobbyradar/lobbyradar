@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>31C3 map</title>
+		<link rel="stylesheet" type="text/css" href="leaflet/leaflet.css">
+		<script type="text/javascript" src="leaflet/leaflet.js"></script>
+		<script type="text/javascript">
+			function init() {
+
+				var projection = {
+					project: function (latlng) {
+						return new L.Point(latlng.lng/f, -latlng.lat/f);
+					},
+					unproject: function (point) {
+						return new L.LatLng(-point.y*f, point.x*f);
+					}
+				};
+
+				var crs = L.extend({}, L.CRS, {
+					projection: projection,
+					transformation: new L.Transformation(1, 0, 1, 0),
+					scale: function (zoom) {
+						return 256*Math.pow(2, zoom);
+					}
+				});
+
+				var f = 16384;
+
+				var map = L.map('map', {
+					minZoom: 0,
+					maxZoom: 7,
+					zoom: 2,
+					center: [-0.5*f,0.5*f],
+					maxBounds: [[-f,0],[0,f]],
+					crs: crs
+				});
+
+				var layer = L.tileLayer('../tiles/{z}/{y}/{x}.png', {
+					minZoom: 0,
+					maxZoom: 7,
+					maxNativeZoom: 7,
+					tileSize: 256,
+					zoomOffset: 0,
+					attribution: '<a href="https://events.ccc.de/congress/2013/">31C3</a> | Improve the code on <a href="https://github.com/OpenDataCity/31c3-map">GitHub</a>!',
+					noWrap: true
+				})
+				
+				layer.addTo(map);
+			}
+		</script>
+		<style type="text/css">
+			html, body, #map {
+				height: 100%;
+			}
+			#map {
+				background: #FFF;
+			}
+		</style>
+	</head>
+	<body onload="init()">
+		<div id="map"></div>
+	</body>
+</html>
