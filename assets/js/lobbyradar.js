@@ -131,6 +131,7 @@ $( document ).ready(function() {
 //                             _MM_                                            
 
   // this kicks in when we get a deep link to an entity
+  // entity/:id
   if (window.location.href.indexOf("/entity/") > -1) {
     $( "#backtolist" ).css( "display",'none' ); // There is no list to go back to 
     $( ".overlay" ).css( "display",'none' ); // we dont need the intro
@@ -143,6 +144,24 @@ $( document ).ready(function() {
 
     $( ".result-single" ).slideDown( "slow" );  // show me the single panel
   }
+
+
+
+    // this kicks in when we get a deep link to an search
+    // /search/:id
+  if (window.location.href.indexOf("/search/") > -1) {
+    $( "#backtolist" ).css( "display",'none' ); // There is no list to go back to 
+    $( ".overlay" ).css( "display",'none' ); // we dont need the intro
+
+    var str = window.location.href; // get the url 
+    var entityID = str.split("/")[4]; // extract ID
+    console.log('entity.entry, ID: '+entityID);
+
+    // loadEntity(entityID);
+    alert('you searched for: '+entityID+'. This is not ready');
+    $( ".result-list" ).slideDown( "slow" );  // show me the single panel
+  }
+
 
 
 //   ____                                     ___             ________                             ___                  

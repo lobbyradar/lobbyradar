@@ -438,7 +438,7 @@ app.all("/entity/:id", function (req, res) {
 			if (ent.sources && ent.sources.length > 0) ent.has_sources = true;
 			if (ent.addresses && ent.addresses.length > 0) ent.has_addresses = true;
 			
-			res.render("index", {
+			res.render("index", { // we render index instead and load entity via ajax from FE
 				"err": err,
 				"entity": ent
 			});
@@ -496,6 +496,11 @@ app.all("/", function (req, res) {
 // FAQ Page (static)
 app.get("/faq", function (req, res) {
 		res.render("faq", {});
+});
+
+// FAQ Page (static)
+app.get("/search/:id", function (req, res) {
+		res.render("index", {});
 });
 
 // everything else is 404
