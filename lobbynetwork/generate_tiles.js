@@ -102,6 +102,8 @@ function savePositions() {
 
 function saveTiles(maxDepth) {
 	var maxProcesses = 4;
+	var emptyImageFilename = './empty.png';
+	var emptyImageBuffer;
 
 	var activeProcesses = 0;
 	var todos = [];
@@ -110,7 +112,7 @@ function saveTiles(maxDepth) {
 		render(0,0,0,nodes,links);
 	})
 
-	nextTodo();
+	createEmptyTile(nextTodo);
 
 	function nextTodo() {
 		while ((activeProcesses < maxProcesses) && (todos.length > 0)) {
@@ -136,6 +138,13 @@ function saveTiles(maxDepth) {
 			prepareSubTile(x0*2+1, y0*2+0, z0+1);
 			prepareSubTile(x0*2+0, y0*2+1, z0+1);
 			prepareSubTile(x0*2+1, y0*2+1, z0+1);
+		}
+
+		if ((nodes.length == 0) && (links.length == 0)) {
+			// Empty Image
+			fs.writeFileSync(filename, emptyImageBuffer);
+			finishedTodo();
+			return;
 		}
 
 		var scale = imageSize/(tileSize*Math.pow(2,z0));
@@ -247,6 +256,19 @@ function saveTiles(maxDepth) {
 			finishedTodo();
 		});
 
+	function createEmptyTile(callback) {
+		var t = gm(tileSize, tileSize, '#ffffff');
+		t.colors(2);
+
+		t.write(emptyImageFilename, function (err) {
+			if (err) {
+				console.error(err);
+			} else {
+				//console.log(filename);
+			}
+			emptyImageBuffer = fs.readFileSync(emptyImageFilename);
+			callback();
+		});
 	}
 
 	function ensureFolder(folder) {
