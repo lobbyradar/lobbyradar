@@ -1,0 +1,27 @@
+<div class="table-responsive result-list">
+  <p>Ergebnisse für »<span class="result-name"></span>«. Klicken Sie auf einen Eintrag, um zu den Details zu gelangen.</p>
+  <table class="table table-striped table-hover table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th><i class="fa fa-share-alt"></i></th>
+      </tr>
+    </thead>
+    
+    <tbody>
+    
+      {{#item}}
+      <tr>
+        <td><i class="fa fa-{{icon}}"></i> <a href="/entity/{{_id}}">{{name}}</a></td>
+        <td>{{connections}}</td>
+      </tr>
+      {{/item}}
+      
+    </tbody>
+  
+  </table>
+</div>
+     
+<div class="result-single">
+  <div class="content"></div>
+</div>

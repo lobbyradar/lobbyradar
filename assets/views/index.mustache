@@ -1,39 +1,35 @@
 {{>header}}
-{{>navigation}}
+{{>nav-grey}}
+{{>nav-blue}}
+
 <div class="fullscreen">
+
 	<div class="container" id="main">
-		<div class="overlay">
-			<div class="container">
-				<div class="row">
-					<div class="col-md-6 col-md-offset-6">
-						<h2><br/><br/></h2>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-6">
-						<h1>Wer macht was, und vor allem wann und mit wem?</h1>
-						<p class="lead">
-							Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas faucibus mollis interdum.
-						</p>
-						<p>Curabitur blandit tempus porttitor. Maecenas sed diam eget risus varius blandit sit amet non magna. Maecenas sed diam eget risus varius blandit sit amet non magna. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.</p>
-						<p></p>
-					</div>
-					<div class="col-md-6">
-						<iframe width="560" height="315" src="//www.youtube.com/embed/tA-E_38oWLI" frameborder="0" allowfullscreen></iframe>
-						<button class="btn-ext btn-block btn btn-lg btn-primary" data-toggle="modal" data-target="#myModal">Installier dir den Durchblick!</button>
-					</div>
-				</div>
+		
+		<div class="row">
+			
+			<div class="col-sm-6 viewport-info col-sm-push-6">
+				{{>vizinfo}}
 			</div>
+
+			<div class="col-sm-6 col-sm-pull-6 viewport-visual">
+				<span>active entities should move inside this viewport</span>
+
+			</div>
+
 		</div>
-		{{#entity}}
-		<h1>{{name}}</h1>
-		{{#err}}<p>Fehler {{.}}</p>{{/err}}
-		<ul>
-			{{#item}}
-			<li><a href="/entity/{{_id}}">{{name}}</a> ({{type}})</li>
-			{{/item}}
-		</ul>
-		{{/entity}}
+
 	</div>
-</div>
+	
+	<div class="overlay"> 
+		{{>intro}}
+	</div>
+
+	{{! The Visualisation }}
+	<div style="display:none" id="networkviz-wrapper">
+		<div id="networkviz"></div>
+	</div>
+	
+</div> {{! end .fullscreen }}
+
 {{>footer}}

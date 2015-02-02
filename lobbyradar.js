@@ -81,6 +81,7 @@ app.set("views", path.resolve(__dirname, "assets/views"));
 
 // static assets
 app.use("/assets", express.static(path.resolve(__dirname, "assets")));
+
 // static backend
 app.use("/station", express.static(path.resolve(__dirname, "station")));
 
@@ -438,7 +439,7 @@ app.all("/entity/:id", function (req, res) {
 			if (ent.sources && ent.sources.length > 0) ent.has_sources = true;
 			if (ent.addresses && ent.addresses.length > 0) ent.has_addresses = true;
 			
-			res.render("entity", {
+			res.render("index", {
 				"err": err,
 				"entity": ent
 			});
@@ -497,6 +498,11 @@ app.all("/", function (req, res) {
 			}
 		});
 	});
+});
+
+// FAQ Page (static)
+app.get("/faq", function (req, res) {
+		res.render("faq", {});
 });
 
 // everything else is 404

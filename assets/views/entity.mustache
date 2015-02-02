@@ -1,17 +1,16 @@
-{{>header}}
-{{>navigation}}
-<div class="container" id="main">
-	<div class="overlay">
-		<div class="container">
-			<div class="row">
+{{! {{>header}} 
+{{!{{>nav-grey}} 
+
+{{!{{>nav-blue}} 
+
+<div id="main">
+  <a id="backtolist" class="btn btn-default" href="#"><i class="fa fa-arrow-left" aria-hidden="true"></i> Zurück zur Liste</a>
+
 				{{#err}}
-				<div class="col-md-12">
 					<h1>Fehler</h1>
 					<p>{{.}}</p>
-				</div>
 				{{/err}}
 				{{#entity}}
-				<div class="col-md-6">
 					<h1>{{name}}</h1>
 					{{#has_tags}}
 					<div class="entity-aliases">
@@ -34,8 +33,7 @@
 						{{/relations}}
 					</ul>
 					
-				</div>
-				<div class="col-md-6">
+
 					<ul class="list-group">
 						<li class="list-group-item list-group-item-info">Erstellt am {{created}}</li>
 						<li class="list-group-item list-group-item-info">Aktualisiert am {{updated}}</li>
@@ -66,10 +64,7 @@
 						</li>
 						{{/data}}
 					</ul>
-				</div>
 				{{/entity}}
-			</div>
-		</div>
-	</div>
+
 </div>
-{{>footer}}
+{{!{{>footer}} 
