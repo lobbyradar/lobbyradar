@@ -28,6 +28,18 @@
   }
 }
 
+.bg-gradient {
+  background: #11354b; /* Old browsers */
+  background: -moz-linear-gradient(top,  #11354b 0%, #a1bdc9 65%, #a1bdc9 77%, #6392a8 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#11354b), color-stop(65%,#a1bdc9), color-stop(77%,#a1bdc9), color-stop(100%,#6392a8)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* W3C */
+
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#11354b', endColorstr='#6392a8',GradientType=0 ); /* IE6-9 */
+}
+
                                                                
 //              ,,                                                      
 // `7MM"""Yp, `7MM                         `7MM"""Yp,                   
@@ -316,20 +328,27 @@
 .faq-page {
   padding-top:70px;
   min-height:100%;
-  background: #11354b; /* Old browsers */
-  background: -moz-linear-gradient(top,  #11354b 0%, #a1bdc9 65%, #a1bdc9 77%, #6392a8 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#11354b), color-stop(65%,#a1bdc9), color-stop(77%,#a1bdc9), color-stop(100%,#6392a8)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Opera 11.10+ */
-  background: -ms-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* IE10+ */
-  background: linear-gradient(to bottom,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* W3C */
-
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#11354b', endColorstr='#6392a8',GradientType=0 ); /* IE6-9 */
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
+  &:extend(.bg-gradient);
+   .panel-default {
+    border:0px!important;
+    background-color:transparent!important;
+    box-shadow:none!important;
+    .panel-heading {
+      background-color:transparent!important;
+      border:0px!important;
+      a {color:white;}
+      a:after {content:"\f067";font-family:"FontAwesome";}
+      a.collapsed:after {content:"\f068";font-family:"FontAwesome";}
 
+    }
+    .panel-body {
+      border-top:0px!important;
+    }
+  }
 }
 
                                                                                      
@@ -452,7 +471,6 @@ svg {
   z-index: 99!important;
   background:white;
   color:#111;
-
 }
 
 .result-single {
@@ -464,6 +482,13 @@ svg {
   color:#111;
   padding:19px;
   z-index: 99!important;
+  
+  .list-group p{
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .avatar {
