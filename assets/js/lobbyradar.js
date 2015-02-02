@@ -192,8 +192,8 @@ $( document ).ready(function() {
         $(".result-list table tbody", "#main").html("<i class='fa-cog text-center fa-5x fa fa-spin'></i>");
 
         if (req) req.abort();
-        req = $.getJSON("/api/entity/list", {
-          words: $(this).val()
+        req = $.getJSON("/api/autocomplete", {
+          q: $(this).val()
         }, function(data){
 
           var $tb = $("<tbody></tbody>");
@@ -212,6 +212,8 @@ $( document ).ready(function() {
           // reset request
           req = null;
         });
+
+        console.log(req);
       };
     });
   })();
