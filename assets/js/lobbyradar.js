@@ -28,7 +28,7 @@ function loadEntity(id) {
       
       // title 
       $content += '<h1 class="name">'+entity.name+'</h1>';
-      
+
       // icon
       if (entity.type == 'person') {
         $content += '<i class="fa fa-user"></i>Person';
@@ -161,11 +161,14 @@ $( document ).ready(function() {
   (function(){
     var req = null;
     $('body').on('keyup', '.lobbysearch', function(evt) {
+
       console.log($(this).val());
       var $resultName = $(this).val();
 
       if (evt.which === 13) { // only send request when enter is pressed. TODO: search button
         // abort previous request
+        $( ".result-single" ).slideUp( "slow" );
+
         $(".result-list table tbody", "#main").html("<i class='fa-cog text-center fa-5x fa fa-spin'></i>");
 
         if (req) req.abort();
@@ -179,7 +182,7 @@ $( document ).ready(function() {
             $tb.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="entity-detail" href="/entity/'+e._id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.connections+'</a></td></tr>');
             $(".result-list p .result-name", "#main").html($resultName);
           });
-          
+
           $( ".result-list" ).slideDown( "slow" );
   
           document.location.hash = "";
