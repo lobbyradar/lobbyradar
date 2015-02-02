@@ -30,6 +30,18 @@ var winHeight = $(window).height();
 //                                                                              (8),P       
 //                                                                               YMM        
 
+
+function isExistant(el) { 
+
+	if (el !== undefined) {
+		if (el != 0 || undefined || '' || null) {
+			return true;
+		}
+	}
+	
+	return false;
+}
+
 // load an entity from ID and build up html
 // used in Deeplink and Detail from List
 function loadEntity(id) {
@@ -42,7 +54,7 @@ function loadEntity(id) {
 		if (data.hasOwnProperty("result")) {
 			var entity = data.result;
 			// console.log(data.result);
-			console.log(data.result.relations);
+			console.log(data.result);
 
 			// title 
 			$content += '<h1 class="name">';
@@ -57,38 +69,56 @@ function loadEntity(id) {
 			$content += entity.name;
 			$content += '</h1>';
 
-
-
 			// tags
 			$(data.result.tags).each(function(idx,e){ 
 				$content += '<span class="label label-default">'+e+'</span>&nbsp;'; 
 			});
 
-			// alias
-			if (entity.aliases.length > 0) {
-				$content += '<h3>Alternative Schreibweisen</h3><p>';
-				$(entity.aliases).each(function(idx,e){ 
-					$content += e+';&nbsp;'; 
-				});
-				$content += '</p>';
-			}
-
-			// adress
+			// data
 			if (entity.data.length > 0) {
-				if (entity.data[2] !== undefined) {
-					$content += '<h3>Adresse</h3><adress>';
-					var entityAdress = entity.data[2];
-					console.log(entityAdress);
-					if (entityAdress.value.addr !== undefined) $content += entityAdress.value.addr+'<br/>';
-					if (entityAdress.value.street !== undefined) $content += entityAdress.value.street+'<br/>';
-					if (entityAdress.value.postcode !== undefined) $content += entityAdress.value.postcode+'&nbsp;';
-					if (entityAdress.value.city !== undefined) $content += entityAdress.value.city+'<br/>';
-					if (entityAdress.value.tel !== undefined) $content += '<abbr title="Phone">P:</abbr>&nbsp;'+entityAdress.value.tel+'<br/>';
-					if (entityAdress.value.fax !== undefined) $content += '<abbr title="Fax">F:</abbr>&nbsp;'+entityAdress.value.fax+'<br/>';
-					if (entityAdress.value.email !== undefined) $content += '<abbr title="Email">E:</abbr>&nbsp;'+entityAdress.value.email+'<br/>';
-					if (entityAdress.value.www !== undefined) $content += '<abbr title="Web">W:</abbr>&nbsp;'+entityAdress.value.www+'<br/>';
-					$content += '</adress>';
-				}
+				$(entity.data).each(function(idx,data){ 
+					if (data.key == 'source') {
+						$content += '<h3>Quelle</h3><p>';
+						if (data.value.url !== undefined) {
+							$content += '<a href="'+data.value.url+'">';
+							$content += data.value.url;
+							$content += '</a>';
+						}
+						$content += '</p>';
+					} else if (data.key == 'address') {
+						if (data !== undefined) {
+							$content += '<h3>Adresse</h3><adress>';
+
+							if (isExistant(data.value.addr)) {
+								$content += data.value.addr+'<br/>';
+								console.log(data.value.addr);
+							}
+							if (isExistant(data.value.street)) {
+								$content += data.value.street+'<br/>';
+							} 
+							if (isExistant(data.value.postcode)) {
+								$content += data.value.postcode+'&nbsp;';
+							}
+							if (isExistant(data.value.city)) {
+								$content += data.value.city+'<br/>';
+							}
+							$content += '<h3>Kontakt</h3>';
+							if (isExistant(data.value.tel)) {
+								$content += '<abbr title="Phone">P:</abbr>&nbsp;'+data.value.tel+'<br/>';
+							}
+							if (isExistant(data.value.fax)) {
+								$content += '<abbr title="Fax">F:</abbr>&nbsp;'+data.value.fax+'<br/>';
+							}
+							if (isExistant(data.value.email)) {
+								$content += '<abbr title="Email">E:</abbr>&nbsp;'+data.value.email+'<br/>';
+							}
+							if (isExistant(data.value.www)) {
+								$content += '<abbr title="Web">W:</abbr>&nbsp;'+data.value.www+'<br/>';
+							}
+							$content += '</adress>';
+						}
+					}
+				});
 			}
 
 			// relations
@@ -104,15 +134,6 @@ function loadEntity(id) {
 						} else if (e.type == 'member') {
 							$content += '<i class="fa fa-group"></i>&nbsp;'; 
 						}
-						// $(e.data).each(function(idx,d){ 
-						// 	if (d.key == 'donation') {
-						// 		$content += '<i class="fa fa-money"></i>&nbsp;'; 
-						// 	} else if (d.key == 'position') {
-						// 		$content += '<i class="fa fa-user"></i>&nbsp;'; 
-						// 	} else if (d.type == 'member') {
-						// 		$content += '<i class="fa fa-group"></i>&nbsp;'; 
-						// 	}
-						// });
 						$content += '<a class="entity-connections" href="/entity/'
 						$content += e.entity._id; 
 						$content += '">';
@@ -122,10 +143,16 @@ function loadEntity(id) {
 
 					});
 					$content += '</ul>';
-
 			}
 
-			// TODO get connections @yetzt
+						// alias
+			if (entity.aliases.length > 0) {
+				$content += '<h3>Alternative Schreibweisen</h3><p>';
+				$(entity.aliases).each(function(idx,e){ 
+					$content += e+';&nbsp;'; 
+				});
+				$content += '</p>';
+			}
 
 		}
 		$content += '</div>';
@@ -243,7 +270,7 @@ $( document ).ready(function() {
 					var $tb = $("<tbody></tbody>");
 
 					if (data instanceof Array && data.length > 0) $(data).each(function(idx,e){
-						$tb.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="entity-detail" href="/entity/'+e.id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.connections+'</a></td></tr>');
+						$tb.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="entity-detail" href="/entity/'+e.id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.relations+'</a></td></tr>');
 						$(".result-list p .result-name", "#main").html($resultName);
 					});
 
