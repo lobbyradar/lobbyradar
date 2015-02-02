@@ -156,10 +156,32 @@ $( document ).ready(function() {
     var str = window.location.href; // get the url 
     var entityID = str.split("/")[4]; // extract ID
     console.log('entity.entry, ID: '+entityID);
+    var $resultName = entityID;
+    var req = null;
 
     // loadEntity(entityID);
-    alert('you searched for: '+entityID+'. This is not ready');
-    $( ".result-list" ).slideDown( "slow" );  // show me the single panel
+    if (req) req.abort();
+        req = $.getJSON("/api/autocomplete", {
+          q: entityID
+        }, function(data){
+        console.log(data);
+
+          var $tb = $("<tbody></tbody>");
+
+          if (data instanceof Array && data.length > 0) $(data).each(function(idx,e){
+            $tb.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="entity-detail" href="/entity/'+e.id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.connections+'</a></td></tr>');
+            $(".result-list p .result-name", "#main").html($resultName);
+          });
+
+          $( ".result-list" ).slideDown( "slow" );
+          history.pushState(null, null, '/search/'+$resultName);
+
+          $(".result-list table tbody", "#main").remove();
+          $(".result-list table ", "#main").append($tb);
+
+          // reset request
+          req = null;
+        });
   }
 
 
