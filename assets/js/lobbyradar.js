@@ -38,7 +38,7 @@ function isExistant(el) {
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 
@@ -63,8 +63,8 @@ function loadEntity(id) {
 			}
 			$(entity.data).each(function(idx,e){ 
 				if (entity.type == 'entity' && e.key == 'partei') {
-					$content += '<i class="fa fa-bank"></i>&nbsp;'; // PARTEI
-				}
+					$content += '<i class="fa fa-pie-chart"></i>&nbsp;'; // PARTEI
+				} 
 			});
 			$content += entity.name;
 			$content += '</h1>';
@@ -78,9 +78,9 @@ function loadEntity(id) {
 			if (entity.data.length > 0) {
 				$(entity.data).each(function(idx,data){ 
 					if (data.key == 'source') {
-						$content += '<h3>Quelle</h3><p>';
+						$content += '<h3>Quelle</h3><p class="entity-source">';
 						if (data.value.url !== undefined) {
-							$content += '<a href="'+data.value.url+'">';
+							$content += '<a  href="'+data.value.url+'">';
 							$content += data.value.url;
 							$content += '</a>';
 						}

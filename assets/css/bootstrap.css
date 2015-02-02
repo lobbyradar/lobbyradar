@@ -6649,6 +6649,11 @@ svg {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.result-single .entity-source {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .avatar {
   max-width: 100px;
   float: left;
