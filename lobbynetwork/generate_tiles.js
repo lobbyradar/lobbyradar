@@ -127,7 +127,7 @@ function saveTiles(maxDepth) {
 
 	function render(x0, y0, z0, nodes, links) {
 		var foldername = path.join(tileFolder, z0+'/'+y0 );
-		var filename = foldername+'/'+x0+'.gif';
+		var filename = foldername+'/'+x0+'.png';
 
 		ensureFolder(foldername);
 
