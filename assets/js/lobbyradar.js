@@ -186,6 +186,7 @@ $( document ).ready(function() {
 
       if (evt.which === 13) { // only send request when enter is pressed. TODO: search button
         // abort previous request
+
         $( ".result-single" ).slideUp( "slow" );
 
         $(".result-list table tbody", "#main").html("<i class='fa-cog text-center fa-5x fa fa-spin'></i>");
@@ -203,8 +204,7 @@ $( document ).ready(function() {
           });
 
           $( ".result-list" ).slideDown( "slow" );
-  
-          document.location.hash = "";
+          history.pushState(null, null, '/search/'+$resultName);
 
           $(".result-list table tbody", "#main").remove();
           $(".result-list table ", "#main").append($tb);
@@ -235,7 +235,7 @@ $( document ).ready(function() {
   $('body').on('click', '#backtolist', function(event) {
     $(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
     $(".result-list").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},1000);
-    history.pushState(null, null, this.href);
+    window.history.back()
     return false;
     e.preventDefault();
   });
