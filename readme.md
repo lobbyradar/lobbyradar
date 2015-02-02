@@ -15,10 +15,6 @@ Search Entities by names and aliases
 
 Get data for an entity specified by `id`
 
-### `GET /api/entity/get/{id}`
-
-Get data for an entity specified by `id`
-
 ### `GET /api/entity/list?letter={letter|}&words={words|}&type={person|entity|}`
 
 List all entities specified by starting `letter`, containing `words` and matching `type`

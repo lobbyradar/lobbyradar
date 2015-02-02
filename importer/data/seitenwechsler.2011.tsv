@@ -156,7 +156,7 @@ jahr	vorname	nachname	partei	m_begin	y_begin	m_end	y_end	position	entity	kuerzel
 2009	Thomas	Steg	parteilos		2009			Inhaber	STEG Kommunikation und Beratung		seitenwechsler
 2009	Thomas	Steg	parteilos	2	2012			Generalbevollmächtigter für Außen- und Regierungsbeziehungen	Volkswagen AG	VW	seitenwechsler, auto
 2009	Rainer	Wend	SPD			4	2009	Abgeordneter	Deutscher Bundestag		seitenwechsler
-2009	Rainer	Wend	SPD		2005		2008	Wirtschaftspolitischer Sprecher	SPD-Bundestagsfraktion	SPD	seitenwechsler
+2009	Rainer	Wend	SPD		2005		2008	Wirtschaftspolitischer Sprecher	SPD-Bundestagsfraktion	SPD-Fraktion	seitenwechsler
 2009	Rainer	Wend	SPD	4	2009			Leiter des Zentralbereichs Politik und Unternehmensverantwortung	Deutsche Post		seitenwechsler
 2009	Walter	Riester	SPD				2009	Abgeordneter	Deutscher Bundestag		seitenwechsler
 2009	Walter	Riester	SPD		1998		2002	Bundesminister	Bundesministerium für Arbeit und Soziales	BMAS	seitenwechsler
@@ -191,7 +191,7 @@ jahr	vorname	nachname	partei	m_begin	y_begin	m_end	y_end	position	entity	kuerzel
 2007	Edmund	Stoiber	CSU		2011			Vorsitzender des Beirats	ProSiebenSat.1		seitenwechsler, fernsehen
 2007	Joachim	Lang	parteilos				2007	Leiter im Bereich Koordinierung der Europapolitik	Bundesregierung		seitenwechsler
 2007	Joachim	Lang	parteilos		2007			Cheflobbyist	E.ON	EON	seitenwechsler, energie
-2007	Birgit	Fischer	SPD				2006	Stellvertretende Fraktionsvorsitzende	SPD-NRW	SPD	seitenwechsler
+2007	Birgit	Fischer	SPD				2006	Stellvertretende Fraktionsvorsitzende	SPD-NRW	SPD Nordrheinwestfahlen	seitenwechsler
 2007	Birgit	Fischer	SPD		2011			Geschäftsführerin	Verband Forschender Arzneimittelhersteller	VFA	seitenwechsler, gesundheit
 2007	Birgit	Fischer	SPD		2007		2010	Stellvertretende Vorstandsvorsitzende	Barmer Ersatzkasse		seitenwechsler, gesundheit
 2007	Joschka	Fischer	Grüne			9	2005	Außenminister und Vizekanzler	Bundesregierung		seitenwechsler

@@ -9,6 +9,7 @@ var moment = require("moment");
 var crypto = require("crypto");
 var debug = require("debug")("app");
 var path = require("path");
+var unq = require("unq");
 var nsa = require("nsa");
 var fs = require("fs");
 var passportlocal = require("passport-local");
@@ -30,6 +31,7 @@ var db = mongojs(config.db, ["entities", "relations", "users", "fields"]);
 
 // local modules
 var api = require("./lib/api.js")(config.api, db);
+var search = require("./lib/search.js")(config.search, api);
 
 // use nsa if configured
 if (config.hasOwnProperty("nsa") && (config.nsa)) {
@@ -79,6 +81,7 @@ app.set("views", path.resolve(__dirname, "assets/views"));
 
 // static assets
 app.use("/assets", express.static(path.resolve(__dirname, "assets")));
+
 // static backend
 app.use("/station", express.static(path.resolve(__dirname, "station")));
 
@@ -409,7 +412,34 @@ app.all("/entity/:id", function (req, res) {
 		if (ent === null || !ent.hasOwnProperty("_id")) return res.status(404).render("entity", { "err": "Diese Entität existiert nicht" });
 		api.ent_rels(ent._id, function (err, rels) {
 			ent.relations = rels;
-			res.render("entity", {
+			// rework data
+			ent.data = ent.data.filter(function(d){
+				switch (d.key) {
+					case "source":
+						if (!ent.hasOwnProperty("sources")) ent.sources = [];
+						ent.sources.push(d.value);
+					break;
+					case "address":
+						if (!ent.hasOwnProperty("addresses")) ent.addresses = [];
+						ent.addresses.push(d.value);
+					break;
+					// other stuff here
+					default: return true; break;
+				}
+				return false;
+			});
+
+			// dates
+			ent.created = moment(ent.created).format("DD.MM.YYYY hh:mm");
+			ent.updated = moment(ent.updated).format("DD.MM.YYYY hh:mm");
+
+			// aliases and tags
+			if (ent.aliases.length > 0) ent.has_aliases = true;
+			if (ent.tags.length > 0) ent.has_tags = true;
+			if (ent.sources && ent.sources.length > 0) ent.has_sources = true;
+			if (ent.addresses && ent.addresses.length > 0) ent.has_addresses = true;
+			
+			res.render("index", {
 				"err": err,
 				"entity": ent
 			});
@@ -451,6 +481,12 @@ app.all("/list/:type/:letter?", function (req, res) {
 	});
 });
 
+// autocomplete
+app.get("/api/autocomplete", function (req, res) {
+	search.autocomplete(req.query.q, function(err, result){
+		res.status(200).json(result);
+	});
+});
 
 // index page
 app.all("/", function (req, res) {
@@ -462,6 +498,11 @@ app.all("/", function (req, res) {
 			}
 		});
 	});
+});
+
+// FAQ Page (static)
+app.get("/faq", function (req, res) {
+		res.render("faq", {});
 });
 
 // everything else is 404
