@@ -63,7 +63,7 @@ var force = d3.layout.force()
 	.distance(30)
 	.charge(function (node) { return node.charge })
 	.gravity(0.02)
-	.theta(0.8)
+	.theta(0.5)
 	.alpha(0.1)
 
 force.on('tick', function () {
@@ -77,6 +77,7 @@ force.on('tick', function () {
 		savePositions();
 		exportPositions();
 		saveTiles(maxTileLevel);
+		return
 	}
 
 	if (interation % 100 == 0) savePositions();
