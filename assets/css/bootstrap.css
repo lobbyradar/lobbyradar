@@ -6341,7 +6341,7 @@ button.close {
 .zdf-header-blue {
   top: 46px;
   position: absolute;
-  z-index: 999;
+  z-index: 1030;
   width: 100%;
   overflow: hidden;
   background: rgba(20, 59, 82, 0.5);
