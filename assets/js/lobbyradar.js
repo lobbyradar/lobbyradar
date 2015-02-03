@@ -64,7 +64,9 @@ function loadEntity(id) {
 			$(entity.data).each(function(idx,e){ 
 				if (entity.type == 'entity' && e.key == 'partei') {
 					$content += '<i class="fa fa-pie-chart"></i>&nbsp;'; // PARTEI
-				} 
+				} else if (entity.type == 'entity' && e.key == 'legalform') {
+					$content += '<i class="fa fa-building-o"></i>&nbsp;'; // PARTEI
+				}
 			});
 			$content += entity.name;
 			$content += '</h1>';
@@ -74,11 +76,19 @@ function loadEntity(id) {
 				$content += '<span class="label label-default">'+e+'</span>&nbsp;'; 
 			});
 
+			$content += '<hr/><p class="name">';
+			$content += '<span>Erstellt: '+moment(entity.created).format("DD.MM.YYYY hh:mm")+'</span><br/>';
+			$content += '<span>Aktualisiert: '+moment(entity.created).format("DD.MM.YYYY hh:mm")+'</span>';
+			$content += '</p>';
+
+
+
 			// data
 			if (entity.data.length > 0) {
+				$content += '<h4>Quelle(n)</h4>';
 				$(entity.data).each(function(idx,data){ 
 					if (data.key == 'source') {
-						$content += '<h3>Quelle</h3><p class="entity-source">';
+						$content += '<p class="entity-source">';
 						if (data.value.url !== undefined) {
 							$content += '<a  href="'+data.value.url+'">';
 							$content += data.value.url;
@@ -117,6 +127,14 @@ function loadEntity(id) {
 							}
 							$content += '</adress>';
 						}
+					} else if (data.desc == 'Link'){ 
+						$content += '<h4>'+data.desc+'</h4>';
+						$content += '<p><a href="'+data.value.url+'">'+data.value.url+'</a></p>';
+
+					} else {
+						$content += '<h4>'+data.desc+'</h4>';
+						$content += '<p>'+data.value+'</p>';
+
 					}
 				});
 			}
@@ -303,12 +321,12 @@ $( document ).ready(function() {
 	(function(){
 		var req = null;
 		$('body').on('keyup', '.lobbysearch', function(evt) {
-
+			$( ".result-single" ).slideUp( "slow" );
 			console.log($(this).val());
 			var $resultName = $(this).val();
 			if ($(this).val().length >= 3) { // autocomplete after 3 letters
 
-				$( ".result-single" ).slideUp( "slow" );
+	
 
 				$(".result-list table tbody", "#main").html("<i class='fa-cog text-center fa-5x fa fa-spin'></i>");
 
@@ -325,11 +343,11 @@ $( document ).ready(function() {
 						$(".result-list p .result-name", "#main").html($resultName);
 					});
 
-					$( ".result-list" ).slideDown( "slow" );
 					history.pushState(null, null, '/search/'+$resultName);
 
 					$(".result-list table tbody", "#main").remove();
 					$(".result-list table ", "#main").append($tb);
+					$( ".result-list" ).delay( 500 ).slideDown( "slow" );
 
 					// reset request
 					req = null;
@@ -365,6 +383,7 @@ $( document ).ready(function() {
 
 	// bring up the details when an entry is clicked from list                                                                                                               
 	$('body').on('click', '.entity-detail', function(e) {
+				$( ".result-list" ).slideUp( "slow" );
 		e.preventDefault();
 		var req = null;
 		console.log('loading an entity from the list');
@@ -373,8 +392,8 @@ $( document ).ready(function() {
 		console.log('entity.entry, ID: '+entityID);
 		loadEntity(entityID);
 		history.pushState(null, null, this.href);
-		$( ".result-single" ).slideDown( "slow" );
-		$( ".result-list" ).slideUp( "slow" );
+		$( ".result-single" ).delay( 800 ).slideDown( "slow" );
+
 	});
 
 	// fade animation when clickin a connection
@@ -452,4 +471,14 @@ $(window).resize(function(){
 		'width': winWidth,
 		'height': winHeight,
 	});
+});
+
+$(window).on("navigate", function (event, data) {
+  var direction = data.state.direction;
+  if (direction == 'back') {
+    alert(window.location.href);
+  }
+  if (direction == 'forward') {
+    // do something else
+  }
 });
