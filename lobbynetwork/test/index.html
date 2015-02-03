@@ -46,10 +46,11 @@
 				var map = L.map('map', {
 					minZoom: 0,
 					maxZoom: 7,
-					zoom: 5,
+					zoom: 3,
 					center: [-0.5*f,0.5*f],
 					maxBounds: L.latLngBounds([-f,0],[0,f]),
-					crs: crs
+					crs: crs,
+					zoomAnimation: false
 				});
 
 				var layer = L.tileLayer('../tiles/{z}/{y}/{x}.png', {
@@ -64,14 +65,24 @@
 				
 				layer.addTo(map);
 
+				var labelLayer = L.layerGroup();
+				labelLayer.addTo(map);
+
 				setTimeout(function () {
-					show('54bd3c8d8b934da063412627')
+					//showNode('54bd3c8d8b934da063412627') // Axel Voss
+					//showNode('54bd3c748b934da06340f4c4') // CSU
 				}, 1000);
 
-				function show(id) {
+				function showNode(id) {
 					if (!node_positions[id]) return;
 					var node = node_positions[id];
-					map.panTo(L.latLng(-node.y, node.x))
+					var zoom = Math.round(13 - Math.log(node.r)/Math.log(2));
+					map.setView(L.latLng(-node.y, node.x), zoom, {animate:true})
+					showLabel(node);
+				}
+
+				function showLabel(node) {
+
 				}
 			}
 		</script>
@@ -79,8 +90,11 @@
 			html, body, #map {
 				height: 100%;
 			}
+			body {
+				background: linear-gradient(to bottom, #11354b 0%, #a1bdc9 65%, #a1bdc9 77%, #6392a8 100%);
+			}
 			#map {
-				background: #FFF;
+				background: none;
 			}
 		</style>
 	</head>
