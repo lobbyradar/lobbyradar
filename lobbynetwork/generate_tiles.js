@@ -2,7 +2,7 @@ var imageSize = 8192;
 var maxIterations = 1;
 var tileFolder = './tiles/';
 var tileSize = 256;
-var maxTileLevel = 1;
+var maxTileLevel = 7;
 
 
 var fs = require('fs');
@@ -251,6 +251,8 @@ function saveTiles(maxDepth) {
 				'pop graphic-context',
 			'pop graphic-context'
 		].join('\n');
+
+		//fs.writeFileSync(filename.replace(/png$/, 'mvg'), commands, 'utf8');
 
 		function circle(node) {
 			return 'circle ' + [
