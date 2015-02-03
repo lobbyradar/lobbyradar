@@ -9,6 +9,7 @@ var fs = require('fs');
 var path = require('path');
 var d3 = require('d3');
 var gm = require('gm');
+gm = gm.subClass({ imageMagick: true });
 
 var nodes = JSON.parse(fs.readFileSync('nodes.json', 'utf8')).result;
 var links = JSON.parse(fs.readFileSync('links.json', 'utf8')).result;
@@ -231,11 +232,7 @@ function saveTiles(maxDepth) {
 
 		var commands = [
 			'push graphic-context',
-			'viewbox 0 0 '+tileSize+' '+tileSize,
-				'push graphic-context',
-					'fill white',
-					'rectangle 0 0 '+tileSize+' '+tileSize,
-				'pop graphic-context',
+				'viewbox 0 0 '+tileSize+' '+tileSize,
 				'push graphic-context',
 					'stroke "rgb(20,59,82)"',
 					'fill none',
@@ -277,17 +274,17 @@ function saveTiles(maxDepth) {
 		}
 
 		
-		var t = gm(new Buffer(commands));
+		var img = gm(new Buffer(commands));
 		
-		t.addSrcFormatter(function (a) {
+		img.addSrcFormatter(function (a) {
 			a.forEach(function (e,i) { a[i] = 'MVG:'+e });
 		});
-		t.in('-size');
-		t.in(tileSize+'x'+tileSize);
-		t.dither(true);
-		t.colors(64);
+		img.in('-size');
+		img.in(tileSize+'x'+tileSize);
+		img.in('-background');
+		img.in('transparent');
 
-		t.write(filename, function (err) {
+		img.write(filename, function (err) {
 			if (err) {
 				console.error(err);
 			} else {
@@ -298,7 +295,7 @@ function saveTiles(maxDepth) {
 	}
 
 	function createEmptyTile(callback) {
-		var t = gm(tileSize, tileSize, '#ffffff');
+		var t = gm(tileSize, tileSize, '#ffffffff');
 		t.colors(2);
 		t.toBuffer('PNG', function (err, buf) {
 			if (err) console.error(err);
