@@ -225,7 +225,8 @@ function saveTiles(maxDepth) {
 
 		function renderTile(callback) {
 			if ((nodes.length == 0) && (links.length == 0)) {
-				fs.writeFile(filename, emptyImageBuffer, callback);
+				fs.writeFileSync(filename, emptyImageBuffer);
+				callback();
 				return
 			}
 
