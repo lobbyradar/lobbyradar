@@ -3,7 +3,7 @@ var maxIterations = 1;
 var tileFolder = './tiles/';
 var tileSize = 256;
 var maxTileLevel = 7;
-var antialias = 8;
+var antialias = 4;
 
 var fs = require('fs');
 var path = require('path');
