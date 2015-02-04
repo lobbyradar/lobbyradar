@@ -5389,7 +5389,7 @@ a.list-group-item-danger.active:focus {
   min-height: 20px;
   padding: 19px;
   margin-bottom: 20px;
-  background-color: #ffffff;
+  background-color: white;
   color: #062b3e;
   border: 1px solid #ededed;
   border-radius: 1px;
@@ -6589,8 +6589,7 @@ button.close {
   left: 0;
 }
 #networkviz {
-  left: -1087px;
-  top: -1201px;
+  background: none;
   cursor: -moz-grab;
   cursor: -webkit-grab;
 }
@@ -6598,9 +6597,6 @@ button.close {
   cursor: grabbing;
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;
-}
-#networkviz svg {
-  position: relative!important;
 }
 svg {
   position: fixed!important;
