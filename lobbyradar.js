@@ -193,6 +193,14 @@ app.post("/api/entity/upmerge/:id", function (req, res) {
 	});
 });
 
+// merge entities.
+app.post("/api/entity/merge", function (req, res) {
+	debug("merge entity %s", req.body.ids);
+	api.ent_merge(req.body.ids, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
 // entity types.
 app.all("/api/entity/types", function (req, res) {
 	debug("entity types");
