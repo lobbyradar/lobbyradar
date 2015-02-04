@@ -5,7 +5,7 @@
 		<title>Lobbyradar Visualization Test</title>
 		<link rel="stylesheet" type="text/css" href="leaflet/leaflet.css">
 		<script type="text/javascript" src="leaflet/leaflet.js"></script>
-		<script type="text/javascript" src="node_positions.js"></script>
+		<script type="text/javascript" src="http://lobbyradar.opendatacloud.de/lobbynetwork/test/node_positions.js"></script>
 		<script type="text/javascript">
 			function init() {
 
@@ -53,7 +53,7 @@
 					zoomAnimation: false
 				});
 
-				var layer = L.tileLayer('../tiles/{z}/{y}/{x}.png', {
+				var layer = L.tileLayer('http://lobbyradar.opendatacloud.de/lobbynetwork/tiles/{z}/{y}/{x}.png', {
 					minZoom: 0,
 					maxZoom: 7,
 					maxNativeZoom: 7,
@@ -70,7 +70,7 @@
 
 				setTimeout(function () {
 					//showNode('54bd3c8d8b934da063412627') // Axel Voss
-					//showNode('54bd3c748b934da06340f4c4') // CSU
+					showNode('54bd3c748b934da06340f4c4') // CSU
 				}, 1000);
 
 				function showNode(id) {
