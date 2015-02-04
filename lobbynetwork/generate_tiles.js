@@ -3,6 +3,7 @@ var maxIterations = 1;
 var tileFolder = './tiles/';
 var tileSize = 256;
 var maxTileLevel = 7;
+var antialias = 8;
 
 var fs = require('fs');
 var path = require('path');
@@ -172,9 +173,10 @@ function saveTiles(maxDepth) {
 			prepareSubTile(x0*2+1, y0*2+0, z0+1, 1);
 			prepareSubTile(x0*2+0, y0*2+1, z0+1, 2);
 			prepareSubTile(x0*2+1, y0*2+1, z0+1, 3);
+		} else {
+			renderTile(finish);
 		}
 
-		renderTile(finish);
 
 		function finish() {
 			tileCount++;
@@ -215,11 +217,11 @@ function saveTiles(maxDepth) {
 			});
 
 			renderTiles(xn, yn, zn, newNodes, newLinks, function (filename) {
-				//subTilesRendered++;
-				//subTilesFilename[index] = filename;
-				//if (subTilesRendered == 4) {
-				//	mergeTiles(subTilesFilename, finish)
-				//}
+				subTilesRendered++;
+				subTilesFilename[index] = filename;
+				if (subTilesRendered == 4) {
+					mergeTiles(subTilesFilename, finish)
+				}
 			})
 		}
 
@@ -229,11 +231,6 @@ function saveTiles(maxDepth) {
 				callback();
 				return
 			}
-
-			var antialias = Math.round(2*imageSize/(tileSize*Math.pow(2,z0)));
-
-			if (antialias > 32) antialias = 32;
-			if (antialias <  8) antialias =  8;
 
 			var aaTileSize = antialias*tileSize;
 			var scale = imageSize/(aaTileSize*Math.pow(2,z0));
