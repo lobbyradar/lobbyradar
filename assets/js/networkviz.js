@@ -6,6 +6,8 @@ var NetworkViz = (function () {
 	var initialized = false;
 
 	function init() {
+		initialized = true;
+
 		var keys = Object.keys(node_positions);
 		var n = node_positions[keys[0]].length;
 		for (var i = 0; i < n; i++) {
@@ -73,7 +75,10 @@ var NetworkViz = (function () {
 
 	function panToEntity(id) {
 		if (!initialized) init();
-		if (!node_positions[id]) return;
+		if (!node_positions[id]) {
+			console.log('id not found "'+id+'"')
+			return;
+		}
 
 		var node = node_positions[id];
 		var zoom = Math.round(13 - Math.log(node.r)/Math.log(2));
