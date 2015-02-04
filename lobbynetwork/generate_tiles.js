@@ -2,8 +2,7 @@ var imageSize = 8192;
 var maxIterations = 1;
 var tileFolder = './tiles/';
 var tileSize = 256;
-var maxTileLevel = 4;
-
+var maxTileLevel = 7;
 
 var fs = require('fs');
 var path = require('path');
@@ -136,37 +135,30 @@ function saveTiles(maxDepth) {
 	var emptyImageBuffer;
 
 	var activeProcesses = 0;
-	var todos = [];
+	var processes = [];
 	var startTime = (new Date()).getTime();
 	var tileCount = 0;
 	var tileCountMax = Math.floor(Math.pow(4, maxDepth)/0.75);
 
-	todos.push(function () {
+	createEmptyTile(function () {
 		renderTiles(0,0,0,nodes,links);
-	})
+	});
 
-	createEmptyTile(nextTodo);
-
-	function nextTodo() {
-		while ((activeProcesses < maxProcesses) && (todos.length > 0)) {
-			var todo = todos.shift();
+	function nextProcess(func) {
+		if (func) processes.push(func);
+		while ((activeProcesses < maxProcesses) && (processes.length > 0)) {
+			var process = processes.pop();
 			activeProcesses++;
-			setImmediate(todo);
+			setImmediate(process);
 		}
 	}
 
-	function finishedTodo() {
+	function finishProcess() {
 		activeProcesses--;
-		nextTodo();
+		nextProcess();
 	}
 
-	function renderTiles(x0, y0, z0, nodes, links) {
-		if (tileCount % 100 == 0) console.log([
-			tileCount,
-			(new Date()).getTime() - startTime,
-			(100*tileCount/tileCountMax).toFixed(1)+'%'
-		].join('\t'));
-		tileCount++;
+	function renderTiles(x0, y0, z0, nodes, links, callback) {
 
 		var foldername = path.join(tileFolder, z0+'/'+y0 );
 		var filename = foldername+'/'+x0+'.png';
@@ -174,18 +166,27 @@ function saveTiles(maxDepth) {
 		ensureFolder(foldername);
 
 		if (z0 < maxDepth) {
-			prepareSubTile(x0*2+0, y0*2+0, z0+1);
-			prepareSubTile(x0*2+1, y0*2+0, z0+1);
-			prepareSubTile(x0*2+0, y0*2+1, z0+1);
-			prepareSubTile(x0*2+1, y0*2+1, z0+1);
+			var subTilesFilename = [];
+			var subTilesRendered = 0;
+			prepareSubTile(x0*2+0, y0*2+0, z0+1, 0);
+			prepareSubTile(x0*2+1, y0*2+0, z0+1, 1);
+			prepareSubTile(x0*2+0, y0*2+1, z0+1, 2);
+			prepareSubTile(x0*2+1, y0*2+1, z0+1, 3);
 		}
 
-		getTile(function (tileBuffer) {
-			fs.writeFile(filename, tileBuffer);
-			finishedTodo();
-		});
+		renderTile(finish);
 
-		function prepareSubTile(xn, yn, zn) {
+		function finish() {
+			tileCount++;
+			if (tileCount % 30 == 0) console.log([
+				tileCount,
+				(new Date()).getTime() - startTime,
+				(100*tileCount/tileCountMax).toFixed(1)+'%'
+			].join('\t'));
+			if (callback) callback(filename);
+		}
+
+		function prepareSubTile(xn, yn, zn, index) {
 			var radius = 0.8*imageSize/Math.pow(2,zn);
 			var radius2 = sqr(radius);
 			var cx = imageSize*(-1/2 + (1/2 + xn)/Math.pow(2,zn));
@@ -213,13 +214,26 @@ function saveTiles(maxDepth) {
 				return d2 < radius2;
 			});
 
-			todos.push(function () { renderTiles(xn, yn, zn, newNodes, newLinks) });
+			renderTiles(xn, yn, zn, newNodes, newLinks, function (filename) {
+				//subTilesRendered++;
+				//subTilesFilename[index] = filename;
+				//if (subTilesRendered == 4) {
+				//	mergeTiles(subTilesFilename, finish)
+				//}
+			})
 		}
 
-		function getTile(callback) {
-			if ((nodes.length == 0) && (links.length == 0)) return callback(emptyImageBuffer);
+		function renderTile(callback) {
+			if ((nodes.length == 0) && (links.length == 0)) {
+				fs.writeFile(filename, emptyImageBuffer);
+				callback();
+				return
+			}
 
-			var antialias = 2;
+			var antialias = Math.round(2*imageSize/(tileSize*Math.pow(2,z0)));
+
+			if (antialias > 32) antialias = 32;
+			if (antialias <  8) antialias =  8;
 
 			var aaTileSize = antialias*tileSize;
 			var scale = imageSize/(aaTileSize*Math.pow(2,z0));
@@ -248,7 +262,7 @@ function saveTiles(maxDepth) {
 				'pop graphic-context'
 			].join('\n');
 
-			fs.writeFileSync(filename.replace(/png$/, 'mvg'), commands, 'utf8');
+			//fs.writeFileSync(filename.replace(/png$/, 'mvg'), commands, 'utf8');
 
 			function circle(node) {
 				return 'circle ' + [
@@ -269,26 +283,60 @@ function saveTiles(maxDepth) {
 					(n2.y + cy)/scale
 				].join(',');
 			}
-			
-			var img = gm(new Buffer(commands));
-			
-			img.addSrcFormatter(function (a) {
-				a.forEach(function (e,i) { a[i] = 'MVG:'+e });
-			});
-			img.in('-size');
-			img.in((tileSize*antialias)+'x'+(tileSize*antialias));
-			img.in('-background');
-			img.in('transparent');
-			img.in('+antialias');
-			img.filter('Box');
-			img.resize(tileSize, tileSize);
 
-			img.toBuffer('PNG', function (err, buf) {
-				if (err) {
-					console.error(err);
-					return
-				}
-				callback(buf)
+			nextProcess(function () {
+				var img = gm(new Buffer(commands));
+				
+				img.addSrcFormatter(function (a) {
+					a.forEach(function (e,i) { a[i] = 'MVG:'+e });
+				});
+				img.in('-size');
+				img.in((tileSize*antialias)+'x'+(tileSize*antialias));
+				img.in('-background');
+				img.in('transparent');
+				img.in('+antialias');
+				img.filter('Box');
+				img.resize(tileSize, tileSize);
+
+				img.write(filename, function (err) {
+					if (err) {
+						console.error(err);
+						return
+					}
+					finishProcess();
+					callback()
+				})
+			})
+		}
+
+		function mergeTiles(subTilesFilename, callback) {
+			nextProcess(function () {
+				var img = gm(tileSize*2, tileSize*2, 'transparent');
+
+				img.out('-page');
+				img.out('+0+0');
+				img.out(subTilesFilename[0]);
+				img.out('-page');
+				img.out('+256+0');
+				img.out(subTilesFilename[1]);
+				img.out('-page');
+				img.out('+0+256');
+				img.out(subTilesFilename[2]);
+				img.out('-page');
+				img.out('+256+256');
+				img.out(subTilesFilename[3]);
+				img.out('-mosaic');
+				img.out('-resize');
+				img.out('50%');
+
+				img.write(filename, function (err) {
+					if (err) {
+						console.error(err);
+						return
+					}
+					finishProcess();
+					callback()
+				})
 			})
 		}
 	}
