@@ -478,8 +478,8 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 				question: 'Soll "' + o.name + '" gelöscht werden?'
 			}
 			, function () {
-				api.remove({id: o._id}, function () {
-					$scope.removeFromList(o);
+				api.remove({id: o._id}, {id: o._id}, function () {
+					$scope.removeFromList(o._id);
 				}, function (err) {
 					console.error(err);
 				})
@@ -597,13 +597,13 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 						fixed: true
 					};
 					if (field.key == 'tags') {
-						o.typeaheadOptions = {
-							minLength: 1,
-							highlight: true
-						};
 						o.dataset = {
 							name: 'tags',
 							displayKey: "value",
+							options: {
+								minLength: 1,
+								highlight: true
+							},
 							source: function (q, callback) {
 								var matches = [];
 								var search = function () {
@@ -692,7 +692,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 								}
 							}
 						});
-						api.save({id: entity._id}, {ent: entity},
+						api.save({id: entity._id}, {id: entity._id, ent: entity},
 							function (data) {
 								if (data.error) return reportServerError($scope, data.error);
 								e.data = entity.data;
@@ -797,13 +797,13 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 app.controller('MergeEntitiyCtrl', function ($scope, entities) {
 	var mode = $scope.data.mode;
 	$scope.data.org = {};
-	$scope.typeaheadOptionsEntities = {
-		minLength: 2,
-		highlight: true
-	};
 	$scope.typeaheadDatasetEntities = {
 		name: 'entities',
 		displayKey: "name",
+		options: {
+			minLength: 2,
+			highlight: true
+		},
 		source: function (q, callback) {
 			entities.list(
 				{
@@ -906,13 +906,13 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 						fixed: true
 					};
 					if (field.key == 'tags') {
-						o.typeaheadOptions = {
-							minLength: 1,
-							highlight: true
-						};
 						o.dataset = {
 							name: 'tags',
 							displayKey: "value",
+							options: {
+								minLength: 1,
+								highlight: true
+							},
 							source: function (q, callback) {
 								var matches = [];
 								var search = function () {
@@ -1001,7 +1001,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 								}
 							}
 						});
-						relations.save({id: rel._id}, {relation: rel},
+						relations.save({id: rel._id}, {id: rel._id, relation: rel},
 							function (data) {
 								if (data.error) return reportServerError($scope, data.error);
 								r.data = rel.data;
@@ -1126,13 +1126,13 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 	);
 
 	//typeahead callbacks
-	$scope.typeaheadOptionsTags = {
-		minLength: 1,
-		highlight: true
-	};
 	$scope.datasetTags = {
 		name: 'tags',
 		displayKey: "value",
+		options: {
+			minLength: 1,
+			highlight: true
+		},
 		source: function (q, callback) {
 			var matches, substrRegex;
 			matches = [];
@@ -1204,7 +1204,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 
 	$scope.save = function () {
 		$scope.validate(function () {
-			api.save({id: $stateParams.id}, {ent: $scope.item},
+			api.save({id: $stateParams.id}, {id: $stateParams.id, ent: $scope.item},
 				function (data) {
 					if (data.error) return reportServerError($scope, data.error);
 					$scope.back();
@@ -1366,7 +1366,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 
 	$scope.save = function () {
 		$scope.validate(function () {
-			relations.save({id: $scope.relation._id}, {relation: $scope.relation},
+			relations.save({id: $scope.relation._id}, {id: $scope.relation._id, relation: $scope.relation},
 				function (data) {
 					if (data.error) return reportServerError($scope, data.error);
 					aftersave();
@@ -1394,15 +1394,14 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 		}
 	);
 
-	$scope.typeaheadOptionsEntities = {
-		minLength: 2,
-		highlight: true
-	};
-
 	var datasetEntity = function (prop) {
 		return {
 			name: 'entities',
 			prop: prop,
+			options: {
+				minLength: 2,
+				highlight: true
+			},
 			displayKey: "name",
 			source: function (q, callback) {
 				entities.list({search: q},
@@ -1420,13 +1419,13 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 	$scope.datasetEntitiesTwo = datasetEntity('two');
 
 	//typeahead callbacks
-	$scope.typeaheadOptionsTags = {
-		minLength: 1,
-		highlight: true
-	};
 	$scope.datasetTags = {
 		name: 'tags',
 		displayKey: "value",
+		options: {
+			minLength: 1,
+			highlight: true
+		},
 		source: function (q, callback) {
 			var matches, substrRegex;
 			matches = [];
@@ -1566,7 +1565,7 @@ app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, en
 				question: 'Soll "' + $scope.item.name + '"-"' + rel.entity.name + '" gelöscht werden?'
 			}
 			, function (data) {
-				relations.remove({id: rel._id}, function () {
+				relations.remove({id: rel._id}, {id: rel._id}, function () {
 					$scope.relations = $scope.relations.filter(function (oe) {
 						return oe != rel;
 					});
@@ -1655,8 +1654,7 @@ app.directive('ngtypeahead', function () {
 		restrict: 'AC',       // Only apply on an attribute or class
 		require: '?ngModel',  // The two-way data bound value that is returned by the directive
 		scope: {
-			options: '=',       // The typeahead configuration options (https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#options)
-			datasets: '='       // The typeahead datasets to use (https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#datasets)
+			datasets: '='       // The typeahead configuration options (https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#options) with options subobject for The typeahead datasets to use (https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#datasets)
 		},
 		link: function (scope, element, attrs, ngModel) {
 
@@ -1664,7 +1662,7 @@ app.directive('ngtypeahead', function () {
 				// Flag if user is selecting or not
 				var selecting = false;
 				// Create the typeahead on the element
-				element.typeahead(scope.options, scope.datasets);
+				element.typeahead(scope.datasets.options, scope.datasets);
 
 				element.keypress(function (e) {
 					if (e.which == 13) {
@@ -1680,7 +1678,7 @@ app.directive('ngtypeahead', function () {
 				// Parses what is going to be set to model
 				ngModel.$parsers.push(function (fromView) {
 					var _ref = null;
-					if (((_ref = scope.options) != null ? _ref.editable : void 0) === false) {
+					if (((_ref = scope.datasets.options) != null ? _ref.editable : void 0) === false) {
 						ngModel.$setValidity('typeahead', !selecting);
 						if (selecting) {
 							return undefined;
@@ -1774,7 +1772,7 @@ app.directive('ngtypeahead', function () {
 				);
 			}
 
-			if (scope.options && scope.datasets)
+			if (scope.datasets)
 				init();
 		}
 	};

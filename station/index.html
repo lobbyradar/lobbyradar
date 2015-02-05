@@ -368,7 +368,7 @@
 				<label>Schlagworte</label>
 
 				<div class="has-feedback">
-					<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" options="typeaheadOptionsTags" datasets="datasetTags" ngtypeahead>
+					<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" datasets="datasetTags" ngtypeahead>
 					<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
 				</div>
 				<div class="label-list">
@@ -715,7 +715,7 @@
 			<div class="form-group">
 				<label>{{data.entity.name}} zusammenführen mit</label>
 				<div class="has-feedback">
-					<input type="text" class="form-control" placeholder="{{data.modename}}" ng-model="data.edit.name" options="typeaheadOptionsEntities" datasets="typeaheadDatasetEntities" ngtypeahead>
+					<input type="text" class="form-control" placeholder="{{data.modename}}" ng-model="data.edit.name" datasets="typeaheadDatasetEntities" ngtypeahead>
 					<span ng-show="data.edit._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
 				</div>
 			</div>
@@ -824,9 +824,7 @@
 			<form class="form">
 				<div class="form-group col-md-12" ng-controller="TagEdit">
 					<div class="has-feedback">
-						<input type="text" class="form-control" placeholder="{{d.desc}}" ng-model="edit[d.key]" ng-enter="addTagEntry(d, edit[d.key])"
-							   options="d.typeaheadOptions" datasets="d.dataset" ngtypeahead
-								>
+						<input type="text" class="form-control" placeholder="{{d.desc}}" ng-model="edit[d.key]" ng-enter="addTagEntry(d, edit[d.key])" datasets="d.dataset" ngtypeahead>
 						<span ng-show="canAddTagEntry(d, edit[d.key])" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addTagEntry(d, edit[d.key])"></span>
 					</div>
 					<div class="label-list">
@@ -884,7 +882,7 @@
 			<label>Bezug 1</label>
 
 			<div class="has-feedback">
-				<input type="text" class="form-control" placeholder="Bezug 1" ng-model="edit.one.name" options="typeaheadOptionsEntities" datasets="datasetEntitiesOne" ngtypeahead>
+				<input type="text" class="form-control" placeholder="Bezug 1" ng-model="edit.one.name" datasets="datasetEntitiesOne" ngtypeahead>
 				<span ng-show="edit.one._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
 			</div>
 		</div>
@@ -892,7 +890,7 @@
 			<label>Bezug 2</label>
 
 			<div class="has-feedback">
-				<input type="text" class="form-control" placeholder="Bezug 2" ng-model="edit.two.name" options="typeaheadOptionsEntities" datasets="datasetEntitiesTwo" ngtypeahead>
+				<input type="text" class="form-control" placeholder="Bezug 2" ng-model="edit.two.name" datasets="datasetEntitiesTwo" ngtypeahead>
 				<span ng-show="edit.two._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
 			</div>
 		</div>
@@ -904,7 +902,7 @@
 			<label>Schlagworte</label>
 
 			<div class="has-feedback">
-				<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" options="typeaheadOptionsTags" datasets="datasetTags" ngtypeahead>
+				<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" datasets="datasetTags" ngtypeahead>
 				<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
 			</div>
 			<div class="label-list">
