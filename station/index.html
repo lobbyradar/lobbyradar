@@ -187,9 +187,10 @@
 				<span ng-bind="getDispayValues(f,p)"></span>
 				<span ng-show="f._type!=='extras'" class="btn-left" title="{{f.name}} bearbeiten" ng-click="editData(f,p)"><i class="fa fa-pencil"></i></span>
 			</td>
-			<td class="col-action">
+			<td class="col-action-large">
 				<span class="btn-right" ng-click="remove(p)" title="Person löschen"><i class="fa fa-trash"></i></span>
 				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
+				<span class="btn-right" ng-click='mergeDialog(p)' title="Personen zusammenführen"><i class="fa fa-code-fork fa-rotate-270"></i></span>
 				<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
 			</td>
 		</tr>
@@ -697,6 +698,30 @@
 	</div>
 	<div class="modal-footer">
 		<button class="btn btn-default" ng-show="!data.fields[0].fixed" ng-click="data.newField(fields)">Feld anlegen</button>
+		<button class="btn btn-primary" ng-click="ok()" translate>OK</button>
+		<button class="btn btn-warning" ng-click="cancel()" translate>Abbruch</button>
+	</div>
+
+</script>
+
+<script type="text/ng-template" id="partials/merge-modal.html">
+
+	<div class="modal-header">
+		<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
+		<h4 class="modal-title">{{data.modename}} zusammenführen</h4>
+	</div>
+	<div class="modal-body" ng-controller="MergeEntitiyCtrl">
+		<form class="form">
+			<div class="form-group">
+				<label>{{data.entity.name}} zusammenführen mit</label>
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="{{data.modename}}" ng-model="data.edit.name" options="typeaheadOptionsEntities" datasets="typeaheadDatasetEntities" ngtypeahead>
+					<span ng-show="data.edit._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
 		<button class="btn btn-primary" ng-click="ok()" translate>OK</button>
 		<button class="btn btn-warning" ng-click="cancel()" translate>Abbruch</button>
 	</div>

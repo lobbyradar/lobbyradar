@@ -139,6 +139,10 @@ app.factory('entities', function ($resource) {
 			item: {
 				method: 'GET',
 				params: {cmd: 'get'}
+			},
+			merge: {
+				method: 'POST',
+				params: {cmd: 'merge'}
 			}
 		}
 	);
@@ -447,6 +451,26 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		$scope.tableParams.reload();
 	};
 
+	$scope.removeFromList = function (id) {
+		list = list.filter(function (oe) {
+			return oe._id != id;
+		});
+		$scope.refilter();
+	};
+
+	$scope.reloadEntry = function (item, cb) {
+		api.item({id: item._id}, function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			var i = list.indexOf(item);
+			if (i >= 0) list[i] = data.result;
+			$scope.refilter();
+			if (cb) cb();
+		}, function (err) {
+			console.error(err);
+		});
+	};
+
+
 	$scope.remove = function (o) {
 		okcancelModalDialog($modal,
 			{
@@ -455,10 +479,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 			}
 			, function () {
 				api.remove({id: o._id}, function () {
-					list = list.filter(function (oe) {
-						return oe != o;
-					});
-					$scope.refilter();
+					$scope.removeFromList(o);
 				}, function (err) {
 					console.error(err);
 				})
@@ -495,19 +516,16 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		$defer.resolve(current);
 	};
 
-	$scope.tableParams = new ngTableParams(
-		{
-			page: 1,
-			count: 10,
-			sorting: {
-				name: 'asc'
-			}
-		},
-		{
-			total: 0,
-			getData: getData
+	$scope.tableParams = new ngTableParams({
+		page: 1,
+		count: 10,
+		sorting: {
+			name: 'asc'
 		}
-	);
+	}, {
+		total: 0,
+		getData: getData
+	});
 	$scope.$watch("filter.text", $scope.refilter);
 
 	$scope.reload = function () {
@@ -528,7 +546,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	$scope.reload();
 };
 
-var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, ngTableParams, api, fields, tags, mode) {
+var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, ngTableParams, api, entities, fields, tags, mode, modename) {
 
 	$scope.q = {
 		fields: []
@@ -545,16 +563,11 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 	$scope.q.fields.push(fixedfields[2]);
 
 	fields.list({mode: mode}, function (data) {
-			if (data.error) return reportServerError($scope, data.error);
-			$scope.fields = fixedfields.concat(data.result);
-		}
-
-		,
-		function (err) {
-			console.error(err);
-		}
-	)
-	;
+		if (data.error) return reportServerError($scope, data.error);
+		$scope.fields = fixedfields.concat(data.result);
+	}, function (err) {
+		console.error(err);
+	});
 
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, api, function () {
 		var q = {};
@@ -739,15 +752,41 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 				infoModalDialog($modal, {
 					item: data.result
 				}, 'partials/relations-modal.html', function (data) {
-					if (data) {
-						alert('ok');
-					}
+					$scope.reloadEntry(item);
 				});
 			},
 			function (err) {
 				console.error(err);
 			}
 		);
+	};
+
+	$scope.mergeDialog = function (item) {
+		editModalDialog($modal,
+			{
+				entity: item,
+				modename: modename,
+				mode: mode,
+				edit: {},
+				validate: function (result, cb) {
+					if (result.edit._id) {
+						entities.merge(
+							{ids: [item._id, result.edit._id]},
+							function (data) {
+								if (data.error) return reportServerError($scope, data.error);
+								$scope.removeFromList(result.edit._id);
+								$scope.reloadEntry(item, cb);
+							},
+							function (err) {
+								console.error(err);
+							}
+						)
+					}
+				}
+			},
+			'partials/merge-modal.html'
+			, function (data) {
+			});
 
 	};
 
@@ -755,12 +794,52 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 	//console.log(searchObject);
 };
 
-app.controller('PersonsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, persons, fields, tags) {
-	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, persons, fields, tags, 'persons');
+app.controller('MergeEntitiyCtrl', function ($scope, entities) {
+	var mode = $scope.data.mode;
+	$scope.data.org = {};
+	$scope.typeaheadOptionsEntities = {
+		minLength: 2,
+		highlight: true
+	};
+	$scope.typeaheadDatasetEntities = {
+		name: 'entities',
+		displayKey: "name",
+		source: function (q, callback) {
+			entities.list(
+				{
+					search: q,
+					type: mode == 'persons' ? 'person' : 'entity'
+				},
+				function (data) {
+					if (data.error) return reportServerError($scope, data.error);
+					callback(data.result);
+				}, function (err) {
+					console.error(err);
+				});
+		}
+	};
+
+	var typeaheadenter = function (sender, event, value, daset, clear) {
+		if (typeof value !== 'string') {
+			$scope.data.org.name = value.name;
+			$scope.data.edit.name = value.name;
+			$scope.data.edit._id = value._id;
+		}
+	};
+	$scope.$on("typeahead:enter", typeaheadenter);
+	$scope.$on("typeahead:selected", typeaheadenter);
+	$scope.$on("typeahead:changed", function (sender, value, daset) {
+		if ($scope.data.org.name !== value)
+			$scope.data.edit._id = null;
+	});
 });
 
-app.controller('OrganisationsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, fields, tags) {
-	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, fields, tags, 'organisations');
+app.controller('PersonsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, persons, entities, fields, tags) {
+	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, persons, entities, fields, tags, 'persons', 'Person');
+});
+
+app.controller('OrganisationsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, entities, fields, tags) {
+	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, entities, fields, tags, 'organisations', 'Organisation');
 });
 
 app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, relations, fields, tags) {
@@ -1264,7 +1343,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 	$scope.relation = {
 		tags: [],
 		entities: ['', ''],
-		data:[]
+		data: []
 	};
 
 	$scope.modename = 'Verbindung';
