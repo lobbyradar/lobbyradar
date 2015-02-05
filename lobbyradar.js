@@ -383,7 +383,7 @@ app.post("/api/fields/update/:id", function (req, res) {
 });
 
 // get fields from entities.
-app.post("/api/fields/entities", function (req, res) {
+app.get("/api/fields/entities", function (req, res) {
 	debug("get fields from entities");
 	api.field_ents(function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
