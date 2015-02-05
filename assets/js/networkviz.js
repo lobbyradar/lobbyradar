@@ -83,15 +83,17 @@ var NetworkViz = (function () {
 
 		var node = node_positions[id];
 		var zoom = Math.round(13 - Math.log(node.r)/Math.log(2));
-		map.setView(L.latLng(-node.y, node.x), zoom, {animate:true})
-		//showLabel(node);
-	}
-/*
-		function showLabel(node) {
 
-		}
+		var centerPoint = map.getSize();
+
+		var latLng = L.latLng(-node.y, node.x);
+		var centerPoint = map.getSize();
+		latLng = map.project(latLng, zoom);
+		latLng.x += centerPoint.x/4;
+		latLng = map.unproject(latLng, zoom);
+
+		map.setView(latLng, zoom, {animate:true})
 	}
-	*/
 
 	return {
 		panToEntity: panToEntity
