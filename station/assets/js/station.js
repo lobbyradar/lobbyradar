@@ -390,7 +390,8 @@ app.controller('AppCtrl', function ($rootScope, $scope) {
 			"link": "Link",
 			"bool": "Ja/Nein-Wert",
 			"address": "Adresse"
-		}
+		},
+		states: {}
 	};
 
 	$scope.getDispayValues = function (field, entity) {
@@ -430,16 +431,29 @@ app.controller('AppCtrl', function ($rootScope, $scope) {
 
 });
 
-var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api, get_fields) {
+var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api, mode, get_fields) {
+
+	//defaults
+	if (!$scope.globals.states[mode]) $scope.globals.states[mode] = {};
+	var state = $scope.globals.states[mode];
+	$scope.state = state;
+	state.filter = state.filter || {
+		text: '',
+		special: false
+	};
+	state.table = state.table || {
+		page: 1,
+		count: 10,
+		sorting: {
+			name: 'asc'
+		}
+	};
 
 	$scope.loading = true;
 
 	var list = [];
 
-	$scope.filter = {
-		text: '',
-		special: false
-	};
+	$scope.filter = state.filter;
 
 	$scope.refilter = function () {
 		if (list.length)
@@ -470,7 +484,6 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		});
 	};
 
-
 	$scope.remove = function (o) {
 		okcancelModalDialog($modal,
 			{
@@ -492,6 +505,10 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	};
 
 	var getData = function ($defer, params) {
+
+		state.table.page = params.page();
+		state.table.count = params.count();
+		state.table.sorting = params.sorting();
 
 		var orderedData = $scope.filter.text.length == 0 ? list : list.filter(function (o) {
 			return (
@@ -516,13 +533,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		$defer.resolve(current);
 	};
 
-	$scope.tableParams = new ngTableParams({
-		page: 1,
-		count: 10,
-		sorting: {
-			name: 'asc'
-		}
-	}, {
+	$scope.tableParams = new ngTableParams(state.table, {
 		total: 0,
 		getData: getData
 	});
@@ -548,19 +559,23 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 
 var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, ngTableParams, api, entities, fields, tags, mode, modename) {
 
-	$scope.q = {
-		fields: []
-	};
+	if (!$scope.globals.states[mode]) $scope.globals.states[mode] = {};
+	var state = $scope.globals.states[mode];
+	$scope.state = state;
+	state.fields = state.fields || [];
+
 	var fixedfields = [
-		{name: 'Name', key: 'name', format: 'string', _type: 'fields', visible: true},
-		{name: 'Aliase', key: 'aliases', format: 'tags', _type: 'fields', visible: true},
-		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields', visible: true},
+		{name: 'Name', key: 'name', format: 'string', _type: 'fields'},
+		{name: 'Aliase', key: 'aliases', format: 'tags', _type: 'fields'},
+		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'},
 		{name: 'Anzahl Verbindungen', key: 'connections', format: 'number', _type: 'extras'}
 	];
 
-	$scope.q.fields.push(fixedfields[0]);
-	$scope.q.fields.push(fixedfields[1]);
-	$scope.q.fields.push(fixedfields[2]);
+	if (state.fields.length == 0) {
+		state.fields.push(fixedfields[0]);
+		state.fields.push(fixedfields[1]);
+		state.fields.push(fixedfields[2]);
+	}
 
 	fields.list({mode: mode}, function (data) {
 		if (data.error) return reportServerError($scope, data.error);
@@ -569,9 +584,9 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 		console.error(err);
 	});
 
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, api, function () {
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, api, mode, function () {
 		var q = {};
-		$scope.q.fields.forEach(function (f) {
+		state.fields.forEach(function (f) {
 			var type = f._type || 'keys';
 			q[type] = q[type] || [];
 			q[type].push(f.key);
@@ -730,18 +745,20 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 		});
 	};
 
+	$scope.isFieldActive = function (field) {
+		return state.fields.filter(function (f) {
+				return f.key == field.key;
+			}).length > 0;
+	};
+
 	$scope.toggleField = function (field) {
-		if (!field.visible)
-			$scope.q.fields.push(field);
-		else {
-			$scope.q.fields = $scope.q.fields.filter(function (f) {
-				return f !== field;
-			})
+		if ($scope.isFieldActive(field)) {
+			state.fields = state.fields.filter(function (f) {
+				return f.key !== field.key;
+			});
+		} else {
+			state.fields.push(field);
 		}
-		field.visible = !field.visible;
-		//$location.search('fields', $scope.q.fields.map(function (f) {
-		//	return f.key;
-		//}).join(','));
 		$scope.reload();
 	};
 
@@ -843,19 +860,30 @@ app.controller('OrganisationsCtrl', function ($scope, $location, $resource, $fil
 });
 
 app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, relations, fields, tags) {
+	var mode = 'relations';
 
-	$scope.q = {
-		fields: []
-	};
+	if (!$scope.globals.states[mode]) $scope.globals.states[mode] = {};
+	var state = $scope.globals.states[mode];
+	$scope.state = state;
+	state.fields = state.fields || [];
+
 	var fixedfields = [
-		{name: 'Name', key: 'name', format: 'string', _type: 'extras', visible: true},
-		{name: 'Art', key: 'type', format: 'string', _type: 'fields', visible: true},
-		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields', visible: true}
+		{name: 'Name', key: 'name', format: 'string', _type: 'extras'},
+		{name: 'Art', key: 'type', format: 'string', _type: 'fields'},
+		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'}
 	];
 
-	$scope.q.fields.push(fixedfields[0]);
-	$scope.q.fields.push(fixedfields[1]);
-	$scope.q.fields.push(fixedfields[2]);
+	$scope.isFieldActive = function (field) {
+		return state.fields.filter(function (f) {
+				return f.key == field.key;
+			}).length > 0;
+	};
+
+	if (state.fields.length == 0) {
+		state.fields.push(fixedfields[0]);
+		state.fields.push(fixedfields[1]);
+		state.fields.push(fixedfields[2]);
+	}
 
 	fields.list({mode: 'relations'}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
@@ -866,9 +894,9 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 		}
 	);
 
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, relations, function () {
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, relations, mode, function () {
 		var q = {};
-		$scope.q.fields.forEach(function (f) {
+		state.fields.forEach(function (f) {
 			var type = f._type || 'keys';
 			q[type] = q[type] || [];
 			q[type].push(f.key);
@@ -880,14 +908,13 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 	});
 
 	$scope.toggleField = function (field) {
-		if (!field.visible)
-			$scope.q.fields.push(field);
-		else {
-			$scope.q.fields = $scope.q.fields.filter(function (f) {
-				return f !== field;
-			})
+		if ($scope.isFieldActive(field)) {
+			state.fields = state.fields.filter(function (f) {
+				return f.key !== field.key;
+			});
+		} else {
+			state.fields.push(field);
 		}
-		field.visible = !field.visible;
 		$scope.reload();
 	};
 
@@ -1042,11 +1069,11 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 });
 
 app.controller('FieldsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, fields) {
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, fields);
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, fields, 'fields');
 });
 
 app.controller('UsersCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, users) {
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, users);
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, users, 'users');
 });
 
 app.controller('TagEdit', function ($scope) {
