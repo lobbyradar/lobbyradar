@@ -6584,9 +6584,12 @@ button.close {
 #networkviz-wrapper {
   position: fixed;
   width: 100%;
-  height: 100%;
-  top: 0;
+  top: 46px;
   left: 0;
+  bottom: 0px;
+}
+#networkviz-wrapper .leaflet-top {
+  top: 82px;
 }
 #networkviz {
   background: none;
