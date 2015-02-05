@@ -6601,6 +6601,15 @@ button.close {
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;
 }
+.leaflet-label {
+  position: absolute;
+  color: #000;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  font-size: 16px;
+}
 svg {
   position: fixed!important;
   top: 0;

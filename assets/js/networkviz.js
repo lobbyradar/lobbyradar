@@ -76,12 +76,9 @@ var NetworkViz = (function () {
 
 	function panToEntity(id) {
 		if (!initialized) init();
-		if (!node_positions[id]) {
-			console.log('id not found "'+id+'"')
-			return;
-		}
-
 		var node = node_positions[id];
+		if (!node) return console.log('id not found "'+id+'"');
+
 		var zoom = Math.round(13 - Math.log(node.r)/Math.log(2));
 
 		var centerPoint = map.getSize();
@@ -95,7 +92,93 @@ var NetworkViz = (function () {
 		map.setView(latLng, zoom, {animate:true})
 	}
 
+	function clearEntities() {
+		
+	}
+
+	function showLabel(id) {
+		var node = node_positions[id];
+		if (!node) return console.log('id not found "'+id+'"');
+		
+		var latLng = L.latLng(-node.y, node.x);
+		var label = L.label(latLng, {text:node.name});
+		label.addTo(labelLayer);
+	}
+
+	function showEntity(id) {
+		showLabel(id);
+	}
+
+	function highlightEntity(id) {
+		if (!initialized) init();
+
+		panToEntity(id);
+		clearEntities();
+		showEntity(id);
+	}
+
 	return {
+		highlightEntity: highlightEntity,
 		panToEntity: panToEntity
 	}
-})()
+})();
+
+L.Label = L.Class.extend({
+
+	includes: L.Mixin.Events,
+
+	options: {
+		text: 'text'
+	},
+
+	label: false,
+
+	initialize: function (latlng, options) {
+		L.setOptions(this, options);
+		this._latlng = L.latLng(latlng);
+	},
+
+	_initLabel: function () {
+		this.label = $('<div class="leaflet-label"></div>');
+		this.label.text(this.options.text);
+
+		var panes = this._map._panes;
+
+		$(panes.markerPane).append(this.label);
+	},
+
+	update: function () {
+		if (this.label) {
+			var pos = this._map.latLngToLayerPoint(this._latlng).round();
+			this.label.css({
+				left:pos.x - this.label.width()/2,
+				top: pos.y - this.label.height()/2
+			});
+		}
+
+		return this;
+	},
+
+	onAdd: function (map) {
+		this._map = map;
+
+		map.on('viewreset', this.update, this);
+
+		this._initLabel();
+		this.update();
+		this.fire('add');
+
+		if (map.options.zoomAnimation && map.options.markerZoomAnimation) {
+			map.on('zoomanim', this._animateZoom, this);
+		}
+	},
+
+	addTo: function (map) {
+		map.addLayer(this);
+		return this;
+	}
+});
+
+L.label = function (latlng, options) {
+	return new L.Label(latlng, options);
+};
