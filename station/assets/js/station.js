@@ -139,6 +139,10 @@ app.factory('entities', function ($resource) {
 			item: {
 				method: 'GET',
 				params: {cmd: 'get'}
+			},
+			merge: {
+				method: 'POST',
+				params: {cmd: 'merge'}
 			}
 		}
 	);
@@ -386,7 +390,8 @@ app.controller('AppCtrl', function ($rootScope, $scope) {
 			"link": "Link",
 			"bool": "Ja/Nein-Wert",
 			"address": "Adresse"
-		}
+		},
+		states: {}
 	};
 
 	$scope.getDispayValues = function (field, entity) {
@@ -426,16 +431,29 @@ app.controller('AppCtrl', function ($rootScope, $scope) {
 
 });
 
-var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api, get_fields) {
+var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api, mode, get_fields) {
+
+	//defaults
+	if (!$scope.globals.states[mode]) $scope.globals.states[mode] = {};
+	var state = $scope.globals.states[mode];
+	$scope.state = state;
+	state.filter = state.filter || {
+		text: '',
+		special: false
+	};
+	state.table = state.table || {
+		page: 1,
+		count: 10,
+		sorting: {
+			name: 'asc'
+		}
+	};
 
 	$scope.loading = true;
 
 	var list = [];
 
-	$scope.filter = {
-		text: '',
-		special: false
-	};
+	$scope.filter = state.filter;
 
 	$scope.refilter = function () {
 		if (list.length)
@@ -447,6 +465,25 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		$scope.tableParams.reload();
 	};
 
+	$scope.removeFromList = function (id) {
+		list = list.filter(function (oe) {
+			return oe._id != id;
+		});
+		$scope.refilter();
+	};
+
+	$scope.reloadEntry = function (item, cb) {
+		api.item({id: item._id}, function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			var i = list.indexOf(item);
+			if (i >= 0) list[i] = data.result;
+			$scope.refilter();
+			if (cb) cb();
+		}, function (err) {
+			console.error(err);
+		});
+	};
+
 	$scope.remove = function (o) {
 		okcancelModalDialog($modal,
 			{
@@ -454,11 +491,8 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 				question: 'Soll "' + o.name + '" gelöscht werden?'
 			}
 			, function () {
-				api.remove({id: o._id}, function () {
-					list = list.filter(function (oe) {
-						return oe != o;
-					});
-					$scope.refilter();
+				api.remove({id: o._id}, {id: o._id}, function () {
+					$scope.removeFromList(o._id);
 				}, function (err) {
 					console.error(err);
 				})
@@ -471,6 +505,10 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	};
 
 	var getData = function ($defer, params) {
+
+		state.table.page = params.page();
+		state.table.count = params.count();
+		state.table.sorting = params.sorting();
 
 		var orderedData = $scope.filter.text.length == 0 ? list : list.filter(function (o) {
 			return (
@@ -495,19 +533,10 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		$defer.resolve(current);
 	};
 
-	$scope.tableParams = new ngTableParams(
-		{
-			page: 1,
-			count: 10,
-			sorting: {
-				name: 'asc'
-			}
-		},
-		{
-			total: 0,
-			getData: getData
-		}
-	);
+	$scope.tableParams = new ngTableParams(state.table, {
+		total: 0,
+		getData: getData
+	});
 	$scope.$watch("filter.text", $scope.refilter);
 
 	$scope.reload = function () {
@@ -528,37 +557,36 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	$scope.reload();
 };
 
-var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, ngTableParams, api, fields, tags, mode) {
+var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, ngTableParams, api, entities, fields, tags, mode, modename) {
 
-	$scope.q = {
-		fields: []
-	};
+	if (!$scope.globals.states[mode]) $scope.globals.states[mode] = {};
+	var state = $scope.globals.states[mode];
+	$scope.state = state;
+	state.fields = state.fields || [];
+
 	var fixedfields = [
-		{name: 'Name', key: 'name', format: 'string', _type: 'fields', visible: true},
-		{name: 'Aliase', key: 'aliases', format: 'tags', _type: 'fields', visible: true},
-		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields', visible: true},
+		{name: 'Name', key: 'name', format: 'string', _type: 'fields'},
+		{name: 'Aliase', key: 'aliases', format: 'tags', _type: 'fields'},
+		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'},
 		{name: 'Anzahl Verbindungen', key: 'connections', format: 'number', _type: 'extras'}
 	];
 
-	$scope.q.fields.push(fixedfields[0]);
-	$scope.q.fields.push(fixedfields[1]);
-	$scope.q.fields.push(fixedfields[2]);
+	if (state.fields.length == 0) {
+		state.fields.push(fixedfields[0]);
+		state.fields.push(fixedfields[1]);
+		state.fields.push(fixedfields[2]);
+	}
 
 	fields.list({mode: mode}, function (data) {
-			if (data.error) return reportServerError($scope, data.error);
-			$scope.fields = fixedfields.concat(data.result);
-		}
+		if (data.error) return reportServerError($scope, data.error);
+		$scope.fields = fixedfields.concat(data.result);
+	}, function (err) {
+		console.error(err);
+	});
 
-		,
-		function (err) {
-			console.error(err);
-		}
-	)
-	;
-
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, api, function () {
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, api, mode, function () {
 		var q = {};
-		$scope.q.fields.forEach(function (f) {
+		state.fields.forEach(function (f) {
 			var type = f._type || 'keys';
 			q[type] = q[type] || [];
 			q[type].push(f.key);
@@ -584,13 +612,13 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 						fixed: true
 					};
 					if (field.key == 'tags') {
-						o.typeaheadOptions = {
-							minLength: 1,
-							highlight: true
-						};
 						o.dataset = {
 							name: 'tags',
 							displayKey: "value",
+							options: {
+								minLength: 1,
+								highlight: true
+							},
 							source: function (q, callback) {
 								var matches = [];
 								var search = function () {
@@ -679,7 +707,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 								}
 							}
 						});
-						api.save({id: entity._id}, {ent: entity},
+						api.save({id: entity._id}, {id: entity._id, ent: entity},
 							function (data) {
 								if (data.error) return reportServerError($scope, data.error);
 								e.data = entity.data;
@@ -717,18 +745,20 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 		});
 	};
 
+	$scope.isFieldActive = function (field) {
+		return state.fields.filter(function (f) {
+				return f.key == field.key;
+			}).length > 0;
+	};
+
 	$scope.toggleField = function (field) {
-		if (!field.visible)
-			$scope.q.fields.push(field);
-		else {
-			$scope.q.fields = $scope.q.fields.filter(function (f) {
-				return f !== field;
-			})
+		if ($scope.isFieldActive(field)) {
+			state.fields = state.fields.filter(function (f) {
+				return f.key !== field.key;
+			});
+		} else {
+			state.fields.push(field);
 		}
-		field.visible = !field.visible;
-		//$location.search('fields', $scope.q.fields.map(function (f) {
-		//	return f.key;
-		//}).join(','));
 		$scope.reload();
 	};
 
@@ -739,15 +769,41 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 				infoModalDialog($modal, {
 					item: data.result
 				}, 'partials/relations-modal.html', function (data) {
-					if (data) {
-						alert('ok');
-					}
+					$scope.reloadEntry(item);
 				});
 			},
 			function (err) {
 				console.error(err);
 			}
 		);
+	};
+
+	$scope.mergeDialog = function (item) {
+		editModalDialog($modal,
+			{
+				entity: item,
+				modename: modename,
+				mode: mode,
+				edit: {},
+				validate: function (result, cb) {
+					if (result.edit._id) {
+						entities.merge(
+							{ids: [item._id, result.edit._id]},
+							function (data) {
+								if (data.error) return reportServerError($scope, data.error);
+								$scope.removeFromList(result.edit._id);
+								$scope.reloadEntry(item, cb);
+							},
+							function (err) {
+								console.error(err);
+							}
+						)
+					}
+				}
+			},
+			'partials/merge-modal.html'
+			, function (data) {
+			});
 
 	};
 
@@ -755,28 +811,79 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 	//console.log(searchObject);
 };
 
-app.controller('PersonsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, persons, fields, tags) {
-	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, persons, fields, tags, 'persons');
+app.controller('MergeEntitiyCtrl', function ($scope, entities) {
+	var mode = $scope.data.mode;
+	$scope.data.org = {};
+	$scope.typeaheadDatasetEntities = {
+		name: 'entities',
+		displayKey: "name",
+		options: {
+			minLength: 2,
+			highlight: true
+		},
+		source: function (q, callback) {
+			entities.list(
+				{
+					search: q,
+					type: mode == 'persons' ? 'person' : 'entity'
+				},
+				function (data) {
+					if (data.error) return reportServerError($scope, data.error);
+					callback(data.result);
+				}, function (err) {
+					console.error(err);
+				});
+		}
+	};
+
+	var typeaheadenter = function (sender, event, value, daset, clear) {
+		if (typeof value !== 'string') {
+			$scope.data.org.name = value.name;
+			$scope.data.edit.name = value.name;
+			$scope.data.edit._id = value._id;
+		}
+	};
+	$scope.$on("typeahead:enter", typeaheadenter);
+	$scope.$on("typeahead:selected", typeaheadenter);
+	$scope.$on("typeahead:changed", function (sender, value, daset) {
+		if ($scope.data.org.name !== value)
+			$scope.data.edit._id = null;
+	});
 });
 
-app.controller('OrganisationsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, fields, tags) {
-	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, fields, tags, 'organisations');
+app.controller('PersonsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, persons, entities, fields, tags) {
+	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, persons, entities, fields, tags, 'persons', 'Person');
+});
+
+app.controller('OrganisationsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, entities, fields, tags) {
+	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, entities, fields, tags, 'organisations', 'Organisation');
 });
 
 app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, relations, fields, tags) {
+	var mode = 'relations';
 
-	$scope.q = {
-		fields: []
-	};
+	if (!$scope.globals.states[mode]) $scope.globals.states[mode] = {};
+	var state = $scope.globals.states[mode];
+	$scope.state = state;
+	state.fields = state.fields || [];
+
 	var fixedfields = [
-		{name: 'Name', key: 'name', format: 'string', _type: 'extras', visible: true},
-		{name: 'Art', key: 'type', format: 'string', _type: 'fields', visible: true},
-		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields', visible: true}
+		{name: 'Name', key: 'name', format: 'string', _type: 'extras'},
+		{name: 'Art', key: 'type', format: 'string', _type: 'fields'},
+		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'}
 	];
 
-	$scope.q.fields.push(fixedfields[0]);
-	$scope.q.fields.push(fixedfields[1]);
-	$scope.q.fields.push(fixedfields[2]);
+	$scope.isFieldActive = function (field) {
+		return state.fields.filter(function (f) {
+				return f.key == field.key;
+			}).length > 0;
+	};
+
+	if (state.fields.length == 0) {
+		state.fields.push(fixedfields[0]);
+		state.fields.push(fixedfields[1]);
+		state.fields.push(fixedfields[2]);
+	}
 
 	fields.list({mode: 'relations'}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
@@ -787,9 +894,9 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 		}
 	);
 
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, relations, function () {
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, relations, mode, function () {
 		var q = {};
-		$scope.q.fields.forEach(function (f) {
+		state.fields.forEach(function (f) {
 			var type = f._type || 'keys';
 			q[type] = q[type] || [];
 			q[type].push(f.key);
@@ -801,14 +908,13 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 	});
 
 	$scope.toggleField = function (field) {
-		if (!field.visible)
-			$scope.q.fields.push(field);
-		else {
-			$scope.q.fields = $scope.q.fields.filter(function (f) {
-				return f !== field;
-			})
+		if ($scope.isFieldActive(field)) {
+			state.fields = state.fields.filter(function (f) {
+				return f.key !== field.key;
+			});
+		} else {
+			state.fields.push(field);
 		}
-		field.visible = !field.visible;
 		$scope.reload();
 	};
 
@@ -827,13 +933,13 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 						fixed: true
 					};
 					if (field.key == 'tags') {
-						o.typeaheadOptions = {
-							minLength: 1,
-							highlight: true
-						};
 						o.dataset = {
 							name: 'tags',
 							displayKey: "value",
+							options: {
+								minLength: 1,
+								highlight: true
+							},
 							source: function (q, callback) {
 								var matches = [];
 								var search = function () {
@@ -922,7 +1028,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 								}
 							}
 						});
-						relations.save({id: rel._id}, {relation: rel},
+						relations.save({id: rel._id}, {id: rel._id, relation: rel},
 							function (data) {
 								if (data.error) return reportServerError($scope, data.error);
 								r.data = rel.data;
@@ -963,11 +1069,11 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 });
 
 app.controller('FieldsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, fields) {
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, fields);
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, fields, 'fields');
 });
 
 app.controller('UsersCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, users) {
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, users);
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, users, 'users');
 });
 
 app.controller('TagEdit', function ($scope) {
@@ -1047,13 +1153,13 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 	);
 
 	//typeahead callbacks
-	$scope.typeaheadOptionsTags = {
-		minLength: 1,
-		highlight: true
-	};
 	$scope.datasetTags = {
 		name: 'tags',
 		displayKey: "value",
+		options: {
+			minLength: 1,
+			highlight: true
+		},
 		source: function (q, callback) {
 			var matches, substrRegex;
 			matches = [];
@@ -1125,7 +1231,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 
 	$scope.save = function () {
 		$scope.validate(function () {
-			api.save({id: $stateParams.id}, {ent: $scope.item},
+			api.save({id: $stateParams.id}, {id: $stateParams.id, ent: $scope.item},
 				function (data) {
 					if (data.error) return reportServerError($scope, data.error);
 					$scope.back();
@@ -1264,7 +1370,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 	$scope.relation = {
 		tags: [],
 		entities: ['', ''],
-		data:[]
+		data: []
 	};
 
 	$scope.modename = 'Verbindung';
@@ -1287,7 +1393,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 
 	$scope.save = function () {
 		$scope.validate(function () {
-			relations.save({id: $scope.relation._id}, {relation: $scope.relation},
+			relations.save({id: $scope.relation._id}, {id: $scope.relation._id, relation: $scope.relation},
 				function (data) {
 					if (data.error) return reportServerError($scope, data.error);
 					aftersave();
@@ -1315,15 +1421,14 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 		}
 	);
 
-	$scope.typeaheadOptionsEntities = {
-		minLength: 2,
-		highlight: true
-	};
-
 	var datasetEntity = function (prop) {
 		return {
 			name: 'entities',
 			prop: prop,
+			options: {
+				minLength: 2,
+				highlight: true
+			},
 			displayKey: "name",
 			source: function (q, callback) {
 				entities.list({search: q},
@@ -1341,13 +1446,13 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 	$scope.datasetEntitiesTwo = datasetEntity('two');
 
 	//typeahead callbacks
-	$scope.typeaheadOptionsTags = {
-		minLength: 1,
-		highlight: true
-	};
 	$scope.datasetTags = {
 		name: 'tags',
 		displayKey: "value",
+		options: {
+			minLength: 1,
+			highlight: true
+		},
 		source: function (q, callback) {
 			var matches, substrRegex;
 			matches = [];
@@ -1487,7 +1592,7 @@ app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, en
 				question: 'Soll "' + $scope.item.name + '"-"' + rel.entity.name + '" gelöscht werden?'
 			}
 			, function (data) {
-				relations.remove({id: rel._id}, function () {
+				relations.remove({id: rel._id}, {id: rel._id}, function () {
 					$scope.relations = $scope.relations.filter(function (oe) {
 						return oe != rel;
 					});
@@ -1576,8 +1681,7 @@ app.directive('ngtypeahead', function () {
 		restrict: 'AC',       // Only apply on an attribute or class
 		require: '?ngModel',  // The two-way data bound value that is returned by the directive
 		scope: {
-			options: '=',       // The typeahead configuration options (https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#options)
-			datasets: '='       // The typeahead datasets to use (https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#datasets)
+			datasets: '='       // The typeahead configuration options (https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#options) with options subobject for The typeahead datasets to use (https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#datasets)
 		},
 		link: function (scope, element, attrs, ngModel) {
 
@@ -1585,7 +1689,7 @@ app.directive('ngtypeahead', function () {
 				// Flag if user is selecting or not
 				var selecting = false;
 				// Create the typeahead on the element
-				element.typeahead(scope.options, scope.datasets);
+				element.typeahead(scope.datasets.options, scope.datasets);
 
 				element.keypress(function (e) {
 					if (e.which == 13) {
@@ -1601,7 +1705,7 @@ app.directive('ngtypeahead', function () {
 				// Parses what is going to be set to model
 				ngModel.$parsers.push(function (fromView) {
 					var _ref = null;
-					if (((_ref = scope.options) != null ? _ref.editable : void 0) === false) {
+					if (((_ref = scope.datasets.options) != null ? _ref.editable : void 0) === false) {
 						ngModel.$setValidity('typeahead', !selecting);
 						if (selecting) {
 							return undefined;
@@ -1695,7 +1799,7 @@ app.directive('ngtypeahead', function () {
 				);
 			}
 
-			if (scope.options && scope.datasets)
+			if (scope.datasets)
 				init();
 		}
 	};

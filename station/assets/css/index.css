@@ -129,7 +129,10 @@ body {
 
 .col-action {
 	width: 120px;
-	/*background: #000;*/
+}
+
+.col-action-large {
+	width: 150px;
 }
 
 .twitter-typeahead {
