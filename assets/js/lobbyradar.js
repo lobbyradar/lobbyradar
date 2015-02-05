@@ -48,6 +48,8 @@ function loadEntity(id) {
 	var req = null;
 	if (req) { req.abort(); }
 
+	NetworkViz.panToEntity(id);
+
 	req = $.getJSON("/api/entity/get/"+id, {relations:true}, function(data){
 		var $content = '<div class="entity">';
 	 
