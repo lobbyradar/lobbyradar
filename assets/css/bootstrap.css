@@ -5389,7 +5389,7 @@ a.list-group-item-danger.active:focus {
   min-height: 20px;
   padding: 19px;
   margin-bottom: 20px;
-  background-color: white;
+  background-color: #ffffff;
   color: #062b3e;
   border: 1px solid #ededed;
   border-radius: 1px;
@@ -6357,7 +6357,7 @@ button.close {
   float: left;
 }
 .zdf-header-blue .logo-name img {
-  margin: 10px 0px;
+  margin: 25px 0px 0px 0px;
   max-width: 150px;
 }
 .zdf-header-blue .logo-name .fa-stack {

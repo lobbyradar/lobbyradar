@@ -182,6 +182,8 @@ function loadEntity(id) {
 		$(".result-single .content ", "#main").append($content);
 		// reset request
 		req = null;
+		$(document).trigger('load_entity_complete');
+
 	});
 }
 
@@ -218,16 +220,16 @@ function loadEntity(id) {
 //                                                                            YMM   
 
 $( document ).ready(function() {
+	NetworkViz.panToEntity(); // missuse the func to get the viz on index
 
 	// set initial div height / width
 	$('.fullscreen').css({  'width': winWidth, 'height': winHeight });
 	$('.faq-page  ').css({  'width': winWidth, 'height': winHeight });
 
-
 	$(".lobbysearch").focus(function(){
 		$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
 	});
-
+		
 	$('.lobbysearch').keypress(function (e) {
 		if (e.which === 13) {
 			$( ".result-list" ).slideDown( "slow" );

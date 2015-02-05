@@ -43,12 +43,16 @@ var NetworkViz = (function () {
 		var map = L.map('networkviz', {
 			minZoom: 0,
 			maxZoom: 7,
-			zoom: 3,
+			zoom: 5,
 			center: [-0.5*f,0.5*f],
 			maxBounds: L.latLngBounds([-f,0],[0,f]),
 			crs: crs,
-			zoomAnimation: false
+			zoomAnimation: true,
+			zoomControl:false,
+			scrollWheelZoom:false
 		});
+		map.addControl( L.control.zoom({position: 'bottomleft'}) )
+
 
 		var layer = L.tileLayer('http://lobbyradar.opendatacloud.de/lobbynetwork/tiles/{z}/{y}/{x}.png', {
 			minZoom: 0,
