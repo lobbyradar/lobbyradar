@@ -4,6 +4,7 @@ var NetworkViz = (function () {
 
 	var positions = {};
 	var initialized = false;
+	var map, labelLayer;
 
 	function init() {
 		initialized = true;
@@ -40,7 +41,7 @@ var NetworkViz = (function () {
 
 		$('#networkviz').css({height:'100%'});
 
-		var map = L.map('networkviz', {
+		map = L.map('networkviz', {
 			minZoom: 0,
 			maxZoom: 7,
 			zoom: 3,
@@ -62,7 +63,7 @@ var NetworkViz = (function () {
 		
 		layer.addTo(map);
 
-		var labelLayer = L.layerGroup();
+		labelLayer = L.layerGroup();
 		labelLayer.addTo(map);
 	}
 	/*
