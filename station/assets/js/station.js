@@ -431,7 +431,7 @@ app.controller('AppCtrl', function ($rootScope, $scope) {
 
 });
 
-var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api, mode, get_fields) {
+var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api, mode, defaultcount, get_fields) {
 
 	//defaults
 	if (!$scope.globals.states[mode]) $scope.globals.states[mode] = {};
@@ -443,7 +443,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	};
 	state.table = state.table || {
 		page: 1,
-		count: 10,
+		count: defaultcount,
 		sorting: {
 			name: 'asc'
 		}
@@ -584,7 +584,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 		console.error(err);
 	});
 
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, api, mode, function () {
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, api, mode, 10, function () {
 		var q = {};
 		state.fields.forEach(function (f) {
 			var type = f._type || 'keys';
@@ -894,7 +894,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 		}
 	);
 
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, relations, mode, function () {
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, relations, mode, 10, function () {
 		var q = {};
 		state.fields.forEach(function (f) {
 			var type = f._type || 'keys';
@@ -1069,11 +1069,11 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 });
 
 app.controller('FieldsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, fields) {
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, fields, 'fields');
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, fields, 'fields', 200);
 });
 
 app.controller('UsersCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, users) {
-	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, users, 'users');
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, users, 'users', 200);
 });
 
 app.controller('TagEdit', function ($scope) {
