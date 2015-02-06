@@ -62,7 +62,6 @@
 
 <div class="container">
 	<div ui-view></div>
-
 	<br/>
 </div>
 
@@ -129,7 +128,7 @@
 
 			<div class="checkbox">
 				<label>
-					<input type="checkbox" ng-checked="specialnonstandardfilter" ng-click="toggleSpecialFilter()"> Nicht-Standard-Namen filtern
+					<input type="checkbox" ng-checked="filter.special" ng-click="toggleSpecialFilter()"> Nicht-Standard-Namen filtern
 				</label>
 			</div>
 
@@ -145,7 +144,7 @@
 					Daten anzeigen <span class="caret"></span>
 				</button>
 				<ul class="dropdown-menu" role="menu">
-					<li ng-repeat="o in fields" ng-class="{active:o.visible}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
+					<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
 				</ul>
 			</div>
 		</div>
@@ -167,7 +166,7 @@
 
 		<thead>
 		<tr>
-			<th ng-repeat="f in q.fields"
+			<th ng-repeat="f in state.fields"
 				class="sortable" ng-class="{
                     'sort-asc': tableParams.isSortBy(f.key, 'asc'),
                     'sort-desc': tableParams.isSortBy(f.key, 'desc')
@@ -183,13 +182,14 @@
 
 		<tbody>
 		<tr ng-repeat="p in $data">
-			<td ng-repeat="f in q.fields">
+			<td ng-repeat="f in state.fields">
 				<span ng-bind="getDispayValues(f,p)"></span>
 				<span ng-show="f._type!=='extras'" class="btn-left" title="{{f.name}} bearbeiten" ng-click="editData(f,p)"><i class="fa fa-pencil"></i></span>
 			</td>
-			<td class="col-action">
+			<td class="col-action-large">
 				<span class="btn-right" ng-click="remove(p)" title="Person löschen"><i class="fa fa-trash"></i></span>
 				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
+				<span class="btn-right" ng-click='mergeDialog(p)' title="Personen zusammenführen"><i class="fa fa-code-fork fa-rotate-270"></i></span>
 				<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
 			</td>
 		</tr>
@@ -217,7 +217,7 @@
 					Daten anzeigen <span class="caret"></span>
 				</button>
 				<ul class="dropdown-menu" role="menu">
-					<li ng-repeat="o in fields" ng-class="{active:o.visible}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
+					<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
 				</ul>
 			</div>
 		</div>
@@ -238,7 +238,7 @@
 
 		<thead>
 		<tr>
-			<th ng-repeat="f in q.fields"
+			<th ng-repeat="f in state.fields"
 				class="sortable" ng-class="{
                     'sort-asc': tableParams.isSortBy(f.key, 'asc'),
                     'sort-desc': tableParams.isSortBy(f.key, 'desc')
@@ -253,13 +253,14 @@
 
 		<tbody>
 		<tr ng-repeat="p in $data">
-			<td ng-repeat="f in q.fields">
+			<td ng-repeat="f in state.fields">
 				<span ng-bind="getDispayValues(f,p)"></span>
 				<span ng-show="f._type!=='extras'" class="btn-left" title="{{f.name}} bearbeiten" ng-click="editData(f,p)"><i class="fa fa-pencil"></i></span>
 			</td>
-			<td class="col-action">
+			<td class="col-action-large">
 				<span class="btn-right" ng-click="remove(p)" title="Organisation löschen"><i class="fa fa-trash"></i></span>
 				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
+				<span class="btn-right" ng-click='mergeDialog(p)' title="Organisationen zusammenführen"><i class="fa fa-code-fork fa-rotate-270"></i></span>
 				<span class="btn-right" ui-sref='organisation({id: p._id})' title="Organisation bearbeiten"><i class="fa fa-edit"></i></span>
 			</td>
 		</tr>
@@ -287,7 +288,7 @@
 					Daten anzeigen <span class="caret"></span>
 				</button>
 				<ul class="dropdown-menu" role="menu">
-					<li ng-repeat="o in fields" ng-class="{active:o.visible}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
+					<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
 				</ul>
 			</div>
 		</div>
@@ -308,7 +309,7 @@
 
 		<thead>
 		<tr>
-			<th ng-repeat="f in q.fields"
+			<th ng-repeat="f in state.fields"
 				class="sortable" ng-class="{
                     'sort-asc': tableParams.isSortBy(f.key, 'asc'),
                     'sort-desc': tableParams.isSortBy(f.key, 'desc')
@@ -323,7 +324,7 @@
 
 		<tbody>
 		<tr ng-repeat="p in $data">
-			<td ng-repeat="f in q.fields">
+			<td ng-repeat="f in state.fields">
 				<span ng-bind="getDispayValues(f,p)"></span>
 				<span ng-show="f._type!=='extras'" class="btn-left" title="{{f.name}} bearbeiten" ng-click="editData(f,p)"><i class="fa fa-pencil"></i></span>
 			</td>
@@ -367,7 +368,7 @@
 				<label>Schlagworte</label>
 
 				<div class="has-feedback">
-					<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" options="typeaheadOptionsTags" datasets="datasetTags" ngtypeahead>
+					<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" datasets="datasetTags" ngtypeahead>
 					<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
 				</div>
 				<div class="label-list">
@@ -703,6 +704,31 @@
 
 </script>
 
+<script type="text/ng-template" id="partials/merge-modal.html">
+
+	<div class="modal-header">
+		<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
+		<h4 class="modal-title">{{data.modename}} zusammenführen</h4>
+	</div>
+	<div class="modal-body" ng-controller="MergeEntitiyCtrl">
+		<form class="form">
+			<div class="form-group">
+				<label>{{data.entity.name}} zusammenführen mit</label>
+
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="{{data.modename}}" ng-model="data.edit.name" datasets="typeaheadDatasetEntities" ngtypeahead>
+					<span ng-show="data.edit._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="ok()" translate>OK</button>
+		<button class="btn btn-warning" ng-click="cancel()" translate>Abbruch</button>
+	</div>
+
+</script>
+
 <script type="text/ng-template" id="partials/datafields.html">
 
 	<div ng-repeat="d in fields" ng-switch="d.format">
@@ -799,9 +825,7 @@
 			<form class="form">
 				<div class="form-group col-md-12" ng-controller="TagEdit">
 					<div class="has-feedback">
-						<input type="text" class="form-control" placeholder="{{d.desc}}" ng-model="edit[d.key]" ng-enter="addTagEntry(d, edit[d.key])"
-							   options="d.typeaheadOptions" datasets="d.dataset" ngtypeahead
-								>
+						<input type="text" class="form-control" placeholder="{{d.desc}}" ng-model="edit[d.key]" ng-enter="addTagEntry(d, edit[d.key])" datasets="d.dataset" ngtypeahead>
 						<span ng-show="canAddTagEntry(d, edit[d.key])" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addTagEntry(d, edit[d.key])"></span>
 					</div>
 					<div class="label-list">
@@ -854,51 +878,52 @@
 
 <script type="text/ng-template" id="partials/relation-edits.html">
 
-	<form class="form">
-		<div class="form-group">
-			<label>Bezug 1</label>
+	<div ng-controller="RelationEditCtrl">
+		<form class="form">
+			<div class="form-group">
+				<label>Bezug 1</label>
 
-			<div class="has-feedback">
-				<input type="text" class="form-control" placeholder="Bezug 1" ng-model="edit.one.name" options="typeaheadOptionsEntities" datasets="datasetEntitiesOne" ngtypeahead>
-				<span ng-show="edit.one._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="Bezug 1" ng-model="edit.one.name" datasets="datasetEntitiesOne" ngtypeahead>
+					<span ng-show="edit.one._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label>Bezug 2</label>
+			<div class="form-group">
+				<label>Bezug 2</label>
 
-			<div class="has-feedback">
-				<input type="text" class="form-control" placeholder="Bezug 2" ng-model="edit.two.name" options="typeaheadOptionsEntities" datasets="datasetEntitiesTwo" ngtypeahead>
-				<span ng-show="edit.two._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="Bezug 2" ng-model="edit.two.name" datasets="datasetEntitiesTwo" ngtypeahead>
+					<span ng-show="edit.two._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label>Art</label>
-			<input type="text" class="form-control" placeholder="Art" ng-model="relation.type">
-		</div>
-		<div class="form-group">
-			<label>Schlagworte</label>
-
-			<div class="has-feedback">
-				<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" options="typeaheadOptionsTags" datasets="datasetTags" ngtypeahead>
-				<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
+			<div class="form-group">
+				<label>Art</label>
+				<input type="text" class="form-control" placeholder="Art" ng-model="relation.type">
 			</div>
-			<div class="label-list">
-				<div ng-repeat="o in relation.tags" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Tag entfernen" ng-click="removeEntry('tags', o)"></i></div>
+			<div class="form-group">
+				<label>Schlagworte</label>
+
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" datasets="datasetTags" ngtypeahead>
+					<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
+				</div>
+				<div class="label-list">
+					<div ng-repeat="o in relation.tags" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Tag entfernen" ng-click="removeEntry('tags', o)"></i></div>
+				</div>
 			</div>
+			<div ngdatafields data-fields="relation.data"></div>
+		</form>
+
+		<div class="btn-group">
+			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+				Datenfeld hinzufügen <span class="caret"></span>
+			</button>
+
+			<ul class="dropdown-menu up" role="menu">
+				<li ng-repeat="o in fields"><a href ng-click="addData(o)" ng-bind="o.name"></a></li>
+			</ul>
 		</div>
-		<div ngdatafields data-fields="relation.data"></div>
-	</form>
-
-	<div class="btn-group">
-		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-			Datenfeld hinzufügen <span class="caret"></span>
-		</button>
-
-		<ul class="dropdown-menu up" role="menu">
-			<li ng-repeat="o in fields"><a href ng-click="addData(o)" ng-bind="o.name"></a></li>
-		</ul>
 	</div>
-
 </script>
 
 <script type="text/ng-template" id="partials/relation.html">
