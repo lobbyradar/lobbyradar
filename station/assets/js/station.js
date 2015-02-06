@@ -388,7 +388,17 @@ app.controller('AppCtrl', function ($rootScope, $scope) {
 			"number": "Zahl",
 			"link": "Link",
 			"bool": "Ja/Nein-Wert",
-			"address": "Adresse"
+			"address": "Adresse",
+			"date": "Datum"
+		},
+		fielddefaults: {
+			"string": "",
+			"tags": [],
+			"number": 0,
+			"link": {},
+			"bool": true,
+			"address": {},
+			"date": {}
 		},
 		states: {}
 	};
@@ -1214,7 +1224,8 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 		$scope.item.data.push({
 			format: o.format,
 			key: o.key,
-			desc: o.name
+			desc: o.name,
+			value: angular.copy($scope.globals.fielddefaults[o.format])
 		});
 	};
 
@@ -1519,7 +1530,8 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 		$scope.relation.data.push({
 			format: o.format,
 			key: o.key,
-			desc: o.name
+			desc: o.name,
+			value: angular.copy($scope.globals.fielddefaults[o.format])
 		});
 	};
 
@@ -1632,11 +1644,11 @@ app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, en
 			});
 	};
 
-
 	$scope.$watch('item', function (item) {
 		if (item)
 			$scope.relations = item.relations;
 	})
+
 });
 
 app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
@@ -1657,6 +1669,41 @@ app.controller('PagerCtrl', function ($scope) {
 	$scope.pagecount = function () {
 		return Math.floor($scope.params.total() / $scope.params.count()) + 1;
 	}
+});
+
+app.controller('DatepickerCtrl', function ($scope) {
+
+	$scope.dtp_today = function () {
+		$scope.dtp_value.date = new Date();
+	};
+
+	$scope.dtp_clear = function () {
+		$scope.dtp_value.date = null;
+	};
+
+	$scope.dtp_open = function ($event) {
+		$event.preventDefault();
+		$event.stopPropagation();
+		$scope.dtp_opened = true;
+	};
+
+	$scope.dtp_dateOptions = {
+		formatYear: 'yyyy',
+		startingDay: 1
+	};
+
+	$scope.dtp_formats = [
+		{name: 'dd.mm.yyyy', fmt: 'dd.MM.yyyy', mode: 'day'},
+		{name: 'mm.yyyy', fmt: 'MM.yyyy', mode: 'month'},
+		{name: 'yyyy', fmt: 'yyyy', mode: 'year'}
+	];
+
+	$scope.$watch('dtp_value', function (v) {
+		if (v) {
+			if (!v.fmt) v.fmt = $scope.dtp_formats[0].fmt;
+		}
+	});
+
 });
 
 // ------------------- directives -------------------
