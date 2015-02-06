@@ -402,9 +402,13 @@
 #networkviz-wrapper {
   position: fixed;
   width:100%;
-  height:100%;
-  top:0;
+  top:46px;
   left:0;
+  bottom:0px;
+}
+
+#networkviz-wrapper .leaflet-top {
+  top: 82px;
 }
 
 #networkviz {
@@ -425,7 +429,18 @@
     cursor:-webkit-grabbing;
     // cursor: url(https://mail.google.com/mail/images/2/closedhand.cur), default !important;
   }
-}                                                                                                               
+}
+
+.leaflet-label {
+  position: absolute;
+  color: #000;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  font-size: 16px;
+}
+
 svg {
   position: fixed!important;
   top: 0;
