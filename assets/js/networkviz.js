@@ -81,13 +81,12 @@ var NetworkViz = (function () {
 
 		var zoom = Math.round(13 - Math.log(node.r)/Math.log(2));
 
-		var centerPoint = map.getSize();
+		if (zoom < 0) zoom = 0;
+		if (zoom > 7) zoom = 7;
 
 		var latLng = L.latLng(-node.y, node.x);
 		var centerPoint = map.getSize();
-		latLng = map.project(latLng, zoom);
-		latLng.x += centerPoint.x/4;
-		latLng = map.unproject(latLng, zoom);
+		latLng.lng += centerPoint.x*Math.pow(0.5, zoom-5);
 
 		map.setView(latLng, zoom, {animate:true})
 	}
