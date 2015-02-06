@@ -878,51 +878,52 @@
 
 <script type="text/ng-template" id="partials/relation-edits.html">
 
-	<form class="form">
-		<div class="form-group">
-			<label>Bezug 1</label>
+	<div ng-controller="RelationEditCtrl">
+		<form class="form">
+			<div class="form-group">
+				<label>Bezug 1</label>
 
-			<div class="has-feedback">
-				<input type="text" class="form-control" placeholder="Bezug 1" ng-model="edit.one.name" datasets="datasetEntitiesOne" ngtypeahead>
-				<span ng-show="edit.one._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="Bezug 1" ng-model="edit.one.name" datasets="datasetEntitiesOne" ngtypeahead>
+					<span ng-show="edit.one._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label>Bezug 2</label>
+			<div class="form-group">
+				<label>Bezug 2</label>
 
-			<div class="has-feedback">
-				<input type="text" class="form-control" placeholder="Bezug 2" ng-model="edit.two.name" datasets="datasetEntitiesTwo" ngtypeahead>
-				<span ng-show="edit.two._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="Bezug 2" ng-model="edit.two.name" datasets="datasetEntitiesTwo" ngtypeahead>
+					<span ng-show="edit.two._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label>Art</label>
-			<input type="text" class="form-control" placeholder="Art" ng-model="relation.type">
-		</div>
-		<div class="form-group">
-			<label>Schlagworte</label>
-
-			<div class="has-feedback">
-				<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" datasets="datasetTags" ngtypeahead>
-				<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
+			<div class="form-group">
+				<label>Art</label>
+				<input type="text" class="form-control" placeholder="Art" ng-model="relation.type">
 			</div>
-			<div class="label-list">
-				<div ng-repeat="o in relation.tags" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Tag entfernen" ng-click="removeEntry('tags', o)"></i></div>
+			<div class="form-group">
+				<label>Schlagworte</label>
+
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" datasets="datasetTags" ngtypeahead>
+					<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
+				</div>
+				<div class="label-list">
+					<div ng-repeat="o in relation.tags" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Tag entfernen" ng-click="removeEntry('tags', o)"></i></div>
+				</div>
 			</div>
+			<div ngdatafields data-fields="relation.data"></div>
+		</form>
+
+		<div class="btn-group">
+			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+				Datenfeld hinzufügen <span class="caret"></span>
+			</button>
+
+			<ul class="dropdown-menu up" role="menu">
+				<li ng-repeat="o in fields"><a href ng-click="addData(o)" ng-bind="o.name"></a></li>
+			</ul>
 		</div>
-		<div ngdatafields data-fields="relation.data"></div>
-	</form>
-
-	<div class="btn-group">
-		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-			Datenfeld hinzufügen <span class="caret"></span>
-		</button>
-
-		<ul class="dropdown-menu up" role="menu">
-			<li ng-repeat="o in fields"><a href ng-click="addData(o)" ng-bind="o.name"></a></li>
-		</ul>
 	</div>
-
 </script>
 
 <script type="text/ng-template" id="partials/relation.html">

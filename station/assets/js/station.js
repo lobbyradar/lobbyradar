@@ -41,8 +41,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 		})
 		.state('relation', {
 			url: "/relation/:id",
-			templateUrl: "partials/relation.html",
-			controller: 'RelationEditCtrl'
+			templateUrl: "partials/relation.html"
 		})
 		.state('fields', {
 			url: "/fields",
@@ -1548,7 +1547,6 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 };
 
 app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relations, entities, tags, fields) {
-
 	$scope.isNew = (!$stateParams.id) || ($stateParams.id == 'new');
 	fields.list({mode: 'relations'}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
