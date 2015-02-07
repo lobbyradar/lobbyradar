@@ -93,11 +93,7 @@ var NetworkViz = (function () {
 		})
 	}
 
-	function panToEntity(id) {
-		if (!initialized) init();
-		var node = nodeLookup[id];
-		if (!node) return console.log('id not found "'+id+'"');
-
+	function panToNode(node) {
 		var zoom = Math.round(13 - Math.log(node.r)/Math.log(2));
 
 		if (zoom < 0) zoom = 0;
@@ -133,26 +129,45 @@ var NetworkViz = (function () {
 		node.label.hide();
 	}
 
-	function activateEntity(id) {
-		var node = nodeLookup[id];
-		if (!node) return console.log('id not found "'+id+'"');
-
+	function activateNode(node) {
 		node.active = true;
 		activeNodes.push(node);
 		showLabel(node);
 	}
 
-	function highlightEntity(id) {
-		if (!initialized) init();
-
+	function highlightNode(node) {
 		clearNodes();
-		activateEntity(id);
-		panToEntity(id);
+		activateNodeId(id);
+		panToNodeId(id);
+	}
+
+	function activateNodeId(id) {
+		if (!initialized) init();
+		var node = nodeLookup[id];
+		if (!node) return console.log('id not found "'+id+'"');
+
+		activateNode(node);
+	}
+
+	function highlightNodeId(id) {
+		if (!initialized) init();
+		var node = nodeLookup[id];
+		if (!node) return console.log('id not found "'+id+'"');
+
+		highlightNode(node);
+	}
+
+	function panToNodeId(id) {
+		if (!initialized) init();
+		var node = nodeLookup[id];
+		if (!node) return console.log('id not found "'+id+'"');
+
+		panToNode(node);
 	}
 
 	return {
-		highlightEntity: highlightEntity,
-		panToEntity: panToEntity
+		highlightEntity: highlightNodeId,
+		panToEntity: panToNodeId
 	}
 
 	function sqr(v) {
