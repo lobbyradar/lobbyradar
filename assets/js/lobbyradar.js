@@ -217,6 +217,8 @@ $( document ).ready(function() {
 			event.preventDefault();
 		}
 	});
+
+	NetworkViz.setClickHandler(loadEntity);
 																													 
 // ________                                    ____                  ___       
 // `MMMMMMMb.                                  `MM'     68b          `MM       

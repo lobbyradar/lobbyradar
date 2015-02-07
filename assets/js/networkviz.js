@@ -11,6 +11,8 @@ var NetworkViz = (function () {
 	var hoveredNodes = [];
 	var activeNodes = [];
 
+	var clickHandler = false;
+
 	function init() {
 		if (!node_positions) return console.error('node_positions.js not loaded ... yet')
 
@@ -59,6 +61,7 @@ var NetworkViz = (function () {
 		});
 
 		map.on('mousemove', mousemove);
+		map.on('click', mouseclick);
 
 		var layer = L.tileLayer('http://lobbyradar.opendatacloud.de/lobbynetwork/tiles/{z}/{y}/{x}.png', {
 			minZoom: 0,
@@ -91,6 +94,28 @@ var NetworkViz = (function () {
 				showLabel(node);
 			};
 		})
+	}
+
+	function mouseclick(e) {
+		if (!clickHandler) return;
+
+		var point = e.latlng;
+		var bestNode = false;
+		var bestDist = 1e10;
+
+		nodeList.forEach(function (node) {
+			var d = Math.sqrt(sqr(node.x - point.lng) + sqr(node.y + point.lat));
+			if ((d < node.r) && (d < bestDist)) {
+				bestDist = d;
+				bestNode = node;
+			};
+		});
+
+		if (bestNode) {
+			console.debug();
+			clickHandler(bestNode.id);
+			e.originalEvent.preventDefault();
+		}
 	}
 
 	function panToNode(node) {
@@ -137,8 +162,12 @@ var NetworkViz = (function () {
 
 	function highlightNode(node) {
 		clearNodes();
-		activateNodeId(id);
-		panToNodeId(id);
+		activateNode(node);
+		panToNode(node);
+	}
+
+	function setClickHandler(func) {
+		clickHandler = func;
 	}
 
 	function activateNodeId(id) {
@@ -167,7 +196,8 @@ var NetworkViz = (function () {
 
 	return {
 		highlightEntity: highlightNodeId,
-		panToEntity: panToNodeId
+		panToEntity: panToNodeId,
+		setClickHandler: setClickHandler
 	}
 
 	function sqr(v) {
