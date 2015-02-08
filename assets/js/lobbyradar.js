@@ -21,10 +21,12 @@ window.onpopstate = function(event) {
 
 		if (window.location.href.indexOf("/entity/") > -1) {
 			loadEntity(id);
-    }
+		}
+   
 		if (window.location.href.indexOf("/search/") > -1) {
 			loadList(id);
-    }
+		}
+    
 		if(location.pathname + location.search + location.hash == "/") {
 			$(".overlay").fadeIn("slow"); 
 			$( ".result-single" ).slideUp( "slow" );
@@ -32,8 +34,6 @@ window.onpopstate = function(event) {
 		}
 };
                
-
-
 
 // ___                         ___       ____                         
 // `MM                         `MM       `MM'     68b                 
@@ -58,14 +58,14 @@ function loadList(id) {
 			q: id
 		}, function(data){
 		console.log(data);
-			var $tb = $("<ul class='list-group'></ul>");
+			var $ul = $("<ul class='list-group'></ul>");
 			if (data instanceof Array && data.length > 0) $(data).each(function(idx,e){
-				$tb.append('<li class="list-group-item"><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="ajax-load entity-detail" href="/entity/'+e.id+'">'+e.name+' <span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span></li>');
+				$ul.append('<li class="list-group-item"><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="ajax-load entity-detail" href="/entity/'+e.id+'">'+e.name+' <span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span></li>');
 				$(".result-list p .result-name", "#main").html($resultName);
 			});
 			$( ".result-list" ).slideDown( "slow" );
 			$(".result-list .results .list-group", "#main").remove();
-			$(".result-list .results ", "#main").append($tb);
+			$(".result-list .results ", "#main").append($ul);
 			// reset request
 			req = null;
 		});
@@ -111,6 +111,7 @@ function loadEntity(id) {
   $('.fullscreen').animate({scrollTop: 0});
 
 	NetworkViz.highlightEntity(id);
+	$( "#backtolist" ).css( "display",'inline-block' ); // always show the backbutton
 
 	// change the url + history literal object
 	// history.pushState(null, null, '/entity/'+id);
@@ -319,11 +320,12 @@ function loadEntity(id) {
 //                                                                            YMM   
 
 $( document ).ready(function() {
+	$('.fullscreen').css({  'width': winWidth, 'height': winHeight });
+	$('.faq-page').css({  'width': winWidth, 'height': winHeight });
+
 	NetworkViz.panToEntity(); // missuse the func to get the viz on index
 
 	// set initial div height / width
-	$('.fullscreen').css({  'width': winWidth, 'height': winHeight });
-	$('.faq-page  ').css({  'width': winWidth, 'height': winHeight });
 
 	$(".lobbysearch").focus(function(){
 		$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
@@ -348,6 +350,12 @@ $( document ).ready(function() {
 
 	});
 
+	// click back arrow -> history
+	$('body').on('click', '#backtolist', function(e) {
+    e.preventDefault();
+    window.history.back();
+	});
+
 																													 
 // ________                                    ____                  ___       
 // `MMMMMMMb.                                  `MM'     68b          `MM       
@@ -367,7 +375,6 @@ $( document ).ready(function() {
 	// this kicks in when we get a deep link to an entity
 	// entity/:id
 	if (window.location.href.indexOf("/entity/") > -1) {
-		$( "#backtolist" ).css( "display",'none' ); // There is no list to go back to 
 		$( ".overlay" ).css( "display",'none' ); // we dont need the intro
 
 		var str = window.location.href; // get the url 
@@ -375,8 +382,9 @@ $( document ).ready(function() {
 		console.log('entity.entry, ID: '+entityID);
 
 		loadEntity(entityID);
-
+		$( "#backtolist" ).css( "display",'none' ); // explicit hide on deeplinks
 		$( ".result-single" ).slideDown( "slow" );  // show me the single panel
+
 	}
 
 
@@ -384,7 +392,7 @@ $( document ).ready(function() {
 		// this kicks in when we get a deep link to an search
 		// /search/:id
 	if (window.location.href.indexOf("/search/") > -1) {
-		$( "#backtolist" ).css( "display",'none' ); // There is no list to go back to 
+		// $( "#backtolist" ).css( "display",'none' ); // There is no list to go back to 
 		$( ".overlay" ).css( "display",'none' ); // we dont need the intro
 
 		var str = window.location.href; // get the url 
@@ -436,14 +444,14 @@ $( document ).ready(function() {
 // _MMMMMMM9'  YMMMM9   YMMM9 `YMMM9'Yb_MM__MM_      _MM__MM_     YMMMMM9 _MM_  _MM_  _MM_      _MMMMMMM _MM_MYMMMM9   YMMM9 
 																																																													
 																																																													
-	// bring back the list when the button in detail is clicked           
-	$('body').on('click', '#backtolist', function(event) {
-		$(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
-		$(".result-list").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},1000);
-		window.history.back()
-		return false;
-		e.preventDefault();
-	});
+	// // bring back the list when the button in detail is clicked           
+	// $('body').on('click', '#backtolist', function(event) {
+	// 	$(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
+	// 	$(".result-list").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},1000);
+	// 	window.history.back()
+	// 	return false;
+	// 	e.preventDefault();
+	// });
 
 
 
