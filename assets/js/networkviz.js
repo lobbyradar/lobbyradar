@@ -2,25 +2,34 @@ var NetworkViz = (function () {
 
 	var f = 32768;
 
-	var positions = {};
+	var nodeLookup = {};
+	var nodeList = [];
+
 	var initialized = false;
 	var map, labelLayer;
 
+	var hoveredNodes = [];
+	var activeNodes = [];
+
+	var clickHandler = false;
+
 	function init() {
+		if (!node_positions) return console.error('node_positions.js not loaded ... yet')
+
 		initialized = true;
 
 		var keys = Object.keys(node_positions);
 		var n = node_positions[keys[0]].length;
 		for (var i = 0; i < n; i++) {
-			var entry = {};
+			var node = {};
 			keys.forEach(function (key) {
-				entry[key] = node_positions[key][i];
+				node[key] = node_positions[key][i];
 			})
-			entry.x += f/2;
-			entry.y += f/2;
-			positions[entry.id] = entry;
+			node.x += f/2;
+			node.y += f/2;
+			nodeLookup[node.id] = node;
+			nodeList.push(node);
 		}
-		node_positions = positions;
 
 		var projection = {
 			project: function (latlng) {
@@ -55,6 +64,9 @@ var NetworkViz = (function () {
 		map.addControl( L.control.zoom({position: 'bottomleft'}) )
 
 
+		map.on('mousemove', mousemove);
+		map.on('click', mouseclick);
+
 		var layer = L.tileLayer('http://lobbyradar.opendatacloud.de/lobbynetwork/tiles/{z}/{y}/{x}.png', {
 			minZoom: 0,
 			maxZoom: 7,
@@ -70,60 +82,130 @@ var NetworkViz = (function () {
 		labelLayer = L.layerGroup();
 		labelLayer.addTo(map);
 	}
-	/*
 
-		setTimeout(function () {
-			//showEntity('54bd3c8d8b934da063412627') // Axel Voss
-			showEntity('54bd3c748b934da06340f4c4') // CSU
-		}, 1000);
-*/
+	function mousemove(e) {
+		var point = e.latlng;
 
-	function panToEntity(id) {
-		if (!initialized) init();
-		var node = node_positions[id];
-		if (!node) return console.log('id not found "'+id+'"');
+		hoveredNodes.forEach(function (node) {
+			if (!node.active) hideLabel(node);
+		})
+		hoveredNodes = [];
 
+		nodeList.forEach(function (node) {
+			var d = Math.sqrt(sqr(node.x - point.lng) + sqr(node.y + point.lat));
+			if (d < node.r) {
+				hoveredNodes.push(node);
+				showLabel(node);
+			};
+		})
+	}
+
+	function mouseclick(e) {
+		if (!clickHandler) return;
+
+		var point = e.latlng;
+		var bestNode = false;
+		var bestDist = 1e10;
+
+		nodeList.forEach(function (node) {
+			var d = Math.sqrt(sqr(node.x - point.lng) + sqr(node.y + point.lat));
+			if ((d < node.r) && (d < bestDist)) {
+				bestDist = d;
+				bestNode = node;
+			};
+		});
+
+		if (bestNode) {
+			console.debug();
+			clickHandler(bestNode.id);
+			e.originalEvent.preventDefault();
+		}
+	}
+
+	function panToNode(node) {
 		var zoom = Math.round(13 - Math.log(node.r)/Math.log(2));
 
-		var centerPoint = map.getSize();
+		if (zoom < 0) zoom = 0;
+		if (zoom > 7) zoom = 7;
 
 		var latLng = L.latLng(-node.y, node.x);
 		var centerPoint = map.getSize();
-		latLng = map.project(latLng, zoom);
-		latLng.x += centerPoint.x/4;
-		latLng = map.unproject(latLng, zoom);
+		latLng.lng += centerPoint.x*Math.pow(0.5, zoom-5);
 
 		map.setView(latLng, zoom, {animate:true})
 	}
 
-	function clearEntities() {
-		
+	function clearNodes() {
+		activeNodes.forEach(function (node) {
+			node.active = false;
+			hideLabel(node);
+		})
 	}
 
-	function showLabel(id) {
-		var node = node_positions[id];
-		if (!node) return console.log('id not found "'+id+'"');
-		
+	function ensureLabel(node) {
+		if (node.label) return;
 		var latLng = L.latLng(-node.y, node.x);
-		var label = L.label(latLng, {text:node.name});
-		label.addTo(labelLayer);
+		node.label = L.label(latLng, {text:node.name, color: (node.type == 'person') ? '#fa7d18' : '#a3db19' });
+		node.label.addTo(labelLayer);
 	}
 
-	function showEntity(id) {
-		showLabel(id);
+	function showLabel(node) {
+		ensureLabel(node);
+		node.label.show();
 	}
 
-	function highlightEntity(id) {
+	function hideLabel(node) {
+		node.label.hide();
+	}
+
+	function activateNode(node) {
+		node.active = true;
+		activeNodes.push(node);
+		showLabel(node);
+	}
+
+	function highlightNode(node) {
+		clearNodes();
+		activateNode(node);
+		panToNode(node);
+	}
+
+	function setClickHandler(func) {
+		clickHandler = func;
+	}
+
+	function activateNodeId(id) {
 		if (!initialized) init();
+		var node = nodeLookup[id];
+		if (!node) return console.log('id not found "'+id+'"');
 
-		panToEntity(id);
-		clearEntities();
-		showEntity(id);
+		activateNode(node);
+	}
+
+	function highlightNodeId(id) {
+		if (!initialized) init();
+		var node = nodeLookup[id];
+		if (!node) return console.log('id not found "'+id+'"');
+
+		highlightNode(node);
+	}
+
+	function panToNodeId(id) {
+		if (!initialized) init();
+		var node = nodeLookup[id];
+		if (!node) return console.log('id not found "'+id+'"');
+
+		panToNode(node);
 	}
 
 	return {
-		highlightEntity: highlightEntity,
-		panToEntity: panToEntity
+		highlightEntity: highlightNodeId,
+		panToEntity: panToNodeId,
+		setClickHandler: setClickHandler
+	}
+
+	function sqr(v) {
+		return v*v;
 	}
 })();
 
@@ -145,6 +227,10 @@ L.Label = L.Class.extend({
 	_initLabel: function () {
 		this.label = $('<div class="leaflet-label"></div>');
 		this.label.text(this.options.text);
+		if (this.options.text.length > 30) this.label.addClass('small');
+		if (this.options.color) {
+			this.label.css('text-shadow', '0px 0px 2px '+this.options.color);
+		}
 
 		var panes = this._map._panes;
 
@@ -180,6 +266,14 @@ L.Label = L.Class.extend({
 	addTo: function (map) {
 		map.addLayer(this);
 		return this;
+	},
+
+	show: function () {
+		this.label.removeClass('hidden');
+	},
+
+	hide: function () {
+		this.label.addClass('hidden');
 	}
 });
 

@@ -405,10 +405,10 @@
   top:46px;
   left:0;
   bottom:0px;
-}
 
-#networkviz-wrapper .leaflet-top {
-  top: 82px;
+  .leaflet-top {
+    top: 82px;
+  }
 }
 
 #networkviz {
@@ -436,15 +436,14 @@
   color: #000;
   font-weight: bold;
   text-align: center;
-  white-space: nowrap;
   vertical-align: baseline;
   font-size: 16px;
-}
+  width: 200px;
+  line-height: 1.1em;
 
-svg {
-  position: fixed!important;
-  top: 0;
-  left: 0;
+  &.small {
+    font-size: 12px;
+  }
 }
 
 .viewport-visual {

@@ -736,11 +736,11 @@
 
 		<div ng-switch-when="link" class="row">
 			<form class="form">
-				<div class="form-group col-md-9">
+				<div class="form-group col-md-12">
 					<label>Link</label>
 					<input type="url" class="form-control" placeholder="Link" ng-model="d.value.url">
 				</div>
-				<div class="form-group col-md-3">
+				<div class="form-group col-md-12">
 					<label>Bemerkung</label>
 					<input type="text" class="form-control" placeholder="Bemerkung" ng-model="d.value.remark">
 				</div>
@@ -793,6 +793,25 @@
 				<div class="form-group col-md-6">
 					<label>www</label>
 					<input type="text" class="form-control" placeholder="www" ng-model="d.value.www">
+				</div>
+			</form>
+		</div>
+
+		<div ng-switch-when="date" class="row">
+			<form class="form" ng-controller="DatepickerCtrl" ng-init="dtp_value=d.value;">
+				<div class="form-group col-md-6">
+					<label>Datum</label>
+
+					<p class="input-group">
+						<input type="text" class="form-control" datepicker-options="dtp_dateOptions" datepicker-popup="{{d.value.fmt}}" ng-model="d.value.date" is-open="dtp_opened" ng-required="true" close-text="Schließen"/>
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-default" ng-click="dtp_open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+						</span>
+					</p>
+				</div>
+				<div class="form-group col-md-6">
+					<label>Format</label>
+					<select class="form-control" ng-model="d.value.fmt" ng-options="f.fmt as f.name for f in dtp_formats"></select>
 				</div>
 			</form>
 		</div>
@@ -864,7 +883,7 @@
 				Verbindung <span ng-if="isNew">anlegen</span><span ng-if="!isNew">bearbeiten</span>
 			</h4>
 		</div>
-		<div class="modal-body">
+		<div class="modal-body" ng-controller="RelationEditCtrl">
 			<div ng-include="'partials/relation-edits.html'"></div>
 		</div>
 		<div class="modal-footer">
@@ -878,57 +897,55 @@
 
 <script type="text/ng-template" id="partials/relation-edits.html">
 
-	<div ng-controller="RelationEditCtrl">
-		<form class="form">
-			<div class="form-group">
-				<label>Bezug 1</label>
+	<form class="form">
+		<div class="form-group">
+			<label>Bezug 1</label>
 
-				<div class="has-feedback">
-					<input type="text" class="form-control" placeholder="Bezug 1" ng-model="edit.one.name" datasets="datasetEntitiesOne" ngtypeahead>
-					<span ng-show="edit.one._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
-				</div>
+			<div class="has-feedback">
+				<input type="text" class="form-control" placeholder="Bezug 1" ng-model="edit.one.name" datasets="datasetEntitiesOne" ngtypeahead>
+				<span ng-show="edit.one._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
 			</div>
-			<div class="form-group">
-				<label>Bezug 2</label>
-
-				<div class="has-feedback">
-					<input type="text" class="form-control" placeholder="Bezug 2" ng-model="edit.two.name" datasets="datasetEntitiesTwo" ngtypeahead>
-					<span ng-show="edit.two._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
-				</div>
-			</div>
-			<div class="form-group">
-				<label>Art</label>
-				<input type="text" class="form-control" placeholder="Art" ng-model="relation.type">
-			</div>
-			<div class="form-group">
-				<label>Schlagworte</label>
-
-				<div class="has-feedback">
-					<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" datasets="datasetTags" ngtypeahead>
-					<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
-				</div>
-				<div class="label-list">
-					<div ng-repeat="o in relation.tags" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Tag entfernen" ng-click="removeEntry('tags', o)"></i></div>
-				</div>
-			</div>
-			<div ngdatafields data-fields="relation.data"></div>
-		</form>
-
-		<div class="btn-group">
-			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-				Datenfeld hinzufügen <span class="caret"></span>
-			</button>
-
-			<ul class="dropdown-menu up" role="menu">
-				<li ng-repeat="o in fields"><a href ng-click="addData(o)" ng-bind="o.name"></a></li>
-			</ul>
 		</div>
+		<div class="form-group">
+			<label>Bezug 2</label>
+
+			<div class="has-feedback">
+				<input type="text" class="form-control" placeholder="Bezug 2" ng-model="edit.two.name" datasets="datasetEntitiesTwo" ngtypeahead>
+				<span ng-show="edit.two._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
+			</div>
+		</div>
+		<div class="form-group">
+			<label>Art</label>
+			<input type="text" class="form-control" placeholder="Art" ng-model="relation.type">
+		</div>
+		<div class="form-group">
+			<label>Schlagworte</label>
+
+			<div class="has-feedback">
+				<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" datasets="datasetTags" ngtypeahead>
+				<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
+			</div>
+			<div class="label-list">
+				<div ng-repeat="o in relation.tags" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Tag entfernen" ng-click="removeEntry('tags', o)"></i></div>
+			</div>
+		</div>
+		<div ngdatafields data-fields="relation.data"></div>
+	</form>
+
+	<div class="btn-group">
+		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+			Datenfeld hinzufügen <span class="caret"></span>
+		</button>
+
+		<ul class="dropdown-menu up" role="menu">
+			<li ng-repeat="o in fields"><a href ng-click="addData(o)" ng-bind="o.name"></a></li>
+		</ul>
 	</div>
 </script>
 
 <script type="text/ng-template" id="partials/relation.html">
 
-	<div class="row">
+	<div class="row" ng-controller="RelationEditCtrl">
 		<div class="col-md-6 col-md-offset-3">
 			<h1>Verbindung <span ng-if="isNew">anlegen</span><span ng-if="!isNew">bearbeiten</span></h1>
 
@@ -943,7 +960,6 @@
 	</div>
 
 </script>
-
 
 </body>
 </html>

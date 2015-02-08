@@ -58,9 +58,9 @@ var interation = 0;
 var force = d3.layout.force()
 	.nodes(nodes)
 	.links(links)
-	.linkStrength(0.1)
+	.linkStrength(0.2)
 	.friction(0.9)
-	.distance(30)
+	.distance(50)
 	.charge(function (node) { return node.charge })
 	.gravity(0.02)
 	.theta(0.5)
@@ -80,7 +80,10 @@ force.on('tick', function () {
 		return
 	}
 
-	if (interation % 100 == 0) savePositions();
+	if (interation % 25 == 0) {
+		console.log(interation);
+		savePositions();
+	}
 })
 
 force.start();
