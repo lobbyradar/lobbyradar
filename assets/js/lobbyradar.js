@@ -31,7 +31,8 @@ window.onpopstate = function(event) {
 			$( ".result-list" ).slideUp( "slow" );
 		}
 };
-                       
+               
+
 
 
 // ___                         ___       ____                         
@@ -57,14 +58,14 @@ function loadList(id) {
 			q: id
 		}, function(data){
 		console.log(data);
-			var $tb = $("<tbody></tbody>");
+			var $tb = $("<ul class='list-group'></ul>");
 			if (data instanceof Array && data.length > 0) $(data).each(function(idx,e){
-				$tb.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="ajax-load entity-detail" href="/entity/'+e.id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.relations+'</a></td></tr>');
+				$tb.append('<li class="list-group-item"><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="ajax-load entity-detail" href="/entity/'+e.id+'">'+e.name+' <span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span></li>');
 				$(".result-list p .result-name", "#main").html($resultName);
 			});
 			$( ".result-list" ).slideDown( "slow" );
-			$(".result-list table tbody", "#main").remove();
-			$(".result-list table ", "#main").append($tb);
+			$(".result-list .results .list-group", "#main").remove();
+			$(".result-list .results ", "#main").append($tb);
 			// reset request
 			req = null;
 		});
@@ -143,69 +144,105 @@ function loadEntity(id) {
 			$(data.result.tags).each(function(idx,e){ 
 				$content += '<span class="label label-default">'+e+'</span>&nbsp;'; 
 			});
+			$content += '<hr/>';
 
-			$content += '<hr/><p class="name">';
-			$content += '<span>Erstellt: '+moment(entity.created).format("DD.MM.YYYY hh:mm")+'</span><br/>';
-			$content += '<span>Aktualisiert: '+moment(entity.created).format("DD.MM.YYYY hh:mm")+'</span>';
-			$content += '</p>';
+			// // check for the different types of data
+			// for(var i = 0, data; data = entity.data[i]; i++) {
+			// 	if (data.format = 'photo') 			{ var hasPhotos = true; }
+			// 	if (data.desc = 'Quelle') 			{ var hasSource = true; }
+			// 	if (data.key = 'address') 		{ var hasAddress = true; }
+			// 	if (data.key = 'link') 				{ var hasLinks = true; }
+			// }
+
+			// if (hasPhotos) {
+			// 	$content += '<div class="row">';
+			// 	$(entity.data).each(function(idx,data){ 
+			// 		if (data.desc == 'Foto') {
+			// 			if (isExistant(data.value.url)) {
+			// 				$content += '<div class="col-md-3"><div class="thumbnail"><img src="'+data.value.url+'" /></div></div>';
+			// 			}
+			// 		}
+			// 	});
+			// 	$content += '</div>';
+			// }
+			// if (hasSource) {
+			// 	$(entity.data).each(function(idx,data){ 
+			// 		if (data.desc == 'Quelle') {
+			// 			$content += '<p class="entity-source">';
+			// 			if (data.value.url !== undefined) {
+			// 				$content += '<a  href="'+data.value.url+'">';
+			// 				$content += data.value.url;
+			// 				$content += '</a>';
+			// 			}
+			// 			$content += '</p>';
+			// 		}
+			// 	});
+			// }
+
+			// 			if (hasSource) {
+			// 	$(entity.data).each(function(idx,data){ 
+			// 		if (data.key == 'source') {
+			// 			$content += '<p class="entity-source">';
+			// 			if (data.value.url !== undefined) {
+			// 				$content += '<a  href="'+data.value.url+'">';
+			// 				$content += data.value.url;
+			// 				$content += '</a>';
+			// 			}
+			// 			$content += '</p>';
+			// 		}
+			// 	});
+			// }
 
 
+			// // data
+			// if (entity.data.length > 0) {
+			// 	// $content += '<h4>Quelle(n)</h4>';
+			// 	$(entity.data).each(function(idx,data){ 
+			// 		if (data.key == 'source') {
+						
+			// 		} else if (data.key == 'address') {
+			// 			if (data !== undefined) {
+			// 				$content += '<h3>Adresse</h3><adress>';
 
-			// data
-			if (entity.data.length > 0) {
-				$content += '<h4>Quelle(n)</h4>';
-				$(entity.data).each(function(idx,data){ 
-					if (data.key == 'source') {
-						$content += '<p class="entity-source">';
-						if (data.value.url !== undefined) {
-							$content += '<a  href="'+data.value.url+'">';
-							$content += data.value.url;
-							$content += '</a>';
-						}
-						$content += '</p>';
-					} else if (data.key == 'address') {
-						if (data !== undefined) {
-							$content += '<h3>Adresse</h3><adress>';
+			// 				if (isExistant(data.value.addr)) {
+			// 					$content += data.value.addr+'<br/>';
+			// 					console.log(data.value.addr);
+			// 				}
+			// 				if (isExistant(data.value.street)) {
+			// 					$content += data.value.street+'<br/>';
+			// 				} 
+			// 				if (isExistant(data.value.postcode)) {
+			// 					$content += data.value.postcode+'&nbsp;';
+			// 				}
+			// 				if (isExistant(data.value.city)) {
+			// 					$content += data.value.city+'<br/>';
+			// 				}
+			// 				$content += '<h3>Kontakt</h3>';
+			// 				if (isExistant(data.value.tel)) {
+			// 					$content += '<abbr title="Phone">P:</abbr>&nbsp;'+data.value.tel+'<br/>';
+			// 				}
+			// 				if (isExistant(data.value.fax)) {
+			// 					$content += '<abbr title="Fax">F:</abbr>&nbsp;'+data.value.fax+'<br/>';
+			// 				}
+			// 				if (isExistant(data.value.email)) {
+			// 					$content += '<abbr title="Email">E:</abbr>&nbsp;'+data.value.email+'<br/>';
+			// 				}
+			// 				if (isExistant(data.value.www)) {
+			// 					$content += '<abbr title="Web">W:</abbr>&nbsp;'+data.value.www+'<br/>';
+			// 				}
+			// 				$content += '</adress>';
+			// 			}
+			// 		} else if (data.desc == 'Link'){ 
+			// 			$content += '<h4>'+data.desc+'</h4>';
+			// 			$content += '<p><a href="'+data.value.url+'">'+data.value.url+'</a></p>';
 
-							if (isExistant(data.value.addr)) {
-								$content += data.value.addr+'<br/>';
-								console.log(data.value.addr);
-							}
-							if (isExistant(data.value.street)) {
-								$content += data.value.street+'<br/>';
-							} 
-							if (isExistant(data.value.postcode)) {
-								$content += data.value.postcode+'&nbsp;';
-							}
-							if (isExistant(data.value.city)) {
-								$content += data.value.city+'<br/>';
-							}
-							$content += '<h3>Kontakt</h3>';
-							if (isExistant(data.value.tel)) {
-								$content += '<abbr title="Phone">P:</abbr>&nbsp;'+data.value.tel+'<br/>';
-							}
-							if (isExistant(data.value.fax)) {
-								$content += '<abbr title="Fax">F:</abbr>&nbsp;'+data.value.fax+'<br/>';
-							}
-							if (isExistant(data.value.email)) {
-								$content += '<abbr title="Email">E:</abbr>&nbsp;'+data.value.email+'<br/>';
-							}
-							if (isExistant(data.value.www)) {
-								$content += '<abbr title="Web">W:</abbr>&nbsp;'+data.value.www+'<br/>';
-							}
-							$content += '</adress>';
-						}
-					} else if (data.desc == 'Link'){ 
-						$content += '<h4>'+data.desc+'</h4>';
-						$content += '<p><a href="'+data.value.url+'">'+data.value.url+'</a></p>';
+			// 		} else {
+			// 			$content += '<h4>'+data.desc+'</h4>';
+			// 			$content += '<p>'+data.value+'</p>';
 
-					} else {
-						$content += '<h4>'+data.desc+'</h4>';
-						$content += '<p>'+data.value+'</p>';
-
-					}
-				});
-			}
+			// 		}
+			// 	});
+			// }
 
 			// relations
 			if (entity.relations.length > 0) {
@@ -245,6 +282,11 @@ function loadEntity(id) {
 				});
 				$content += '</p>';
 			}
+
+			$content += '<hr/><p class="name">';
+			$content += '<span>Erstellt: '+moment(entity.created).format("DD.MM.YYYY hh:mm")+'</span><br/>';
+			$content += '<span>Aktualisiert: '+moment(entity.created).format("DD.MM.YYYY hh:mm")+'</span>';
+			$content += '</p>';
 
 		}
 		$content += '</div>';
