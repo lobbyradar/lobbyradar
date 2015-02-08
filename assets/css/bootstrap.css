@@ -6591,12 +6591,22 @@ button.close {
 #networkviz-wrapper .leaflet-top {
   top: 82px;
 }
+#networkviz-wrapper .leaflet-label {
+  width: auto;
+  min-width: 100px;
+  padding: 5px;
+  text-align: center;
+  display: inline;
+  background: rgba(0, 0, 0, 0.7);
+  color: white!important;
+  text-shadow: none;
+}
 #networkviz {
   background: none;
   cursor: -moz-grab;
   cursor: -webkit-grab;
 }
-#networkviz.ui-draggable-dragging {
+#networkviz .leaflet-drag-target {
   cursor: grabbing;
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;

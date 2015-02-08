@@ -15,18 +15,21 @@ var winHeight = $(window).height();
 
 // Makes the back button work
 window.onpopstate = function(event) {
+
 		var url = window.location.href; // get the url 
 		var id = url.split("/")[4]; // extract ID
+
 		if (window.location.href.indexOf("/entity/") > -1) {
-			console.log('return to a detail page');
 			loadEntity(id);
-			console.log('HistoryLength: '+history.length);
     }
 		if (window.location.href.indexOf("/search/") > -1) {
-			console.log('return to a search page');
 			loadList(id);
-			console.log('HistoryLength: '+history.length);
     }
+		if(location.pathname + location.search + location.hash == "/") {
+			$(".overlay").fadeIn("slow"); 
+			$( ".result-single" ).slideUp( "slow" );
+			$( ".result-list" ).slideUp( "slow" );
+		}
 };
                        
 
@@ -48,7 +51,7 @@ function loadList(id) {
 
 		var req = null;
 		var $resultName = id;
-		history.pushState(null, null, '/search/'+$resultName);
+
 		if (req) req.abort();
 		req = $.getJSON("/api/autocomplete", {
 			q: id
@@ -67,12 +70,13 @@ function loadList(id) {
 		});
 }
 
+
+// we use this when the loadEntity function is called from within the app
+// as opposed to a deep link
+// and set the url
 function loadEntityAjax(id) {
-		$( ".result-list" ).slideUp( "slow" );
-		var req = null;
 		loadEntity(id);
 		window.history.pushState(null, 'entity', '/entity/'+id);
-		$( ".result-single" ).delay( 800 ).slideDown( "slow" );
 }
 
 
@@ -102,6 +106,8 @@ function isExistant(el) {
 function loadEntity(id) {
 	var req = null;
 	if (req) { req.abort(); }
+	$( ".result-list" ).slideUp( "slow" );
+  $('.fullscreen').animate({scrollTop: 0});
 
 	NetworkViz.highlightEntity(id);
 
@@ -215,11 +221,15 @@ function loadEntity(id) {
 							$content += '<i class="fa fa-group"></i>&nbsp;'; 
 						}
 						$content += '<a class="ajax-load entity-connections" href="/entity/'
-						if (isExistant(e.entity._id))
-							$content += e.entity._id; 
-						$content += '">';
-						if (isExistant(e.entity.name))
-							$content += e.entity.name+'&nbsp;'; 
+						if (isExistant(e.entity)) {
+							if (isExistant(e.entity._id)) {
+								$content += e.entity._id; 
+							}
+							$content += '">';
+							if (isExistant(e.entity.name)) {
+								$content += e.entity.name+'&nbsp;'; 
+							}
+						}
 						$content += '</a>';
 						$content += '</li>';
 
@@ -239,12 +249,12 @@ function loadEntity(id) {
 		}
 		$content += '</div>';
 		// clear current view
-		console.log('append new results');
 		$(".result-single .content .entity", "#main").remove();
 		$(".result-single .content ", "#main").append($content);
 		// reset request
 		req = null;
 		$(document).trigger('load_entity_complete');
+		$( ".result-single" ).delay( 400 ).slideDown( "slow" );
 
 	});
 }
@@ -363,6 +373,7 @@ $( document ).ready(function() {
 			var $resultName = $(this).val();
 			// if ($(this).val().length >= 3) // 
 			if (e.which === 13) { 
+				history.pushState(null, null, '/search/'+$resultName);
 				loadList($resultName);
 			};
 		});

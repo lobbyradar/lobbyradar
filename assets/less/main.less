@@ -409,6 +409,17 @@
   .leaflet-top {
     top: 82px;
   }
+
+  .leaflet-label {
+    width:auto;
+    min-width:100px;
+    padding:5px;
+    text-align:center;
+    display:inline;
+    background:rgba(0,0,0,0.7);
+    color:white!important;
+    text-shadow:none;
+  }
 }
 
 #networkviz {
@@ -423,7 +434,7 @@
   // background: -ms-radial-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* IE10+ */
   // background: radial-gradient(to bottom,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* W3C */
 
-  &.ui-draggable-dragging {
+  .leaflet-drag-target {
     cursor:grabbing;
     cursor:-moz-grabbing;
     cursor:-webkit-grabbing;
