@@ -13,8 +13,69 @@
 var winWidth = $(window).width();
 var winHeight = $(window).height();
 
-                                                                                         
-                                                                                         
+// Makes the back button work
+window.onpopstate = function(event) {
+		var url = window.location.href; // get the url 
+		var id = url.split("/")[4]; // extract ID
+		if (window.location.href.indexOf("/entity/") > -1) {
+			console.log('return to a detail page');
+			loadEntity(id);
+			console.log('HistoryLength: '+history.length);
+    }
+		if (window.location.href.indexOf("/search/") > -1) {
+			console.log('return to a search page');
+			loadList(id);
+			console.log('HistoryLength: '+history.length);
+    }
+};
+                       
+
+
+// ___                         ___       ____                         
+// `MM                         `MM       `MM'     68b                 
+//  MM                          MM        MM      Y89           /     
+//  MM   _____      ___     ____MM        MM      ___   ____   /M     
+//  MM  6MMMMMb   6MMMMb   6MMMMMM        MM      `MM  6MMMMb\/MMMMM  
+//  MM 6M'   `Mb 8M'  `Mb 6M'  `MM        MM       MM MM'    ` MM     
+//  MM MM     MM     ,oMM MM    MM        MM       MM YM.      MM     
+//  MM MM     MM ,6MM9'MM MM    MM        MM       MM  YMMMMb  MM     
+//  MM MM     MM MM'   MM MM    MM        MM       MM      `Mb MM     
+//  MM YM.   ,M9 MM.  ,MM YM.  ,MM        MM    /  MM L    ,MM YM.  , 
+// _MM_ YMMMMM9  `YMMM9'Yb.YMMMMMM_      _MMMMMMM _MM_MYMMMM9   YMMM9 
+
+function loadList(id) { 
+		$( ".result-single" ).slideUp( "slow" );
+
+		var req = null;
+		var $resultName = id;
+		history.pushState(null, null, '/search/'+$resultName);
+		if (req) req.abort();
+		req = $.getJSON("/api/autocomplete", {
+			q: id
+		}, function(data){
+		console.log(data);
+			var $tb = $("<tbody></tbody>");
+			if (data instanceof Array && data.length > 0) $(data).each(function(idx,e){
+				$tb.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="ajax-load entity-detail" href="/entity/'+e.id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.relations+'</a></td></tr>');
+				$(".result-list p .result-name", "#main").html($resultName);
+			});
+			$( ".result-list" ).slideDown( "slow" );
+			$(".result-list table tbody", "#main").remove();
+			$(".result-list table ", "#main").append($tb);
+			// reset request
+			req = null;
+		});
+}
+
+function loadEntityAjax(id) {
+		$( ".result-list" ).slideUp( "slow" );
+		var req = null;
+		loadEntity(id);
+		window.history.pushState(null, 'entity', '/entity/'+id);
+		$( ".result-single" ).delay( 800 ).slideDown( "slow" );
+}
+
+
 // ___                         ___       __________                                         
 // `MM                         `MM       `MMMMMMMMM                  68b                    
 //  MM                          MM        MM      \            /     Y89   /                
@@ -30,15 +91,9 @@ var winHeight = $(window).height();
 //                                                                              (8),P       
 //                                                                               YMM        
 
-
 function isExistant(el) { 
-
-	if (el !== undefined) {
-		if (el != 0 || undefined || '' || null) {
-			return true;
-		}
-	}
-
+	if (el !== undefined) { if (el != 0 || undefined || '' || null) { return true; } }
+	// else
 	return false;
 }
 
@@ -50,12 +105,17 @@ function loadEntity(id) {
 
 	NetworkViz.highlightEntity(id);
 
+	// change the url + history literal object
+	// history.pushState(null, null, '/entity/'+id);
+	// obj.historyData.id = id;
+	// console.log('Object History Data ID: '+obj.historyData.id);
+	// 
+
 	req = $.getJSON("/api/entity/get/"+id, {relations:true}, function(data){
 		var $content = '<div class="entity">';
 	 
 		if (data.hasOwnProperty("result")) {
 			var entity = data.result;
-			// console.log(data.result);
 			console.log(data.result);
 
 			// title 
@@ -154,10 +214,12 @@ function loadEntity(id) {
 						} else if (e.type == 'member') {
 							$content += '<i class="fa fa-group"></i>&nbsp;'; 
 						}
-						$content += '<a class="entity-connections" href="/entity/'
-						$content += e.entity._id; 
+						$content += '<a class="ajax-load entity-connections" href="/entity/'
+						if (isExistant(e.entity._id))
+							$content += e.entity._id; 
 						$content += '">';
-						$content += e.entity.name+'&nbsp;'; 
+						if (isExistant(e.entity.name))
+							$content += e.entity.name+'&nbsp;'; 
 						$content += '</a>';
 						$content += '</li>';
 
@@ -187,21 +249,6 @@ function loadEntity(id) {
 	});
 }
 
-                                                                   
-                                                                   
-// ___                         ___       ____                         
-// `MM                         `MM       `MM'     68b                 
-//  MM                          MM        MM      Y89           /     
-//  MM   _____      ___     ____MM        MM      ___   ____   /M     
-//  MM  6MMMMMb   6MMMMb   6MMMMMM        MM      `MM  6MMMMb\/MMMMM  
-//  MM 6M'   `Mb 8M'  `Mb 6M'  `MM        MM       MM MM'    ` MM     
-//  MM MM     MM     ,oMM MM    MM        MM       MM YM.      MM     
-//  MM MM     MM ,6MM9'MM MM    MM        MM       MM  YMMMMb  MM     
-//  MM MM     MM MM'   MM MM    MM        MM       MM      `Mb MM     
-//  MM YM.   ,M9 MM.  ,MM YM.  ,MM        MM    /  MM L    ,MM YM.  , 
-// _MM_ YMMMMM9  `YMMM9'Yb.YMMMMMM_      _MMMMMMM _MM_MYMMMM9   YMMM9 
-                                                                   
-                                                                   
 
 																																									
 // ________                            ________                          ___             
@@ -238,7 +285,17 @@ $( document ).ready(function() {
 		}
 	});
 
-	NetworkViz.setClickHandler(loadEntity);
+	NetworkViz.setClickHandler(loadEntityAjax);
+
+	// bring up the details when an entry is clicked a                                                                                                           
+	$('body').on('click', '.ajax-load', function(e) {
+		e.preventDefault();
+		var str = this.href;
+		var entityID = str.split("/")[4];
+		loadEntityAjax(entityID);
+
+	});
+
 																													 
 // ________                                    ____                  ___       
 // `MMMMMMMb.                                  `MM'     68b          `MM       
@@ -279,34 +336,9 @@ $( document ).ready(function() {
 		$( ".overlay" ).css( "display",'none' ); // we dont need the intro
 
 		var str = window.location.href; // get the url 
-		var entityID = str.split("/")[4]; // extract ID
-		console.log('entity.entry, ID: '+entityID);
-		var $resultName = entityID;
-		var req = null;
-
-		// loadEntity(entityID);
-		if (req) req.abort();
-				req = $.getJSON("/api/autocomplete", {
-					q: entityID
-				}, function(data){
-				console.log(data);
-
-					var $tb = $("<tbody></tbody>");
-
-					if (data instanceof Array && data.length > 0) $(data).each(function(idx,e){
-						$tb.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="entity-detail" href="/entity/'+e.id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.relations+'</a></td></tr>');
-						$(".result-list p .result-name", "#main").html($resultName);
-					});
-
-					$( ".result-list" ).slideDown( "slow" );
-					history.pushState(null, null, '/search/'+$resultName);
-
-					$(".result-list table tbody", "#main").remove();
-					$(".result-list table ", "#main").append($tb);
-
-					// reset request
-					req = null;
-				});
+		var searchID = str.split("/")[4]; // extract ID
+		console.log('Search for: '+searchID);
+		loadList(searchID);
 	}
 
 
@@ -326,39 +358,12 @@ $( document ).ready(function() {
 	// lazy typeahead
 	(function(){
 		var req = null;
-		$('body').on('keyup', '.lobbysearch', function(evt) {
-			$( ".result-single" ).slideUp( "slow" );
+		$('body').on('keyup', '.lobbysearch', function(e) {
 			console.log($(this).val());
 			var $resultName = $(this).val();
-			if ($(this).val().length >= 3) { // autocomplete after 3 letters
-
-	
-
-				$(".result-list table tbody", "#main").html("<i class='fa-cog text-center fa-5x fa fa-spin'></i>");
-
-				if (req) req.abort();
-				req = $.getJSON("/api/autocomplete", {
-					q: $(this).val()
-				}, function(data){
-				console.log(data);
-
-					var $tb = $("<tbody></tbody>");
-
-					if (data instanceof Array && data.length > 0) $(data).each(function(idx,e){
-						$tb.append('<tr><td><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="entity-detail" href="/entity/'+e.id+'">'+e.name+'</a></td><td><a href="/entity/'+e._id+'">'+e.connections+'</a></td></tr>');
-						$(".result-list p .result-name", "#main").html($resultName);
-					});
-
-					history.pushState(null, null, '/search/'+$resultName);
-
-					$(".result-list table tbody", "#main").remove();
-					$(".result-list table ", "#main").append($tb);
-					$( ".result-list" ).delay( 500 ).slideDown( "slow" );
-
-					// reset request
-					req = null;
-				});
-
+			// if ($(this).val().length >= 3) // 
+			if (e.which === 13) { 
+				loadList($resultName);
 			};
 		});
 	})();
@@ -387,36 +392,7 @@ $( document ).ready(function() {
 		e.preventDefault();
 	});
 
-	// bring up the details when an entry is clicked from list                                                                                                               
-	$('body').on('click', '.entity-detail', function(e) {
-				$( ".result-list" ).slideUp( "slow" );
-		e.preventDefault();
-		var req = null;
-		console.log('loading an entity from the list');
-		var str = this.href;
-		var entityID = str.split("/")[4];
-		console.log('entity.entry, ID: '+entityID);
-		loadEntity(entityID);
-		history.pushState(null, null, this.href);
-		$( ".result-single" ).delay( 800 ).slideDown( "slow" );
 
-	});
-
-	// fade animation when clickin a connection
-	$('body').on('click', '.entity-connections', function(e) {
-		history.pushState(null, null, this.href);
-		e.preventDefault();
-		var req = null;
-		console.log('clicked on a conneciont');
-		var str = this.href;
-		var entityID = str.split("/")[4];
-		console.log('entity.entry, ID: '+entityID);
-
-		$( ".content" ).fadeOut( "slow" , function() {
-			loadEntity(entityID);		
-  	});
-		$( ".content" ).fadeIn( "slow" );
-	});
 
 																																																				
 //     ________                 ___         ____                            ___ ___                        
