@@ -6519,6 +6519,9 @@ button.close {
     margin-top: 150px;
   }
 }
+.abspann-page {
+  padding-top: 70px;
+}
 .faq-page {
   padding-top: 70px;
   min-height: 100%;
