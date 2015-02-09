@@ -521,7 +521,12 @@ app.get("/faq", function (req, res) {
 		res.render("faq", {});
 });
 
-// FAQ Page (static)
+// Abspann Page (static)
+app.get("/abspann", function (req, res) {
+		res.render("abspann", {});
+});
+
+// Search Page (static)
 app.get("/search/:id", function (req, res) {
 		res.render("index", {});
 });

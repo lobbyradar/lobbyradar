@@ -53,12 +53,16 @@ var NetworkViz = (function () {
 		map = L.map('networkviz', {
 			minZoom: 0,
 			maxZoom: 7,
-			zoom: 3,
+			zoom: 5,
 			center: [-0.5*f,0.5*f],
 			maxBounds: L.latLngBounds([-f,0],[0,f]),
 			crs: crs,
-			zoomAnimation: false
+			zoomAnimation: true,
+			zoomControl:false,
+			scrollWheelZoom:false
 		});
+		map.addControl( L.control.zoom({position: 'bottomleft'}) )
+
 
 		map.on('mousemove', mousemove);
 		map.on('click', mouseclick);
@@ -84,6 +88,8 @@ var NetworkViz = (function () {
 
 		hoveredNodes.forEach(function (node) {
 			if (!node.active) hideLabel(node);
+			$('#networkviz').css( 'cursor', '-webkit-grab' );
+
 		})
 		hoveredNodes = [];
 
@@ -92,6 +98,8 @@ var NetworkViz = (function () {
 			if (d < node.r) {
 				hoveredNodes.push(node);
 				showLabel(node);
+				$('#networkviz').css( 'cursor', 'pointer' );
+
 			};
 		})
 	}
@@ -135,6 +143,7 @@ var NetworkViz = (function () {
 		activeNodes.forEach(function (node) {
 			node.active = false;
 			hideLabel(node);
+
 		})
 	}
 
@@ -224,9 +233,9 @@ L.Label = L.Class.extend({
 		this.label = $('<div class="leaflet-label"></div>');
 		this.label.text(this.options.text);
 		if (this.options.text.length > 30) this.label.addClass('small');
-		if (this.options.color) {
-			this.label.css('text-shadow', '0px 0px 2px '+this.options.color);
-		}
+		// if (this.options.color) {
+		// 	this.label.css('text-shadow', '0px 0px 2px '+this.options.color);
+		// }
 
 		var panes = this._map._panes;
 
@@ -237,8 +246,8 @@ L.Label = L.Class.extend({
 		if (this.label) {
 			var pos = this._map.latLngToLayerPoint(this._latlng).round();
 			this.label.css({
-				left:pos.x - this.label.width()/2,
-				top: pos.y - this.label.height()/2
+				left:pos.x - this.label.width()/1.8,
+				top: pos.y + 20
 			});
 		}
 
