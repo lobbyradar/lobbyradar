@@ -356,6 +356,13 @@ $( document ).ready(function() {
     window.history.back();
 	});
 
+	// click back arrow -> history
+	$('body').on('click', 'button.close', function(e) {
+		$( ".result-single" ).slideUp( "slow" );
+		$( ".result-list" ).slideUp( "slow" );
+    e.preventDefault();
+	});
+
 																													 
 // ________                                    ____                  ___       
 // `MMMMMMMb.                                  `MM'     68b          `MM       

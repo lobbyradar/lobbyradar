@@ -6319,6 +6319,10 @@ button.close {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#11354b', endColorstr='#6392a8', GradientType=0);
   /* IE6-9 */
 }
+.close {
+  margin-top: -10px;
+  margin-right: -5px;
+}
 .zdf-header-blue .search-form {
   margin-bottom: 20px;
   margin-top: 19px;
