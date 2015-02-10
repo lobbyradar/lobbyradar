@@ -379,7 +379,7 @@ var reportServerError = function ($scope, err) {
 
 // ------------------- controllers -------------------
 
-app.controller('AppCtrl', function ($rootScope, $scope) {
+app.controller('AppCtrl', function ($rootScope, $scope, dateFilter) {
 	'use strict';
 	$rootScope.globals = {
 		fieldtypes: {
@@ -422,6 +422,7 @@ app.controller('AppCtrl', function ($rootScope, $scope) {
 			if ((v.format == 'strings') || (v.format == 'tags')) return v.value.join(', ');
 			else if (v.format == 'bool') return v.value ? 'ja' : 'nein';
 			else if (v.format == 'link') return v.value.url;
+			else if (v.format == 'date') return dateFilter(v.value.date, v.value.fmt);
 			else if (v.format == 'number') return v.value;
 			else if (v.format == 'address') {
 				var sl = [];
