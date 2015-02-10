@@ -986,7 +986,7 @@ h6,
 .h5,
 .h6 {
   font-family: inherit;
-  font-weight: 500;
+  font-weight: 800;
   line-height: 1.1;
   color: inherit;
 }
@@ -1066,7 +1066,7 @@ h6 .small,
 }
 h1,
 .h1 {
-  font-size: 36px;
+  font-size: 32px;
 }
 h2,
 .h2 {
@@ -2765,7 +2765,7 @@ select[multiple].form-group-lg .form-control {
 .btn:hover,
 .btn:focus,
 .btn.focus {
-  color: #eeeeee;
+  color: #999999;
   text-decoration: none;
 }
 .btn:active,
@@ -2786,9 +2786,9 @@ fieldset[disabled] .btn {
   box-shadow: none;
 }
 .btn-default {
-  color: #eeeeee;
-  background-color: #1b4c64;
-  border-color: #1b4c64;
+  color: #999999;
+  background-color: transparent;
+  border-color: #cccccc;
 }
 .btn-default:hover,
 .btn-default:focus,
@@ -2796,9 +2796,9 @@ fieldset[disabled] .btn {
 .btn-default:active,
 .btn-default.active,
 .open > .dropdown-toggle.btn-default {
-  color: #eeeeee;
-  background-color: #102d3c;
-  border-color: #0e2734;
+  color: #999999;
+  background-color: rgba(0, 0, 0, 0);
+  border-color: #adadad;
 }
 .btn-default:active,
 .btn-default.active,
@@ -2823,17 +2823,17 @@ fieldset[disabled] .btn-default:active,
 .btn-default.disabled.active,
 .btn-default[disabled].active,
 fieldset[disabled] .btn-default.active {
-  background-color: #1b4c64;
-  border-color: #1b4c64;
+  background-color: transparent;
+  border-color: #cccccc;
 }
 .btn-default .badge {
-  color: #1b4c64;
-  background-color: #eeeeee;
+  color: transparent;
+  background-color: #999999;
 }
 .btn-primary {
   color: #ffffff;
-  background-color: #fa7e00;
-  border-color: #e17100;
+  background-color: #1b4c64;
+  border-color: #1b4c64;
 }
 .btn-primary:hover,
 .btn-primary:focus,
@@ -2842,8 +2842,8 @@ fieldset[disabled] .btn-default.active {
 .btn-primary.active,
 .open > .dropdown-toggle.btn-primary {
   color: #ffffff;
-  background-color: #c76400;
-  border-color: #a35200;
+  background-color: #102d3c;
+  border-color: #0e2734;
 }
 .btn-primary:active,
 .btn-primary.active,
@@ -2868,11 +2868,11 @@ fieldset[disabled] .btn-primary:active,
 .btn-primary.disabled.active,
 .btn-primary[disabled].active,
 fieldset[disabled] .btn-primary.active {
-  background-color: #fa7e00;
-  border-color: #e17100;
+  background-color: #1b4c64;
+  border-color: #1b4c64;
 }
 .btn-primary .badge {
-  color: #fa7e00;
+  color: #1b4c64;
   background-color: #ffffff;
 }
 .btn-success {
@@ -4493,7 +4493,7 @@ fieldset[disabled] .navbar-inverse .btn-link:focus {
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
-  border-radius: .25em;
+  border-radius: 0px;
 }
 a.label:hover,
 a.label:focus {
@@ -6286,6 +6286,21 @@ button.close {
     display: none !important;
   }
 }
+.label {
+  padding-top: 0.4em;
+  float: right;
+}
+.leaflet-control-attribution {
+  display: none;
+}
+.btn-lg,
+.btn-group-lg > .btn {
+  font-size: 18px;
+  padding: 15px;
+}
+input.lobbysearch {
+  font-size: 18px;
+}
 .videoWrapper {
   position: relative;
   padding-bottom: 56.25%;
@@ -6320,8 +6335,10 @@ button.close {
   /* IE6-9 */
 }
 .close {
-  margin-top: -10px;
-  margin-right: -5px;
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  color: #999999;
 }
 .zdf-header-blue .search-form {
   margin-bottom: 20px;
@@ -6401,7 +6418,7 @@ button.close {
   top: 0px;
   position: absolute;
   min-width: 0px;
-  z-index: 1030;
+  z-index: 1040;
   border: 0px!important;
   margin-bottom: 0px;
 }
@@ -6409,6 +6426,8 @@ button.close {
   width: 80px;
   height: auto;
   float: left;
+  margin-top: 5px;
+  margin-left: 10px;
 }
 .zdf-header-grey .navbar-toggle {
   border: 0px;
@@ -6418,7 +6437,7 @@ button.close {
 }
 .zdf-header-grey .navbar-brand img.zdf-logo-lobbyradar {
   width: 150px;
-  margin: 5px 10px 0px 10px;
+  margin: 12px 10px 0px 10px;
 }
 .zdf-header-grey .navbar-toggle {
   margin: 6px;
@@ -6505,7 +6524,7 @@ button.close {
   }
 }
 .overlay {
-  background: rgba(12, 12, 12, 0.6);
+  background: rgba(12, 12, 12, 0.8);
   width: 100%;
   height: 100%;
   position: fixed;
@@ -6517,6 +6536,9 @@ button.close {
 }
 .overlay .container {
   margin-top: 120px;
+}
+.intro-copy {
+  font-size: 18px;
 }
 @media (min-width: 992px) {
   .overlay .container {
@@ -6686,13 +6708,7 @@ button.close {
 }
 @media (min-width: 768px) {
   .viewport-info {
-    margin-top: 170px;
-  }
-}
-@media (min-width: 992px) {
-  .result-list,
-  .result-single {
-    margin-right: 40px;
+    margin-top: 145px;
   }
 }
 .radarbox {

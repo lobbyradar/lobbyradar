@@ -13,6 +13,19 @@
 var winWidth = $(window).width();
 var winHeight = $(window).height();
 
+var sort_by = function(field, reverse, primer){
+
+   var key = primer ? 
+       function(x) {return primer(x[field])} : 
+       function(x) {return x[field]};
+
+   reverse = [-1, 1][+!!reverse];
+
+   return function (a, b) {
+       return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+     } 
+}	
+
 // Makes the back button work
 window.onpopstate = function(event) {
 
@@ -58,10 +71,11 @@ function loadList(id) {
 			q: id
 		}, function(data){
 		console.log(data);
+			data = data.sort(sort_by('name', true, function(a){return a.toUpperCase()}));
 			var $ul = $("<ul class='list-group'></ul>");
 			if (data instanceof Array && data.length > 0) $(data).each(function(idx,e){
-				$ul.append('<li class="list-group-item"><i class="fa fa-'+((e.type==="person")?"":"")+'"></i> <a class="ajax-load entity-detail" href="/entity/'+e.id+'">'+e.name+' <span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span></li>');
-				$(".result-list p .result-name", "#main").html($resultName);
+				$ul.append('<li class="list-group-item"> <a class="ajax-load entity-detail" href="/entity/'+e.id+'">'+e.name+' </a><span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span><div class="clearfix"></div></li>');
+				$(".result-list .result-name", "#main").html($resultName);
 			});
 			$( ".result-list" ).slideDown( "slow" );
 			$(".result-list .results .list-group", "#main").remove();
@@ -142,10 +156,10 @@ function loadEntity(id) {
 			$content += '</h1>';
 
 			// tags
-			$(data.result.tags).each(function(idx,e){ 
-				$content += '<span class="label label-default">'+e+'</span>&nbsp;'; 
-			});
-			$content += '<hr/>';
+			// $(data.result.tags).each(function(idx,e){ 
+			// 	$content += '<span class="label label-default">'+e+'</span>&nbsp;'; 
+			// });
+			// $content += '<hr/>';
 
 			// // check for the different types of data
 			// for(var i = 0, data; data = entity.data[i]; i++) {
@@ -284,7 +298,7 @@ function loadEntity(id) {
 				$content += '</p>';
 			}
 
-			$content += '<hr/><p class="name">';
+			$content += '<p class="name">';
 			$content += '<span>Erstellt: '+moment(entity.created).format("DD.MM.YYYY hh:mm")+'</span><br/>';
 			$content += '<span>Aktualisiert: '+moment(entity.created).format("DD.MM.YYYY hh:mm")+'</span>';
 			$content += '</p>';
@@ -327,12 +341,12 @@ $( document ).ready(function() {
 
 	// set initial div height / width
 
-	$(".lobbysearch").focus(function(){
-		$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
-	});
+	// $(".lobbysearch").focus(function(){
+	// });
 		
 	$('.lobbysearch').keypress(function (e) {
 		if (e.which === 13) {
+			$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
 			$( ".result-list" ).slideDown( "slow" );
 			return false;
 			event.preventDefault();

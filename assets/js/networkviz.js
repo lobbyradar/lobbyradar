@@ -59,7 +59,7 @@ var NetworkViz = (function () {
 			crs: crs,
 			zoomAnimation: true,
 			zoomControl:false,
-			scrollWheelZoom:false
+			scrollWheelZoom:true
 		});
 		map.addControl( L.control.zoom({position: 'bottomleft'}) )
 
@@ -73,7 +73,8 @@ var NetworkViz = (function () {
 			maxNativeZoom: 7,
 			tileSize: 256,
 			zoomOffset: 0,
-			attribution: '<a href="https://events.ccc.de/congress/2013/">31C3</a> | Improve the code on <a href="https://github.com/OpenDataCity/31c3-map">GitHub</a>!',
+			// attribution: '<a href="https://events.ccc.de/congress/2013/">31C3</a> | Improve the code on <a href="https://github.com/OpenDataCity/31c3-map">GitHub</a>!',
+			attribution: '',
 			noWrap: true
 		})
 		
