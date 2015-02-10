@@ -73,7 +73,6 @@ var NetworkViz = (function () {
 			maxNativeZoom: 7,
 			tileSize: 256,
 			zoomOffset: 0,
-			attribution: '<a href="https://events.ccc.de/congress/2013/">31C3</a> | Improve the code on <a href="https://github.com/OpenDataCity/31c3-map">GitHub</a>!',
 			noWrap: true
 		})
 		
