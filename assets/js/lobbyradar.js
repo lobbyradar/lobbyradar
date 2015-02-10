@@ -261,9 +261,11 @@ function loadEntity(id) {
 
 			// relations
 			if (entity.relations.length > 0) {
+					// var relations = entity.relations.sort(sort_by('entity[name]', true));
+					var relations = entity.relations;
 					$content += '<h3>Verbindungen</h3>';
 					$content += '<ul class="list-group">';
-					$(entity.relations).each(function(idx,e){ 
+					$(relations).each(function(idx,e){ 
 						$content += '<li class="list-group-item">';
 						if (e.type == 'donation') {
 							$content += '<i class="fa fa-money"></i>&nbsp;'; 
