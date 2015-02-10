@@ -40,6 +40,10 @@
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#11354b', endColorstr='#6392a8',GradientType=0 ); /* IE6-9 */
 }
 
+.close {
+  margin-top:-10px;
+  margin-right:-5px;
+}
                                                                
 //              ,,                                                      
 // `7MM"""Yp, `7MM                         `7MM"""Yp,                   
@@ -76,7 +80,7 @@
 .zdf-header-blue {
   top:46px;
   position: absolute;
-    z-index:999;
+    z-index:1030;
     width:100%;
     overflow:hidden;
     background: rgba(20,59,82,0.5);
@@ -92,7 +96,7 @@
     float: left;
 
       img {
-        margin:10px 0px;
+        margin:25px 0px 0px 0px;
         max-width:150px;
       }
       // margin: -80px 0px 0px 40px;
@@ -308,10 +312,28 @@
 @media (min-width: @screen-md-min) {
   .overlay .container { margin-top:150px; }
 }
-                                
-                                
-                                      
-                                      
+           
+                                                                     
+                                                                     
+//        _     ___                                                     
+//       dM.     MM                                                     
+//      ,MMb     MM                                                     
+//      d'YM.    MM____     ____  __ ____      ___   ___  __  ___  __   
+//     ,P `Mb    MMMMMMb   6MMMMb\`M6MMMMb   6MMMMb  `MM 6MMb `MM 6MMb  
+//     d'  YM.   MM'  `Mb MM'    ` MM'  `Mb 8M'  `Mb  MMM9 `Mb MMM9 `Mb 
+//    ,P   `Mb   MM    MM YM.      MM    MM     ,oMM  MM'   MM MM'   MM 
+//    d'    YM.  MM    MM  YMMMMb  MM    MM ,6MM9'MM  MM    MM MM    MM 
+//   ,MMMMMMMMb  MM    MM      `Mb MM    MM MM'   MM  MM    MM MM    MM 
+//   d'      YM. MM.  ,M9 L    ,MM MM.  ,M9 MM.  ,MM  MM    MM MM    MM 
+// _dM_     _dMM_MYMMMM9  MYMMMM9  MMYMMM9  `YMMM9'Yb_MM_  _MM_MM_  _MM_
+//                                 MM                                   
+//                                 MM                                   
+//                                _MM_                                                       
+                              
+.abspann-page {
+  padding-top:70px;                                  
+}  
+      
 // `7MM"""YMM       db        .g8""8q.   
 //   MM    `7      ;MM:     .dP'    `YM. 
 //   MM   d       ,V^MM.    dM'      `MM 
@@ -409,6 +431,17 @@
   .leaflet-top {
     top: 82px;
   }
+
+  .leaflet-label {
+    width:auto;
+    min-width:100px;
+    padding:5px;
+    text-align:center;
+    display:inline;
+    background:rgba(0,0,0,0.7);
+    color:white!important;
+    text-shadow:none;
+  }
 }
 
 #networkviz {
@@ -423,7 +456,7 @@
   // background: -ms-radial-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* IE10+ */
   // background: radial-gradient(to bottom,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* W3C */
 
-  &.ui-draggable-dragging {
+  .leaflet-drag-target {
     cursor:grabbing;
     cursor:-moz-grabbing;
     cursor:-webkit-grabbing;

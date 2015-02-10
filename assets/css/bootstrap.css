@@ -5389,7 +5389,7 @@ a.list-group-item-danger.active:focus {
   min-height: 20px;
   padding: 19px;
   margin-bottom: 20px;
-  background-color: white;
+  background-color: #ffffff;
   color: #062b3e;
   border: 1px solid #ededed;
   border-radius: 1px;
@@ -6319,6 +6319,10 @@ button.close {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#11354b', endColorstr='#6392a8', GradientType=0);
   /* IE6-9 */
 }
+.close {
+  margin-top: -10px;
+  margin-right: -5px;
+}
 .zdf-header-blue .search-form {
   margin-bottom: 20px;
   margin-top: 19px;
@@ -6341,7 +6345,7 @@ button.close {
 .zdf-header-blue {
   top: 46px;
   position: absolute;
-  z-index: 999;
+  z-index: 1030;
   width: 100%;
   overflow: hidden;
   background: rgba(20, 59, 82, 0.5);
@@ -6357,7 +6361,7 @@ button.close {
   float: left;
 }
 .zdf-header-blue .logo-name img {
-  margin: 10px 0px;
+  margin: 25px 0px 0px 0px;
   max-width: 150px;
 }
 .zdf-header-blue .logo-name .fa-stack {
@@ -6519,6 +6523,9 @@ button.close {
     margin-top: 150px;
   }
 }
+.abspann-page {
+  padding-top: 70px;
+}
 .faq-page {
   padding-top: 70px;
   min-height: 100%;
@@ -6591,12 +6598,22 @@ button.close {
 #networkviz-wrapper .leaflet-top {
   top: 82px;
 }
+#networkviz-wrapper .leaflet-label {
+  width: auto;
+  min-width: 100px;
+  padding: 5px;
+  text-align: center;
+  display: inline;
+  background: rgba(0, 0, 0, 0.7);
+  color: white!important;
+  text-shadow: none;
+}
 #networkviz {
   background: none;
   cursor: -moz-grab;
   cursor: -webkit-grab;
 }
-#networkviz.ui-draggable-dragging {
+#networkviz .leaflet-drag-target {
   cursor: grabbing;
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;
