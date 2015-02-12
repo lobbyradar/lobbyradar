@@ -31,7 +31,6 @@ var db = mongojs(config.db, ["entities", "relations", "users", "fields", "datain
 
 // local modules
 var api = require("./lib/api.js")(config.api, db);
-var search = require("./lib/search.js")(config.search, api);
 
 // use nsa if configured
 if (config.hasOwnProperty("nsa") && (config.nsa)) {
@@ -499,7 +498,7 @@ app.all("/list/:type/:letter?", function (req, res) {
 
 // autocomplete
 app.get("/api/autocomplete", function (req, res) {
-	search.autocomplete(req.query.q, function(err, result){
+	api.autocomplete(req.query.q, function(err, result){
 		res.status(200).json(result);
 	});
 });
