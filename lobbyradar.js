@@ -500,6 +500,7 @@ app.all("/list/:type/:letter?", function (req, res) {
 
 // autocomplete
 app.get("/api/autocomplete", function (req, res) {
+	if (!req.query.hasOwnProperty("q") || req.query.q === null || req.query.q === "") return res.status(200).json([]);
 	api.autocomplete(req.query.q, function(err, result){
 		res.status(200).json(result);
 	});
