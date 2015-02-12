@@ -90,7 +90,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // parse application/json
-app.use(bodyparser.json());
+app.use(bodyparser.json({
+	limit: '20mb'
+}));
 
 // use bodyparser for urlencoded forms
 app.use(bodyparser.urlencoded({
