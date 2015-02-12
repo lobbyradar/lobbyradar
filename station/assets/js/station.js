@@ -429,6 +429,7 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter) {
 				if (v.value) {
 					if (v.value.name) sl.push(v.value.name);
 					if (v.value.addr) sl.push(v.value.addr);
+					if (v.value.street) sl.push(v.value.street);
 					if (v.value.postcode) sl.push(v.value.postcode);
 					if (v.value.city) sl.push(v.value.city);
 					if (v.value.country) sl.push(v.value.country);
