@@ -6286,6 +6286,15 @@ button.close {
     display: none !important;
   }
 }
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
 .label {
   padding-top: 0.4em;
   float: right;
@@ -6695,10 +6704,26 @@ input.lobbysearch {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.result-single .entity-source {
+.result-single .entity-source,
+.result-single .entity-link {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.result-single .entity-relations-list {
+  margin: 0 -20px;
+}
+.result-single .entity-relations-item {
+  padding: 10px 20px 10px 20px;
+}
+.result-single .entity-relations-item table {
+  margin: 10px 0px;
+}
+.result-single .meta {
+  text-align: right;
+  font-size: 80%;
+  color: #999;
+  margin-bottom: 0px;
 }
 .avatar {
   max-width: 100px;
@@ -6710,6 +6735,9 @@ input.lobbysearch {
   .viewport-info {
     margin-top: 145px;
   }
+}
+.viewport-info {
+  margin-bottom: 20px!important;
 }
 .radarbox {
   position: relative;
