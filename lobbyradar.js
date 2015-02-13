@@ -38,10 +38,10 @@ if (config.hasOwnProperty("nsa") && (config.nsa)) {
 		server: config.nsa,
 		service: "lobbyradar",
 		interval: "10s"
-	}).start(function () {
-			debug("started heartbeat");
-		});
-}
+	}).start(function(){
+		debug("started heartbeat");
+	});
+};
 
 /* configure passport */
 passport.serializeUser(function (user, done) {
@@ -66,7 +66,6 @@ passport.use(new passportlocal.Strategy(function (username, password, done) {
 		}
 	});
 }));
-
 
 // use express
 var app = express();
@@ -99,7 +98,7 @@ app.use(bodyparser.urlencoded({
 	extended: false
 }));
 
-var nice_error= function(err){
+var nice_error = function(err){
 	if (!err) return;
 	return err.toString();
 };
@@ -137,6 +136,14 @@ app.get("/api/plugin/whitelist", function (req, res) {
 	debug("get plugin whitelist");
 	api.whitelist_get(function(err, result){
 		res.type("json").status("200").json({err: ((err)?err.message:null), result: result});
+	});
+});
+
+// export.
+app.all("/api/plugin/export", function (req, res) {
+	debug("relation tags");
+	api.ent_export(function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
 
