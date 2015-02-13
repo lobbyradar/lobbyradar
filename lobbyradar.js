@@ -132,6 +132,14 @@ app.get("/api/search", function (req, res) {
 	});
 });
 
+// whitelist
+app.get("/api/plugin/whitelist", function (req, res) {
+	debug("get plugin whitelist");
+	api.whitelist_get(function(err, result){
+		res.type("json").status("200").json({err: ((err)?err.message:null), result: result});
+	});
+});
+
 // create entity. 
 app.post("/api/entity/create", function (req, res) {
 	debug("create entity for \"%s\"", req.body.ent.name);

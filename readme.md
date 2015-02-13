@@ -7,6 +7,10 @@
 
 ## HTTP API
 
+### `GET /api/plugin/whitelist`
+
+Get domain whitelist for plugin
+
 ### `GET /api/search?q={query}`
 
 Search Entities by names and aliases
