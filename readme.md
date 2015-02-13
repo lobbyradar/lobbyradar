@@ -16,8 +16,8 @@
 
 For high load environments, results may be cached as staic files:
 
-* `/api/plugin/whitelist` — [whitelist.json](/assets/cache/whitelist.json) and [whitelist.json.gz](/assets/cache/whitelist.json.gz)
-* `/api/plugin/export` — [entities.json](/assets/cache/entities.json) and [entities.json.gz](/assets/cache/entities.json.gz)
+* `/api/plugin/whitelist` — [/assets/cache/whitelist.json](/assets/cache/whitelist.json) and [/assets/cache/whitelist.json.gz](/assets/cache/whitelist.json.gz)
+* `/api/plugin/export` — [/assets/cache/entities.json](/assets/cache/entities.json) and [/assets/cache/entities.json.gz](/assets/cache/entities.json.gz)
 
 Their use is recommended and may be enforced. Those files are recreated in an interval of 5 minutes. 
 
@@ -57,9 +57,7 @@ List entity tags
 
 ### `GET /api/entity/export` _deprecated, use `/api/plugin/export` instead_
 
-Export entities as subset of 
-
-{"54c71ad952d7180000c4d68f":["person",["Elvira Drobinski-Weiß","Elvira Drobinski-Weiß"],["54c906fbb10251e22a64a57d","54c71adb52d7180000c4d882","54c71adb52d7180000c4d889","54c71adb52d7180000c4d896","54c71adb52d7180000c4d898","54c71adb52d7180000c4d88a","54bd232aeccdc50000052328","54c71adc52d7180000c4d8e0","54c71adf52d7180000c4d97d","54cb80ad23abb47ea0fd3b37","54cb80ad23abb47ea0fd3b38"]]
+Export entities as subset of entities containing entity type, name, aliases and relations in minimalized form.
 
 ``` javascript
 {
