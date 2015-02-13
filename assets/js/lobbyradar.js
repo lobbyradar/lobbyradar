@@ -70,18 +70,30 @@ function loadList(id) {
 		req = $.getJSON("/api/autocomplete", {
 			q: id
 		}, function(data){
-		console.log(data);
-			data = data.sort(sort_by('name', true, function(a){return a.toUpperCase()}));
-			var $ul = $("<ul class='list-group'></ul>");
-			if (data instanceof Array && data.length > 0) $(data).each(function(idx,e){
-				$ul.append('<li class="list-group-item"> <a class="ajax-load entity-detail" href="/entity/'+e.id+'">'+e.name+' </a><span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span><div class="clearfix"></div></li>');
-				$(".result-list .result-name", "#main").html($resultName);
-			});
-			$( ".result-list" ).slideDown( "slow" );
-			$(".result-list .results .list-group", "#main").remove();
-			$(".result-list .results ", "#main").append($ul);
-			// reset request
-			req = null;
+			console.log(data);
+			if (data === undefined || data.length == 0) { 
+				var $ul = $("<div class='message'>Es konnten keine Einträge gefunden werden. Bitte Groß- und Kleinschreibung beachten.</div>");
+				$( ".result-list" ).slideDown( "slow" );
+				$(".result-list .results .list-group", "#main").remove();
+				$(".result-list .results ", "#main").append($ul);
+				$(".result-list .lead").css("display","none");
+				// reset request
+				req = null;
+			} else {
+				data = data.sort(sort_by('name', true, function(a){return a.toUpperCase()}));
+				var $ul = $("<ul class='list-group'></ul>");
+				if (data instanceof Array && data.length > 0) $(data).each(function(idx,e){
+					$ul.append('<li class="list-group-item"> <a class="ajax-load entity-detail" href="/entity/'+e.id+'">'+e.name+' </a><span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span><div class="clearfix"></div></li>');
+					$(".result-list .result-name", "#main").html($resultName);
+				$(".result-list .lead").css("display","block");
+
+				});
+				$( ".result-list" ).slideDown( "slow" );
+				$(".result-list .results .list-group", "#main").remove();
+				$(".result-list .results ", "#main").append($ul);
+				// reset request
+				req = null;
+			}
 		});
 }
 
@@ -119,6 +131,8 @@ function isExistant(el) {
 // load an entity from ID and build up html
 // used in Deeplink and Detail from List
 function loadEntity(id) {
+
+
 	var req = null;
 	if (req) { req.abort(); }
 	$( ".result-list" ).slideUp( "slow" );
@@ -140,7 +154,30 @@ function loadEntity(id) {
 			var entity = data.result;
 			console.log(data.result);
 
+			// check for the different types of data
+			for(var i = 0, data; data = entity.data[i]; i++) {
+				if (data.format == 'photo' && data.key == 'photo' && data.desc == 'Foto') 			{ var hasPhotos = true; }
+				if (data.desc == 'Quelle') 			{ var hasSource = true; }
+				if (data.key == 'address') 		{ var hasAddress = true; }
+				if (data.key == 'link') 				{ var hasLinks = true; }
+			}
+ 
+			$content += '<div class="row">';
+
+			if (hasPhotos) {
+				console.log('Entity has Photos');
+				$(entity.data).each(function(idx,data){ 
+					if (data.format == 'photo' && data.key == 'photo' && data.desc == 'Foto') {
+						if (isExistant(data.value.url)) {
+							$content += '<div class="col-md-3"><img class="img-responsive" src="'+data.value.url+'" /></div>';
+							return false;
+						}
+					}
+				});
+			}
+
 			// title 
+			$content += '<div class="col-md-9">';
 			$content += '<h1 class="name">';
 			if (entity.type == 'person') {
 				$content += '<i class="fa fa-user"></i>&nbsp;'; // PERSON
@@ -153,7 +190,14 @@ function loadEntity(id) {
 				}
 			});
 			$content += entity.name;
-			$content += '</h1>';
+			$content += '<div class="share-button"></div></h1>';
+			$(entity.data).each(function(idx,data){ 
+				if (data.key == 'bundesland') {
+					$content += '<p>'+data.value+'</p>'; // PARTEI
+				}
+			});
+			$content += '</div>';
+			$content += '</div>';
 
 			// tags
 			// $(data.result.tags).each(function(idx,e){ 
@@ -161,27 +205,35 @@ function loadEntity(id) {
 			// });
 			// $content += '<hr/>';
 
-			// check for the different types of data
-			for(var i = 0, data; data = entity.data[i]; i++) {
-				if (data.format == 'photo' && data.key == 'photo' && data.desc == 'Foto') 			{ var hasPhotos = true; }
-				if (data.desc == 'Quelle') 			{ var hasSource = true; }
-				if (data.key == 'address') 		{ var hasAddress = true; }
-				if (data.key == 'link') 				{ var hasLinks = true; }
-			}
+                               
+                                                       
+// ________  ___                                          
+// `MMMMMMMb.`MM                                          
+//  MM    `Mb MM                  /                       
+//  MM     MM MM  __     _____   /M      _____     ____   
+//  MM     MM MM 6MMb   6MMMMMb /MMMMM  6MMMMMb   6MMMMb\ 
+//  MM    .M9 MMM9 `Mb 6M'   `Mb MM    6M'   `Mb MM'    ` 
+//  MMMMMMM9' MM'   MM MM     MM MM    MM     MM YM.      
+//  MM        MM    MM MM     MM MM    MM     MM  YMMMMb  
+//  MM        MM    MM MM     MM MM    MM     MM      `Mb 
+//  MM        MM    MM YM.   ,M9 YM.  ,YM.   ,M9 L    ,MM 
+// _MM_      _MM_  _MM_ YMMMMM9   YMMM9 YMMMMM9  MYMMMM9  
+                                  
 
-			if (hasPhotos) {
-				console.log('Entity has Photos');
-				$content += '<div class="row">';
-				$(entity.data).each(function(idx,data){ 
-					if (data.format == 'photo' && data.key == 'photo' && data.desc == 'Foto') {
-						if (isExistant(data.value.url)) {
-							$content += '<div class="col-md-3"><div class="thumbnail"><img src="'+data.value.url+'" /></div></div>';
-						}
-					}
-				});
-				$content += '</div>';
-			}
 
+                                                          
+                                                          
+//        _           ___                                    
+//       dM.          `MM                                    
+//      ,MMb           MM                                    
+//      d'YM.      ____MM ___  __   ____     ____     ____   
+//     ,P `Mb     6MMMMMM `MM 6MM  6MMMMb   6MMMMb\  6MMMMb\ 
+//     d'  YM.   6M'  `MM  MM69 " 6M'  `Mb MM'    ` MM'    ` 
+//    ,P   `Mb   MM    MM  MM'    MM    MM YM.      YM.      
+//    d'    YM.  MM    MM  MM     MMMMMMMM  YMMMMb   YMMMMb  
+//   ,MMMMMMMMb  MM    MM  MM     MM            `Mb      `Mb 
+//   d'      YM. YM.  ,MM  MM     YM    d9 L    ,MM L    ,MM 
+// _dM_     _dMM_ YMMMMMM__MM_     YMMMM9  MYMMMM9  MYMMMM9  
 
 			if (hasAddress) { 
 				console.log('Entity has Adress');
@@ -226,72 +278,6 @@ function loadEntity(id) {
 				});
 				$content += '</div>';
 			}
-
-
-			// 			if (hasSource) {
-			// 	$(entity.data).each(function(idx,data){ 
-			// 		if (data.key == 'source') {
-			// 			$content += '<p class="entity-source">';
-			// 			if (data.value.url !== undefined) {
-			// 				$content += '<a  href="'+data.value.url+'">';
-			// 				$content += data.value.url;
-			// 				$content += '</a>';
-			// 			}
-			// 			$content += '</p>';
-			// 		}
-			// 	});
-			// }
-
-
-			// // data
-			// if (entity.data.length > 0) {
-			// 	// $content += '<h4>Quelle(n)</h4>';
-			// 	$(entity.data).each(function(idx,data){ 
-			// 		if (data.key == 'source') {
-						
-			// 		} else if (data.key == 'address') {
-			// 			if (data !== undefined) {
-			// 				$content += '<h3>Adresse</h3><adress>';
-
-			// 				if (isExistant(data.value.addr)) {
-			// 					$content += data.value.addr+'<br/>';
-			// 					console.log(data.value.addr);
-			// 				}
-			// 				if (isExistant(data.value.street)) {
-			// 					$content += data.value.street+'<br/>';
-			// 				} 
-			// 				if (isExistant(data.value.postcode)) {
-			// 					$content += data.value.postcode+'&nbsp;';
-			// 				}
-			// 				if (isExistant(data.value.city)) {
-			// 					$content += data.value.city+'<br/>';
-			// 				}
-			// 				$content += '<h3>Kontakt</h3>';
-			// 				if (isExistant(data.value.tel)) {
-			// 					$content += '<abbr title="Phone">P:</abbr>&nbsp;'+data.value.tel+'<br/>';
-			// 				}
-			// 				if (isExistant(data.value.fax)) {
-			// 					$content += '<abbr title="Fax">F:</abbr>&nbsp;'+data.value.fax+'<br/>';
-			// 				}
-			// 				if (isExistant(data.value.email)) {
-			// 					$content += '<abbr title="Email">E:</abbr>&nbsp;'+data.value.email+'<br/>';
-			// 				}
-			// 				if (isExistant(data.value.www)) {
-			// 					$content += '<abbr title="Web">W:</abbr>&nbsp;'+data.value.www+'<br/>';
-			// 				}
-			// 				$content += '</adress>';
-			// 			}
-			// 		} else if (data.desc == 'Link'){ 
-			// 			$content += '<h4>'+data.desc+'</h4>';
-			// 			$content += '<p><a href="'+data.value.url+'">'+data.value.url+'</a></p>';
-
-			// 		} else {
-			// 			$content += '<h4>'+data.desc+'</h4>';
-			// 			$content += '<p>'+data.value+'</p>';
-
-			// 		}
-			// 	});
-			// }
                                                                
 // ________           ___                                                 
 // `MMMMMMMb.         `MM                 68b                             
@@ -370,18 +356,25 @@ function loadEntity(id) {
 // _MM_        YMMMMM9  MYMMMM9 _MM_  YMMM9 _MM_ YMMMMM9 _MM_  _MM_
                                                                                                                  
 						} else if (e.type == 'position') {
-							$content += '<i class="fa fa-user"></i> Position&nbsp;';
+							$content += '<i class="fa fa-user"></i>&nbsp;';
 							$content += '<a class="ajax-load entity-connections" href="/entity/'
-						if (isExistant(e.entity)) {
-							if (isExistant(e.entity._id)) {
-								$content += e.entity._id; 
-							}
-							$content += '">';
-							if (isExistant(e.entity.name)) {
-								$content += e.entity.name+'&nbsp;'; 
-							}
-						}
-						$content += '</a>'; 
+							if (isExistant(e.entity)) {
+								if (isExistant(e.entity._id)) {
+									$content += e.entity._id; 
+								}
+								$content += '">';
+								if (isExistant(e.entity.name)) {
+									$content += e.entity.name+'&nbsp;'; 
+								}
+							} 
+							$content += '</a><br/>'; 
+							if (isExistant(e.data)) {
+								$(e.data).each(function(idx,data){ 
+									if (data.key == 'position') {
+										$content += data.value + '<br/>';
+									}
+								});
+							}              
 
 // ___       ___                       ___                       
 // `MMb     dMM'                        MM                       
@@ -398,16 +391,16 @@ function loadEntity(id) {
 						} else if (e.type == 'member') {
 							$content += '<i class="fa fa-group"></i>&nbsp;'; 
 							$content += '<a class="ajax-load entity-connections" href="/entity/'
-						if (isExistant(e.entity)) {
-							if (isExistant(e.entity._id)) {
-								$content += e.entity._id; 
+							if (isExistant(e.entity)) {
+								if (isExistant(e.entity._id)) {
+									$content += e.entity._id; 
+								}
+								$content += '">';
+								if (isExistant(e.entity.name)) {
+									$content += e.entity.name+'&nbsp;'; 
+								}
 							}
-							$content += '">';
-							if (isExistant(e.entity.name)) {
-								$content += e.entity.name+'&nbsp;'; 
-							}
-						}
-						$content += '</a><br/>Mitglied';           
+							$content += '</a><br/>Mitglied';           
                                                                    
 //        _                                                             
 //       dM.                     68b             68b                    
@@ -445,7 +438,47 @@ function loadEntity(id) {
 										$content += data.value.type + ' ';
 									}
 								});
-							}                               
+							}  
+
+                                                                                
+                                                                                
+// __________                                                                      
+// `MMMMMMMMM                                              68b                     
+//  MM      \                                        /     Y89                     
+//  MM        ____   ___  ____     ____  ___   ___  /M     ___ ____    ___  ____   
+//  MM    ,   `MM(   )P' 6MMMMb   6MMMMb.`MM    MM /MMMMM  `MM `MM(    )M' 6MMMMb  
+//  MMMMMMM    `MM` ,P  6M'  `Mb 6M'   Mb MM    MM  MM      MM  `Mb    d' 6M'  `Mb 
+//  MM    `     `MM,P   MM    MM MM    `' MM    MM  MM      MM   YM.  ,P  MM    MM 
+//  MM           `MM.   MMMMMMMM MM       MM    MM  MM      MM    MM  M   MMMMMMMM 
+//  MM           d`MM.  MM       MM       MM    MM  MM      MM    `Mbd'   MM       
+//  MM      /   d' `MM. YM    d9 YM.   d9 YM.   MM  YM.  ,  MM     YMP    YM    d9 
+// _MMMMMMMMM _d_  _)MM_ YMMMM9   YMMMM9   YMMM9MM_  YMMM9 _MM_     M      YMMMM9  
+                                                                                
+                                                                                
+                                                                                
+						} else if (e.type == 'executive') {
+
+							$content += '<i class="fa fa-user"></i>&nbsp;'; 
+							$content += '<a class="ajax-load entity-connections" href="/entity/'
+							if (isExistant(e.entity)) {
+								if (isExistant(e.entity._id)) {
+									$content += e.entity._id; 
+								}
+								$content += '">';
+								if (isExistant(e.entity.name)) {
+									$content += e.entity.name+'&nbsp;'; 
+								}
+							}
+
+							$content += '</a><br/>';    //"Angaben zur Nebentätigkeit"    
+							if (isExistant(e.data)) {
+								$(e.data).each(function(idx,data){ 
+									if (data.key == 'activity') {
+										$content += data.value.position + '<br/>';
+										$content += data.value.type + ' ';
+									}
+								});
+							}                                   
 // ________              __               ___         
 // `MMMMMMMb.           69MM              `MM         
 //  MM    `Mb          6M' `               MM   /     
@@ -503,13 +536,13 @@ function loadEntity(id) {
 				$(entity.data).each(function(idx,data){ 
 					if (data.desc == 'Quelle') {
 						$content += '<div class="col-md-12">';
-						$content += '<p class="entity-source">';
+						$content += '<div class="entity-source">';
 						if (data.value.url !== undefined) {
 							$content += '<i class="fa fa-bookmark"></i> <a target="_blank" href="'+data.value.url+'">';
 							$content += data.value.url;
 							$content += '</a>';
 						}
-						$content += '</p>';
+						$content += '</div>';
 						$content += '</div>';
 					}
 				});
@@ -537,7 +570,7 @@ function loadEntity(id) {
 //   <a href="#" class="list-group-item">Vestibulum at eros</a>
 // </div>
 
-			$content += '<div class="row">';
+			$content += '<div class="row"><br/>';
 			$content += '<div class="col-sm-6">';
 			$content += '<a class="btn btn-block btn-default" href="#" role="button">Verbindung melden</a>';
 			$content += '</div>';
@@ -546,8 +579,7 @@ function loadEntity(id) {
 			$content += '</div>';
 			$content += '</div>';
 
-			$content += '<div class="row">';
-
+			$content += '<div class="row"><br/>';
 			$content += '<div class="col-sm-12">';
 			$content += '<p class="meta">';
 			$content += '<span>Erstellt: '+moment(entity.created).format("DD.MM.YYYY hh:mm")+'</span><br/>';
@@ -599,6 +631,8 @@ $( document ).ready(function() {
 	// $(".lobbysearch").focus(function(){
 	// });
 		
+
+
 	$('.lobbysearch').keypress(function (e) {
 		if (e.which === 13) {
 			$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
@@ -616,7 +650,13 @@ $( document ).ready(function() {
 		var str = this.href;
 		var entityID = str.split("/")[4];
 		loadEntityAjax(entityID);
-
+		var shareButton = new Share(".share-button", {
+  			networks: {
+  		  	facebook: {
+  		    	url: 'http://lobbyradar.opendatacloud.de/entity/'
+  		  	}
+  			}
+			});
 	});
 
 	// click back arrow -> history
