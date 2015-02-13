@@ -2,8 +2,16 @@
 
 ## Todo
 
-* match address formats
-* put original name into people field
+* check data consistency
+	* orphaned relations
+	* prename/surname mixup from import
+	* double data sets from different imports
+* complex search interface
+* creaxtend relation type consitency
+* relation aggregation
+* suggestion api
+* updates api
+
 ## Cached Data
 
 For high load environments, results may be cached as staic files:
@@ -19,9 +27,13 @@ Their use is recommended and may be enforced. Those files are recreated in an in
 
 Get domain whitelist for plugin
 
+### `GET /api/plugin/export`
+
+Get entity export for plugin
+
 ### `GET /api/search?q={query}`
 
-Search Entities by names and aliases
+Search entities and relations. __to be implemented__
 
 ### `GET /api/autocomplete?q={query}`
 
@@ -31,7 +43,7 @@ Fast entity autocompletion search by names and aliases
 
 Get data for an entity specified by `id`. Include relations if `relations` parameter is set.
 
-### `GET /api/entity/list?letter={letter|}&words={words|}&type={person|entity|}`
+### `GET /api/entity/list?letter={letter|}&words={words|}&type={person|entity|}` _deprecated_
 
 List all entities specified by starting `letter`, containing `words` and matching `type`
 
@@ -43,7 +55,7 @@ List entity types
 
 List entity tags
 
-### `GET /api/entity/export`
+### `GET /api/entity/export` _deprecated, use `/api/plugin/export` instead_
 
 Export entities as subset of 
 
