@@ -91,6 +91,8 @@ function loadList(id) {
 				$( ".result-list" ).slideDown( "slow" );
 				$(".result-list .results .list-group", "#main").remove();
 				$(".result-list .results ", "#main").append($ul);
+				$(".result-list .message").remove();
+
 				// reset request
 				req = null;
 			}
@@ -329,7 +331,7 @@ function loadEntity(id) {
 							if (isExistant(e.data)) {
 								$content += '<table class="table-condensed table-bordered table">';
 								$(e.data).each(function(idx,data){ 
-									if (data.key == 'donation') {
+									if (data.key == 'donation') {	
 										$content += '<tr>';
 										$content += '<td>';
 										$content += data.value.year + ' ';
@@ -371,7 +373,9 @@ function loadEntity(id) {
 							if (isExistant(e.data)) {
 								$(e.data).each(function(idx,data){ 
 									if (data.key == 'position') {
-										$content += data.value + '<br/>';
+										if (isExistant(data.value.position)) {
+											$content += data.value.position + '<br/>';
+										}
 									}
 								});
 							}              
@@ -400,7 +404,7 @@ function loadEntity(id) {
 									$content += e.entity.name+'&nbsp;'; 
 								}
 							}
-							$content += '</a><br/>Mitglied';           
+							$content += '</a><br/>Mitglied des Bundestags';           
                                                                    
 //        _                                                             
 //       dM.                     68b             68b                    
@@ -433,6 +437,7 @@ function loadEntity(id) {
 							$content += '</a><br/>';    //"Angaben zur Nebentätigkeit"    
 							if (isExistant(e.data)) {
 								$(e.data).each(function(idx,data){ 
+
 									if (data.key == 'activity') {
 										$content += data.value.position + '<br/>';
 										$content += data.value.type + ' ';
@@ -473,9 +478,10 @@ function loadEntity(id) {
 							$content += '</a><br/>';    //"Angaben zur Nebentätigkeit"    
 							if (isExistant(e.data)) {
 								$(e.data).each(function(idx,data){ 
-									if (data.key == 'activity') {
-										$content += data.value.position + '<br/>';
-										$content += data.value.type + ' ';
+									if (data.key == 'position') {
+										if (isExistant(data.value)) {
+											$content += data.value ;
+										}
 									}
 								});
 							}                                   
@@ -521,7 +527,7 @@ function loadEntity(id) {
 					if (data.key == 'link') {
 						$content += '<div class="col-md-12">';
 
-						$content += '<div class="entity-link"><i class="fa fa-external-link"></i> <a target="_blank" href="'+data.value.url+'">'+data.value.url+'</a></div>';
+						$content += '<div class="entity-link"><i class="fa fa-external-link"></i> <a title="'+data.value.url+'" target="_blank" href="'+data.value.url+'">'+data.value.url+'</a></div>';
 						$content += '</div>';
 					}
 				});
@@ -538,7 +544,7 @@ function loadEntity(id) {
 						$content += '<div class="col-md-12">';
 						$content += '<div class="entity-source">';
 						if (data.value.url !== undefined) {
-							$content += '<i class="fa fa-bookmark"></i> <a target="_blank" href="'+data.value.url+'">';
+							$content += '<i class="fa fa-bookmark"></i> <a title="'+data.value.url+'" target="_blank" href="'+data.value.url+'">';
 							$content += data.value.url;
 							$content += '</a>';
 						}
