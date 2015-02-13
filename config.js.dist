@@ -2,6 +2,8 @@
 module.exports = {
 	api: {
 		reindex: "5min",
+		recache: "5min",
+		cachedir: "assets/cache",
 		whitelist: "assets/data/whitelist.json",
 		keys: {
 //			"apikey": "Username"

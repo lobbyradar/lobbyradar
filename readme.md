@@ -4,6 +4,14 @@
 
 * match address formats
 * put original name into people field
+## Cached Data
+
+For high load environments, results may be cached as staic files:
+
+* `/api/plugin/whitelist` — [whitelist.json](/assets/cache/whitelist.json) and [whitelist.json.gz](/assets/cache/whitelist.json.gz)
+* `/api/plugin/export` — [entities.json](/assets/cache/entities.json) and [entities.json.gz](/assets/cache/entities.json.gz)
+
+Their use is recommended and may be enforced. Those files are recreated in an interval of 5 minutes. 
 
 ## HTTP API
 
