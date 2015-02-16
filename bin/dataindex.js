@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var mongojs = require("mongojs");
+var moment = require("moment");
 var debug = require("debug")("dataindex");
 var async = require("async");
 var path = require("path");
@@ -21,7 +22,7 @@ var dataindex = function(id, reftype, type, data, emit){
 
 	// flat data types
 	if (typeof data.value !== "object") {
-		if (data.format === "string") {
+		if (data.format === "string" || data.format === "url") {
 			emit({
 				ref: id,
 				reftype: reftype,
@@ -59,7 +60,7 @@ var dataindex = function(id, reftype, type, data, emit){
 						format: "string",
 						type: type,
 						value: data.value.name,
-						text: data.value.name
+						txt: data.value.name
 					});
 				};
 
@@ -129,6 +130,161 @@ var dataindex = function(id, reftype, type, data, emit){
 					});
 				};
 
+			break;
+			case "activity":
+
+				if (data.value.type !== null && data.value.type !== "") {
+					emit({
+						ref: id,
+						reftype: reftype,
+						key: data.key+".type",
+						format: "string",
+						type: type,
+						value: data.value.type,
+						txt: data.value.type
+					});
+				};
+
+				if (data.value.level !== null) {
+					emit({
+						ref: id,
+						reftype: reftype,
+						key: data.key+".level",
+						format: "number",
+						type: type,
+						value: data.value.level
+					});
+				};
+
+				if (data.value.year !== null) {
+					emit({
+						ref: id,
+						reftype: reftype,
+						key: data.key+".year",
+						format: "number",
+						type: type,
+						value: data.value.year
+					});
+				};
+				
+				if (data.value.begin !== null) {
+					emit({
+						ref: id,
+						reftype: reftype,
+						key: data.key+".begin",
+						format: "date",
+						type: type,
+						value: (new Date(data.value.begin))
+					});
+				};
+				
+				if (data.value.end !== null) {
+					emit({
+						ref: id,
+						reftype: reftype,
+						key: data.key+".end",
+						format: "date",
+						type: type,
+						value: (new Date(data.value.end))
+					});
+				};
+
+				if (data.value.periodical !== null && data.value.periodical !== "") {
+					emit({
+						ref: id,
+						reftype: reftype,
+						key: data.key+".periodical",
+						format: "string",
+						type: type,
+						value: data.value.periodical,
+						txt: data.value.periodical
+					});
+				};
+				
+				if (data.value.position !== null && data.value.position !== "") {
+					emit({
+						ref: id,
+						reftype: reftype,
+						key: data.key+".position",
+						format: "string",
+						type: type,
+						value: data.value.position,
+						txt: data.value.position
+					});
+				};
+				
+				if (data.value.activity !== null && data.value.activity !== "") {
+					emit({
+						ref: id,
+						reftype: reftype,
+						key: data.key+".activity",
+						format: "string",
+						type: type,
+						value: data.value.activity,
+						txt: data.value.activity
+					});
+				};
+				
+				if (data.value.place !== null && data.value.place !== "") {
+					emit({
+						ref: id,
+						reftype: reftype,
+						key: data.key+".place",
+						format: "string",
+						type: type,
+						value: data.value.place,
+						txt: data.value.place
+					});
+				};
+				
+				if (data.value.unsalaried !== null) {
+					emit({
+						ref: id,
+						reftype: reftype,
+						key: data.key+".unsalaried",
+						format: "bool",
+						type: type,
+						value: data.value.unsalaried
+					});
+				};
+
+			break;
+			case "donation":
+			
+				if (data.value.year !== null) {
+					emit({
+						ref: id,
+						reftype: reftype,
+						key: data.key+".year",
+						format: "number",
+						type: type,
+						value: data.value.year
+					});
+				};
+				
+				if (data.value.amount !== null) {
+					emit({
+						ref: id,
+						reftype: reftype,
+						key: data.key+".amount",
+						format: "number",
+						type: type,
+						value: data.value.amount
+					});
+				};
+			
+			break;
+			case "monthyear":
+
+				emit({
+					ref: id,
+					reftype: reftype,
+					key: data.key+".date",
+					format: "date",
+					type: type,
+					value: (new Date(moment(data.value.month+"-"+data.value.year, "M-YYYY").toDate()))
+				});
+			
 			break;
 			// other stuff here
 			default:
