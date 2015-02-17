@@ -40,6 +40,14 @@
   padding: 10px 10px;
 }
 
+@media (min-width: @screen-sm-min) { 
+.share-button.sharer-0 label {
+  margin: 0px!important;
+
+
+  }
+}
+
 // Main button, icon, and text styles upon hover
 .share-button.sharer-0 label:hover {
   opacity: 1!important;
@@ -64,6 +72,8 @@
   transition:         all .4s ease;
   margin-left: -15px;
   opacity: 0;
+  z-index: 1050;
+  position: relative;
 }
 
 // Transform origins for top-anchored networks

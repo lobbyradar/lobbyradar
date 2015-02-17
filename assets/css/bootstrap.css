@@ -6811,6 +6811,11 @@ input.lobbysearch {
   margin: 0px 0px 20px 0px!important;
   padding: 10px 10px;
 }
+@media (min-width: 768px) {
+  .share-button.sharer-0 label {
+    margin: 0px!important;
+  }
+}
 .share-button.sharer-0 label:hover {
   opacity: 1!important;
 }
@@ -6830,6 +6835,8 @@ input.lobbysearch {
   transition: all .4s ease;
   margin-left: -15px;
   opacity: 0;
+  z-index: 1050;
+  position: relative;
 }
 .share-button.sharer-0 .social.top {
   -ms-transform-origin: 0 0;
