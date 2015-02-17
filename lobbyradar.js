@@ -16,6 +16,7 @@ var passportlocal = require("passport-local");
 var passport = require("passport");
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+var	sessionstore = require('express-session-json')(session);
 
 // config
 var config = require("./config.js");
@@ -83,8 +84,13 @@ app.use("/assets", express.static(path.resolve(__dirname, "assets")));
 // static backend
 app.use("/station", express.static(path.resolve(__dirname, "station")));
 
-app.use(cookieParser());
-app.use(session({secret: 'domo arigato mr roboto'}));
+app.use(cookieParser('domo arigato mr roboto'));
+app.use(session({
+	secret: 'domo arigato mr roboto',
+	resave: false,
+	saveUninitialized: false,
+	store: new sessionstore()
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -590,7 +596,7 @@ if (config.listen.hasOwnProperty("host") && config.listen.hasOwnProperty("port")
 	});
 } else {
 	// listen to your heart
-	coneole.error("you have to configure a socket or port");
+	console.error("you have to configure a socket or port");
 	process.exit();
 }
 
