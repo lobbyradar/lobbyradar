@@ -549,6 +549,12 @@ app.get("/abspann", function (req, res) {
 		res.render("abspann", {});
 });
 
+// Abspann Page (static)
+app.get("/about", function (req, res) {
+		res.render("about", {});
+});
+
+
 // Search Page (static)
 app.get("/search/:id", function (req, res) {
 		res.render("index", {});
