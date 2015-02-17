@@ -10,3 +10,4 @@ config.codekit
 lobbynetwork/positions.json
 lobbynetwork/tiles
 lobbynetwork/test/node_positions.js
+dump/*
