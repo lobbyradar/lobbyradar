@@ -11,6 +11,7 @@
 * relation aggregation
 * suggestion api
 * updates api
+* whitelist backend api
 
 ## Cached Data
 
