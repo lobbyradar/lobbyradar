@@ -1142,6 +1142,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 			}
 		);
 	}
+	console.log('type', type);
 
 	fields.list({mode: mode}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
@@ -1279,7 +1280,7 @@ app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, persons
 });
 
 app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, organisations, fields, tags) {
-	typedEntityEditCtrl($scope, $state, $stateParams, organisations, fields, tags, 'organisation', 'organisations', 'Organisation');
+	typedEntityEditCtrl($scope, $state, $stateParams, organisations, fields, tags, 'entity', 'organisations', 'Organisation');
 });
 
 app.controller('LoginCtrl', function ($scope, $state, $stateParams, $resource, $rootScope, auth) {
