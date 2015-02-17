@@ -192,14 +192,18 @@ function loadEntity(id) {
 				}
 			});
 			$content += entity.name;
-			$content += '<div class="share-button"></div></h1>';
+			$content += '</h1>';
 			$(entity.data).each(function(idx,data){ 
 				if (data.key == 'bundesland') {
 					$content += '<p>'+data.value+'</p>'; // PARTEI
 				}
 			});
+			$content += '<div class="entity-share"></div>';
 			$content += '</div>';
+
 			$content += '</div>';
+
+			
 
 			// tags
 			// $(data.result.tags).each(function(idx,e){ 
@@ -610,6 +614,7 @@ function loadEntity(id) {
 }
 
 
+
 																																									
 // ________                            ________                          ___             
 // `MMMMMMMb.                          `MMMMMMMb.                        `MM             
@@ -637,7 +642,24 @@ $( document ).ready(function() {
 	// $(".lobbysearch").focus(function(){
 	// });
 		
+	new Share(".site-share", {
+		 ui: {
+    	flyout:    'bottom center',        // change the flyout direction of the shares. chose from `top left`, `top center`, `top right`, `bottom left`, `bottom right`, `bottom center`, `middle left`, or `middle right` [Default: `top center`]
+  		button_text: 'Teilen'
+  	},
 
+	  networks: {
+	  	facebook: {
+      	enabled: true
+			},
+    	pinterest: {
+      	enabled: true
+    	},
+    	email: {
+      	enabled: true
+    	}
+	  }
+	});
 
 	$('.lobbysearch').keypress(function (e) {
 		if (e.which === 13) {
