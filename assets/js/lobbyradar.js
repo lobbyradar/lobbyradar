@@ -635,17 +635,24 @@ $( document ).ready(function() {
 	$('.fullscreen').css({  'width': winWidth, 'height': winHeight });
 	$('.faq-page').css({  'width': winWidth, 'height': winHeight });
 
-	NetworkViz.panToEntity(); // missuse the func to get the viz on index
-
+	if ($('#networkviz').length == 0) {
+		// map could not be found
+	} else {
+		NetworkViz.panToEntity(); // missuse the func to get the viz on index
+	}
+	
 	// set initial div height / width
 
 	// $(".lobbysearch").focus(function(){
 	// });
 		
 	new Share(".site-share", {
+		description:window.location.href,
 		 ui: {
     	flyout:    'bottom center',        // change the flyout direction of the shares. chose from `top left`, `top center`, `top right`, `bottom left`, `bottom right`, `bottom center`, `middle left`, or `middle right` [Default: `top center`]
-  		button_text: 'Teilen'
+  		button_text: 'Teilen',
+  		button_font: false,
+  		icon_font: false,
   	},
 
 	  networks: {
