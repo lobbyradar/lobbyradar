@@ -83,10 +83,17 @@ function loadList(id) {
 				data = data.sort(sort_by('name', true, function(a){return a.toUpperCase()}));
 				var $ul = $("<ul class='list-group'></ul>");
 				if (data instanceof Array && data.length > 0) $(data).each(function(idx,e){
-					$ul.append('<li class="list-group-item"> <a class="ajax-load entity-detail" href="/entity/'+e.id+'">'+e.name+' </a><span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span><div class="clearfix"></div></li>');
+					var $content = '<li class="list-group-item">';
+					$content += '<i class="fa fa-user"></i>&nbsp;';
+					$content += '<a class="ajax-load entity-detail" href="/entity/'+e.id+'">';
+					$content += e.name;
+					$content += ' </a><span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span><div class="clearfix"></div>'
+					$content += '</li>'
+					// $ul.append('<li class="list-group-item"> <a class="ajax-load entity-detail" href="/entity/'+e.id+'">'+e.name+' </a><span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span><div class="clearfix"></div></li>');
+					$ul.append($content);
+					
 					$(".result-list .result-name", "#main").html($resultName);
-				$(".result-list .lead").css("display","block");
-
+					$(".result-list .lead").css("display","block");
 				});
 				$( ".result-list" ).slideDown( "slow" );
 				$(".result-list .results .list-group", "#main").remove();
