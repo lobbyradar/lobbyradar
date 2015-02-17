@@ -16,6 +16,7 @@ var passportlocal = require("passport-local");
 var passport = require("passport");
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+var	sessionstore = require('express-session-json')(session);
 
 // config
 var config = require("./config.js");
@@ -31,7 +32,6 @@ var db = mongojs(config.db, ["entities", "relations", "users", "fields", "datain
 
 // local modules
 var api = require("./lib/api.js")(config.api, db);
-var search = require("./lib/search.js")(config.search, api);
 
 // use nsa if configured
 if (config.hasOwnProperty("nsa") && (config.nsa)) {
@@ -39,10 +39,10 @@ if (config.hasOwnProperty("nsa") && (config.nsa)) {
 		server: config.nsa,
 		service: "lobbyradar",
 		interval: "10s"
-	}).start(function () {
-			debug("started heartbeat");
-		});
-}
+	}).start(function(){
+		debug("started heartbeat");
+	});
+};
 
 /* configure passport */
 passport.serializeUser(function (user, done) {
@@ -68,7 +68,6 @@ passport.use(new passportlocal.Strategy(function (username, password, done) {
 	});
 }));
 
-
 // use express
 var app = express();
 
@@ -85,20 +84,27 @@ app.use("/assets", express.static(path.resolve(__dirname, "assets")));
 // static backend
 app.use("/station", express.static(path.resolve(__dirname, "station")));
 
-app.use(cookieParser());
-app.use(session({secret: 'domo arigato mr roboto'}));
+app.use(cookieParser('domo arigato mr roboto'));
+app.use(session({
+	secret: 'domo arigato mr roboto',
+	resave: false,
+	saveUninitialized: false,
+	store: new sessionstore()
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 
 // parse application/json
-app.use(bodyparser.json());
+app.use(bodyparser.json({
+	limit: '20mb'
+}));
 
 // use bodyparser for urlencoded forms
 app.use(bodyparser.urlencoded({
 	extended: false
 }));
 
-var nice_error= function(err){
+var nice_error = function(err){
 	if (!err) return;
 	return err.toString();
 };
@@ -127,6 +133,22 @@ app.get("/api/search", function (req, res) {
 	if (!req.query.hasOwnProperty("q")) return res.type("json").status("200").json({error: null, result: []});
 	debug("search for \"%s\"", api.unify(req.query.q));
 	api.ent_list({words: req.query.q}, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// whitelist
+app.get("/api/plugin/whitelist", function (req, res) {
+	debug("get plugin whitelist");
+	api.whitelist_get(function(err, result){
+		res.type("json").status("200").json({err: ((err)?err.message:null), result: result});
+	});
+});
+
+// export.
+app.all("/api/plugin/export", function (req, res) {
+	debug("relation tags");
+	api.ent_export(function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -499,7 +521,8 @@ app.all("/list/:type/:letter?", function (req, res) {
 
 // autocomplete
 app.get("/api/autocomplete", function (req, res) {
-	search.autocomplete(req.query.q, function(err, result){
+	if (!req.query.hasOwnProperty("q") || req.query.q === null || req.query.q === "") return res.status(200).json([]);
+	api.autocomplete(req.query.q, function(err, result){
 		res.status(200).json(result);
 	});
 });
@@ -579,7 +602,7 @@ if (config.listen.hasOwnProperty("host") && config.listen.hasOwnProperty("port")
 	});
 } else {
 	// listen to your heart
-	coneole.error("you have to configure a socket or port");
+	console.error("you have to configure a socket or port");
 	process.exit();
 }
 

@@ -11,10 +11,10 @@ var config = require(path.resolve(__dirname, "./config.js"));
 var db = mongojs(config.db, ["entities","relations"]);
 
 // local modules
-var api = require(path.resolve(__dirname, "./lib/api.js"))(config.api, db);
+var api = require(path.resolve(__dirname, "../lib/api.js"))(config.api, db);
 
 // get importers
-var importer = require("./importer");
+var importer = require("../importer");
 
 // reset database
 debug("resetting all data");

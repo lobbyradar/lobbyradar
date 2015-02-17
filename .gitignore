@@ -9,5 +9,8 @@ scripts
 config.codekit
 lobbynetwork/positions.json
 lobbynetwork/tiles
+lobbynetwork/.tiles
 lobbynetwork/test/node_positions.js
 dump/*
+assets/data
+assets/cache

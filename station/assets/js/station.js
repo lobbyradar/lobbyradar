@@ -429,6 +429,7 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter) {
 				if (v.value) {
 					if (v.value.name) sl.push(v.value.name);
 					if (v.value.addr) sl.push(v.value.addr);
+					if (v.value.street) sl.push(v.value.street);
 					if (v.value.postcode) sl.push(v.value.postcode);
 					if (v.value.city) sl.push(v.value.city);
 					if (v.value.country) sl.push(v.value.country);
@@ -1141,6 +1142,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 			}
 		);
 	}
+	console.log('type', type);
 
 	fields.list({mode: mode}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
@@ -1278,7 +1280,7 @@ app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, persons
 });
 
 app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, organisations, fields, tags) {
-	typedEntityEditCtrl($scope, $state, $stateParams, organisations, fields, tags, 'organisation', 'organisations', 'Organisation');
+	typedEntityEditCtrl($scope, $state, $stateParams, organisations, fields, tags, 'entity', 'organisations', 'Organisation');
 });
 
 app.controller('LoginCtrl', function ($scope, $state, $stateParams, $resource, $rootScope, auth) {

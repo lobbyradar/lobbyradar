@@ -2,14 +2,38 @@
 
 ## Todo
 
-* match address formats
-* put original name into people field
+* check data consistency
+	* orphaned relations
+	* prename/surname mixup from import
+	* double data sets from different imports
+* complex search interface
+* creaxtend relation type consitency
+* relation aggregation
+* suggestion api
+* updates api
+
+## Cached Data
+
+For high load environments, results may be cached as staic files:
+
+* `/api/plugin/whitelist` — [/assets/cache/whitelist.json](/assets/cache/whitelist.json) and [/assets/cache/whitelist.json.gz](/assets/cache/whitelist.json.gz)
+* `/api/plugin/export` — [/assets/cache/entities.json](/assets/cache/entities.json) and [/assets/cache/entities.json.gz](/assets/cache/entities.json.gz)
+
+Their use is recommended and may be enforced. Those files are recreated in an interval of 5 minutes. 
 
 ## HTTP API
 
+### `GET /api/plugin/whitelist`
+
+Get domain whitelist for plugin
+
+### `GET /api/plugin/export`
+
+Get entity export for plugin
+
 ### `GET /api/search?q={query}`
 
-Search Entities by names and aliases
+Search entities and relations. __to be implemented__
 
 ### `GET /api/autocomplete?q={query}`
 
@@ -19,7 +43,7 @@ Fast entity autocompletion search by names and aliases
 
 Get data for an entity specified by `id`. Include relations if `relations` parameter is set.
 
-### `GET /api/entity/list?letter={letter|}&words={words|}&type={person|entity|}`
+### `GET /api/entity/list?letter={letter|}&words={words|}&type={person|entity|}` _deprecated_
 
 List all entities specified by starting `letter`, containing `words` and matching `type`
 
@@ -31,11 +55,9 @@ List entity types
 
 List entity tags
 
-### `GET /api/entity/export`
+### `GET /api/entity/export` _deprecated, use `/api/plugin/export` instead_
 
-Export entities as subset of 
-
-{"54c71ad952d7180000c4d68f":["person",["Elvira Drobinski-Weiß","Elvira Drobinski-Weiß"],["54c906fbb10251e22a64a57d","54c71adb52d7180000c4d882","54c71adb52d7180000c4d889","54c71adb52d7180000c4d896","54c71adb52d7180000c4d898","54c71adb52d7180000c4d88a","54bd232aeccdc50000052328","54c71adc52d7180000c4d8e0","54c71adf52d7180000c4d97d","54cb80ad23abb47ea0fd3b37","54cb80ad23abb47ea0fd3b38"]]
+Export entities as subset of entities containing entity type, name, aliases and relations in minimalized form.
 
 ``` javascript
 {

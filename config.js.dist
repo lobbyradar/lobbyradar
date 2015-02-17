@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 module.exports = {
 	api: {
+		reindex: "5min",
+		recache: "5min",
+		cachedir: "assets/cache",
+		whitelist: "assets/data/whitelist.json",
 		keys: {
 //			"apikey": "Username"
 		}
@@ -12,9 +16,6 @@ module.exports = {
 	},
 	db: "mongodb://127.0.0.1/lobbyradar",
 	nsa: null, // "udp4://server:port/",
-	search: {
-		reindex: "5min"
-	},
 	defaultadmin: {
 		name: "admin",
 		pass: "totalsupergehaim007"
