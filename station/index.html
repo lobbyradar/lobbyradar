@@ -264,6 +264,81 @@
 
 </script>
 
+<script type="text/ng-template" id="partials/entities.html">
+
+	<div class="row">
+		<div class="col-md-3 headline">
+			<h1>Entitäten</h1>
+
+			<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
+		</div>
+
+		<div class="col-md-4">
+			<button class="btn btn-default" ui-sref="organisation({id: 'new'})">Organisation anlegen</button>
+			<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>
+		</div>
+
+		<div class="col-md-2">
+			<div class="btn-group">
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+					Daten anzeigen <span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" role="menu">
+					<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="col-md-3">
+			<div class="pull-right has-feedback">
+				<label>Suche</label>
+				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
+				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
+			</div>
+		</div>
+	</div>
+	<div ng-if="loading" class="loading">
+		<h1><i class="fa fa-spin fa-spinner"></i> Entitäten-Liste wird geladen</h1>
+	</div>
+
+	<table ng-table="tableParams" template-pagination="partials/pager.html" show-filter="false" class="table table-striped">
+
+		<thead>
+		<tr>
+			<th ng-repeat="f in state.fields"
+				class="sortable" ng-class="{
+                    'sort-asc': tableParams.isSortBy(f.key, 'asc'),
+                    'sort-desc': tableParams.isSortBy(f.key, 'desc')
+                  }"
+				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+				<span ng-bind="f.name"></span>
+				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f.key, 'asc'),'fa-sort-desc':tableParams.isSortBy(f.key, 'desc')}" class="fa"></span>
+			</th>
+			<th>Typ</th>
+			<th class="text-right">Aktionen</th>
+		</tr>
+		</thead>
+
+		<tbody>
+		<tr ng-repeat="p in $data">
+			<td ng-repeat="f in state.fields">
+				<span ng-bind="getDispayValues(f,p)"></span>
+				<span ng-show="f._type!=='extras'" class="btn-left" title="{{f.name}} bearbeiten" ng-click="editData(f,p)"><i class="fa fa-pencil"></i></span>
+			</td>
+			<td ng-bind="p.type"></td>
+			<td class="col-action-large">
+				<span class="btn-right" ng-click="remove(p)" title="Entität löschen"><i class="fa fa-trash"></i></span>
+				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
+				<span class="btn-right" ng-click='mergeDialog(p)' title="Entität zusammenführen"><i class="fa fa-code-fork fa-rotate-270"></i></span>
+				<span class="btn-right" ng-if="p.type!=='person'" ui-sref='organisation({id: p._id})' title="Organisation bearbeiten"><i class="fa fa-edit"></i></span>
+				<span class="btn-right" ng-if="p.type=='person'" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+
+</script>
+
 <script type="text/ng-template" id="partials/relations.html">
 
 	<div class="row">

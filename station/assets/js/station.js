@@ -34,6 +34,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			templateUrl: "partials/organisations.html",
 			controller: 'OrganisationsCtrl'
 		})
+		.state('entities', {
+			url: "/entities",
+			templateUrl: "partials/entities.html",
+			controller: 'EntitiesCtrl'
+		})
 		.state('relations', {
 			url: "/relations",
 			templateUrl: "partials/relations.html",
@@ -870,6 +875,10 @@ app.controller('OrganisationsCtrl', function ($scope, $location, $resource, $fil
 	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, entities, fields, tags, 'organisations', 'Organisation');
 });
 
+app.controller('EntitiesCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, entities, fields, tags) {
+	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, entities, entities, fields, tags, 'entities', 'Entität');
+});
+
 app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, relations, fields, tags) {
 	var mode = 'relations';
 
@@ -1368,7 +1377,9 @@ var typedSimpleEditCtrl = function ($scope, $state, $stateParams, api, type, mod
 var relationEditCtrl = function ($scope, $state, relations, entities, tags, aftersave) {
 
 	$scope.edit = {
+		one: {},
 		one_org: {},
+		two: {},
 		two_org: {}
 	};
 
@@ -1380,7 +1391,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 		cb();
 	};
 
-	$scope.relation = {
+	$scope.relation = $scope.relation || {
 		tags: [],
 		entities: ['', ''],
 		data: []
@@ -1590,10 +1601,10 @@ app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relat
 
 app.controller('RelationModalEditCtrl', function ($scope, $state, relations, entities, tags) {
 	$scope.isNew = !$scope.data.relation._id;
+	$scope.relation = $scope.data.relation;
 	relationEditCtrl($scope, $state, relations, entities, tags, function () {
 		$scope.ok();
 	});
-	$scope.relation = $scope.data.relation;
 });
 
 app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, entities) {
@@ -1633,7 +1644,9 @@ app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, en
 		editModalDialog($modal,
 			{
 				relation: {
-					entities: [$scope.item._id, '']
+					entities: [$scope.item._id, ''],
+					tags: [],
+					data: []
 				}
 			},
 			'partials/relation-modal.html'
