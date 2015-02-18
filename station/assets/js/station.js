@@ -19,6 +19,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			templateUrl: "partials/editor.html",
 			controller: 'PersonEditCtrl'
 		})
+		.state('whitelist', {
+			url: "/whitelist",
+			templateUrl: "partials/whitelist.html",
+			controller: 'WhitelistCtrl'
+		})
 		.state('organisation', {
 			url: "/organisation/:id",
 			templateUrl: "partials/editor.html",
@@ -248,6 +253,29 @@ app.factory('relations', function ($resource) {
 	);
 });
 
+app.factory('whitelist', function ($resource) {
+	'use strict';
+	return $resource('/api/whitelist/:cmd/:id', {}, {
+			list: {
+				method: 'GET',
+				params: {cmd: 'list'}
+			},
+			create: {
+				method: 'POST',
+				params: {cmd: 'create'}
+			},
+			update: {
+				method: 'POST',
+				params: {cmd: 'update'}
+			},
+			remove: {
+				method: 'POST',
+				params: {cmd: 'delete'}
+			}
+		}
+	);
+});
+
 app.factory('auth', function ($resource) {
 	'use strict';
 	return $resource('/:cmd', {}, {
@@ -379,7 +407,9 @@ var infoModalDialog = function ($modal, data, templateUrl, cb) {
 
 var reportServerError = function ($scope, err) {
 	console.error(err);
-	alert(err);
+	setTimeout(function () {
+		alert(err);
+	}, 500);
 };
 
 // ------------------- controllers -------------------
@@ -467,12 +497,12 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 
 	$scope.loading = true;
 
-	var list = [];
+	$scope.list = [];
 
 	$scope.filter = state.filter;
 
 	$scope.refilter = function () {
-		if (list.length)
+		if ($scope.list.length)
 			$scope.tableParams.reload();
 	};
 
@@ -482,7 +512,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	};
 
 	$scope.removeFromList = function (id) {
-		list = list.filter(function (oe) {
+		$scope.list = $scope.list.filter(function (oe) {
 			return oe._id != id;
 		});
 		$scope.refilter();
@@ -491,8 +521,8 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	$scope.reloadEntry = function (item, cb) {
 		api.item({id: item._id}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
-			var i = list.indexOf(item);
-			if (i >= 0) list[i] = data.result;
+			var i = $scope.list.indexOf(item);
+			if (i >= 0) $scope.list[i] = data.result;
 			$scope.refilter();
 			if (cb) cb();
 		}, function (err) {
@@ -507,7 +537,8 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 				question: 'Soll "' + o.name + '" gelöscht werden?'
 			}
 			, function () {
-				api.remove({id: o._id}, {id: o._id}, function () {
+				api.remove({id: o._id}, {id: o._id}, function (data) {
+					if (data.error) return reportServerError($scope, data.error);
 					$scope.removeFromList(o._id);
 				}, function (err) {
 					console.error(err);
@@ -526,7 +557,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		state.table.count = params.count();
 		state.table.sorting = params.sorting();
 
-		var orderedData = $scope.filter.text.length == 0 ? list : list.filter(function (o) {
+		var orderedData = $scope.filter.text.length == 0 ? $scope.list : $scope.list.filter(function (o) {
 			return (
 			((o.name || '').indexOf($scope.filter.text) >= 0) ||
 			((o.tags ? o.tags : []).join(',').indexOf($scope.filter.text) >= 0)
@@ -560,7 +591,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		api.list(get_fields ? get_fields() : null,
 			function (data) {
 				if (data.error) return reportServerError($scope, data.error);
-				list = data.result;
+				$scope.list = data.result;
 				$scope.tableParams.reload();
 				$scope.loading = false;
 			},
@@ -1151,7 +1182,6 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 			}
 		);
 	}
-	console.log('type', type);
 
 	fields.list({mode: mode}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
@@ -1685,6 +1715,75 @@ app.controller('PagerCtrl', function ($scope) {
 	$scope.pagecount = function () {
 		return Math.floor($scope.params.total() / $scope.params.count()) + 1;
 	}
+});
+
+app.controller('WhitelistCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, whitelist) {
+
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, {
+		list: function (opt, onsuccess, onerror) {
+			whitelist.list(opt, function (data) {
+				if (data && data.result) {
+					data.result = data.result.map(function (item) {
+						return {_id: item, name: item};
+					});
+				}
+				onsuccess(data);
+			}, onerror);
+		},
+		remove: function (opt, opt2, onsuccess, onerror) {
+			whitelist.remove({site: opt.id}, {site: opt.id}, onsuccess, onerror);
+		}
+	}, 'whitelist', 5000);
+
+	$scope.newEntry = function () {
+		editModalDialog($modal,
+			{
+				isNew: true,
+				site: '',
+				validate: function (d, cb) {
+					whitelist.create({site: d.site}, function (data) {
+							if (data.error) return reportServerError($scope, data.error);
+							if (data.result) {
+								$scope.list.push({_id: d.site, name: d.site})
+							}
+							cb();
+						},
+						function (err) {
+							console.error(err);
+						}
+					)
+				}
+			},
+			'partials/whitelist-edit-modal.html'
+			, function (data) {
+				$scope.refilter();
+			});
+	};
+
+	$scope.editEntry = function (p) {
+		editModalDialog($modal,
+			{
+				isNew: false,
+				site: p.name,
+				validate: function (d, cb) {
+					whitelist.update({site: p.name, replacement: d.site}, function (data) {
+							if (data.error) return reportServerError($scope, data.error);
+							if (data.result) {
+								p.name = d.site;
+							}
+							cb();
+						},
+						function (err) {
+							console.error(err);
+						}
+					)
+				}
+			},
+			'partials/whitelist-edit-modal.html'
+			, function (data) {
+				$scope.refilter();
+			});
+	};
 });
 
 app.controller('DatepickerCtrl', function ($scope) {

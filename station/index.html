@@ -46,6 +46,7 @@
 					<a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Einstellungen <span class="caret"></span></a>
 					<ul class="dropdown-menu" role="menu">
 						<li class="active" ui-sref-active="active"><a href ui-sref="start">Start</a></li>
+						<li ui-sref-active="active"><a href ui-sref="whitelist">Whitelist</a></li>
 						<li ui-sref-active="active"><a href ui-sref="fields">Datenfelder</a></li>
 						<li ui-sref-active="active"><a href ui-sref="users">Benutzerinnen</a></li>
 					</ul>
@@ -492,7 +493,7 @@
 	</div>
 
 	<div class="modal-footer">
-		<button class="btn btn-warning" ng-click="ok()" translate>Schliessen</button>
+		<button class="btn btn-warning" ng-click="ok()">Schliessen</button>
 	</div>
 </script>
 
@@ -751,8 +752,8 @@
 		<p>{{data.question}}</p>
 	</div>
 	<div class="modal-footer">
-		<button class="btn btn-primary" ng-click="ok()" translate>OK</button>
-		<button class="btn btn-warning" ng-click="cancel()" translate>Abbruch</button>
+		<button class="btn btn-primary" ng-click="ok()">OK</button>
+		<button class="btn btn-warning" ng-click="cancel()">Abbruch</button>
 	</div>
 
 </script>
@@ -768,8 +769,8 @@
 	</div>
 	<div class="modal-footer">
 		<button class="btn btn-default" ng-show="!data.fields[0].fixed" ng-click="data.newField(fields)">Feld anlegen</button>
-		<button class="btn btn-primary" ng-click="ok()" translate>OK</button>
-		<button class="btn btn-warning" ng-click="cancel()" translate>Abbruch</button>
+		<button class="btn btn-primary" ng-click="ok()">OK</button>
+		<button class="btn btn-warning" ng-click="cancel()">Abbruch</button>
 	</div>
 
 </script>
@@ -793,8 +794,8 @@
 		</form>
 	</div>
 	<div class="modal-footer">
-		<button class="btn btn-primary" ng-click="ok()" translate>OK</button>
-		<button class="btn btn-warning" ng-click="cancel()" translate>Abbruch</button>
+		<button class="btn btn-primary" ng-click="ok()">OK</button>
+		<button class="btn btn-warning" ng-click="cancel()">Abbruch</button>
 	</div>
 
 </script>
@@ -964,7 +965,7 @@
 		<div class="modal-footer">
 			<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
 			<button ng-if="isNew" class="btn btn-primary" ng-click="createnew()">Anlegen</button>
-			<button class="btn btn-warning" ng-click="cancel()" translate>Abbruch</button>
+			<button class="btn btn-warning" ng-click="cancel()">Abbruch</button>
 		</div>
 	</div>
 
@@ -1032,6 +1033,87 @@
 				<button class="btn btn-default" ng-click="back()">Abbruch</button>
 			</div>
 		</div>
+	</div>
+
+</script>
+
+<script type="text/ng-template" id="partials/whitelist.html">
+
+
+	<div class="row">
+		<div class="col-md-6 headline">
+			<h1>Whitelist</h1>
+
+			<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
+		</div>
+
+		<div class="col-md-3">
+			<button class="btn btn-default" ng-click="newEntry();">Eintrag anlegen</button>
+		</div>
+
+		<div class="col-md-3">
+			<div class="pull-right has-feedback">
+				<label>Suche</label>
+				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
+				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
+			</div>
+		</div>
+	</div>
+	<div ng-if="loading" class="loading">
+		<h1><i class="fa fa-spin fa-spinner"></i> Whitelist wird geladen</h1>
+	</div>
+
+	<table ng-table="tableParams" template-pagination="partials/pager-blank.html" show-filter="false" class="table table-striped">
+
+		<thead>
+		<tr>
+			<th
+					class="sortable" ng-class="{
+                    'sort-asc': tableParams.isSortBy('name', 'asc'),
+                    'sort-desc': tableParams.isSortBy('name', 'desc')
+                  }"
+					ng-click="tableParams.sorting('name', tableParams.isSortBy('name', 'asc') ? 'desc' : 'asc')">
+				<span>URL</span>
+				<span ng-class="{'fa-sort-asc':tableParams.isSortBy('name', 'asc'),'fa-sort-desc':tableParams.isSortBy('name', 'desc')}" class="fa"></span>
+			</th>
+			<th class="text-right">Aktionen</th>
+		</tr>
+		</thead>
+
+		<tbody>
+		<tr ng-repeat="p in $data">
+			<td>
+				<span ng-bind="p.name"></span>
+			</td>
+			<td class="col-action-large">
+				<span class="btn-right" ng-click="remove(p)" title="Eintrag löschen"><i class="fa fa-trash"></i></span>
+				<span class="btn-right" title="URL bearbeiten" ng-click="editEntry(p)"><i class="fa fa-pencil"></i></span>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+
+</script>
+
+<script type="text/ng-template" id="partials/whitelist-edit-modal.html">
+
+	<div class="modal-header">
+		<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
+		<h4 class="modal-title">
+			Whitelist-URL <span ng-if="data.isNew">anlegen</span><span ng-if="!data.isNew">bearbeiten</span>
+		</h4>
+	</div>
+	<div class="modal-body" ng-controller="RelationEditCtrl">
+		<div class="form-group">
+			<input type="text" class="form-control" placeholder="URL" ng-model="data.site">
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="ok()">
+				<span ng-if="!data.isNew">Aktualisieren</span>
+				<span ng-if="data.isNew">Anlegen</span>
+		</button>
+		<button class="btn btn-warning" ng-click="cancel()">Abbruch</button>
 	</div>
 
 </script>
