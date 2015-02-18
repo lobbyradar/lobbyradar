@@ -83,10 +83,17 @@ function loadList(id) {
 				data = data.sort(sort_by('name', true, function(a){return a.toUpperCase()}));
 				var $ul = $("<ul class='list-group'></ul>");
 				if (data instanceof Array && data.length > 0) $(data).each(function(idx,e){
-					$ul.append('<li class="list-group-item"> <a class="ajax-load entity-detail" href="/entity/'+e.id+'">'+e.name+' </a><span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span><div class="clearfix"></div></li>');
+					var $content = '<li class="list-group-item">';
+					$content += '<i class="fa fa-user"></i>&nbsp;';
+					$content += '<a class="ajax-load entity-detail" href="/entity/'+e.id+'">';
+					$content += e.name;
+					$content += ' </a><span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span><div class="clearfix"></div>'
+					$content += '</li>'
+					// $ul.append('<li class="list-group-item"> <a class="ajax-load entity-detail" href="/entity/'+e.id+'">'+e.name+' </a><span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span><div class="clearfix"></div></li>');
+					$ul.append($content);
+					
 					$(".result-list .result-name", "#main").html($resultName);
-				$(".result-list .lead").css("display","block");
-
+					$(".result-list .lead").css("display","block");
 				});
 				$( ".result-list" ).slideDown( "slow" );
 				$(".result-list .results .list-group", "#main").remove();
@@ -192,14 +199,18 @@ function loadEntity(id) {
 				}
 			});
 			$content += entity.name;
-			$content += '<div class="share-button"></div></h1>';
+			$content += '</h1>';
 			$(entity.data).each(function(idx,data){ 
 				if (data.key == 'bundesland') {
 					$content += '<p>'+data.value+'</p>'; // PARTEI
 				}
 			});
+			$content += '<div class="entity-share"></div>';
 			$content += '</div>';
+
 			$content += '</div>';
+
+			
 
 			// tags
 			// $(data.result.tags).each(function(idx,e){ 
@@ -610,6 +621,7 @@ function loadEntity(id) {
 }
 
 
+
 																																									
 // ________                            ________                          ___             
 // `MMMMMMMb.                          `MMMMMMMb.                        `MM             
@@ -630,14 +642,38 @@ $( document ).ready(function() {
 	$('.fullscreen').css({  'width': winWidth, 'height': winHeight });
 	$('.faq-page').css({  'width': winWidth, 'height': winHeight });
 
-	NetworkViz.panToEntity(); // missuse the func to get the viz on index
-
+	if ($('#networkviz').length == 0) {
+		// map could not be found
+	} else {
+		NetworkViz.panToEntity(); // missuse the func to get the viz on index
+	}
+	
 	// set initial div height / width
 
 	// $(".lobbysearch").focus(function(){
 	// });
 		
+	new Share(".site-share", {
+		description:window.location.href,
+		 ui: {
+    	flyout:    'bottom center',        // change the flyout direction of the shares. chose from `top left`, `top center`, `top right`, `bottom left`, `bottom right`, `bottom center`, `middle left`, or `middle right` [Default: `top center`]
+  		button_text: 'Teilen',
+  		button_font: false,
+  		icon_font: false,
+  	},
 
+	  networks: {
+	  	facebook: {
+      	enabled: true
+			},
+    	pinterest: {
+      	enabled: true
+    	},
+    	email: {
+      	enabled: true
+    	}
+	  }
+	});
 
 	$('.lobbysearch').keypress(function (e) {
 		if (e.which === 13) {
