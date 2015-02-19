@@ -1186,6 +1186,11 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 	fields.list({mode: mode}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
 			$scope.fields = data.result;
+			$scope.fields.forEach(function (f) {
+				if (f.default) {
+					$scope.addData(f);
+				}
+			});
 		},
 		function (err) {
 			console.error(err);
@@ -1319,6 +1324,7 @@ app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, persons
 });
 
 app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, organisations, fields, tags) {
+	console.log('whut');
 	typedEntityEditCtrl($scope, $state, $stateParams, organisations, fields, tags, 'entity', 'organisations', 'Organisation');
 });
 
@@ -1404,7 +1410,7 @@ var typedSimpleEditCtrl = function ($scope, $state, $stateParams, api, type, mod
 
 };
 
-var relationEditCtrl = function ($scope, $state, relations, entities, tags, aftersave) {
+var relationEditCtrl = function ($scope, $state, relations, entities, tags, fields, aftersave) {
 
 	$scope.edit = {
 		one: {},
@@ -1469,6 +1475,20 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 		function (data) {
 			if (data.error) return reportServerError($scope, data.error);
 			$scope.tags = data.result;
+		},
+		function (err) {
+			console.error(err);
+		}
+	);
+
+	fields.list({mode: 'relations'}, function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			$scope.fields = data.result;
+			$scope.fields.forEach(function (f) {
+				if (f.default) {
+					$scope.addData(f);
+				}
+			});
 		},
 		function (err) {
 			console.error(err);
@@ -1604,16 +1624,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 
 app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relations, entities, tags, fields) {
 	$scope.isNew = (!$stateParams.id) || ($stateParams.id == 'new');
-	fields.list({mode: 'relations'}, function (data) {
-			if (data.error) return reportServerError($scope, data.error);
-			$scope.fields = data.result;
-		},
-		function (err) {
-			console.error(err);
-		}
-	);
-
-	relationEditCtrl($scope, $state, relations, entities, tags, function () {
+	relationEditCtrl($scope, $state, relations, entities, tags, fields, function () {
 		$state.go('relations');
 	});
 	if (!$scope.isNew) {
@@ -1629,10 +1640,10 @@ app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relat
 	}
 });
 
-app.controller('RelationModalEditCtrl', function ($scope, $state, relations, entities, tags) {
+app.controller('RelationModalEditCtrl', function ($scope, $state, relations, entities, tags, fields) {
 	$scope.isNew = !$scope.data.relation._id;
 	$scope.relation = $scope.data.relation;
-	relationEditCtrl($scope, $state, relations, entities, tags, function () {
+	relationEditCtrl($scope, $state, relations, entities, tags, fields, function () {
 		$scope.ok();
 	});
 });
