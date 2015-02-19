@@ -261,7 +261,7 @@ app.factory('relations', function ($resource) {
 				params: {cmd: 'tags'}
 			},
 			types: {
-				method:'GET',
+				method: 'GET',
 				params: {cmd: 'types'}
 			}
 		}
@@ -785,12 +785,6 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 							}
 						);
 					},
-					removeData: function (d, list) {
-						var i = list.indexOf(d);
-						if (i >= 0) {
-							list.splice(i, 1);
-						}
-					},
 					newField: function (list) {
 						list.push({
 								desc: field.name,
@@ -1111,12 +1105,6 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 							}
 						);
 					},
-					removeData: function (d, list) {
-						var i = list.indexOf(d);
-						if (i >= 0) {
-							list.splice(i, 1);
-						}
-					},
 					newField: function (list) {
 						list.push({
 								desc: field.name,
@@ -1204,11 +1192,13 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 	fields.list({mode: mode}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
 			$scope.fields = data.result;
-			$scope.fields.forEach(function (f) {
-				if (f.default) {
-					$scope.addData(f);
-				}
-			});
+			if ($scope.isNew) {
+				$scope.fields.forEach(function (f) {
+					if (f.default) {
+						$scope.addData(f);
+					}
+				});
+			}
 		},
 		function (err) {
 			console.error(err);
@@ -1275,13 +1265,6 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 		var i = $scope.item[id].indexOf(a);
 		if (i >= 0) {
 			$scope.item[id].splice(i, 1);
-		}
-	};
-
-	$scope.removeData = function (d) {
-		var i = $scope.item.data.indexOf(d);
-		if (i >= 0) {
-			$scope.item.data.splice(i, 1);
 		}
 	};
 
@@ -1513,11 +1496,13 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 	fields.list({mode: 'relations'}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
 			$scope.fields = data.result;
-			$scope.fields.forEach(function (f) {
-				if (f.default) {
-					$scope.addData(f);
-				}
-			});
+			if ($scope.isNew) {
+				$scope.fields.forEach(function (f) {
+					if (f.default) {
+						$scope.addData(f);
+					}
+				});
+			}
 		},
 		function (err) {
 			console.error(err);
@@ -1629,13 +1614,6 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 		var i = $scope.relation[id].indexOf(a);
 		if (i >= 0) {
 			$scope.relation[id].splice(i, 1);
-		}
-	};
-
-	$scope.removeData = function (d) {
-		var i = $scope.relation.data.indexOf(d);
-		if (i >= 0) {
-			$scope.relation.data.splice(i, 1);
 		}
 	};
 
@@ -1908,6 +1886,15 @@ app.controller('AutoCompleteCtrl', function ($scope, autocomplete) {
 			}
 		};
 	}
+});
+
+app.controller('FieldListEditCtrl', function ($scope) {
+	$scope.removeData = function (d, list) {
+		var i = list.indexOf(d);
+		if (i >= 0) {
+			list.splice(i, 1);
+		}
+	};
 });
 
 // ------------------- directives -------------------

@@ -813,7 +813,7 @@
 		<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
 		<h4 class="modal-title">Feld bearbeiten</h4>
 	</div>
-	<div class="modal-body" ng-init="fields=data.fields;fieldsowner=data.fieldsowner;removeData=data.removeData">
+	<div class="modal-body" ng-init="fields=data.fields;fieldsowner=data.fieldsowner;">
 		<div ng-include="'partials/datafields.html'"></div>
 	</div>
 	<div class="modal-footer">
@@ -851,8 +851,9 @@
 
 <script type="text/ng-template" id="partials/datafields.html">
 
-	<div ng-repeat="d in fields" ng-switch="d.format">
-		<p class="field-headline"><span ng-bind="d.desc"></span><i ng-show="!d.fixed" class="glyphicon glyphicon-remove btn-right" title="{{d.desc}} entfernen" ng-click="removeData(d,fields)"></i></p>
+	<div ng-repeat="d in fields" ng-switch="d.format" ng-controller="FieldListEditCtrl">
+		<p class="field-headline"><span ng-bind="d.desc"></span><i ng-show="!d.fixed" class="glyphicon glyphicon-remove btn-right" title="{{d.desc}} entfernen"
+																   ng-click="removeData(d,fields)"></i></p>
 
 		<div ng-switch-when="link" class="row">
 			<form class="form">
