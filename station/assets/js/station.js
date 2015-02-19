@@ -152,6 +152,10 @@ app.factory('entities', function ($resource) {
 			merge: {
 				method: 'POST',
 				params: {cmd: 'merge'}
+			},
+			remove: {
+				method: 'POST',
+				params: {cmd: 'delete'}
 			}
 		}
 	);
