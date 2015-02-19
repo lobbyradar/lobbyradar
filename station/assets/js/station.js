@@ -222,6 +222,17 @@ app.factory('tags', function ($resource) {
 	);
 });
 
+app.factory('autocomplete', function ($resource) {
+	'use strict';
+	return $resource('/api/field/autocomplete', {}, {
+			query: {
+				method: 'GET'
+				//params: {cmd: 'list'}
+			}
+		}
+	);
+});
+
 app.factory('relations', function ($resource) {
 	'use strict';
 	return $resource('/api/relation/:cmd/:id', {}, {
@@ -248,6 +259,10 @@ app.factory('relations', function ($resource) {
 			tags: {
 				method: 'GET',
 				params: {cmd: 'tags'}
+			},
+			types: {
+				method:'GET',
+				params: {cmd: 'types'}
 			}
 		}
 	);
@@ -715,7 +730,9 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 				{
 					entity: entity,
 					fields: angular.copy(result),
+					fieldsowner: entity,
 					validate: function (data, cb) {
+						console.log('val', data);
 						data.fields.forEach(function (f) {
 							if (f.fixed) {
 								//update fixed field
@@ -1040,6 +1057,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 				{
 					entity: rel,
 					fields: angular.copy(result),
+					fieldsowner: rel,
 					validate: function (data, cb) {
 						data.fields.forEach(function (f) {
 							if (f.fixed) {
@@ -1470,11 +1488,22 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 	};
 
 	$scope.tags = [];
+	$scope.types = [];
 
 	tags.list({type: 'relations'},
 		function (data) {
 			if (data.error) return reportServerError($scope, data.error);
 			$scope.tags = data.result;
+		},
+		function (err) {
+			console.error(err);
+		}
+	);
+
+	relations.types({},
+		function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			$scope.types = data.result;
 		},
 		function (err) {
 			console.error(err);
@@ -1518,6 +1547,26 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 
 	$scope.datasetEntitiesOne = datasetEntity('one');
 	$scope.datasetEntitiesTwo = datasetEntity('two');
+
+	$scope.datasetTypes = {
+		name: 'types',
+		displayKey: "value",
+		options: {
+			minLength: 1,
+			highlight: true
+		},
+		source: function (q, callback) {
+			var matches, substrRegex;
+			matches = [];
+			substrRegex = new RegExp(q, 'i');
+			$.each($scope.types, function (i, s) {
+				if (substrRegex.test(s)) {
+					matches.push({value: s});
+				}
+			});
+			callback(matches);
+		}
+	};
 
 	//typeahead callbacks
 	$scope.datasetTags = {
@@ -1832,6 +1881,35 @@ app.controller('DatepickerCtrl', function ($scope) {
 
 });
 
+app.controller('AutoCompleteCtrl', function ($scope, autocomplete) {
+	var d = $scope.d;
+	if (d && (d.format == 'string')) {
+		var query = {
+			type: ['person', 'entity'].indexOf($scope.fieldsowner.type) < 0 ? 'relation' : $scope.fieldsowner.type,
+			key: d.key
+		};
+		$scope.datasetString = {
+			name: d.desc,
+			prop: d.key,
+			options: {
+				minLength: 2,
+				highlight: true
+			},
+			displayKey: "value",
+			source: function (q, callback) {
+				query.q = q;
+				autocomplete.query(query,
+					function (data) {
+						if (data.error) return reportServerError($scope, data.error);
+						callback(data.result);
+					}, function (err) {
+						console.error(err);
+					});
+			}
+		};
+	}
+});
+
 // ------------------- directives -------------------
 
 app.directive('ngEnter', function () {
@@ -1981,7 +2059,8 @@ app.directive('ngdatafields', function () {
 		restrict: 'A',
 		templateUrl: 'partials/datafields.html',
 		scope: {
-			"fields": "="
+			"fields": "=",
+			"fieldsowner": "="
 		},
 		link: function (scope, element, attrs) {
 			//scope.$watch('fields', function(v) {

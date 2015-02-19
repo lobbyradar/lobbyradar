@@ -36,6 +36,24 @@ body {
 	float: none;
 }
 
+.dropdown-btn-right {
+	float: right;
+}
+
+.dropdown-btn-right > a {
+	cursor: pointer;
+	border: solid 1px #ededed;
+	color: #000;
+	border-radius: 2px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-left: 8px;
+	padding-right: 6px;
+	margin-left: 3px;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
 .btn-right {
 	float: right;
 	cursor: pointer;

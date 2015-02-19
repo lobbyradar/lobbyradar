@@ -115,23 +115,29 @@
 	<div class="row start">
 		<div class="col-lg-6">
 			<h4><a href ui-sref="organisations">Organisationen</a></h4>
+
 			<p><a href ui-sref="organisations">Die Liste der an Lobbyismus beteiligten Organisationen </a></p>
 
 			<h4><a href ui-sref="persons">Personen</a></h4>
+
 			<p><a href ui-sref="persons">Die Liste der an Lobbyismus beteiligten Personen</a></p>
 
 			<h4><a href ui-sref="relations">Verbindungen</a></h4>
+
 			<p><a href ui-sref="relations">Verbindungen zwischen Organisationen und Personen</a></p>
 		</div>
 
 		<div class="col-lg-6">
 			<h4><a href ui-sref="whitelist">Whitelist</a></h4>
+
 			<p><a href ui-sref="whitelist">Liste der Seiten auf denen das Lobbyradar-Plugin aktiv ist </a></p>
 
 			<h4><a href ui-sref="fields">Datenfelder</a></h4>
+
 			<p><a href ui-sref="fields">Definition der Ablage von Informationen</a></p>
 
 			<h4><a href ui-sref="users">Benutzerinnenverwaltung</a></h4>
+
 			<p><a href ui-sref="users">Zugänge zur Lobbyradarstation</a></p>
 		</div>
 	</div>
@@ -460,6 +466,12 @@
 			</div>
 			<div class="form-group col-md-6">
 				<label>Schlagworte</label>
+				<span class="dropdown dropdown-btn-right">
+					<a role="button" data-toggle="dropdown" class="dropdown-toggle" href><span class="caret"></span>&nbsp;</a>
+					<ul role="menu" class="dropdown-menu">
+						<li ng-repeat="t in tags"><a href ng-click="addEntry('tags', t)" ng-bind="t"></a></li>
+					</ul>
+				</span>
 
 				<div class="has-feedback">
 					<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" datasets="datasetTags" ngtypeahead>
@@ -475,7 +487,7 @@
 
 	<hr/>
 
-	<div ngdatafields data-fields="item.data"></div>
+	<div ngdatafields data-fields="item.data" data-fieldsowner="item"></div>
 
 	<hr/>
 
@@ -801,7 +813,7 @@
 		<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
 		<h4 class="modal-title">Feld bearbeiten</h4>
 	</div>
-	<div class="modal-body" ng-init="fields=data.fields;removeData=data.removeData">
+	<div class="modal-body" ng-init="fields=data.fields;fieldsowner=data.fieldsowner;removeData=data.removeData">
 		<div ng-include="'partials/datafields.html'"></div>
 	</div>
 	<div class="modal-footer">
@@ -939,8 +951,8 @@
 
 		<div ng-switch-when="string" class="row">
 			<form class="form">
-				<div class="form-group col-md-12">
-					<input type="text" class="form-control" placeholder="Text" ng-model="d.value">
+				<div class="form-group col-md-12" ng-controller="AutoCompleteCtrl">
+					<input type="text" class="form-control" placeholder="Text" ng-model="d.value" datasets="datasetString" ngtypeahead>
 				</div>
 			</form>
 		</div>
@@ -1029,11 +1041,22 @@
 		</div>
 		<div class="form-group">
 			<label>Art</label>
-			<input type="text" class="form-control" placeholder="Art" ng-model="relation.type">
+			<span class="dropdown dropdown-btn-right">
+				<a role="button" data-toggle="dropdown" class="dropdown-toggle" href><span class="caret"></span>&nbsp;</a>
+				<ul role="menu" class="dropdown-menu">
+					<li ng-repeat="t in types"><a href ng-click="relation.type=t" ng-bind="t"></a></li>
+				</ul>
+			</span>
+			<input type="text" class="form-control" placeholder="Art" ng-model="relation.type" datasets="datasetTypes" ngtypeahead>
 		</div>
 		<div class="form-group">
 			<label>Schlagworte</label>
-
+			<span class="dropdown dropdown-btn-right">
+				<a role="button" data-toggle="dropdown" href><span class="caret"></span>&nbsp;</a>
+				<ul role="menu" class="dropdown-menu">
+					<li ng-repeat="t in tags"><a href ng-click="addEntry('tags', t)" ng-bind="t"></a></li>
+				</ul>
+			</span>
 			<div class="has-feedback">
 				<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" datasets="datasetTags" ngtypeahead>
 				<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
@@ -1042,7 +1065,7 @@
 				<div ng-repeat="o in relation.tags" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Tag entfernen" ng-click="removeEntry('tags', o)"></i></div>
 			</div>
 		</div>
-		<div ngdatafields data-fields="relation.data"></div>
+		<div ngdatafields data-fields="relation.data" data-fieldsowner="relation"></div>
 	</form>
 
 	<div class="btn-group">

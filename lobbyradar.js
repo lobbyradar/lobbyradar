@@ -420,6 +420,14 @@ app.all("/api/fields/delete/:id", function (req, res) {
 	});
 });
 
+// get autocomplete for fields.
+app.all("/api/field/autocomplete", function (req, res) {
+	debug("get field autocomplete %s", req.query.q);
+	api.field_autocomplete(req.query, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
 // get field.
 app.all("/api/fields/get/:id", function (req, res) {
 	debug("get field %s", req.params.id);
