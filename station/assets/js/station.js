@@ -429,7 +429,7 @@ var reportServerError = function ($scope, err) {
 
 // ------------------- controllers -------------------
 
-app.controller('AppCtrl', function ($rootScope, $scope, dateFilter) {
+app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 	'use strict';
 	$rootScope.globals = {
 		fieldtypes: {
@@ -490,6 +490,13 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter) {
 		}).join(', ');
 	};
 
+	$scope.logout = function () {
+		auth.logout(function (data) {
+		}, function (err) {
+		});
+		$rootScope.loggedInUser = null;
+		$state.go('login');
+	}
 });
 
 var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api, mode, defaultcount, get_fields) {
@@ -732,7 +739,6 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 					fields: angular.copy(result),
 					fieldsowner: entity,
 					validate: function (data, cb) {
-						console.log('val', data);
 						data.fields.forEach(function (f) {
 							if (f.fixed) {
 								//update fixed field
@@ -866,7 +872,6 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 	};
 
 	//var searchObject = $location.search();
-	//console.log(searchObject);
 };
 
 app.controller('MergeEntitiyCtrl', function ($scope, entities) {
@@ -1325,7 +1330,6 @@ app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, persons
 });
 
 app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, organisations, fields, tags) {
-	console.log('whut');
 	typedEntityEditCtrl($scope, $state, $stateParams, organisations, fields, tags, 'entity', 'organisations', 'Organisation');
 });
 
@@ -1654,7 +1658,7 @@ app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relat
 	relationEditCtrl($scope, $state, relations, entities, tags, fields, function () {
 		$state.go('relations');
 	});
-	if (!$scope.isNew) {
+	if ((!$scope.isNew) && (!$scope.relation)) {
 		relations.item({id: $stateParams.id},
 			function (data) {
 				if (data.error) return reportServerError($scope, data.error);
@@ -2050,9 +2054,7 @@ app.directive('ngdatafields', function () {
 			"fieldsowner": "="
 		},
 		link: function (scope, element, attrs) {
-			//scope.$watch('fields', function(v) {
-			//	console.log(v);
-			//});
+			//scope.$watch('fields', function(v) {});
 		}
 	};
 });

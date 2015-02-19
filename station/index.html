@@ -49,6 +49,8 @@
 						<li ui-sref-active="active"><a href ui-sref="whitelist">Whitelist</a></li>
 						<li ui-sref-active="active" ng-if="loggedInUser.admin"><a href ui-sref="fields">Datenfelder</a></li>
 						<li ui-sref-active="active" ng-if="loggedInUser.admin"><a href ui-sref="users">Benutzerinnen</a></li>
+						<li role="presentation" class="divider"></li>
+						<li><a href ng-click="logout()">Abmelden</a></li>
 					</ul>
 				</li>
 			</ul>

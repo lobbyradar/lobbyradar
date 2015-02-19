@@ -478,6 +478,12 @@ app.post('/login', function (req, res, next) {
 	})(req, res, next);
 });
 
+// logout user.
+app.post('/logout', function (req, res, next) {
+	req.logout();
+	res.sendStatus(200);
+});
+
 // default api method.
 app.all("/api", function (req, res) {
 	res.type("json").status("200").json({error: null});
