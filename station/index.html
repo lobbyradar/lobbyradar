@@ -346,7 +346,6 @@
 				<span ng-bind="f.name"></span>
 				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f.key, 'asc'),'fa-sort-desc':tableParams.isSortBy(f.key, 'desc')}" class="fa"></span>
 			</th>
-			<th>Typ</th>
 			<th class="text-right">Aktionen</th>
 		</tr>
 		</thead>
@@ -357,7 +356,6 @@
 				<span ng-bind="getDispayValues(f,p)"></span>
 				<span ng-show="f._type!=='extras'" class="btn-left" title="{{f.name}} bearbeiten" ng-click="editData(f,p)"><i class="fa fa-pencil"></i></span>
 			</td>
-			<td ng-bind="p.type"></td>
 			<td class="col-action-large">
 				<span class="btn-right" ng-click="remove(p)" title="Entität löschen"><i class="fa fa-trash"></i></span>
 				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
@@ -832,7 +830,7 @@
 		<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
 		<h4 class="modal-title">{{data.modename}} zusammenführen</h4>
 	</div>
-	<div class="modal-body" ng-controller="MergeEntitiyCtrl">
+	<div class="modal-body" ng-controller="MergeEntitiesCtrl">
 		<form class="form">
 			<div class="form-group">
 				<label>{{data.entity.name}} zusammenführen mit</label>

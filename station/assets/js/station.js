@@ -153,6 +153,10 @@ app.factory('entities', function ($resource) {
 				method: 'POST',
 				params: {cmd: 'merge'}
 			},
+			save: {
+				method: 'POST',
+				params: {cmd: 'update'}
+			},
 			remove: {
 				method: 'POST',
 				params: {cmd: 'delete'}
@@ -643,11 +647,13 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'},
 		{name: 'Anzahl Verbindungen', key: 'connections', format: 'number', _type: 'extras'}
 	];
+	if (mode=='entities') fixedfields.push({name: 'Art', key: 'type', format: 'string', _type: 'fields'});
 
 	if (state.fields.length == 0) {
 		state.fields.push(fixedfields[0]);
 		state.fields.push(fixedfields[1]);
 		state.fields.push(fixedfields[2]);
+		if (mode=='entities') state.fields.push(fixedfields[4]);
 	}
 
 	fields.list({mode: mode}, function (data) {
@@ -877,46 +883,6 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 
 	//var searchObject = $location.search();
 };
-
-app.controller('MergeEntitiyCtrl', function ($scope, entities) {
-	var mode = $scope.data.mode;
-	$scope.data.org = {};
-	$scope.typeaheadDatasetEntities = {
-		name: 'entities',
-		displayKey: "name",
-		options: {
-			minLength: 2,
-			highlight: true
-		},
-		source: function (q, callback) {
-			entities.list(
-				{
-					search: q,
-					type: mode == 'persons' ? 'person' : 'entity'
-				},
-				function (data) {
-					if (data.error) return reportServerError($scope, data.error);
-					callback(data.result);
-				}, function (err) {
-					console.error(err);
-				});
-		}
-	};
-
-	var typeaheadenter = function (sender, event, value, daset, clear) {
-		if (typeof value !== 'string') {
-			$scope.data.org.name = value.name;
-			$scope.data.edit.name = value.name;
-			$scope.data.edit._id = value._id;
-		}
-	};
-	$scope.$on("typeahead:enter", typeaheadenter);
-	$scope.$on("typeahead:selected", typeaheadenter);
-	$scope.$on("typeahead:changed", function (sender, value, daset) {
-		if ($scope.data.org.name !== value)
-			$scope.data.edit._id = null;
-	});
-});
 
 app.controller('PersonsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, persons, entities, fields, tags) {
 	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, persons, entities, fields, tags, 'persons', 'Person');
@@ -1163,6 +1129,46 @@ app.controller('TagEdit', function ($scope) {
 			field.value.splice(i, 1);
 		}
 	};
+});
+
+app.controller('MergeEntitiesCtrl', function ($scope, entities) {
+	var mode = $scope.data.mode;
+	$scope.data.org = {};
+	$scope.typeaheadDatasetEntities = {
+		name: 'entities',
+		displayKey: "name",
+		options: {
+			minLength: 2,
+			highlight: true
+		},
+		source: function (q, callback) {
+			entities.list(
+				{
+					search: q,
+					type: mode == 'persons' ? 'person' : 'entity'
+				},
+				function (data) {
+					if (data.error) return reportServerError($scope, data.error);
+					callback(data.result);
+				}, function (err) {
+					console.error(err);
+				});
+		}
+	};
+
+	var typeaheadenter = function (sender, event, value, daset, clear) {
+		if (typeof value !== 'string') {
+			$scope.data.org.name = value.name;
+			$scope.data.edit.name = value.name;
+			$scope.data.edit._id = value._id;
+		}
+	};
+	$scope.$on("typeahead:enter", typeaheadenter);
+	$scope.$on("typeahead:selected", typeaheadenter);
+	$scope.$on("typeahead:changed", function (sender, value, daset) {
+		if ($scope.data.org.name !== value)
+			$scope.data.edit._id = null;
+	});
 });
 
 var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, type, mode, modename) {
