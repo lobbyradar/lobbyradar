@@ -6425,6 +6425,20 @@ body,
     top: auto;
   }
 }
+.share-button.site-share.sharer-0 .social.networks-5.center {
+  margin-left: -135px !important;
+}
+.share-button.site-share.sharer-0 .social.networks-5 ul {
+  width: 360px!important;
+}
+.share-button.site-share.sharer-0 .social.networks-5 ul .entypo-whatsapp {
+  display: block!important;
+  background: #0E9814;
+}
+.share-button.site-share.sharer-0 .social.networks-5 ul .entypo-whatsapp:before {
+  content: "\f232" !important;
+  font-family: "FontAwesome" !important;
+}
 .zdf-header-grey {
   width: 100%;
   background: url(../images/zdf-header-grey.png) repeat-x 0 0 transparent;
