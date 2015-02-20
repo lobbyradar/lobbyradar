@@ -889,7 +889,7 @@ body {
   font-family: Arial, sans-serif;
   font-size: 16px;
   line-height: 1.42857143;
-  color: #eeeeee;
+  color: #333333;
   background-color: #062b3e;
 }
 input,
@@ -2644,7 +2644,7 @@ select[multiple].form-group-lg .form-control {
   display: block;
   margin-top: 5px;
   margin-bottom: 10px;
-  color: #ffffff;
+  color: #737373;
 }
 @media (min-width: 768px) {
   .form-inline .form-group {
@@ -2765,7 +2765,7 @@ select[multiple].form-group-lg .form-control {
 .btn:hover,
 .btn:focus,
 .btn.focus {
-  color: #999999;
+  color: #333333;
   text-decoration: none;
 }
 .btn:active,
@@ -2786,9 +2786,9 @@ fieldset[disabled] .btn {
   box-shadow: none;
 }
 .btn-default {
-  color: #999999;
+  color: #333333;
   background-color: transparent;
-  border-color: #cccccc;
+  border-color: #333333;
 }
 .btn-default:hover,
 .btn-default:focus,
@@ -2796,9 +2796,9 @@ fieldset[disabled] .btn {
 .btn-default:active,
 .btn-default.active,
 .open > .dropdown-toggle.btn-default {
-  color: #999999;
+  color: #333333;
   background-color: rgba(0, 0, 0, 0);
-  border-color: #adadad;
+  border-color: #141414;
 }
 .btn-default:active,
 .btn-default.active,
@@ -2824,11 +2824,11 @@ fieldset[disabled] .btn-default:active,
 .btn-default[disabled].active,
 fieldset[disabled] .btn-default.active {
   background-color: transparent;
-  border-color: #cccccc;
+  border-color: #333333;
 }
 .btn-default .badge {
   color: transparent;
-  background-color: #999999;
+  background-color: #333333;
 }
 .btn-primary {
   color: white;
@@ -4658,7 +4658,7 @@ a.thumbnail.active {
 }
 .thumbnail .caption {
   padding: 9px;
-  color: #eeeeee;
+  color: #333333;
 }
 .alert {
   padding: 15px;
@@ -6289,15 +6289,6 @@ button.close {
 * {
   -webkit-font-smoothing: antialiased;
 }
-::-webkit-scrollbar {
-  -webkit-appearance: none;
-  width: 7px;
-}
-::-webkit-scrollbar-thumb {
-  border-radius: 4px;
-  background-color: rgba(0, 0, 0, 0.5);
-  -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
-}
 .label {
   padding-top: 0.4em;
   float: right;
@@ -6328,6 +6319,10 @@ input.lobbysearch {
   height: 100%;
 }
 .bg-gradient,
+body,
+.abspann-page,
+.faq-page,
+.about-page,
 .faq-page {
   background: #11354b;
   /* Old browsers */
@@ -6350,7 +6345,15 @@ input.lobbysearch {
   position: absolute;
   top: 15px;
   right: 20px;
-  color: #999999;
+  color: #333!important;
+  z-index: 1050;
+  opacity: 0.7!important;
+}
+.close span {
+  color: #333!important;
+}
+.zdf-header-blue {
+  height: 82px;
 }
 .zdf-header-blue .search-form {
   margin-bottom: 20px;
@@ -6536,7 +6539,7 @@ input.lobbysearch {
   }
 }
 .overlay {
-  background: rgba(12, 12, 12, 0.8);
+  background: rgba(12, 12, 12, 0.85);
   width: 100%;
   height: 100%;
   position: fixed;
@@ -6557,16 +6560,21 @@ input.lobbysearch {
     margin-top: 150px;
   }
 }
-.abspann-page {
-  padding-top: 70px;
+.abspann-page,
+.faq-page,
+.about-page {
+  padding-top: 130px;
+  min-height: 100%;
 }
 .faq-page {
-  padding-top: 70px;
   min-height: 100%;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
+}
+.faq-page .panel-group {
+  margin-top: 20px!important;
 }
 .faq-page .panel-default {
   border: 0px!important;
@@ -6638,9 +6646,24 @@ input.lobbysearch {
   padding: 5px;
   text-align: center;
   display: inline;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(26, 65, 87, 0.9);
   color: white!important;
   text-shadow: none;
+  box-shadow: 0px 0px 50px #2b7aa0;
+}
+#networkviz-wrapper .leaflet-label:after {
+  bottom: 100%;
+  left: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-color: rgba(0, 0, 0, 0);
+  border-bottom-color: rgba(26, 65, 87, 0.9);
+  border-width: 10px;
+  margin-left: -10px;
 }
 #networkviz {
   background: none;
@@ -6684,7 +6707,7 @@ input.lobbysearch {
   padding: 19px;
   z-index: 99!important;
   background: white;
-  color: #111;
+  color: #333;
 }
 .result-single {
   padding-top: 40px;
@@ -6692,7 +6715,7 @@ input.lobbysearch {
   position: relative;
   top: 0;
   background: white;
-  color: #111;
+  color: #333;
   padding: 19px;
   z-index: 99!important;
 }

@@ -10,21 +10,21 @@
 //  8b    d9  MM YM.   ,M9 MM.  ,M9 MM.  ,MM  MM 
 //   YMMMM9  _MM_ YMMMMM9 _MYMMMM9  `YMMM9'Yb_MM_
 																											
+// save the browser dimensions
 var winWidth = $(window).width();
 var winHeight = $(window).height();
 
+// a function to sort arrays
 var sort_by = function(field, reverse, primer){
+	var key = primer ? 
+		function(x) {return primer(x[field])} : 
+		function(x) {return x[field]};
+		reverse = [-1, 1][+!!reverse];
 
-   var key = primer ? 
-       function(x) {return primer(x[field])} : 
-       function(x) {return x[field]};
-
-   reverse = [-1, 1][+!!reverse];
-
-   return function (a, b) {
-       return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
-     } 
-}	
+		return function (a, b) {
+			return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+		} 
+}
 
 // Makes the back button work
 window.onpopstate = function(event) {
@@ -61,6 +61,8 @@ window.onpopstate = function(event) {
 // _MM_ YMMMMM9  `YMMM9'Yb.YMMMMMM_      _MMMMMMM _MM_MYMMMM9   YMMM9 
 
 function loadList(id) { 
+			$( ".leaflet-control-zoom" ).css( "display",'block' );
+
 		$( ".result-single" ).slideUp( "slow" );
 
 		var req = null;
@@ -104,6 +106,7 @@ function loadList(id) {
 				req = null;
 			}
 		});
+
 }
 
 
@@ -141,6 +144,7 @@ function isExistant(el) {
 // used in Deeplink and Detail from List
 function loadEntity(id) {
 
+	$( ".leaflet-control-zoom" ).css( "display",'block' );
 
 	var req = null;
 	if (req) { req.abort(); }
@@ -205,7 +209,11 @@ function loadEntity(id) {
 					$content += '<p>'+data.value+'</p>'; // PARTEI
 				}
 			});
-			$content += '<div class="entity-share"></div>';
+			$(entity.tags).each(function(idx,tag){ 
+				if (tag == 'mdb') {
+					$content += '<p>Mitglied des Bundestag</p>'; 
+				}
+			});
 			$content += '</div>';
 
 			$content += '</div>';
@@ -248,49 +256,49 @@ function loadEntity(id) {
 //   d'      YM. YM.  ,MM  MM     YM    d9 L    ,MM L    ,MM 
 // _dM_     _dMM_ YMMMMMM__MM_     YMMMM9  MYMMMM9  MYMMMM9  
 
-			if (hasAddress) { 
-				console.log('Entity has Adress');
-				$content += '<div class="row">';
-				$content += '<div class="col-md-12"><h4>Adressen</h4></div>';
+			// if (hasAddress) { 
+			// 	console.log('Entity has Adress');
+			// 	$content += '<div class="row">';
+			// 	$content += '<div class="col-md-12"><h4>Adressen</h4></div>';
 
-				$(entity.data).each(function(idx,data){ 
-					if (data.key == 'address') {
-					if (data !== undefined) {
-							$content += '<div class="col-md-6">';
+			// 	$(entity.data).each(function(idx,data){ 
+			// 		if (data.key == 'address') {
+			// 		if (data !== undefined) {
+			// 				$content += '<div class="col-md-6">';
 
-							if (isExistant(data.value.addr)) {
-								$content += data.value.addr+'<br/>';
-								console.log(data.value.addr);
-							}
-							if (isExistant(data.value.street)) {
-								$content += data.value.street+'<br/>';
-							} 
-							if (isExistant(data.value.postcode)) {
-								$content += data.value.postcode+'&nbsp;';
-							}
-							if (isExistant(data.value.city)) {
-								$content += data.value.city+'<br/>';
-							}
-							$content += '<br/>';
+			// 				if (isExistant(data.value.addr)) {
+			// 					$content += data.value.addr+'<br/>';
+			// 					console.log(data.value.addr);
+			// 				}
+			// 				if (isExistant(data.value.street)) {
+			// 					$content += data.value.street+'<br/>';
+			// 				} 
+			// 				if (isExistant(data.value.postcode)) {
+			// 					$content += data.value.postcode+'&nbsp;';
+			// 				}
+			// 				if (isExistant(data.value.city)) {
+			// 					$content += data.value.city+'<br/>';
+			// 				}
+			// 				$content += '<br/>';
 
-							if (isExistant(data.value.tel)) {
-								$content += '<abbr title="Phone">P:</abbr>&nbsp;'+data.value.tel+'<br/>';
-							}
-							if (isExistant(data.value.fax)) {
-								$content += '<abbr title="Fax">F:</abbr>&nbsp;'+data.value.fax+'<br/>';
-							}
-							if (isExistant(data.value.email)) {
-								$content += '<abbr title="Email">E:</abbr>&nbsp;'+data.value.email+'<br/>';
-							}
-							if (isExistant(data.value.www)) {
-								$content += '<abbr title="Web">W:</abbr>&nbsp;'+data.value.www+'<br/>';
-							}
-							$content += '</div>';
-					}
-				}
-				});
-				$content += '</div>';
-			}
+			// 				if (isExistant(data.value.tel)) {
+			// 					$content += '<abbr title="Phone">P:</abbr>&nbsp;'+data.value.tel+'<br/>';
+			// 				}
+			// 				if (isExistant(data.value.fax)) {
+			// 					$content += '<abbr title="Fax">F:</abbr>&nbsp;'+data.value.fax+'<br/>';
+			// 				}
+			// 				if (isExistant(data.value.email)) {
+			// 					$content += '<abbr title="Email">E:</abbr>&nbsp;'+data.value.email+'<br/>';
+			// 				}
+			// 				if (isExistant(data.value.www)) {
+			// 					$content += '<abbr title="Web">W:</abbr>&nbsp;'+data.value.www+'<br/>';
+			// 				}
+			// 				$content += '</div>';
+			// 		}
+			// 	}
+			// 	});
+			// 	$content += '</div>';
+			// }
                                                                
 // ________           ___                                                 
 // `MMMMMMMb.         `MM                 68b                             
@@ -327,7 +335,7 @@ function loadEntity(id) {
 // _MMMMMMM9'  YMMMMM9 _MM_  _MM_`YMMM9'Yb.YMMM9 _MM_ YMMMMM9 _MM_  _MM_
                                                                                                                    
 						if (e.type == 'donation') {
-							$content += '<i class="fa fa-money"></i>&nbsp;';
+							$content += '<i class="fa fa-euro"></i>&nbsp;Parteispenden: ';
 							if (isExistant(e.entity)) {
 								$content += '<a class="ajax-load entity-connections" href="/entity/'
 								if (isExistant(e.entity._id)) {
@@ -338,7 +346,7 @@ function loadEntity(id) {
 									$content += e.entity.name+'&nbsp;'; 
 								}
 							}
-							$content += '</a><br/>Parteispenden'; 
+							$content += '</a><br/>'; 
 							if (isExistant(e.data)) {
 								$content += '<table class="table-condensed table-bordered table">';
 								$(e.data).each(function(idx,data){ 
@@ -415,7 +423,7 @@ function loadEntity(id) {
 									$content += e.entity.name+'&nbsp;'; 
 								}
 							}
-							$content += '</a><br/>Mitglied des Bundestags';           
+							$content += '</a><br/>Mitglied';           
                                                                    
 //        _                                                             
 //       dM.                     68b             68b                    
@@ -640,14 +648,19 @@ function loadEntity(id) {
 
 $( document ).ready(function() {
 	$('.fullscreen').css({  'width': winWidth, 'height': winHeight });
-	$('.faq-page').css({  'width': winWidth, 'height': winHeight });
+	// $('.faq-page').css({  'width': winWidth, 'height': winHeight });
+	$('.static-page').css({  'width': winWidth, 'height': winHeight });
+
+
 
 	if ($('#networkviz').length == 0) {
 		// map could not be found
 	} else {
 		NetworkViz.panToEntity(); // missuse the func to get the viz on index
 	}
-	
+
+		$( ".leaflet-control-zoom" ).css( "display",'none' );
+
 	// set initial div height / width
 
 	// $(".lobbysearch").focus(function(){
@@ -675,14 +688,7 @@ $( document ).ready(function() {
 	  }
 	});
 
-	$('.lobbysearch').keypress(function (e) {
-		if (e.which === 13) {
-			$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
-			$( ".result-list" ).slideDown( "slow" );
-			return false;
-			event.preventDefault();
-		}
-	});
+
 
 	NetworkViz.setClickHandler(loadEntityAjax);
 
@@ -734,7 +740,7 @@ $( document ).ready(function() {
 	// entity/:id
 	if (window.location.href.indexOf("/entity/") > -1) {
 		$( ".overlay" ).css( "display",'none' ); // we dont need the intro
-
+		$( "leaflet-control-zoom" ).css( "display",'block' );
 		var str = window.location.href; // get the url 
 		var entityID = str.split("/")[4]; // extract ID
 		console.log('entity.entry, ID: '+entityID);
@@ -774,18 +780,42 @@ $( document ).ready(function() {
 // MYMMMM9   YMMMM9  `YMMM9'Yb_MM_     YMMMM9 _MM_  _MM_      _MM_    \M\_YMMMM9  MYMMMM9   YMMM9MM_MM_  YMMM9 MYMMMM9  
 
 	// lazy typeahead
-	(function(){
-		var req = null;
-		$('body').on('keyup', '.lobbysearch', function(e) {
-			console.log($(this).val());
+	// (function(){
+	// 	var req = null;
+	// 	$('body').on('keyup', '.lobbysearch', function(e) {
+	// 		console.log($(this).val());
+	// 		var $resultName = $(this).val();
+	// 		//if ($(this).val().length >= 3) {// 
+	// 		if (e.which === 13) { 
+	// 			history.pushState(null, null, '/search/'+$resultName);
+	// 			loadList($resultName);
+	// 		} 
+	// 	});
+	// })();
+
+	$('.lobbysearch').keypress(function (e) {
+		if (e.which === 13) {
 			var $resultName = $(this).val();
-			// if ($(this).val().length >= 3) // 
-			if (e.which === 13) { 
-				history.pushState(null, null, '/search/'+$resultName);
-				loadList($resultName);
-			};
-		});
-	})();
+			$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
+			$( ".result-list" ).slideDown( "slow" );
+
+			history.pushState(null, null, '/search/'+$resultName);
+			loadList($resultName);
+			return false;
+			event.preventDefault();
+		}
+	});
+
+	$('.search-form button').click(function () {
+			var $resultName = $(this).val();
+			$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
+			$( ".result-list" ).slideDown( "slow" );
+
+			history.pushState(null, null, '/search/'+$resultName);
+			loadList($resultName);
+			return false;
+			event.preventDefault();
+});
 
 																																																													
 																																																													
