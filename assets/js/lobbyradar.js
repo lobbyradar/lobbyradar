@@ -146,6 +146,30 @@ function loadEntity(id) {
 
 	$( ".leaflet-control-zoom" ).css( "display",'block' );
 
+
+		new Share(".site-share", {
+		description:window.location.href,
+		 ui: {
+    	flyout:    'bottom center',        // change the flyout direction of the shares. chose from `top left`, `top center`, `top right`, `bottom left`, `bottom right`, `bottom center`, `middle left`, or `middle right` [Default: `top center`]
+  		button_text: 'Teilen',
+  		button_font: false,
+  		icon_font: false,
+  	},
+
+	  networks: {
+	  	facebook: {
+      	enabled: true
+			},
+    	pinterest: {
+      	enabled: true
+    	},
+    	email: {
+      	enabled: true
+    	}
+	  }
+	});
+
+
 	var req = null;
 	if (req) { req.abort(); }
 	$( ".result-list" ).slideUp( "slow" );
