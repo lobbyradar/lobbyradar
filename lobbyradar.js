@@ -392,6 +392,38 @@ app.post("/api/users/update/:id", function (req, res) {
 	});
 });
 
+// get whitelist.
+app.get("/api/whitelist/list", function (req, res) {
+	debug("list whitelist");
+	api.whitelist_get(function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// create whitelist.
+app.post("/api/whitelist/create", function (req, res) {
+	debug("create whitelist entry", req.body.site);
+	api.whitelist_add(req.body.site, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// update whitelist.
+app.post("/api/whitelist/update", function (req, res) {
+	debug("update whitelist entry", req.body.site, req.body.replacement);
+	api.whitelist_update(req.body.site, req.body.replacement, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// delete whitelist.
+app.post("/api/whitelist/delete", function (req, res) {
+	debug("delete whitelist entry %s", req.body.site);
+	api.whitelist_remove(req.body.site, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
 // get fields.
 app.get("/api/fields/list", function (req, res) {
 	debug("list fields");
@@ -412,6 +444,14 @@ app.post("/api/fields/create", function (req, res) {
 app.all("/api/fields/delete/:id", function (req, res) {
 	debug("delete field %s", req.params.id||req.body.id);
 	api.field_delete(req.params.id||req.body.id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// get autocomplete for fields.
+app.all("/api/field/autocomplete", function (req, res) {
+	debug("get field autocomplete %s", req.query.q);
+	api.field_autocomplete(req.query, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -464,6 +504,12 @@ app.post('/login', function (req, res, next) {
 			res.type("json").status("200").json({error: null, result: {name:user.name,admin:user.admin}});
 		});
 	})(req, res, next);
+});
+
+// logout user.
+app.post('/logout', function (req, res, next) {
+	req.logout();
+	res.sendStatus(200);
 });
 
 // default api method.
