@@ -11,6 +11,7 @@
 * relation aggregation
 * suggestion api
 * updates api
+* whitelist backend api
 
 ## Cached Data
 
@@ -31,9 +32,46 @@ Get domain whitelist for plugin
 
 Get entity export for plugin
 
-### `GET /api/search?q={query}`
+### `GET /api/search-fields`
 
-Search entities and relations. __to be implemented__
+Get a list of Search fields and their data types.
+
+### `POST /api/search` or `GET /api/search?q={query}`
+
+Search entities and relations. When calling this API endpoint a json object query `q` has 
+to be submitted via POST data or GET parameter:
+
+``` javascript
+{
+	"collection": "entities",			// which collection to query
+	"type": "person",						// which type to query
+	"query": [{								// query elements
+		"field": "activity.year",		// field
+		"operation": "number.equal",	// comparison operator
+		"value": 2013						// comparison value
+	},{
+		"field": "url",
+		"operation": "string.match",
+		"value": "bundestag.de"
+	}]
+};
+```
+
+Operators for each data types are:
+
+* `string.match`
+* `url.match`
+* `bool.is`
+* `number.equal`
+* `number.greater`
+* `number.lesser`
+* `number.differs`
+* `number.between`
+* `date.equal`
+* `date.greater`
+* `date.lesser`
+* `date.differs`
+* `date.between`
 
 ### `GET /api/autocomplete?q={query}`
 

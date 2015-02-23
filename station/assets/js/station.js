@@ -19,6 +19,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			templateUrl: "partials/editor.html",
 			controller: 'PersonEditCtrl'
 		})
+		.state('whitelist', {
+			url: "/whitelist",
+			templateUrl: "partials/whitelist.html",
+			controller: 'WhitelistCtrl'
+		})
 		.state('organisation', {
 			url: "/organisation/:id",
 			templateUrl: "partials/editor.html",
@@ -33,6 +38,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			url: "/organisations",
 			templateUrl: "partials/organisations.html",
 			controller: 'OrganisationsCtrl'
+		})
+		.state('entities', {
+			url: "/entities",
+			templateUrl: "partials/entities.html",
+			controller: 'EntitiesCtrl'
 		})
 		.state('relations', {
 			url: "/relations",
@@ -142,6 +152,14 @@ app.factory('entities', function ($resource) {
 			merge: {
 				method: 'POST',
 				params: {cmd: 'merge'}
+			},
+			save: {
+				method: 'POST',
+				params: {cmd: 'update'}
+			},
+			remove: {
+				method: 'POST',
+				params: {cmd: 'delete'}
 			}
 		}
 	);
@@ -212,6 +230,17 @@ app.factory('tags', function ($resource) {
 	);
 });
 
+app.factory('autocomplete', function ($resource) {
+	'use strict';
+	return $resource('/api/field/autocomplete', {}, {
+			query: {
+				method: 'GET'
+				//params: {cmd: 'list'}
+			}
+		}
+	);
+});
+
 app.factory('relations', function ($resource) {
 	'use strict';
 	return $resource('/api/relation/:cmd/:id', {}, {
@@ -238,6 +267,33 @@ app.factory('relations', function ($resource) {
 			tags: {
 				method: 'GET',
 				params: {cmd: 'tags'}
+			},
+			types: {
+				method: 'GET',
+				params: {cmd: 'types'}
+			}
+		}
+	);
+});
+
+app.factory('whitelist', function ($resource) {
+	'use strict';
+	return $resource('/api/whitelist/:cmd/:id', {}, {
+			list: {
+				method: 'GET',
+				params: {cmd: 'list'}
+			},
+			create: {
+				method: 'POST',
+				params: {cmd: 'create'}
+			},
+			update: {
+				method: 'POST',
+				params: {cmd: 'update'}
+			},
+			remove: {
+				method: 'POST',
+				params: {cmd: 'delete'}
 			}
 		}
 	);
@@ -374,12 +430,14 @@ var infoModalDialog = function ($modal, data, templateUrl, cb) {
 
 var reportServerError = function ($scope, err) {
 	console.error(err);
-	alert(err);
+	setTimeout(function () {
+		alert(err);
+	}, 500);
 };
 
 // ------------------- controllers -------------------
 
-app.controller('AppCtrl', function ($rootScope, $scope, dateFilter) {
+app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 	'use strict';
 	$rootScope.globals = {
 		fieldtypes: {
@@ -440,6 +498,13 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter) {
 		}).join(', ');
 	};
 
+	$scope.logout = function () {
+		auth.logout(function (data) {
+		}, function (err) {
+		});
+		$rootScope.loggedInUser = null;
+		$state.go('login');
+	}
 });
 
 var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams, api, mode, defaultcount, get_fields) {
@@ -462,12 +527,12 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 
 	$scope.loading = true;
 
-	var list = [];
+	$scope.list = [];
 
 	$scope.filter = state.filter;
 
 	$scope.refilter = function () {
-		if (list.length)
+		if ($scope.list.length)
 			$scope.tableParams.reload();
 	};
 
@@ -477,7 +542,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	};
 
 	$scope.removeFromList = function (id) {
-		list = list.filter(function (oe) {
+		$scope.list = $scope.list.filter(function (oe) {
 			return oe._id != id;
 		});
 		$scope.refilter();
@@ -486,8 +551,8 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	$scope.reloadEntry = function (item, cb) {
 		api.item({id: item._id}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
-			var i = list.indexOf(item);
-			if (i >= 0) list[i] = data.result;
+			var i = $scope.list.indexOf(item);
+			if (i >= 0) $scope.list[i] = data.result;
 			$scope.refilter();
 			if (cb) cb();
 		}, function (err) {
@@ -502,7 +567,8 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 				question: 'Soll "' + o.name + '" gelöscht werden?'
 			}
 			, function () {
-				api.remove({id: o._id}, {id: o._id}, function () {
+				api.remove({id: o._id}, {id: o._id}, function (data) {
+					if (data.error) return reportServerError($scope, data.error);
 					$scope.removeFromList(o._id);
 				}, function (err) {
 					console.error(err);
@@ -521,7 +587,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		state.table.count = params.count();
 		state.table.sorting = params.sorting();
 
-		var orderedData = $scope.filter.text.length == 0 ? list : list.filter(function (o) {
+		var orderedData = $scope.filter.text.length == 0 ? $scope.list : $scope.list.filter(function (o) {
 			return (
 			((o.name || '').indexOf($scope.filter.text) >= 0) ||
 			((o.tags ? o.tags : []).join(',').indexOf($scope.filter.text) >= 0)
@@ -555,7 +621,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		api.list(get_fields ? get_fields() : null,
 			function (data) {
 				if (data.error) return reportServerError($scope, data.error);
-				list = data.result;
+				$scope.list = data.result;
 				$scope.tableParams.reload();
 				$scope.loading = false;
 			},
@@ -581,11 +647,13 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'},
 		{name: 'Anzahl Verbindungen', key: 'connections', format: 'number', _type: 'extras'}
 	];
+	if (mode=='entities') fixedfields.push({name: 'Art', key: 'type', format: 'string', _type: 'fields'});
 
 	if (state.fields.length == 0) {
 		state.fields.push(fixedfields[0]);
 		state.fields.push(fixedfields[1]);
 		state.fields.push(fixedfields[2]);
+		if (mode=='entities') state.fields.push(fixedfields[4]);
 	}
 
 	fields.list({mode: mode}, function (data) {
@@ -679,6 +747,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 				{
 					entity: entity,
 					fields: angular.copy(result),
+					fieldsowner: entity,
 					validate: function (data, cb) {
 						data.fields.forEach(function (f) {
 							if (f.fixed) {
@@ -731,12 +800,6 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 								console.error(err);
 							}
 						);
-					},
-					removeData: function (d, list) {
-						var i = list.indexOf(d);
-						if (i >= 0) {
-							list.splice(i, 1);
-						}
 					},
 					newField: function (list) {
 						list.push({
@@ -819,48 +882,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 	};
 
 	//var searchObject = $location.search();
-	//console.log(searchObject);
 };
-
-app.controller('MergeEntitiyCtrl', function ($scope, entities) {
-	var mode = $scope.data.mode;
-	$scope.data.org = {};
-	$scope.typeaheadDatasetEntities = {
-		name: 'entities',
-		displayKey: "name",
-		options: {
-			minLength: 2,
-			highlight: true
-		},
-		source: function (q, callback) {
-			entities.list(
-				{
-					search: q,
-					type: mode == 'persons' ? 'person' : 'entity'
-				},
-				function (data) {
-					if (data.error) return reportServerError($scope, data.error);
-					callback(data.result);
-				}, function (err) {
-					console.error(err);
-				});
-		}
-	};
-
-	var typeaheadenter = function (sender, event, value, daset, clear) {
-		if (typeof value !== 'string') {
-			$scope.data.org.name = value.name;
-			$scope.data.edit.name = value.name;
-			$scope.data.edit._id = value._id;
-		}
-	};
-	$scope.$on("typeahead:enter", typeaheadenter);
-	$scope.$on("typeahead:selected", typeaheadenter);
-	$scope.$on("typeahead:changed", function (sender, value, daset) {
-		if ($scope.data.org.name !== value)
-			$scope.data.edit._id = null;
-	});
-});
 
 app.controller('PersonsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, persons, entities, fields, tags) {
 	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, persons, entities, fields, tags, 'persons', 'Person');
@@ -868,6 +890,10 @@ app.controller('PersonsCtrl', function ($scope, $location, $resource, $filter, $
 
 app.controller('OrganisationsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, entities, fields, tags) {
 	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, entities, fields, tags, 'organisations', 'Organisation');
+});
+
+app.controller('EntitiesCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, entities, fields, tags) {
+	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, entities, entities, fields, tags, 'entities', 'Entität');
 });
 
 app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, relations, fields, tags) {
@@ -1000,6 +1026,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 				{
 					entity: rel,
 					fields: angular.copy(result),
+					fieldsowner: rel,
 					validate: function (data, cb) {
 						data.fields.forEach(function (f) {
 							if (f.fixed) {
@@ -1053,12 +1080,6 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 							}
 						);
 					},
-					removeData: function (d, list) {
-						var i = list.indexOf(d);
-						if (i >= 0) {
-							list.splice(i, 1);
-						}
-					},
 					newField: function (list) {
 						list.push({
 								desc: field.name,
@@ -1110,6 +1131,46 @@ app.controller('TagEdit', function ($scope) {
 	};
 });
 
+app.controller('MergeEntitiesCtrl', function ($scope, entities) {
+	var mode = $scope.data.mode;
+	$scope.data.org = {};
+	$scope.typeaheadDatasetEntities = {
+		name: 'entities',
+		displayKey: "name",
+		options: {
+			minLength: 2,
+			highlight: true
+		},
+		source: function (q, callback) {
+			entities.list(
+				{
+					search: q,
+					type: mode == 'persons' ? 'person' : 'entity'
+				},
+				function (data) {
+					if (data.error) return reportServerError($scope, data.error);
+					callback(data.result);
+				}, function (err) {
+					console.error(err);
+				});
+		}
+	};
+
+	var typeaheadenter = function (sender, event, value, daset, clear) {
+		if (typeof value !== 'string') {
+			$scope.data.org.name = value.name;
+			$scope.data.edit.name = value.name;
+			$scope.data.edit._id = value._id;
+		}
+	};
+	$scope.$on("typeahead:enter", typeaheadenter);
+	$scope.$on("typeahead:selected", typeaheadenter);
+	$scope.$on("typeahead:changed", function (sender, value, daset) {
+		if ($scope.data.org.name !== value)
+			$scope.data.edit._id = null;
+	});
+});
+
 var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, tags, type, mode, modename) {
 	$scope.modename = modename;
 	$scope.validate = function (cb) {
@@ -1142,11 +1203,17 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 			}
 		);
 	}
-	console.log('type', type);
 
 	fields.list({mode: mode}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
 			$scope.fields = data.result;
+			if ($scope.isNew) {
+				$scope.fields.forEach(function (f) {
+					if (f.default) {
+						$scope.addData(f);
+					}
+				});
+			}
 		},
 		function (err) {
 			console.error(err);
@@ -1213,13 +1280,6 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 		var i = $scope.item[id].indexOf(a);
 		if (i >= 0) {
 			$scope.item[id].splice(i, 1);
-		}
-	};
-
-	$scope.removeData = function (d) {
-		var i = $scope.item.data.indexOf(d);
-		if (i >= 0) {
-			$scope.item.data.splice(i, 1);
 		}
 	};
 
@@ -1365,10 +1425,12 @@ var typedSimpleEditCtrl = function ($scope, $state, $stateParams, api, type, mod
 
 };
 
-var relationEditCtrl = function ($scope, $state, relations, entities, tags, aftersave) {
+var relationEditCtrl = function ($scope, $state, relations, entities, tags, fields, aftersave) {
 
 	$scope.edit = {
+		one: {},
 		one_org: {},
+		two: {},
 		two_org: {}
 	};
 
@@ -1380,7 +1442,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 		cb();
 	};
 
-	$scope.relation = {
+	$scope.relation = $scope.relation || {
 		tags: [],
 		entities: ['', ''],
 		data: []
@@ -1423,11 +1485,38 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 	};
 
 	$scope.tags = [];
+	$scope.types = [];
 
 	tags.list({type: 'relations'},
 		function (data) {
 			if (data.error) return reportServerError($scope, data.error);
 			$scope.tags = data.result;
+		},
+		function (err) {
+			console.error(err);
+		}
+	);
+
+	relations.types({},
+		function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			$scope.types = data.result;
+		},
+		function (err) {
+			console.error(err);
+		}
+	);
+
+	fields.list({mode: 'relations'}, function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			$scope.fields = data.result;
+			if ($scope.isNew) {
+				$scope.fields.forEach(function (f) {
+					if (f.default) {
+						$scope.addData(f);
+					}
+				});
+			}
 		},
 		function (err) {
 			console.error(err);
@@ -1457,6 +1546,26 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 
 	$scope.datasetEntitiesOne = datasetEntity('one');
 	$scope.datasetEntitiesTwo = datasetEntity('two');
+
+	$scope.datasetTypes = {
+		name: 'types',
+		displayKey: "value",
+		options: {
+			minLength: 1,
+			highlight: true
+		},
+		source: function (q, callback) {
+			var matches, substrRegex;
+			matches = [];
+			substrRegex = new RegExp(q, 'i');
+			$.each($scope.types, function (i, s) {
+				if (substrRegex.test(s)) {
+					matches.push({value: s});
+				}
+			});
+			callback(matches);
+		}
+	};
 
 	//typeahead callbacks
 	$scope.datasetTags = {
@@ -1522,13 +1631,6 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 		}
 	};
 
-	$scope.removeData = function (d) {
-		var i = $scope.relation.data.indexOf(d);
-		if (i >= 0) {
-			$scope.relation.data.splice(i, 1);
-		}
-	};
-
 	$scope.addData = function (o) {
 		$scope.relation.data.push({
 			format: o.format,
@@ -1563,19 +1665,10 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, afte
 
 app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relations, entities, tags, fields) {
 	$scope.isNew = (!$stateParams.id) || ($stateParams.id == 'new');
-	fields.list({mode: 'relations'}, function (data) {
-			if (data.error) return reportServerError($scope, data.error);
-			$scope.fields = data.result;
-		},
-		function (err) {
-			console.error(err);
-		}
-	);
-
-	relationEditCtrl($scope, $state, relations, entities, tags, function () {
+	relationEditCtrl($scope, $state, relations, entities, tags, fields, function () {
 		$state.go('relations');
 	});
-	if (!$scope.isNew) {
+	if ((!$scope.isNew) && (!$scope.relation)) {
 		relations.item({id: $stateParams.id},
 			function (data) {
 				if (data.error) return reportServerError($scope, data.error);
@@ -1588,12 +1681,12 @@ app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relat
 	}
 });
 
-app.controller('RelationModalEditCtrl', function ($scope, $state, relations, entities, tags) {
+app.controller('RelationModalEditCtrl', function ($scope, $state, relations, entities, tags, fields) {
 	$scope.isNew = !$scope.data.relation._id;
-	relationEditCtrl($scope, $state, relations, entities, tags, function () {
+	$scope.relation = $scope.data.relation;
+	relationEditCtrl($scope, $state, relations, entities, tags, fields, function () {
 		$scope.ok();
 	});
-	$scope.relation = $scope.data.relation;
 });
 
 app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, entities) {
@@ -1633,7 +1726,9 @@ app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, en
 		editModalDialog($modal,
 			{
 				relation: {
-					entities: [$scope.item._id, '']
+					entities: [$scope.item._id, ''],
+					tags: [],
+					data: []
 				}
 			},
 			'partials/relation-modal.html'
@@ -1674,6 +1769,75 @@ app.controller('PagerCtrl', function ($scope) {
 	}
 });
 
+app.controller('WhitelistCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, whitelist) {
+
+	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, {
+		list: function (opt, onsuccess, onerror) {
+			whitelist.list(opt, function (data) {
+				if (data && data.result) {
+					data.result = data.result.map(function (item) {
+						return {_id: item, name: item};
+					});
+				}
+				onsuccess(data);
+			}, onerror);
+		},
+		remove: function (opt, opt2, onsuccess, onerror) {
+			whitelist.remove({site: opt.id}, {site: opt.id}, onsuccess, onerror);
+		}
+	}, 'whitelist', 5000);
+
+	$scope.newEntry = function () {
+		editModalDialog($modal,
+			{
+				isNew: true,
+				site: '',
+				validate: function (d, cb) {
+					whitelist.create({site: d.site}, function (data) {
+							if (data.error) return reportServerError($scope, data.error);
+							if (data.result) {
+								$scope.list.push({_id: d.site, name: d.site})
+							}
+							cb();
+						},
+						function (err) {
+							console.error(err);
+						}
+					)
+				}
+			},
+			'partials/whitelist-edit-modal.html'
+			, function (data) {
+				$scope.refilter();
+			});
+	};
+
+	$scope.editEntry = function (p) {
+		editModalDialog($modal,
+			{
+				isNew: false,
+				site: p.name,
+				validate: function (d, cb) {
+					whitelist.update({site: p.name, replacement: d.site}, function (data) {
+							if (data.error) return reportServerError($scope, data.error);
+							if (data.result) {
+								p.name = d.site;
+							}
+							cb();
+						},
+						function (err) {
+							console.error(err);
+						}
+					)
+				}
+			},
+			'partials/whitelist-edit-modal.html'
+			, function (data) {
+				$scope.refilter();
+			});
+	};
+});
+
 app.controller('DatepickerCtrl', function ($scope) {
 
 	$scope.dtp_today = function () {
@@ -1707,6 +1871,44 @@ app.controller('DatepickerCtrl', function ($scope) {
 		}
 	});
 
+});
+
+app.controller('AutoCompleteCtrl', function ($scope, autocomplete) {
+	var d = $scope.d;
+	if (d && (d.format == 'string')) {
+		var query = {
+			type: ['person', 'entity'].indexOf($scope.fieldsowner.type) < 0 ? 'relation' : $scope.fieldsowner.type,
+			key: d.key
+		};
+		$scope.datasetString = {
+			name: d.desc,
+			prop: d.key,
+			options: {
+				minLength: 2,
+				highlight: true
+			},
+			displayKey: "value",
+			source: function (q, callback) {
+				query.q = q;
+				autocomplete.query(query,
+					function (data) {
+						if (data.error) return reportServerError($scope, data.error);
+						callback(data.result);
+					}, function (err) {
+						console.error(err);
+					});
+			}
+		};
+	}
+});
+
+app.controller('FieldListEditCtrl', function ($scope) {
+	$scope.removeData = function (d, list) {
+		var i = list.indexOf(d);
+		if (i >= 0) {
+			list.splice(i, 1);
+		}
+	};
 });
 
 // ------------------- directives -------------------
@@ -1858,12 +2060,11 @@ app.directive('ngdatafields', function () {
 		restrict: 'A',
 		templateUrl: 'partials/datafields.html',
 		scope: {
-			"fields": "="
+			"fields": "=",
+			"fieldsowner": "="
 		},
 		link: function (scope, element, attrs) {
-			//scope.$watch('fields', function(v) {
-			//	console.log(v);
-			//});
+			//scope.$watch('fields', function(v) {});
 		}
 	};
 });

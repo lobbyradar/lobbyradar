@@ -30,7 +30,7 @@ var dataindex = function(id, reftype, type, data, emit){
 				key: data.key,
 				format: data.format,
 				value: data.value,
-				text: data.value
+				txt: data.value
 			});
 		} else {
 			emit({
@@ -331,7 +331,7 @@ var index = function(fn){
 			db.collection("dataindex").ensureIndex("type");
 			db.collection("dataindex").ensureIndex("idx");
 			db.collection("dataindex").ensureIndex({
-				"text": "text"
+				"txt": "text"
 			}, {"background": true}, function(err){
 				if (err) return debug("error creating collection index: %s", err);
 				debug("collection index created");

@@ -42,12 +42,15 @@
 				<li ui-sref-active="active"><a href ui-sref="organisations">Organisationen</a></li>
 				<li ui-sref-active="active"><a href ui-sref="relations">Verbindungen</a></li>
 
-				<li class="dropdown" ng-if="loggedInUser.admin">
-					<a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Einstellungen <span class="caret"></span></a>
+				<li class="dropdown">
+					<a href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Mehr <span class="caret"></span></a>
 					<ul class="dropdown-menu" role="menu">
 						<li class="active" ui-sref-active="active"><a href ui-sref="start">Start</a></li>
-						<li ui-sref-active="active"><a href ui-sref="fields">Datenfelder</a></li>
-						<li ui-sref-active="active"><a href ui-sref="users">Benutzerinnen</a></li>
+						<li ui-sref-active="active"><a href ui-sref="whitelist">Whitelist</a></li>
+						<li ui-sref-active="active" ng-if="loggedInUser.admin"><a href ui-sref="fields">Datenfelder</a></li>
+						<li ui-sref-active="active" ng-if="loggedInUser.admin"><a href ui-sref="users">Benutzerinnen</a></li>
+						<li role="presentation" class="divider"></li>
+						<li><a href ng-click="logout()">Abmelden</a></li>
 					</ul>
 				</li>
 			</ul>
@@ -85,6 +88,7 @@
 							<button type="button" ng-class="{'active':params.count() == 25}" ng-click="params.count(25)" class="btn btn-default">25</button>
 							<button type="button" ng-class="{'active':params.count() == 50}" ng-click="params.count(50)" class="btn btn-default">50</button>
 							<button type="button" ng-class="{'active':params.count() == 100}" ng-click="params.count(100)" class="btn btn-default">100</button>
+							<button type="button" ng-class="{'active':params.count() == 500}" ng-click="params.count(500)" class="btn btn-default">500</button>
 						</div>
 					</td>
 				</tr>
@@ -102,7 +106,7 @@
 	<div class="jumbotron">
 		<div class="row">
 			<div class="col-md-6">
-				<img src="/assets/images/lobbyradar.png">
+				<img src="/assets/images/lobbyradar.png" style="height: 230px">
 			</div>
 			<div class="col-md-6">
 				<h1>
@@ -111,6 +115,35 @@
 		</div>
 	</div>
 
+	<div class="row start">
+		<div class="col-lg-6">
+			<h4><a href ui-sref="organisations">Organisationen</a></h4>
+
+			<p><a href ui-sref="organisations">Die Liste der an Lobbyismus beteiligten Organisationen </a></p>
+
+			<h4><a href ui-sref="persons">Personen</a></h4>
+
+			<p><a href ui-sref="persons">Die Liste der an Lobbyismus beteiligten Personen</a></p>
+
+			<h4><a href ui-sref="relations">Verbindungen</a></h4>
+
+			<p><a href ui-sref="relations">Verbindungen zwischen Organisationen und Personen</a></p>
+		</div>
+
+		<div class="col-lg-6">
+			<h4><a href ui-sref="whitelist">Whitelist</a></h4>
+
+			<p><a href ui-sref="whitelist">Liste der Seiten auf denen das Lobbyradar-Plugin aktiv ist </a></p>
+
+			<h4><a href ui-sref="fields">Datenfelder</a></h4>
+
+			<p><a href ui-sref="fields">Definition der Ablage von Informationen</a></p>
+
+			<h4><a href ui-sref="users">Benutzerinnenverwaltung</a></h4>
+
+			<p><a href ui-sref="users">Zugänge zur Lobbyradarstation</a></p>
+		</div>
+	</div>
 </script>
 
 <script type="text/ng-template" id="partials/persons.html">
@@ -264,6 +297,79 @@
 
 </script>
 
+<script type="text/ng-template" id="partials/entities.html">
+
+	<div class="row">
+		<div class="col-md-3 headline">
+			<h1>Entitäten</h1>
+
+			<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
+		</div>
+
+		<div class="col-md-4">
+			<button class="btn btn-default" ui-sref="organisation({id: 'new'})">Organisation anlegen</button>
+			<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>
+		</div>
+
+		<div class="col-md-2">
+			<div class="btn-group">
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+					Daten anzeigen <span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" role="menu">
+					<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="col-md-3">
+			<div class="pull-right has-feedback">
+				<label>Suche</label>
+				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
+				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
+			</div>
+		</div>
+	</div>
+	<div ng-if="loading" class="loading">
+		<h1><i class="fa fa-spin fa-spinner"></i> Entitäten-Liste wird geladen</h1>
+	</div>
+
+	<table ng-table="tableParams" template-pagination="partials/pager.html" show-filter="false" class="table table-striped">
+
+		<thead>
+		<tr>
+			<th ng-repeat="f in state.fields"
+				class="sortable" ng-class="{
+                    'sort-asc': tableParams.isSortBy(f.key, 'asc'),
+                    'sort-desc': tableParams.isSortBy(f.key, 'desc')
+                  }"
+				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+				<span ng-bind="f.name"></span>
+				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f.key, 'asc'),'fa-sort-desc':tableParams.isSortBy(f.key, 'desc')}" class="fa"></span>
+			</th>
+			<th class="text-right">Aktionen</th>
+		</tr>
+		</thead>
+
+		<tbody>
+		<tr ng-repeat="p in $data">
+			<td ng-repeat="f in state.fields">
+				<span ng-bind="getDispayValues(f,p)"></span>
+				<span ng-show="f._type!=='extras'" class="btn-left" title="{{f.name}} bearbeiten" ng-click="editData(f,p)"><i class="fa fa-pencil"></i></span>
+			</td>
+			<td class="col-action-large">
+				<span class="btn-right" ng-click="remove(p)" title="Entität löschen"><i class="fa fa-trash"></i></span>
+				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
+				<span class="btn-right" ng-click='mergeDialog(p)' title="Entität zusammenführen"><i class="fa fa-code-fork fa-rotate-270"></i></span>
+				<span class="btn-right" ng-if="p.type!=='person'" ui-sref='organisation({id: p._id})' title="Organisation bearbeiten"><i class="fa fa-edit"></i></span>
+				<span class="btn-right" ng-if="p.type=='person'" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+
+</script>
+
 <script type="text/ng-template" id="partials/relations.html">
 
 	<div class="row">
@@ -361,6 +467,12 @@
 			</div>
 			<div class="form-group col-md-6">
 				<label>Schlagworte</label>
+				<span class="dropdown dropdown-btn-right">
+					<a role="button" data-toggle="dropdown" class="dropdown-toggle" href><span class="caret"></span>&nbsp;</a>
+					<ul role="menu" class="dropdown-menu">
+						<li ng-repeat="t in tags"><a href ng-click="addEntry('tags', t)" ng-bind="t"></a></li>
+					</ul>
+				</span>
 
 				<div class="has-feedback">
 					<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" datasets="datasetTags" ngtypeahead>
@@ -376,7 +488,7 @@
 
 	<hr/>
 
-	<div ngdatafields data-fields="item.data"></div>
+	<div ngdatafields data-fields="item.data" data-fieldsowner="item"></div>
 
 	<hr/>
 
@@ -417,7 +529,7 @@
 	</div>
 
 	<div class="modal-footer">
-		<button class="btn btn-warning" ng-click="ok()" translate>Schliessen</button>
+		<button class="btn btn-warning" ng-click="ok()">Schliessen</button>
 	</div>
 </script>
 
@@ -603,9 +715,15 @@
                   }" ng-click="tableParams.sorting('format', tableParams.isSortBy('format', 'asc') ? 'desc' : 'asc')">Format
 				<span ng-class="{'fa-sort-asc':tableParams.isSortBy('format', 'asc'),'fa-sort-desc':tableParams.isSortBy('format', 'desc')}" class="fa"></span>
 			</th>
+
+
 			<th class="sortable" ng-class="{'sort-asc': tableParams.isSortBy('mode', 'asc'), 'sort-desc': tableParams.isSortBy('mode', 'desc')}"
 				ng-click="tableParams.sorting('mode', tableParams.isSortBy('mode', 'asc') ? 'desc' : 'asc')">Typ
 				<span ng-class="{'fa-sort-asc':tableParams.isSortBy('mode', 'asc'),'fa-sort-desc':tableParams.isSortBy('mode', 'desc')}" class="fa"></span>
+			</th>
+			<th class="sortable" ng-class="{'sort-asc': tableParams.isSortBy('default', 'asc'), 'sort-desc': tableParams.isSortBy('default', 'desc')}"
+				ng-click="tableParams.sorting('default', tableParams.isSortBy('default', 'asc') ? 'desc' : 'asc')">Standard
+				<span ng-class="{'fa-sort-asc':tableParams.isSortBy('default', 'asc'),'fa-sort-desc':tableParams.isSortBy('default', 'desc')}" class="fa"></span>
 			</th>
 			<th class="text-right">Aktionen</th>
 		</tr>
@@ -616,6 +734,7 @@
 			<td ng-bind="p.key"></td>
 			<td ng-bind="globals.fieldtypes[p.format]"></td>
 			<td ng-bind="p.mode"></td>
+			<td><span ng-if="p.default">Ja</span><span ng-if="!p.default">Nein</span></td>
 			<td>
 				<span class="btn-right" ng-click="remove(p)" title="Datenfeld löschen"><i class="fa fa-trash"></i></span>
 				<span class="btn-right" ui-sref='field({id: p._id})' title="Datenfeld bearbeiten"><i class="fa fa-edit"></i></span>
@@ -655,6 +774,13 @@
 						<option value="relations">Verknüpfungen</option>
 					</select>
 				</div>
+				<div class="form-group col-md-12">
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" ng-model="field.default"> Standard (Feld beim Neuanlegen von Entitäten automatisch eintragen)
+						</label>
+					</div>
+				</div>
 			</form>
 			<div class="pull-right">
 				<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
@@ -676,8 +802,8 @@
 		<p>{{data.question}}</p>
 	</div>
 	<div class="modal-footer">
-		<button class="btn btn-primary" ng-click="ok()" translate>OK</button>
-		<button class="btn btn-warning" ng-click="cancel()" translate>Abbruch</button>
+		<button class="btn btn-primary" ng-click="ok()">OK</button>
+		<button class="btn btn-warning" ng-click="cancel()">Abbruch</button>
 	</div>
 
 </script>
@@ -688,13 +814,13 @@
 		<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
 		<h4 class="modal-title">Feld bearbeiten</h4>
 	</div>
-	<div class="modal-body" ng-init="fields=data.fields;removeData=data.removeData">
+	<div class="modal-body" ng-init="fields=data.fields;fieldsowner=data.fieldsowner;">
 		<div ng-include="'partials/datafields.html'"></div>
 	</div>
 	<div class="modal-footer">
 		<button class="btn btn-default" ng-show="!data.fields[0].fixed" ng-click="data.newField(fields)">Feld anlegen</button>
-		<button class="btn btn-primary" ng-click="ok()" translate>OK</button>
-		<button class="btn btn-warning" ng-click="cancel()" translate>Abbruch</button>
+		<button class="btn btn-primary" ng-click="ok()">OK</button>
+		<button class="btn btn-warning" ng-click="cancel()">Abbruch</button>
 	</div>
 
 </script>
@@ -705,7 +831,7 @@
 		<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
 		<h4 class="modal-title">{{data.modename}} zusammenführen</h4>
 	</div>
-	<div class="modal-body" ng-controller="MergeEntitiyCtrl">
+	<div class="modal-body" ng-controller="MergeEntitiesCtrl">
 		<form class="form">
 			<div class="form-group">
 				<label>{{data.entity.name}} zusammenführen mit</label>
@@ -718,16 +844,17 @@
 		</form>
 	</div>
 	<div class="modal-footer">
-		<button class="btn btn-primary" ng-click="ok()" translate>OK</button>
-		<button class="btn btn-warning" ng-click="cancel()" translate>Abbruch</button>
+		<button class="btn btn-primary" ng-click="ok()">OK</button>
+		<button class="btn btn-warning" ng-click="cancel()">Abbruch</button>
 	</div>
 
 </script>
 
 <script type="text/ng-template" id="partials/datafields.html">
 
-	<div ng-repeat="d in fields" ng-switch="d.format">
-		<p class="field-headline"><span ng-bind="d.desc"></span><i ng-show="!d.fixed" class="glyphicon glyphicon-remove btn-right" title="{{d.desc}} entfernen" ng-click="removeData(d,fields)"></i></p>
+	<div ng-repeat="d in fields" ng-switch="d.format" ng-controller="FieldListEditCtrl">
+		<p class="field-headline"><span ng-bind="d.desc"></span><i ng-show="!d.fixed" class="glyphicon glyphicon-remove btn-right" title="{{d.desc}} entfernen"
+																   ng-click="removeData(d,fields)"></i></p>
 
 		<div ng-switch-when="link" class="row">
 			<form class="form">
@@ -826,8 +953,8 @@
 
 		<div ng-switch-when="string" class="row">
 			<form class="form">
-				<div class="form-group col-md-12">
-					<input type="text" class="form-control" placeholder="Text" ng-model="d.value">
+				<div class="form-group col-md-12" ng-controller="AutoCompleteCtrl">
+					<input type="text" class="form-control" placeholder="Text" ng-model="d.value" datasets="datasetString" ngtypeahead>
 				</div>
 			</form>
 		</div>
@@ -889,7 +1016,7 @@
 		<div class="modal-footer">
 			<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
 			<button ng-if="isNew" class="btn btn-primary" ng-click="createnew()">Anlegen</button>
-			<button class="btn btn-warning" ng-click="cancel()" translate>Abbruch</button>
+			<button class="btn btn-warning" ng-click="cancel()">Abbruch</button>
 		</div>
 	</div>
 
@@ -916,11 +1043,22 @@
 		</div>
 		<div class="form-group">
 			<label>Art</label>
-			<input type="text" class="form-control" placeholder="Art" ng-model="relation.type">
+			<span class="dropdown dropdown-btn-right">
+				<a role="button" data-toggle="dropdown" class="dropdown-toggle" href><span class="caret"></span>&nbsp;</a>
+				<ul role="menu" class="dropdown-menu">
+					<li ng-repeat="t in types"><a href ng-click="relation.type=t" ng-bind="t"></a></li>
+				</ul>
+			</span>
+			<input type="text" class="form-control" placeholder="Art" ng-model="relation.type" datasets="datasetTypes" ngtypeahead>
 		</div>
 		<div class="form-group">
 			<label>Schlagworte</label>
-
+			<span class="dropdown dropdown-btn-right">
+				<a role="button" data-toggle="dropdown" href><span class="caret"></span>&nbsp;</a>
+				<ul role="menu" class="dropdown-menu">
+					<li ng-repeat="t in tags"><a href ng-click="addEntry('tags', t)" ng-bind="t"></a></li>
+				</ul>
+			</span>
 			<div class="has-feedback">
 				<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" datasets="datasetTags" ngtypeahead>
 				<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
@@ -929,7 +1067,7 @@
 				<div ng-repeat="o in relation.tags" class="label label-default"><span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Tag entfernen" ng-click="removeEntry('tags', o)"></i></div>
 			</div>
 		</div>
-		<div ngdatafields data-fields="relation.data"></div>
+		<div ngdatafields data-fields="relation.data" data-fieldsowner="relation"></div>
 	</form>
 
 	<div class="btn-group">
@@ -957,6 +1095,87 @@
 				<button class="btn btn-default" ng-click="back()">Abbruch</button>
 			</div>
 		</div>
+	</div>
+
+</script>
+
+<script type="text/ng-template" id="partials/whitelist.html">
+
+
+	<div class="row">
+		<div class="col-md-6 headline">
+			<h1>Whitelist</h1>
+
+			<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
+		</div>
+
+		<div class="col-md-3">
+			<button class="btn btn-default" ng-click="newEntry();">Eintrag anlegen</button>
+		</div>
+
+		<div class="col-md-3">
+			<div class="pull-right has-feedback">
+				<label>Suche</label>
+				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
+				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
+			</div>
+		</div>
+	</div>
+	<div ng-if="loading" class="loading">
+		<h1><i class="fa fa-spin fa-spinner"></i> Whitelist wird geladen</h1>
+	</div>
+
+	<table ng-table="tableParams" template-pagination="partials/pager-blank.html" show-filter="false" class="table table-striped">
+
+		<thead>
+		<tr>
+			<th
+					class="sortable" ng-class="{
+                    'sort-asc': tableParams.isSortBy('name', 'asc'),
+                    'sort-desc': tableParams.isSortBy('name', 'desc')
+                  }"
+					ng-click="tableParams.sorting('name', tableParams.isSortBy('name', 'asc') ? 'desc' : 'asc')">
+				<span>URL</span>
+				<span ng-class="{'fa-sort-asc':tableParams.isSortBy('name', 'asc'),'fa-sort-desc':tableParams.isSortBy('name', 'desc')}" class="fa"></span>
+			</th>
+			<th class="text-right">Aktionen</th>
+		</tr>
+		</thead>
+
+		<tbody>
+		<tr ng-repeat="p in $data">
+			<td>
+				<span ng-bind="p.name"></span>
+			</td>
+			<td class="col-action-large">
+				<span class="btn-right" ng-click="remove(p)" title="Eintrag löschen"><i class="fa fa-trash"></i></span>
+				<span class="btn-right" title="URL bearbeiten" ng-click="editEntry(p)"><i class="fa fa-pencil"></i></span>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+
+</script>
+
+<script type="text/ng-template" id="partials/whitelist-edit-modal.html">
+
+	<div class="modal-header">
+		<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
+		<h4 class="modal-title">
+			Whitelist-URL <span ng-if="data.isNew">anlegen</span><span ng-if="!data.isNew">bearbeiten</span>
+		</h4>
+	</div>
+	<div class="modal-body" ng-controller="RelationEditCtrl">
+		<div class="form-group">
+			<input type="text" class="form-control" placeholder="URL" ng-model="data.site">
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="ok()">
+			<span ng-if="!data.isNew">Aktualisieren</span>
+			<span ng-if="data.isNew">Anlegen</span>
+		</button>
+		<button class="btn btn-warning" ng-click="cancel()">Abbruch</button>
 	</div>
 
 </script>
