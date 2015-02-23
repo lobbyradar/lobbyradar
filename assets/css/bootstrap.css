@@ -6451,6 +6451,9 @@ body,
   content: "\f232" !important;
   font-family: "FontAwesome" !important;
 }
+.browser-logo {
+  margin-right: 10px;
+}
 .zdf-header-grey {
   width: 100%;
   background: url(../images/zdf-header-grey.png) repeat-x 0 0 transparent;
