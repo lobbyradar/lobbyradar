@@ -6286,6 +6286,16 @@ button.close {
     display: none !important;
   }
 }
+.entypo-whatsapp.shown {
+  display: block!important;
+}
+.entypo-whatsapp.shown a {
+  display: inline-block !important;
+  width: 100%!important;
+  height: 50px!important;
+  float: left!important;
+  margin-top: -40px !important;
+}
 * {
   -webkit-font-smoothing: antialiased;
 }
@@ -6435,7 +6445,6 @@ body,
   width: 360px!important;
 }
 .share-button.site-share.sharer-0 .social.networks-5 ul .entypo-whatsapp {
-  display: block!important;
   background: #0E9814;
 }
 .share-button.site-share.sharer-0 .social.networks-5 ul .entypo-whatsapp:before {

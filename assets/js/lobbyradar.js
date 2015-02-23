@@ -148,14 +148,13 @@ function loadEntity(id) {
 
 
 		new Share(".site-share", {
-		description:window.location.href,
+		//description: window.location.href,
 		 ui: {
     	flyout:    'bottom center',        // change the flyout direction of the shares. chose from `top left`, `top center`, `top right`, `bottom left`, `bottom right`, `bottom center`, `middle left`, or `middle right` [Default: `top center`]
   		button_text: 'Teilen',
   		button_font: false,
   		icon_font: false,
   	},
-
 	  networks: {
 	  	facebook: {
       	enabled: true
@@ -676,7 +675,6 @@ $( document ).ready(function() {
 	$('.static-page').css({  'width': winWidth, 'height': winHeight });
 
 
-
 	if ($('#networkviz').length == 0) {
 		// map could not be found
 	} else {
@@ -691,7 +689,8 @@ $( document ).ready(function() {
 	// });
 		
 	new Share(".site-share", {
-		description:window.location.href,
+		// description:window.location.href,
+		image: window.location.href+'assets/images/default.png',
 		 ui: {
     	flyout:    'bottom center',        // change the flyout direction of the shares. chose from `top left`, `top center`, `top right`, `bottom left`, `bottom right`, `bottom center`, `middle left`, or `middle right` [Default: `top center`]
   		button_text: 'Teilen',
@@ -700,6 +699,12 @@ $( document ).ready(function() {
   	},
 
 	  networks: {
+	  	google_plus: {
+      	enabled: true// Enable Google+. [Default: true]
+    	},
+    twitter: {
+      enabled: true// Enable Twitter. [Default: true]
+    },
 	  	facebook: {
       	enabled: true
 			},
@@ -707,14 +712,21 @@ $( document ).ready(function() {
       	enabled: true
     	},
     	email: {
-      	enabled: true
+      	enabled: true,
+      	title: 'ZDFLobbyradar',     // the subject of the email [Default: config.title]
+      	description: 'Der ZDFLobbyradar zeigt Verbindungen zwischen Politik, Wirtschaft und Interessenvertretern und macht Lobbyismus transparenter. --> ' + window.location.href // The body of the email [Default: config.description]
     	}
 	  }
 	});
 
+	(navigator.userAgent.match(/(iPhone)/g)) ? $(".entypo-whatsapp").addClass('shown') : null ;
 
+	if ($('#networkviz').length == 0) {
+		// map could not be found
+	} else {
+		NetworkViz.setClickHandler(loadEntityAjax);
+	}
 
-	NetworkViz.setClickHandler(loadEntityAjax);
 
 	// bring up the details when an entry is clicked a                                                                                                           
 	$('body').on('click', '.ajax-load', function(e) {
