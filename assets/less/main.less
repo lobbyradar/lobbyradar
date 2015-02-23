@@ -79,7 +79,6 @@ input.lobbysearch { font-size:18px; }
   background: -o-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* Opera 11.10+ */
   background: -ms-linear-gradient(top,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* IE10+ */
   background: linear-gradient(to bottom,  #11354b 0%,#a1bdc9 65%,#a1bdc9 77%,#6392a8 100%); /* W3C */
-
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#11354b', endColorstr='#6392a8',GradientType=0 ); /* IE6-9 */
 }
 
@@ -225,7 +224,7 @@ input.lobbysearch { font-size:18px; }
 
 .zdf-header-grey {
   width: 100%;
-  background: url(../images/zdf-header-grey.png) repeat-x 0 0 transparent;
+  background: url(../images/zdf-header-grey.png) repeat-x 0 0 #999;
   height: 46px!important;
   min-height: 46px!important;
   top:0px;
@@ -412,7 +411,7 @@ input.lobbysearch { font-size:18px; }
    &:extend(.bg-gradient);
    min-height:100%;     
 
-  p, h1,h2,h3,h4,h5,h6 {
+  p, h1,h2,h3,h4,h5,h6,.panel-body {
     color:white;                          
   }
 }

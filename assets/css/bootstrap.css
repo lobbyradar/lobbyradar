@@ -6456,7 +6456,7 @@ body,
 }
 .zdf-header-grey {
   width: 100%;
-  background: url(../images/zdf-header-grey.png) repeat-x 0 0 transparent;
+  background: url(../images/zdf-header-grey.png) repeat-x 0 0 #999999;
   height: 46px!important;
   min-height: 46px!important;
   top: 0px;
@@ -6615,7 +6615,10 @@ body,
 .about-page h5,
 .abspann-page h6,
 .faq-page h6,
-.about-page h6 {
+.about-page h6,
+.abspann-page .panel-body,
+.faq-page .panel-body,
+.about-page .panel-body {
   color: white;
 }
 .faq-page {
