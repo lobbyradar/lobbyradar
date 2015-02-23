@@ -6383,6 +6383,9 @@ body,
   background: rgba(20, 59, 82, 0.5);
   border-bottom: 1px solid #143b52;
 }
+.zdf-header-blue h1 {
+  color: white;
+}
 .zdf-header-blue .logo-name {
   padding: 5px 0px;
   color: white;
@@ -6579,6 +6582,29 @@ body,
 .about-page {
   padding-top: 130px;
   min-height: 100%;
+}
+.abspann-page p,
+.faq-page p,
+.about-page p,
+.abspann-page h1,
+.faq-page h1,
+.about-page h1,
+.abspann-page h2,
+.faq-page h2,
+.about-page h2,
+.abspann-page h3,
+.faq-page h3,
+.about-page h3,
+.abspann-page h4,
+.faq-page h4,
+.about-page h4,
+.abspann-page h5,
+.faq-page h5,
+.about-page h5,
+.abspann-page h6,
+.faq-page h6,
+.about-page h6 {
+  color: white;
 }
 .faq-page {
   min-height: 100%;
