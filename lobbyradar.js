@@ -128,12 +128,40 @@ app.use("/api", function (req, res, next) {
 	next();
 });
 
-// search api
+// search api, get
+app.get("/api/search-fields", function (req, res) {
+	api.search_fields(function(err, result){
+		res.type("json").status("200").json({err: ((err)?err.message:null), result: result});
+	});
+});
+
+// search api, get
 app.get("/api/search", function (req, res) {
-	if (!req.query.hasOwnProperty("q")) return res.type("json").status("200").json({error: null, result: []});
-	debug("search for \"%s\"", api.unify(req.query.q));
-	api.ent_list({words: req.query.q}, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
+
+	// sanitize query
+	if (!req.query.hasOwnProperty("q")) return res.type("json").status("200").json({error: "no query", result: []});
+	try { var query = JSON.parse(req.query.q); } catch (err) { return res.type("json").status("200").json({error: err.message, result: []}); }
+
+	// perform search
+	api.search(query, function(err, result){
+		res.type("json").status("200").json({err: ((err)?err.message:null), result: result});
+	});
+});
+
+// search api, post
+app.get("/api/search", function (req, res) {
+
+	// check for query property
+	if (!req.body.hasOwnProperty("q")) return res.type("json").status("200").json({error: "no query", result: []});
+
+	// try to parse if no json
+	if (typeof req.body.q === "object") var query = req.body.q;
+	else if (typeof req.body.q === "string") try { var query = JSON.parse(req.body.q); } catch (err) { return res.type("json").status("200").json({error: err.message, result: []}); }
+	else return res.type("json").status("200").json({error: "invalid query", result: []});
+	
+	// perform search
+	api.search(q, function(err, result){
+		res.type("json").status("200").json({err: ((err)?err.message:null), result: result});
 	});
 });
 
