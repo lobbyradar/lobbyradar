@@ -2,7 +2,7 @@ var imageSize = 8192;
 var tileFolder = './tiles/';
 var tileSize = 256;
 var maxTileLevel = 7;
-var antialias = 1;
+var antialias = 4;
 
 var fs = require('fs');
 var path = require('path');
