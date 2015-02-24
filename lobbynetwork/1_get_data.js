@@ -70,7 +70,7 @@ queue.push(function (callback) {
 
 queue.drain = function() {
 	console.log('Entities: Saving');
-	fs.writeFileSync('nodes.json', JSON.stringify(nodes,  null, '\t'), 'utf8');
+	fs.writeFileSync('nodes.json', JSON.stringify(nodes, null, '\t'), 'utf8');
 
 	console.log('Relations: Saving');
 	fs.writeFileSync('links.json', JSON.stringify(links, null, '\t'), 'utf8');
