@@ -105,6 +105,8 @@ function loadList(id) {
 				var $ul = $("<div class='message'>Es konnten keine Einträge gefunden werden. Bitte Groß- und Kleinschreibung beachten.</div>");
 				$( ".result-list" ).slideDown( "slow" );
 				$(".result-list .results .list-group", "#main").remove();
+				$(".result-list .results .message", "#main").remove();
+
 				$(".result-list .results ", "#main").append($ul);
 				$(".result-list .lead").css("display","none");
 				// reset request
