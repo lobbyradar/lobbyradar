@@ -1,5 +1,4 @@
 var imageSize = 8192;
-var maxIterations = 1;
 var tileFolder = './tiles/';
 var tileSize = 256;
 var maxTileLevel = 7;
@@ -7,86 +6,14 @@ var antialias = 4;
 
 var fs = require('fs');
 var path = require('path');
-var d3 = require('d3');
 var gm = require('gm');
 
-var nodes = JSON.parse(fs.readFileSync('nodes.json', 'utf8')).result;
-var links = JSON.parse(fs.readFileSync('links.json', 'utf8')).result;
+var data = require('./lib/prepare_data.js');
 
-var nodeLookup = {};
-var biggestNode = {size:0};
+var nodes = data.nodes;
+var links = data.links;
 
-nodes = nodes.map(function (node) {
-	var newNode = {
-		name:             node.name,
-		id:               node._id,
-		type:             node.type,
-		size:             node.connections,
-		r:      Math.sqrt(node.connections)*2,
-		charge:        -4*node.connections - 6
-	}
-
-	nodeLookup[node._id] = newNode;
-
-	if (newNode.size > biggestNode.size) biggestNode = newNode;
-
-	return newNode;
-})
-
-if (fs.existsSync('positions.json')) {
-	var positions = JSON.parse(fs.readFileSync('positions.json', 'utf8'));
-	positions.forEach(function (position) {
-		var node = nodeLookup[position.i];
-		node.x = position.x;
-		node.y = position.y;
-	})
-}
-
-biggestNode.x = 0;
-biggestNode.y = 0;
-biggestNode.fixed = true;
-
-links = links.map(function (link) {
-	return {
-		source: nodeLookup[link.entities[0]],
-		target: nodeLookup[link.entities[1]]
-	}
-})
-
-var interation = 0;
-
-var force = d3.layout.force()
-	.nodes(nodes)
-	.links(links)
-	.linkStrength(0.2)
-	.friction(0.9)
-	.distance(50)
-	.charge(function (node) { return node.charge })
-	.gravity(0.02)
-	.theta(0.5)
-	.alpha(0.1)
-
-force.on('tick', function () {
-	interation++;
-
-	var alpha = 0.1 * Math.pow(0.05, interation/maxIterations);
-	force.alpha(alpha);
-
-	if (interation >= maxIterations) {
-		force.stop();
-		savePositions();
-		exportPositions();
-		saveTiles(maxTileLevel);
-		return
-	}
-
-	if (interation % 25 == 0) {
-		console.log(interation);
-		savePositions();
-	}
-})
-
-force.start();
+saveTiles(maxTileLevel);
 
 
 function exportPositions() {
@@ -116,23 +43,6 @@ function exportPositions() {
 	fs.writeFileSync('./test/node_positions.js', result, 'utf8');
 }
 
-
-function savePositions() {
-	//return
-	console.log('write positions');
-	var positions = nodes.map(function (node) {
-		return {
-			i: node.id,
-			n: node.name,
-			t: node.type,
-			r: node.r,
-			x: node.x,
-			y: node.y
-		}
-	})
-	positions = JSON.stringify(positions, null, '\t');
-	fs.writeFileSync('positions.json', positions, 'utf8');
-}
 
 function saveTiles(maxDepth) {
 	var maxProcesses = 4;
