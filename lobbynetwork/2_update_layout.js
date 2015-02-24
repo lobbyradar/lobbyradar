@@ -1,4 +1,5 @@
 var maxIterations = 1000;
+var graphScale = 0.98;
 
 var fs = require('fs');
 var d3 = require('d3');
@@ -38,9 +39,9 @@ var force = d3.layout.force()
 	.links(links)
 	.linkStrength(0.2)
 	.friction(0.9)
-	.distance(50)
+	.distance(50*graphScale)
 	.charge(function (node) { return node.charge })
-	.gravity(0.02)
+	.gravity(0.02/graphScale)
 	.theta(0.5)
 	.alpha(0.1)
 
