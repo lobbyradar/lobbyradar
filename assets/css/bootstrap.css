@@ -6383,6 +6383,7 @@ body,
 .miz-logo {
   float: left!important;
   margin-top: 10px;
+  max-width: 140px;
 }
 .zdf-header-blue {
   top: 46px;
@@ -6407,7 +6408,6 @@ body,
 }
 .zdf-header-blue .logo-name img {
   margin: 25px 0px 0px 0px;
-  max-width: 150px;
 }
 .zdf-header-blue .logo-name .fa-stack {
   display: none;
