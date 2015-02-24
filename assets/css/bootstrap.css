@@ -1243,7 +1243,7 @@ dt {
 dd {
   margin-left: 0;
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .dl-horizontal dt {
     float: left;
     width: 160px;
@@ -3284,7 +3284,7 @@ tbody.collapse.in {
   bottom: 100%;
   margin-bottom: 1px;
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .navbar-right .dropdown-menu {
     left: auto;
     right: 0;
@@ -3816,12 +3816,12 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   margin-bottom: 22px;
   border: 1px solid transparent;
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .navbar {
     border-radius: 1px;
   }
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .navbar-header {
     float: left;
   }
@@ -3837,7 +3837,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-collapse.in {
   overflow-y: auto;
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .navbar-collapse {
     width: auto;
     border-top: 0;
@@ -3877,7 +3877,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   margin-right: -15px;
   margin-left: -15px;
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .container > .navbar-header,
   .container-fluid > .navbar-header,
   .container > .navbar-collapse,
@@ -3890,7 +3890,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   z-index: 1000;
   border-width: 0 0 1px;
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .navbar-static-top {
     border-radius: 0;
   }
@@ -3902,7 +3902,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   left: 0;
   z-index: 1030;
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .navbar-fixed-top,
   .navbar-fixed-bottom {
     border-radius: 0;
@@ -3931,7 +3931,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-brand > img {
   display: block;
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .navbar > .container .navbar-brand,
   .navbar > .container-fluid .navbar-brand {
     margin-left: -15px;
@@ -3961,7 +3961,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-toggle .icon-bar + .icon-bar {
   margin-top: 4px;
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .navbar-toggle {
     display: none;
   }
@@ -3974,7 +3974,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   padding-bottom: 10px;
   line-height: 22px;
 }
-@media (max-width: 767px) {
+@media (max-width: 991px) {
   .navbar-nav .open .dropdown-menu {
     position: static;
     float: none;
@@ -3996,7 +3996,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
     background-image: none;
   }
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .navbar-nav {
     float: left;
     margin: 0;
@@ -4070,7 +4070,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
     top: 0;
   }
 }
-@media (max-width: 767px) {
+@media (max-width: 991px) {
   .navbar-form .form-group {
     margin-bottom: 5px;
   }
@@ -4078,7 +4078,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
     margin-bottom: 0;
   }
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .navbar-form {
     width: auto;
     border: 0;
@@ -4117,14 +4117,14 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   margin-top: 29px;
   margin-bottom: 29px;
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .navbar-text {
     float: left;
     margin-left: 15px;
     margin-right: 15px;
   }
 }
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .navbar-left {
     float: left !important;
   }
@@ -4191,7 +4191,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   background-color: #e7e7e7;
   color: #555555;
 }
-@media (max-width: 767px) {
+@media (max-width: 991px) {
   .navbar-default .navbar-nav .open .dropdown-menu > li > a {
     color: #777777;
   }
@@ -4287,7 +4287,7 @@ fieldset[disabled] .navbar-default .btn-link:focus {
   background-color: #020b0f;
   color: #ffffff;
 }
-@media (max-width: 767px) {
+@media (max-width: 991px) {
   .navbar-inverse .navbar-nav .open .dropdown-menu > .dropdown-header {
     border-color: #083851;
   }
@@ -6428,9 +6428,6 @@ body,
   .zdf-header-blue .logo-name {
     text-align: left;
   }
-  .zdf-header-blue .logo-name img {
-    max-width: 240px;
-  }
 }
 @media (max-width: 767px) {
   .zdf-header-blue {
@@ -6450,6 +6447,15 @@ body,
 .share-button.site-share.sharer-0 .social.networks-5 ul .entypo-whatsapp:before {
   content: "\f232" !important;
   font-family: "FontAwesome" !important;
+}
+@media (min-width: 1200px) {
+  .share-button.site-share.sharer-0 {
+    margin-right: 115px!important;
+  }
+  .share-button.site-share.sharer-0 label {
+    min-width: 120px;
+    text-align: center;
+  }
 }
 .browser-logo {
   margin-right: 10px;
@@ -6592,7 +6598,7 @@ body,
 .abspann-page,
 .faq-page,
 .about-page {
-  padding-top: 130px;
+  background-position: fixed!important;
   min-height: 100%;
 }
 .abspann-page p,
@@ -6620,6 +6626,13 @@ body,
 .faq-page .panel-body,
 .about-page .panel-body {
   color: white;
+}
+@media (min-width: 992px) {
+  .abspann-page,
+  .faq-page,
+  .about-page {
+    padding-top: 130px;
+  }
 }
 .faq-page {
   min-height: 100%;
@@ -6764,6 +6777,12 @@ body,
   background: white;
   color: #333;
 }
+.row-results {
+  border-bottom: 1px solid #CCC;
+  padding-bottom: 20px;
+  margin-left: -20px;
+  margin-right: -20px;
+}
 .result-single {
   padding-top: 40px;
   display: none;
@@ -6775,7 +6794,9 @@ body,
   z-index: 99!important;
 }
 .result-single #backtolist {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  margin-left: -6px;
+  margin-top: -6px;
 }
 .result-single h1.name {
   margin-top: 0px!important;
@@ -6791,8 +6812,17 @@ body,
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.result-single .entity-img {
+  background-repeat: no-repeat;
+  background-position: center center;
+  width: 120px;
+  height: 150px;
+  background-size: cover;
+  box-shadow: 0px 0px 5px #999;
+}
 .result-single .entity-relations-list {
-  margin: 0 -20px;
+  margin: 0 -19px;
+  border-bottom: 1px solid #CCC;
 }
 .result-single .entity-relations-item {
   padding: 10px 20px 10px 20px;

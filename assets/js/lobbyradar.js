@@ -11,8 +11,13 @@
 //   YMMMM9  _MM_ YMMMMM9 _MYMMMM9  `YMMM9'Yb_MM_
 																											
 // save the browser dimensions
-var winWidth = $(window).width();
-var winHeight = $(window).height();
+// var winWidth = $(window).width();
+// var winHeight = $(window).height();
+
+// better cross-browser support
+var winHeight = $(window).height()+150;
+var winWidth = screen.width;
+
 
 // a function to sort arrays
 var sort_by = function(field, reverse, primer){
@@ -46,6 +51,29 @@ window.onpopstate = function(event) {
 			$( ".result-list" ).slideUp( "slow" );
 		}
 };
+
+function showShareButton() { 
+	new Share(".site-share", {
+		//description: window.location.href,
+		ui: {
+			flyout: 'bottom center', // change the flyout direction of the shares. chose from `top left`, `top center`, `top right`, `bottom left`, `bottom right`, `bottom center`, `middle left`, or `middle right` [Default: `top center`]
+			button_text: 'Teilen',
+			button_font: false,
+			icon_font: false,
+		},
+		networks: {
+			facebook: {
+				enabled: true
+			},
+			pinterest: {
+				enabled: true
+			},
+			email: {
+				enabled: true
+			}	
+		}
+	});
+}
                
 
 // ___                         ___       ____                         
@@ -61,7 +89,7 @@ window.onpopstate = function(event) {
 // _MM_ YMMMMM9  `YMMM9'Yb.YMMMMMM_      _MMMMMMM _MM_MYMMMM9   YMMM9 
 
 function loadList(id) { 
-			$( ".leaflet-control-zoom" ).css( "display",'block' );
+		$( ".leaflet-control-zoom" ).css( "display",'block' );
 
 		$( ".result-single" ).slideUp( "slow" );
 
@@ -146,28 +174,7 @@ function loadEntity(id) {
 
 	$( ".leaflet-control-zoom" ).css( "display",'block' );
 
-
-		new Share(".site-share", {
-		//description: window.location.href,
-		 ui: {
-    	flyout:    'bottom center',        // change the flyout direction of the shares. chose from `top left`, `top center`, `top right`, `bottom left`, `bottom right`, `bottom center`, `middle left`, or `middle right` [Default: `top center`]
-  		button_text: 'Teilen',
-  		button_font: false,
-  		icon_font: false,
-  	},
-	  networks: {
-	  	facebook: {
-      	enabled: true
-			},
-    	pinterest: {
-      	enabled: true
-    	},
-    	email: {
-      	enabled: true
-    	}
-	  }
-	});
-
+	showShareButton();
 
 	var req = null;
 	if (req) { req.abort(); }
@@ -198,14 +205,14 @@ function loadEntity(id) {
 				if (data.key == 'link') 				{ var hasLinks = true; }
 			}
  
-			$content += '<div class="row">';
+			$content += '<div class="row row-results">';
 
 			if (hasPhotos) {
 				console.log('Entity has Photos');
 				$(entity.data).each(function(idx,data){ 
 					if (data.format == 'photo' && data.key == 'photo' && data.desc == 'Foto') {
 						if (isExistant(data.value.url)) {
-							$content += '<div class="col-md-3"><img class="img-responsive" src="'+data.value.url+'" /></div>';
+							$content += '<div class="col-md-3"><div class="entity-img" style="background-image:url('+data.value.url+')" /></div>';
 							return false;
 						}
 					}
@@ -562,7 +569,7 @@ function loadEntity(id) {
 
 			if (hasLinks) {
 				console.log('Entity has Links');
-				$content += '<div class="row">';
+				$content += '<div class="row row-results">';
 				$content += '<div class="col-md-12"><h4>Links</h4></div>';
 
 				$(entity.data).each(function(idx,data){ 
@@ -578,7 +585,7 @@ function loadEntity(id) {
 
 			if (hasSource) {
 				console.log('Entity has Source');
-				$content += '<div class="row">';
+				$content += '<div class="row row-results">';
 				$content += '<div class="col-md-12"><h4>Quellen</h4></div>';
 
 				$(entity.data).each(function(idx,data){ 
@@ -671,7 +678,6 @@ function loadEntity(id) {
 
 $( document ).ready(function() {
 	$('.fullscreen').css({  'width': winWidth, 'height': winHeight });
-	// $('.faq-page').css({  'width': winWidth, 'height': winHeight });
 	$('.static-page').css({  'width': winWidth, 'height': winHeight });
 
 
@@ -681,44 +687,11 @@ $( document ).ready(function() {
 		NetworkViz.panToEntity(); // missuse the func to get the viz on index
 	}
 
-		$( ".leaflet-control-zoom" ).css( "display",'none' );
+	$( ".leaflet-control-zoom" ).css( "display",'none' );
 
-	// set initial div height / width
+	showShareButton();
 
-	// $(".lobbysearch").focus(function(){
-	// });
-		
-	new Share(".site-share", {
-		// description:window.location.href,
-		image: window.location.href+'assets/images/default.png',
-		 ui: {
-    	flyout:    'bottom center',        // change the flyout direction of the shares. chose from `top left`, `top center`, `top right`, `bottom left`, `bottom right`, `bottom center`, `middle left`, or `middle right` [Default: `top center`]
-  		button_text: 'Teilen',
-  		button_font: false,
-  		icon_font: false,
-  	},
-
-	  networks: {
-	  	google_plus: {
-      	enabled: true// Enable Google+. [Default: true]
-    	},
-    twitter: {
-      enabled: true// Enable Twitter. [Default: true]
-    },
-	  	facebook: {
-      	enabled: true
-			},
-    	pinterest: {
-      	enabled: true
-    	},
-    	email: {
-      	enabled: true,
-      	title: 'ZDFLobbyradar',     // the subject of the email [Default: config.title]
-      	description: 'Der ZDFLobbyradar zeigt Verbindungen zwischen Politik, Wirtschaft und Interessenvertretern und macht Lobbyismus transparenter. --> ' + window.location.href // The body of the email [Default: config.description]
-    	}
-	  }
-	});
-
+	// show whatsapp button on iphone
 	(navigator.userAgent.match(/(iPhone)/g)) ? $(".entypo-whatsapp").addClass('shown') : null ;
 
 	if ($('#networkviz').length == 0) {
@@ -734,13 +707,7 @@ $( document ).ready(function() {
 		var str = this.href;
 		var entityID = str.split("/")[4];
 		loadEntityAjax(entityID);
-		var shareButton = new Share(".share-button", {
-  			networks: {
-  		  	facebook: {
-  		    	url: 'http://lobbyradar.opendatacloud.de/entity/'
-  		  	}
-  			}
-			});
+		
 	});
 
 	// click back arrow -> history
