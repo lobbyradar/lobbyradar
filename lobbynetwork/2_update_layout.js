@@ -1,4 +1,4 @@
-var maxIterations = 1000;
+var maxIterations = 2000;
 var graphScale = 0.98;
 
 var fs = require('fs');
