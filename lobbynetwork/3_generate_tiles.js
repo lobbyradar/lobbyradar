@@ -40,7 +40,7 @@ function exportPositions() {
 	});
 
 	result = 'var node_positions = '+JSON.stringify(result)+';';
-	fs.writeFileSync('./test/node_positions.js', result, 'utf8');
+	fs.writeFileSync('./node_positions.js', result, 'utf8');
 }
 
 
