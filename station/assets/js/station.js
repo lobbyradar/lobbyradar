@@ -647,13 +647,13 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'},
 		{name: 'Anzahl Verbindungen', key: 'connections', format: 'number', _type: 'extras'}
 	];
-	if (mode=='entities') fixedfields.push({name: 'Art', key: 'type', format: 'string', _type: 'fields'});
+	if (mode == 'entities') fixedfields.push({name: 'Art', key: 'type', format: 'string', _type: 'fields'});
 
 	if (state.fields.length == 0) {
 		state.fields.push(fixedfields[0]);
 		state.fields.push(fixedfields[1]);
 		state.fields.push(fixedfields[2]);
-		if (mode=='entities') state.fields.push(fixedfields[4]);
+		if (mode == 'entities') state.fields.push(fixedfields[4]);
 	}
 
 	fields.list({mode: mode}, function (data) {
@@ -1668,7 +1668,7 @@ app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relat
 	relationEditCtrl($scope, $state, relations, entities, tags, fields, function () {
 		$state.go('relations');
 	});
-	if ((!$scope.isNew) && (!$scope.relation)) {
+	if ((!$scope.isNew) || (!$scope.relation) || (!$scope.relation.id)) {
 		relations.item({id: $stateParams.id},
 			function (data) {
 				if (data.error) return reportServerError($scope, data.error);

@@ -183,7 +183,7 @@ var NetworkViz = (function () {
 	function activateNodeId(id) {
 		if (!initialized) init();
 		var node = nodeLookup[id];
-		if (!node) return console.log('id not found "'+id+'"');
+		if (!node) return console.error('id not found "'+id+'"');
 
 		activateNode(node);
 	}
@@ -191,7 +191,7 @@ var NetworkViz = (function () {
 	function highlightNodeId(id) {
 		if (!initialized) init();
 		var node = nodeLookup[id];
-		if (!node) return console.log('id not found "'+id+'"');
+		if (!node) return console.error('id not found "'+id+'"');
 
 		highlightNode(node);
 	}
@@ -199,7 +199,7 @@ var NetworkViz = (function () {
 	function panToNodeId(id) {
 		if (!initialized) init();
 		var node = nodeLookup[id];
-		if (!node) return console.log('id not found "'+id+'"');
+		if (!node) return console.error('id not found "'+id+'"');
 
 		panToNode(node);
 	}
