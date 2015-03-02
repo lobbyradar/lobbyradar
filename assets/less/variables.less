@@ -35,7 +35,7 @@
 //** Background color for `<body>`.
 @body-bg:               @zdf-darkblue;
 //** Global text color on `<body>`.
-@text-color:            @gray-lighter;
+@text-color:            #333;
 
 //** Global textual link color.
 @link-color:            @brand-info;
@@ -155,9 +155,9 @@
 @btn-default-bg:                 transparent;
 @btn-default-border:             @zdf-blue;
 
-@btn-default-color:              #999;
+@btn-default-color:              #333;
 @btn-default-bg:                 transparent;
-@btn-default-border:             #CCC;
+@btn-default-border:             #333;
 
 @btn-primary-color:              #fff;
 @btn-primary-bg:                 @brand-info;
@@ -298,6 +298,7 @@
 // Small screen / tablet
 //** Deprecated `@screen-sm` as of v3.0.1
 @screen-sm:                  768px;
+
 @screen-sm-min:              @screen-sm;
 //** Deprecated `@screen-tablet` as of v3.0.1
 @screen-tablet:              @screen-sm-min;
@@ -332,7 +333,7 @@
 @grid-gutter-width:         30px;
 // Navbar collapse
 //** Point at which the navbar becomes uncollapsed.
-@grid-float-breakpoint:     @screen-sm-min;
+@grid-float-breakpoint:     @screen-md-min;
 //** Point at which the navbar begins collapsing.
 @grid-float-breakpoint-max: (@grid-float-breakpoint - 1);
 

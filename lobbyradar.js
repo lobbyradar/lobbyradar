@@ -521,7 +521,7 @@ app.all("/api", function (req, res) {
 app.all("/entity/:id", function (req, res) {
 	api.ent_get(req.params.id, function (err, ent) {
 		if (err) return res.render("entity", { "err": err });
-		if (ent === null || !ent.hasOwnProperty("_id")) return res.status(404).render("entity", { "err": "Diese Entität existiert nicht" });
+		if (ent === null || !ent.hasOwnProperty("_id")) return res.status(404).render("404", { "err": "Diese Entität existiert nicht" });
 		api.ent_rels(ent._id, function (err, rels) {
 			ent.relations = rels;
 			// rework data
@@ -636,7 +636,8 @@ app.get("/search/:id", function (req, res) {
 
 // everything else is 404
 app.all("*", function (req, res) {
-	res.status(404).send("404");
+	res.status(404).render("404", { "err": "Wir konnten unter dieser URL leider nichts finden." });
+;
 });
 
 if (config.defaultadmin) {

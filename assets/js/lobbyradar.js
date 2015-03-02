@@ -10,21 +10,26 @@
 //  8b    d9  MM YM.   ,M9 MM.  ,M9 MM.  ,MM  MM 
 //   YMMMM9  _MM_ YMMMMM9 _MYMMMM9  `YMMM9'Yb_MM_
 																											
-var winWidth = $(window).width();
-var winHeight = $(window).height();
+// save the browser dimensions
+// var winWidth = $(window).width();
+// var winHeight = $(window).height();
 
+// better cross-browser support
+var winHeight = $(window).height()+150;
+var winWidth = screen.width;
+
+
+// a function to sort arrays
 var sort_by = function(field, reverse, primer){
+	var key = primer ? 
+		function(x) {return primer(x[field])} : 
+		function(x) {return x[field]};
+		reverse = [-1, 1][+!!reverse];
 
-   var key = primer ? 
-       function(x) {return primer(x[field])} : 
-       function(x) {return x[field]};
-
-   reverse = [-1, 1][+!!reverse];
-
-   return function (a, b) {
-       return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
-     } 
-}	
+		return function (a, b) {
+			return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+		} 
+}
 
 // Makes the back button work
 window.onpopstate = function(event) {
@@ -46,6 +51,29 @@ window.onpopstate = function(event) {
 			$( ".result-list" ).slideUp( "slow" );
 		}
 };
+
+function showShareButton() { 
+	new Share(".site-share", {
+		//description: window.location.href,
+		ui: {
+			flyout: 'bottom center', // change the flyout direction of the shares. chose from `top left`, `top center`, `top right`, `bottom left`, `bottom right`, `bottom center`, `middle left`, or `middle right` [Default: `top center`]
+			button_text: 'Teilen',
+			button_font: false,
+			icon_font: false,
+		},
+		networks: {
+			facebook: {
+				enabled: true
+			},
+			pinterest: {
+				enabled: true
+			},
+			email: {
+				enabled: true
+			}	
+		}
+	});
+}
                
 
 // ___                         ___       ____                         
@@ -61,6 +89,8 @@ window.onpopstate = function(event) {
 // _MM_ YMMMMM9  `YMMM9'Yb.YMMMMMM_      _MMMMMMM _MM_MYMMMM9   YMMM9 
 
 function loadList(id) { 
+		$( ".leaflet-control-zoom" ).css( "display",'block' );
+
 		$( ".result-single" ).slideUp( "slow" );
 
 		var req = null;
@@ -75,6 +105,8 @@ function loadList(id) {
 				var $ul = $("<div class='message'>Es konnten keine Einträge gefunden werden. Bitte Groß- und Kleinschreibung beachten.</div>");
 				$( ".result-list" ).slideDown( "slow" );
 				$(".result-list .results .list-group", "#main").remove();
+				$(".result-list .results .message", "#main").remove();
+
 				$(".result-list .results ", "#main").append($ul);
 				$(".result-list .lead").css("display","none");
 				// reset request
@@ -104,6 +136,7 @@ function loadList(id) {
 				req = null;
 			}
 		});
+
 }
 
 
@@ -141,6 +174,9 @@ function isExistant(el) {
 // used in Deeplink and Detail from List
 function loadEntity(id) {
 
+	$( ".leaflet-control-zoom" ).css( "display",'block' );
+
+	showShareButton();
 
 	var req = null;
 	if (req) { req.abort(); }
@@ -171,14 +207,14 @@ function loadEntity(id) {
 				if (data.key == 'link') 				{ var hasLinks = true; }
 			}
  
-			$content += '<div class="row">';
+			$content += '<div class="row row-results">';
 
 			if (hasPhotos) {
 				console.log('Entity has Photos');
 				$(entity.data).each(function(idx,data){ 
 					if (data.format == 'photo' && data.key == 'photo' && data.desc == 'Foto') {
 						if (isExistant(data.value.url)) {
-							$content += '<div class="col-md-3"><img class="img-responsive" src="'+data.value.url+'" /></div>';
+							$content += '<div class="col-md-3"><div class="entity-img" style="background-image:url('+data.value.url+')" /></div>';
 							return false;
 						}
 					}
@@ -205,7 +241,11 @@ function loadEntity(id) {
 					$content += '<p>'+data.value+'</p>'; // PARTEI
 				}
 			});
-			$content += '<div class="entity-share"></div>';
+			$(entity.tags).each(function(idx,tag){ 
+				if (tag == 'mdb') {
+					$content += '<p>Mitglied des Bundestag</p>'; 
+				}
+			});
 			$content += '</div>';
 
 			$content += '</div>';
@@ -248,49 +288,49 @@ function loadEntity(id) {
 //   d'      YM. YM.  ,MM  MM     YM    d9 L    ,MM L    ,MM 
 // _dM_     _dMM_ YMMMMMM__MM_     YMMMM9  MYMMMM9  MYMMMM9  
 
-			if (hasAddress) { 
-				console.log('Entity has Adress');
-				$content += '<div class="row">';
-				$content += '<div class="col-md-12"><h4>Adressen</h4></div>';
+			// if (hasAddress) { 
+			// 	console.log('Entity has Adress');
+			// 	$content += '<div class="row">';
+			// 	$content += '<div class="col-md-12"><h4>Adressen</h4></div>';
 
-				$(entity.data).each(function(idx,data){ 
-					if (data.key == 'address') {
-					if (data !== undefined) {
-							$content += '<div class="col-md-6">';
+			// 	$(entity.data).each(function(idx,data){ 
+			// 		if (data.key == 'address') {
+			// 		if (data !== undefined) {
+			// 				$content += '<div class="col-md-6">';
 
-							if (isExistant(data.value.addr)) {
-								$content += data.value.addr+'<br/>';
-								console.log(data.value.addr);
-							}
-							if (isExistant(data.value.street)) {
-								$content += data.value.street+'<br/>';
-							} 
-							if (isExistant(data.value.postcode)) {
-								$content += data.value.postcode+'&nbsp;';
-							}
-							if (isExistant(data.value.city)) {
-								$content += data.value.city+'<br/>';
-							}
-							$content += '<br/>';
+			// 				if (isExistant(data.value.addr)) {
+			// 					$content += data.value.addr+'<br/>';
+			// 					console.log(data.value.addr);
+			// 				}
+			// 				if (isExistant(data.value.street)) {
+			// 					$content += data.value.street+'<br/>';
+			// 				} 
+			// 				if (isExistant(data.value.postcode)) {
+			// 					$content += data.value.postcode+'&nbsp;';
+			// 				}
+			// 				if (isExistant(data.value.city)) {
+			// 					$content += data.value.city+'<br/>';
+			// 				}
+			// 				$content += '<br/>';
 
-							if (isExistant(data.value.tel)) {
-								$content += '<abbr title="Phone">P:</abbr>&nbsp;'+data.value.tel+'<br/>';
-							}
-							if (isExistant(data.value.fax)) {
-								$content += '<abbr title="Fax">F:</abbr>&nbsp;'+data.value.fax+'<br/>';
-							}
-							if (isExistant(data.value.email)) {
-								$content += '<abbr title="Email">E:</abbr>&nbsp;'+data.value.email+'<br/>';
-							}
-							if (isExistant(data.value.www)) {
-								$content += '<abbr title="Web">W:</abbr>&nbsp;'+data.value.www+'<br/>';
-							}
-							$content += '</div>';
-					}
-				}
-				});
-				$content += '</div>';
-			}
+			// 				if (isExistant(data.value.tel)) {
+			// 					$content += '<abbr title="Phone">P:</abbr>&nbsp;'+data.value.tel+'<br/>';
+			// 				}
+			// 				if (isExistant(data.value.fax)) {
+			// 					$content += '<abbr title="Fax">F:</abbr>&nbsp;'+data.value.fax+'<br/>';
+			// 				}
+			// 				if (isExistant(data.value.email)) {
+			// 					$content += '<abbr title="Email">E:</abbr>&nbsp;'+data.value.email+'<br/>';
+			// 				}
+			// 				if (isExistant(data.value.www)) {
+			// 					$content += '<abbr title="Web">W:</abbr>&nbsp;'+data.value.www+'<br/>';
+			// 				}
+			// 				$content += '</div>';
+			// 		}
+			// 	}
+			// 	});
+			// 	$content += '</div>';
+			// }
                                                                
 // ________           ___                                                 
 // `MMMMMMMb.         `MM                 68b                             
@@ -327,7 +367,7 @@ function loadEntity(id) {
 // _MMMMMMM9'  YMMMMM9 _MM_  _MM_`YMMM9'Yb.YMMM9 _MM_ YMMMMM9 _MM_  _MM_
                                                                                                                    
 						if (e.type == 'donation') {
-							$content += '<i class="fa fa-money"></i>&nbsp;';
+							$content += '<i class="fa fa-euro"></i>&nbsp;Parteispenden: ';
 							if (isExistant(e.entity)) {
 								$content += '<a class="ajax-load entity-connections" href="/entity/'
 								if (isExistant(e.entity._id)) {
@@ -338,7 +378,7 @@ function loadEntity(id) {
 									$content += e.entity.name+'&nbsp;'; 
 								}
 							}
-							$content += '</a><br/>Parteispenden'; 
+							$content += '</a><br/>'; 
 							if (isExistant(e.data)) {
 								$content += '<table class="table-condensed table-bordered table">';
 								$(e.data).each(function(idx,data){ 
@@ -415,7 +455,7 @@ function loadEntity(id) {
 									$content += e.entity.name+'&nbsp;'; 
 								}
 							}
-							$content += '</a><br/>Mitglied des Bundestags';           
+							$content += '</a><br/>Mitglied';           
                                                                    
 //        _                                                             
 //       dM.                     68b             68b                    
@@ -531,7 +571,7 @@ function loadEntity(id) {
 
 			if (hasLinks) {
 				console.log('Entity has Links');
-				$content += '<div class="row">';
+				$content += '<div class="row row-results">';
 				$content += '<div class="col-md-12"><h4>Links</h4></div>';
 
 				$(entity.data).each(function(idx,data){ 
@@ -547,7 +587,7 @@ function loadEntity(id) {
 
 			if (hasSource) {
 				console.log('Entity has Source');
-				$content += '<div class="row">';
+				$content += '<div class="row row-results">';
 				$content += '<div class="col-md-12"><h4>Quellen</h4></div>';
 
 				$(entity.data).each(function(idx,data){ 
@@ -640,51 +680,28 @@ function loadEntity(id) {
 
 $( document ).ready(function() {
 	$('.fullscreen').css({  'width': winWidth, 'height': winHeight });
-	$('.faq-page').css({  'width': winWidth, 'height': winHeight });
+	$('.static-page').css({  'width': winWidth, 'height': winHeight });
+
 
 	if ($('#networkviz').length == 0) {
 		// map could not be found
 	} else {
 		NetworkViz.panToEntity(); // missuse the func to get the viz on index
 	}
-	
-	// set initial div height / width
 
-	// $(".lobbysearch").focus(function(){
-	// });
-		
-	new Share(".site-share", {
-		description:window.location.href,
-		 ui: {
-    	flyout:    'bottom center',        // change the flyout direction of the shares. chose from `top left`, `top center`, `top right`, `bottom left`, `bottom right`, `bottom center`, `middle left`, or `middle right` [Default: `top center`]
-  		button_text: 'Teilen',
-  		button_font: false,
-  		icon_font: false,
-  	},
+	$( ".leaflet-control-zoom" ).css( "display",'none' );
 
-	  networks: {
-	  	facebook: {
-      	enabled: true
-			},
-    	pinterest: {
-      	enabled: true
-    	},
-    	email: {
-      	enabled: true
-    	}
-	  }
-	});
+	showShareButton();
 
-	$('.lobbysearch').keypress(function (e) {
-		if (e.which === 13) {
-			$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
-			$( ".result-list" ).slideDown( "slow" );
-			return false;
-			event.preventDefault();
-		}
-	});
+	// show whatsapp button on iphone
+	(navigator.userAgent.match(/(iPhone)/g)) ? $(".entypo-whatsapp").addClass('shown') : null ;
 
-	NetworkViz.setClickHandler(loadEntityAjax);
+	if ($('#networkviz').length == 0) {
+		// map could not be found
+	} else {
+		NetworkViz.setClickHandler(loadEntityAjax);
+	}
+
 
 	// bring up the details when an entry is clicked a                                                                                                           
 	$('body').on('click', '.ajax-load', function(e) {
@@ -692,13 +709,7 @@ $( document ).ready(function() {
 		var str = this.href;
 		var entityID = str.split("/")[4];
 		loadEntityAjax(entityID);
-		var shareButton = new Share(".share-button", {
-  			networks: {
-  		  	facebook: {
-  		    	url: 'http://lobbyradar.opendatacloud.de/entity/'
-  		  	}
-  			}
-			});
+		
 	});
 
 	// click back arrow -> history
@@ -734,7 +745,7 @@ $( document ).ready(function() {
 	// entity/:id
 	if (window.location.href.indexOf("/entity/") > -1) {
 		$( ".overlay" ).css( "display",'none' ); // we dont need the intro
-
+		$( "leaflet-control-zoom" ).css( "display",'block' );
 		var str = window.location.href; // get the url 
 		var entityID = str.split("/")[4]; // extract ID
 		console.log('entity.entry, ID: '+entityID);
@@ -774,18 +785,42 @@ $( document ).ready(function() {
 // MYMMMM9   YMMMM9  `YMMM9'Yb_MM_     YMMMM9 _MM_  _MM_      _MM_    \M\_YMMMM9  MYMMMM9   YMMM9MM_MM_  YMMM9 MYMMMM9  
 
 	// lazy typeahead
-	(function(){
-		var req = null;
-		$('body').on('keyup', '.lobbysearch', function(e) {
-			console.log($(this).val());
+	// (function(){
+	// 	var req = null;
+	// 	$('body').on('keyup', '.lobbysearch', function(e) {
+	// 		console.log($(this).val());
+	// 		var $resultName = $(this).val();
+	// 		//if ($(this).val().length >= 3) {// 
+	// 		if (e.which === 13) { 
+	// 			history.pushState(null, null, '/search/'+$resultName);
+	// 			loadList($resultName);
+	// 		} 
+	// 	});
+	// })();
+
+	$('.lobbysearch').keypress(function (e) {
+		if (e.which === 13) {
 			var $resultName = $(this).val();
-			// if ($(this).val().length >= 3) // 
-			if (e.which === 13) { 
-				history.pushState(null, null, '/search/'+$resultName);
-				loadList($resultName);
-			};
-		});
-	})();
+			$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
+			$( ".result-list" ).slideDown( "slow" );
+
+			history.pushState(null, null, '/search/'+$resultName);
+			loadList($resultName);
+			return false;
+			event.preventDefault();
+		}
+	});
+
+	$('.search-form button').click(function () {
+			var $resultName = $(this).val();
+			$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
+			$( ".result-list" ).slideDown( "slow" );
+
+			history.pushState(null, null, '/search/'+$resultName);
+			loadList($resultName);
+			return false;
+			event.preventDefault();
+});
 
 																																																													
 																																																													
