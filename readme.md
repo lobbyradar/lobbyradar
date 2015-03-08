@@ -3,15 +3,15 @@
 ## Todo
 
 * check data consistency
-	* orphaned relations
-	* prename/surname mixup from import
+	* orphaned relations ✓
+	* prename/surname mixup from import ✓
 	* double data sets from different imports
-* complex search interface
+* complex search interface ✓
 * creaxtend relation type consitency
 * relation aggregation
 * suggestion api
 * updates api
-* whitelist backend api
+* whitelist backend api ✓
 
 ## Cached Data
 
