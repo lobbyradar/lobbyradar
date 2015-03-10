@@ -238,7 +238,7 @@ var execute = function(finish){
 								importer: "kabinette",
 								created: (new Date()),
 								updated: (new Date()),
-								type: "organisation",
+								type: "entity",
 								tags: [],
 								name: rel.organisation,
 								aliases: [],
