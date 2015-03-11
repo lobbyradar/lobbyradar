@@ -20,3 +20,5 @@ lobbynetwork/test/node_positions.js
 dump/*
 assets/data
 assets/cache
+
+lobbynetwork/node_positions.js
