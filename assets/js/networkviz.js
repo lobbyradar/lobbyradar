@@ -14,22 +14,32 @@ var NetworkViz = (function () {
 	var clickHandler = false;
 
 	function init() {
-		if (!node_positions) return console.error('node_positions.js not loaded ... yet')
+		if (!graph) return console.error('graph.js not loaded ... yet')
 
 		initialized = true;
 
-		var keys = Object.keys(node_positions);
-		var n = node_positions[keys[0]].length;
+		var nodes = graph.nodes;
+		var keys = Object.keys(nodes);
+		var n = nodes[keys[0]].length;
+
 		for (var i = 0; i < n; i++) {
 			var node = {};
 			keys.forEach(function (key) {
-				node[key] = node_positions[key][i];
+				node[key] = nodes[key][i];
 			})
 			node.x += f/2;
 			node.y += f/2;
+			node.neighbours = [];
 			nodeLookup[node.id] = node;
 			nodeList.push(node);
 		}
+
+		graph.edges.forEach(function (edge) {
+			var node1 = nodeList[edge[0]];
+			var node2 = nodeList[edge[1]];
+			node1.neighbours.push(node2);
+			node2.neighbours.push(node1);
+		})
 
 		var projection = {
 			project: function (latlng) {

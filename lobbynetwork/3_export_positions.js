@@ -8,8 +8,9 @@ var links = data.links;
 exportPositions();
 
 function exportPositions() {
-	console.log('export positions');
-	
+	console.log('export');
+
+	console.log('   generate positions');
 	var positions = nodes.map(function (node) {
 		return {
 			id: node.id,
@@ -21,6 +22,7 @@ function exportPositions() {
 		}
 	});
 
+	console.log('   sort positions');
 	positions.sort(function (a,b) {
 		return (a.id < b.id) ? -1 : 1;
 	});
@@ -57,11 +59,15 @@ function exportPositions() {
 		return true;
 	})
 
+	console.log('   prepare export');
 	var result = {nodes:{},edges:edges};
 	Object.keys(positions[0]).forEach(function (key) {
-		result[key] = positions.map(function (entry) { return entry[key] });
+		result.nodes[key] = positions.map(function (entry) { return entry[key] });
 	});
 
-	result = 'var node_positions = '+JSON.stringify(result)+';';
-	fs.writeFileSync('./node_positions.js', result, 'utf8');
+	console.log('   save');
+	result = 'var graph = '+JSON.stringify(result)+';';
+	fs.writeFileSync('./graph.js', result, 'utf8');
+
+	console.log('export finished');
 }

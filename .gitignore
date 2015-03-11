@@ -22,3 +22,5 @@ assets/data
 assets/cache
 
 lobbynetwork/node_positions.js
+
+lobbynetwork/graph.js
