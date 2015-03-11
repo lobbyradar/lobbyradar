@@ -31,7 +31,7 @@ var NetworkViz = (function () {
 			node.y += f/2;
 			node.lng =  node.x;
 			node.lat = -node.y;
-			
+
 			node.neighbours = [];
 			nodeLookup[node.id] = node;
 			nodeList.push(node);
@@ -166,7 +166,7 @@ var NetworkViz = (function () {
 
 	function ensureLabel(node) {
 		if (node.label) return;
-		var latLng = L.latLng(node.lat, node.lng);
+		var latLng = L.latLng(node.lat - node.r, node.lng);
 		node.label = L.label(latLng, {text:node.name, color: (node.type == 'person') ? '#fa7d18' : '#a3db19' });
 		node.label.addTo(labelLayer);
 	}
@@ -253,7 +253,7 @@ L.Label = L.Class.extend({
 			var pos = this._map.latLngToLayerPoint(this._latlng).round();
 			this.label.css({
 				left:pos.x - this.label.outerWidth()/2,
-				top: pos.y + 20
+				top: pos.y + 10
 			});
 		}
 
