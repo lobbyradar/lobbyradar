@@ -29,6 +29,8 @@ var NetworkViz = (function () {
 			})
 			node.x += f/2;
 			node.y += f/2;
+			node.lng =  node.x;
+			node.lat = -node.y;
 			node.neighbours = [];
 			nodeLookup[node.id] = node;
 			nodeList.push(node);
@@ -123,7 +125,7 @@ var NetworkViz = (function () {
 		var bestDist = 1e10;
 
 		nodeList.forEach(function (node) {
-			var d = Math.sqrt(sqr(node.x - point.lng) + sqr(node.y + point.lat));
+			var d = Math.sqrt(sqr(node.lng - point.lng) + sqr(node.lat - point.lat));
 			if (d < bestDist) {
 				bestDist = d;
 				bestNode = node;
@@ -142,7 +144,7 @@ var NetworkViz = (function () {
 		if (zoom < 0) zoom = 0;
 		if (zoom > 7) zoom = 7;
 
-		var latLng = L.latLng(-node.y, node.x);
+		var latLng = L.latLng(node.lat, node.lng);
 		var centerPoint = map.getSize();
 		latLng.lng += centerPoint.x*Math.pow(0.5, zoom-5);
 
@@ -158,7 +160,7 @@ var NetworkViz = (function () {
 
 	function ensureLabel(node) {
 		if (node.label) return;
-		var latLng = L.latLng(-node.y, node.x);
+		var latLng = L.latLng(node.lat, node.lng);
 		node.label = L.label(latLng, {text:node.name, color: (node.type == 'person') ? '#fa7d18' : '#a3db19' });
 		node.label.addTo(labelLayer);
 	}
