@@ -180,33 +180,16 @@ var NetworkViz = (function () {
 		clickHandler = func;
 	}
 
-	function activateNodeId(id) {
+	function lookupId(id, callback) {
 		if (!initialized) init();
 		var node = nodeLookup[id];
 		if (!node) return console.error('id not found "'+id+'"');
-
-		activateNode(node);
-	}
-
-	function highlightNodeId(id) {
-		if (!initialized) init();
-		var node = nodeLookup[id];
-		if (!node) return console.error('id not found "'+id+'"');
-
-		highlightNode(node);
-	}
-
-	function panToNodeId(id) {
-		if (!initialized) init();
-		var node = nodeLookup[id];
-		if (!node) return console.error('id not found "'+id+'"');
-
-		panToNode(node);
+		callback(node);
 	}
 
 	return {
-		highlightEntity: highlightNodeId,
-		panToEntity: panToNodeId,
+		highlightEntity: function (id) { lookupId(id, highlightNode) },
+		panToEntity: function (id) { lookupId(id, panToNode) },
 		setClickHandler: setClickHandler
 	}
 
