@@ -50,7 +50,8 @@ var NetworkViz = (function () {
 			},
 			unproject: function (point) {
 				return L.latLng(-point.y*f, point.x*f);
-			}
+			},
+			bounds: L.bounds(L.point(-2,-2), L.point(2,2))
 		};
 
 		var crs = L.extend({}, L.CRS, {
@@ -233,6 +234,10 @@ L.Label = L.Class.extend({
 		this._latlng = L.latLng(latlng);
 	},
 
+	_layerAdd: function (a) {
+		this.onAdd(a.target);
+	},
+
 	_initLabel: function () {
 		this.label = $('<div class="leaflet-label"></div>');
 		this.label.text(this.options.text);
@@ -263,10 +268,6 @@ L.Label = L.Class.extend({
 		this._initLabel();
 		this.update();
 		this.fire('add');
-
-		if (map.options.zoomAnimation && map.options.markerZoomAnimation) {
-			map.on('zoomanim', this._animateZoom, this);
-		}
 	},
 
 	addTo: function (map) {
@@ -275,12 +276,14 @@ L.Label = L.Class.extend({
 	},
 
 	show: function () {
+		if (!this.label) return;
 		this.visible = true;
 		this.label.removeClass('hidden');
 		this.update();
 	},
 
 	hide: function () {
+		if (!this.label) return;
 		this.visible = false;
 		this.label.addClass('hidden');
 	}
