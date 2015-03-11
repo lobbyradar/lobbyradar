@@ -32,6 +32,8 @@ var NetworkViz = (function () {
 			node.lng =  node.x;
 			node.lat = -node.y;
 
+			node.color = (node.type == 'person') ? '#fa7d18' : '#a3db19';
+
 			node.neighbours = [];
 			nodeLookup[node.id] = node;
 			nodeList.push(node);
@@ -93,6 +95,7 @@ var NetworkViz = (function () {
 		})
 		
 		layer.addTo(map);
+
 
 		highlightLayer = L.layerGroup();
 		highlightLayer.addTo(map);
@@ -167,7 +170,7 @@ var NetworkViz = (function () {
 	function ensureLabel(node) {
 		if (node.label) return;
 		var latLng = L.latLng(node.lat - node.r, node.lng);
-		node.label = L.label(latLng, {text:node.name, color: (node.type == 'person') ? '#fa7d18' : '#a3db19' });
+		node.label = L.label(latLng, {text:node.name });
 		node.label.addTo(labelLayer);
 	}
 
@@ -185,9 +188,42 @@ var NetworkViz = (function () {
 		activeNodes.push(node);
 		showLabel(node);
 
-		console.log(node.r);
-		var node = L.node([node.lat, node.lng], node.r, {fill:true, color:'#f00'});
-		highlightLayer.addLayer(node)
+		var center = L.latLng(node.lat, node.lng);
+
+		node.neighbours.forEach(function (neighbour) {
+			highlightLayer.addLayer(
+				L.line(
+					[center, L.latLng(neighbour.lat, neighbour.lng)],
+					{ stroke:true, fill:false, color:'rgba(255,255,255,1.0)', _weight:8 }
+				)
+			)
+		})
+
+		node.neighbours.forEach(function (neighbour) {
+			highlightLayer.addLayer(
+				L.line(
+					[center, L.latLng(neighbour.lat, neighbour.lng)],
+					{ stroke:true, fill:false, color:'rgb(20,59,82)', _weight:1 }
+				)
+			)
+		})
+
+		node.neighbours.forEach(function (neighbour) {
+			highlightLayer.addLayer(
+				L.bubble(
+					L.latLng(neighbour.lat, neighbour.lng), neighbour.r,
+					{ stroke:false, fill:true, fillColor:neighbour.color, fillOpacity:1.0 }
+				)
+			)
+		})
+
+		highlightLayer.addLayer(
+			L.bubble(
+				center, node.r,
+				{ stroke:false, fill:true, fillColor:node.color, fillOpacity:1.0 }
+			)
+		)
+
 	}
 
 	function highlightNode(node) {
@@ -293,19 +329,31 @@ L.label = function (latlng, options) {
 	return new L.Label(latlng, options);
 };
 
-L.Node = L.Circle.extend({
+L.Bubble = L.Circle.extend({
 	_project: function () {
 
 		var map = this._map;
 
 		this._point = map.latLngToLayerPoint(this._latlng);
-		this._radius = this._mRadius;
+		this._radius = this._mRadius * Math.pow(2, map.getZoom()-7);
 		this._radiusY = false;
 
 		this._updateBounds();
 	}
 });
 
-L.node = function (latlng, radius, options) {
-	return new L.Node(latlng, radius, options);
+L.bubble = function (latlng, radius, options) {
+	return new L.Bubble(latlng, radius, options);
+};
+
+L.Line = L.Polyline.extend({
+	_project: function () {
+		this.setStyle({weight: this.options._weight*Math.pow(2,this._map.getZoom()-6)})
+
+		L.Polyline.prototype._project.call(this);
+	}
+});
+
+L.line = function (latlngs, options) {
+	return new L.Line(latlngs, options);
 };
