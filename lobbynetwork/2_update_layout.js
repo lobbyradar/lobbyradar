@@ -11,6 +11,8 @@ console.log('Prepare Layout');
 var nodes = data.nodes;
 var links = data.links;
 
+if (process.argv[2]) maxIterations = parseInt(process.argv[2], 10);
+
 links.forEach(function (link, index) {
 	if (link.source === undefined) {
 		console.log(link, index)

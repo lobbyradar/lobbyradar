@@ -13,6 +13,8 @@ var data = require('./lib/prepare_data.js');
 var nodes = data.nodes;
 var links = data.links;
 
+if (process.argv[2]) antialias = parseInt(process.argv[2], 10);
+
 saveTiles(maxTileLevel);
 
 function saveTiles(maxDepth) {
@@ -64,7 +66,7 @@ function saveTiles(maxDepth) {
 
 		function finish() {
 			tileCount++;
-			if (tileCount % 30 == 0) console.log([
+			if (tileCount % 100 == 0) console.log([
 				tileCount,
 				(new Date()).getTime() - startTime,
 				(100*tileCount/tileCountMax).toFixed(1)+'%'
