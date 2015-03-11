@@ -58,8 +58,8 @@ force.on('tick', function () {
 		return
 	}
 
-	if (interation % 25 == 0) {
-		//console.log(interation);
+	if (interation % 100 == 0) {
+		console.log((100*interation/maxIterations).toFixed(1)+'%');
 		savePositions();
 	}
 })
@@ -68,7 +68,7 @@ console.log('Start Layout');
 force.start();
 
 function savePositions() {
-	console.log('write positions');
+	//console.log('write positions');
 	var positions = nodes.map(function (node) {
 		return {
 			i: node.id,
