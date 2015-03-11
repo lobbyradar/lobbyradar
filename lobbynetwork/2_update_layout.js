@@ -46,7 +46,6 @@ var force = d3.layout.force()
 	.alpha(0.1)
 
 force.on('tick', function () {
-	console.log('.');
 	interation++;
 
 	var alpha = 0.1 * Math.pow(0.05, interation/maxIterations);
