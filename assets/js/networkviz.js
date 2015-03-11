@@ -6,7 +6,7 @@ var NetworkViz = (function () {
 	var nodeList = [];
 
 	var initialized = false;
-	var map, labelLayer;
+	var map, labelLayer, highlightLayer;
 
 	var hoveredNode = false;
 	var activeNodes = [];
@@ -31,6 +31,7 @@ var NetworkViz = (function () {
 			node.y += f/2;
 			node.lng =  node.x;
 			node.lat = -node.y;
+			
 			node.neighbours = [];
 			nodeLookup[node.id] = node;
 			nodeList.push(node);
@@ -91,6 +92,9 @@ var NetworkViz = (function () {
 		})
 		
 		layer.addTo(map);
+
+		highlightLayer = L.layerGroup();
+		highlightLayer.addTo(map);
 
 		labelLayer = L.layerGroup();
 		labelLayer.addTo(map);
@@ -156,6 +160,7 @@ var NetworkViz = (function () {
 			node.active = false;
 			hideLabel(node);
 		})
+		highlightLayer.clearLayers();
 	}
 
 	function ensureLabel(node) {
@@ -178,6 +183,10 @@ var NetworkViz = (function () {
 		node.active = true;
 		activeNodes.push(node);
 		showLabel(node);
+
+		console.log(node.r);
+		var node = L.node([node.lat, node.lng], node.r, {fill:true, color:'#f00'});
+		highlightLayer.addLayer(node)
 	}
 
 	function highlightNode(node) {
@@ -279,4 +288,21 @@ L.Label = L.Class.extend({
 
 L.label = function (latlng, options) {
 	return new L.Label(latlng, options);
+};
+
+L.Node = L.Circle.extend({
+	_project: function () {
+
+		var map = this._map;
+
+		this._point = map.latLngToLayerPoint(this._latlng);
+		this._radius = this._mRadius;
+		this._radiusY = false;
+
+		this._updateBounds();
+	}
+});
+
+L.node = function (latlng, radius, options) {
+	return new L.Node(latlng, radius, options);
 };
