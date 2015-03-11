@@ -85,24 +85,20 @@ var NetworkViz = (function () {
 	}
 
 	function mousemove(e) {
-		var point = e.latlng;
-
 		hoveredNodes.forEach(function (node) {
 			if (!node.active) hideLabel(node);
 			$('#networkviz').css( 'cursor', '-webkit-grab' );
+		});
 
-		})
 		hoveredNodes = [];
 
-		nodeList.forEach(function (node) {
-			var d = Math.sqrt(sqr(node.x - point.lng) + sqr(node.y + point.lat));
-			if (d < node.r) {
-				hoveredNodes.push(node);
-				showLabel(node);
-				$('#networkviz').css( 'cursor', 'pointer' );
+		var node = findNode(e.latlng);
 
-			};
-		})
+		if (node) {
+			hoveredNodes.push(node);
+			showLabel(node);
+			$('#networkviz').css( 'cursor', 'pointer' );
+		}
 	}
 
 	function mouseclick(e) {
@@ -125,6 +121,24 @@ var NetworkViz = (function () {
 			clickHandler(bestNode.id);
 			e.originalEvent.preventDefault();
 		}
+	}
+
+	function findNode(point) {
+		var bestNode = false;
+		var bestDist = 1e10;
+
+		nodeList.forEach(function (node) {
+			var d = Math.sqrt(sqr(node.x - point.lng) + sqr(node.y + point.lat));
+			if (d < bestDist) {
+				bestDist = d;
+				bestNode = node;
+			};
+		});
+
+		var border = Math.pow(0.5, map.getZoom()-10);
+
+		if (bestDist < bestNode.r + border) return bestNode;
+		return false;
 	}
 
 	function panToNode(node) {
