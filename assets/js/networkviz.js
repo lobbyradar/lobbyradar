@@ -8,7 +8,7 @@ var NetworkViz = (function () {
 	var initialized = false;
 	var map, labelLayer;
 
-	var hoveredNodes = [];
+	var hoveredNode = false;
 	var activeNodes = [];
 
 	var clickHandler = false;
@@ -85,40 +85,25 @@ var NetworkViz = (function () {
 	}
 
 	function mousemove(e) {
-		hoveredNodes.forEach(function (node) {
-			if (!node.active) hideLabel(node);
-			$('#networkviz').css( 'cursor', '-webkit-grab' );
-		});
-
-		hoveredNodes = [];
-
 		var node = findNode(e.latlng);
 
-		if (node) {
-			hoveredNodes.push(node);
-			showLabel(node);
-			$('#networkviz').css( 'cursor', 'pointer' );
+		if (hoveredNode !== node) {
+			if (hoveredNode && !hoveredNode.active) hideLabel(hoveredNode);
+			if (node && !node.active) showLabel(node);
+			
+			$('#networkviz').css( 'cursor', node ? 'pointer' : '-webkit-grab');
+
+			hoveredNode = node;
 		}
 	}
 
 	function mouseclick(e) {
 		if (!clickHandler) return;
 
-		var point = e.latlng;
-		var bestNode = false;
-		var bestDist = 1e10;
+		var node = findNode(e.latlng);
 
-		nodeList.forEach(function (node) {
-			var d = Math.sqrt(sqr(node.x - point.lng) + sqr(node.y + point.lat));
-			if ((d < node.r) && (d < bestDist)) {
-				bestDist = d;
-				bestNode = node;
-			};
-		});
-
-		if (bestNode) {
-			console.debug();
-			clickHandler(bestNode.id);
+		if (node) {
+			clickHandler(node.id);
 			e.originalEvent.preventDefault();
 		}
 	}
@@ -158,7 +143,6 @@ var NetworkViz = (function () {
 		activeNodes.forEach(function (node) {
 			node.active = false;
 			hideLabel(node);
-
 		})
 	}
 
@@ -221,6 +205,7 @@ L.Label = L.Class.extend({
 	},
 
 	label: false,
+	visible: true,
 
 	initialize: function (latlng, options) {
 		L.setOptions(this, options);
@@ -269,11 +254,13 @@ L.Label = L.Class.extend({
 	},
 
 	show: function () {
+		this.visible = true;
 		this.label.removeClass('hidden');
 		this.update();
 	},
 
 	hide: function () {
+		this.visible = false;
 		this.label.addClass('hidden');
 	}
 });
