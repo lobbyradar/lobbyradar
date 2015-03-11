@@ -1,5 +1,8 @@
 var NetworkViz = (function () {
 
+	var highlightBorder = 1.5;
+	var highlightColor = '#d0dee4';
+
 	var f = 32768;
 
 	var nodeLookup = {};
@@ -194,10 +197,26 @@ var NetworkViz = (function () {
 			highlightLayer.addLayer(
 				L.line(
 					[center, L.latLng(neighbour.lat, neighbour.lng)],
-					{ stroke:true, fill:false, color:'rgba(255,255,255,1.0)', _weight:8 }
+					{ stroke:true, fill:false, color:highlightColor, highlight:true, _weight:1 }
 				)
 			)
 		})
+
+		node.neighbours.forEach(function (neighbour) {
+			highlightLayer.addLayer(
+				L.bubble(
+					L.latLng(neighbour.lat, neighbour.lng), neighbour.r,
+					{ stroke:false, fill:true, fillColor:highlightColor, highlight:true, fillOpacity:1.0 }
+				)
+			)
+		})
+
+		highlightLayer.addLayer(
+			L.bubble(
+				center, node.r,
+				{ stroke:false, fill:true, fillColor:highlightColor, highlight:true, fillOpacity:1.0 }
+			)
+		)
 
 		node.neighbours.forEach(function (neighbour) {
 			highlightLayer.addLayer(
@@ -243,117 +262,120 @@ var NetworkViz = (function () {
 		callback(node);
 	}
 
+	function sqr(v) {
+		return v*v;
+	}
+
+	L.Label = L.Class.extend({
+
+		includes: L.Mixin.Events,
+
+		options: {
+			text: 'text'
+		},
+
+		label: false,
+		visible: true,
+
+		initialize: function (latlng, options) {
+			L.setOptions(this, options);
+			this._latlng = L.latLng(latlng);
+		},
+
+		_layerAdd: function (a) {
+			this.onAdd(a.target);
+		},
+
+		_initLabel: function () {
+			this.label = $('<div class="leaflet-label"></div>');
+			this.label.text(this.options.text);
+			if (this.options.text.length > 30) this.label.addClass('small');
+
+			var panes = this._map._panes;
+
+			$(panes.markerPane).append(this.label);
+		},
+
+		update: function () {
+			if (this.label) {
+				var pos = this._map.latLngToLayerPoint(this._latlng).round();
+				this.label.css({
+					left:pos.x - this.label.outerWidth()/2,
+					top: pos.y + 10
+				});
+			}
+
+			return this;
+		},
+
+		onAdd: function (map) {
+			this._map = map;
+
+			map.on('viewreset', this.update, this);
+
+			this._initLabel();
+			this.update();
+			this.fire('add');
+		},
+
+		addTo: function (map) {
+			map.addLayer(this);
+			return this;
+		},
+
+		show: function () {
+			if (!this.label) return;
+			this.visible = true;
+			this.label.removeClass('hidden');
+			this.update();
+		},
+
+		hide: function () {
+			if (!this.label) return;
+			this.visible = false;
+			this.label.addClass('hidden');
+		}
+	});
+
+	L.label = function (latlng, options) {
+		return new L.Label(latlng, options);
+	};
+
+	L.Bubble = L.Circle.extend({
+		_project: function () {
+
+			var map = this._map;
+
+			this._point = map.latLngToLayerPoint(this._latlng);
+			this._radius = this._mRadius * Math.pow(2, map.getZoom()-7);
+			if (this.options.highlight) this._radius += highlightBorder;
+			this._radiusY = false;
+
+			this._updateBounds();
+		}
+	});
+
+	L.bubble = function (latlng, radius, options) {
+		return new L.Bubble(latlng, radius, options);
+	};
+
+	L.Line = L.Polyline.extend({
+		_project: function () {
+			var weight = this.options._weight*Math.pow(2,this._map.getZoom()-6);
+			if (this.options.highlight) weight += 2*highlightBorder;
+			this.setStyle({weight: weight})
+
+			L.Polyline.prototype._project.call(this);
+		}
+	});
+
+	L.line = function (latlngs, options) {
+		return new L.Line(latlngs, options);
+	};
+
 	return {
 		highlightEntity: function (id) { lookupId(id, highlightNode) },
 		panToEntity: function (id) { lookupId(id, panToNode) },
 		setClickHandler: setClickHandler
 	}
-
-	function sqr(v) {
-		return v*v;
-	}
 })();
-
-L.Label = L.Class.extend({
-
-	includes: L.Mixin.Events,
-
-	options: {
-		text: 'text'
-	},
-
-	label: false,
-	visible: true,
-
-	initialize: function (latlng, options) {
-		L.setOptions(this, options);
-		this._latlng = L.latLng(latlng);
-	},
-
-	_layerAdd: function (a) {
-		this.onAdd(a.target);
-	},
-
-	_initLabel: function () {
-		this.label = $('<div class="leaflet-label"></div>');
-		this.label.text(this.options.text);
-		if (this.options.text.length > 30) this.label.addClass('small');
-
-		var panes = this._map._panes;
-
-		$(panes.markerPane).append(this.label);
-	},
-
-	update: function () {
-		if (this.label) {
-			var pos = this._map.latLngToLayerPoint(this._latlng).round();
-			this.label.css({
-				left:pos.x - this.label.outerWidth()/2,
-				top: pos.y + 10
-			});
-		}
-
-		return this;
-	},
-
-	onAdd: function (map) {
-		this._map = map;
-
-		map.on('viewreset', this.update, this);
-
-		this._initLabel();
-		this.update();
-		this.fire('add');
-	},
-
-	addTo: function (map) {
-		map.addLayer(this);
-		return this;
-	},
-
-	show: function () {
-		if (!this.label) return;
-		this.visible = true;
-		this.label.removeClass('hidden');
-		this.update();
-	},
-
-	hide: function () {
-		if (!this.label) return;
-		this.visible = false;
-		this.label.addClass('hidden');
-	}
-});
-
-L.label = function (latlng, options) {
-	return new L.Label(latlng, options);
-};
-
-L.Bubble = L.Circle.extend({
-	_project: function () {
-
-		var map = this._map;
-
-		this._point = map.latLngToLayerPoint(this._latlng);
-		this._radius = this._mRadius * Math.pow(2, map.getZoom()-7);
-		this._radiusY = false;
-
-		this._updateBounds();
-	}
-});
-
-L.bubble = function (latlng, radius, options) {
-	return new L.Bubble(latlng, radius, options);
-};
-
-L.Line = L.Polyline.extend({
-	_project: function () {
-		this.setStyle({weight: this.options._weight*Math.pow(2,this._map.getZoom()-6)})
-
-		L.Polyline.prototype._project.call(this);
-	}
-});
-
-L.line = function (latlngs, options) {
-	return new L.Line(latlngs, options);
-};
