@@ -56,7 +56,7 @@ var NetworkViz = (function () {
 			unproject: function (point) {
 				return L.latLng(-point.y*f, point.x*f);
 			},
-			bounds: L.bounds(L.point(-2,-2), L.point(2,2))
+			bounds: L.bounds(L.point(0,0), L.point(1,1))
 		};
 
 		var crs = L.extend({}, L.CRS, {
@@ -69,16 +69,17 @@ var NetworkViz = (function () {
 
 		$('#networkviz').css({height:'100%'});
 
+		var margin = f;
 		map = L.map('networkviz', {
 			minZoom: 0,
 			maxZoom: 7,
 			zoom: 5,
-			center: [-0.5*f,0.5*f],
-			maxBounds: L.latLngBounds([-f,0],[0,f]),
+			center: [-0.5*f, 0.5*f],
+			maxBounds: L.latLngBounds([-f-margin, -margin],[margin, f+margin]),
 			crs: crs,
 			zoomAnimation: true,
-			zoomControl:false,
-			scrollWheelZoom:true
+			zoomControl: false,
+			scrollWheelZoom: true
 		});
 		map.addControl( L.control.zoom({position: 'bottomleft'}) )
 
@@ -150,9 +151,9 @@ var NetworkViz = (function () {
 	}
 
 	function panToNode(node) {
-		var zoom = Math.round(13 - Math.log(node.r)/Math.log(2));
+		var zoom = Math.round(9 - Math.log(node.r)/Math.log(2));
 
-		if (zoom < 0) zoom = 0;
+		if (zoom < 3) zoom = 3;
 		if (zoom > 7) zoom = 7;
 
 		var latLng = L.latLng(node.lat, node.lng);
