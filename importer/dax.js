@@ -110,7 +110,7 @@ var execute = function(finish){
 
 				persons.push({
 					tag: "aufsichtsrat",
-					type: "Aufsichtsratssvorsitz",
+					type: "Aufsichtsratsvorsitz",
 					vorname: set.vorname_aufsichtsratsvorsitzender,
 					nachname: set.nachname_aufsichtsratsvorsitzender,
 					name: [set.vorname_aufsichtsratsvorsitzender, set.nachname_aufsichtsratsvorsitzender].join(" "),
@@ -127,7 +127,7 @@ var execute = function(finish){
 				set.aufsichtsrat_rest.split(/;\s+/g).forEach(function(p){
 					persons.push({
 						tag: "aufsichtsrat",
-						type: "Aufsichtsratssmitglied",
+						type: "Aufsichtsratsmitglied",
 						name: p,
 					});
 				});
