@@ -132,7 +132,17 @@ body {
 }
 
 .loading {
+	width:600px;
+	height:120px;
+	position:absolute;
+	left:50%;
+	top:50%;
+	margin:-60px 0 0 -300px;
+	background: #ffffff;
+	border: solid 1px #000000;
+	border-radius: 3px;
 	text-align: center;
+	z-index: 100;
 }
 
 .missinginput {

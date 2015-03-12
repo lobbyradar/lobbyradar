@@ -159,70 +159,65 @@
 					<input type="checkbox" ng-checked="filter.special" ng-click="toggleSpecialFilter()"> Nicht-Standard-Namen filtern
 				</label>
 			</div>
-
 		</div>
-
-		<div class="col-md-2">
-			<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>
-		</div>
-
-		<div class="col-md-3">
-			<div class="btn-group">
-				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-					Daten anzeigen <span class="caret"></span>
-				</button>
-				<ul class="dropdown-menu" role="menu">
-					<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
-				</ul>
+		<div class="col-md-5">
+			<div class="pull-right">
+				<label>Aktionen</label>
+				<div>
+					<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>
+					<div class="btn-group">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+							Daten anzeigen <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
+						</ul>
+					</div>
+				</div>
 			</div>
 		</div>
 
 		<div class="col-md-3">
-			<div class="pull-right has-feedback">
-				<label>Suche</label>
-				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
-				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
-			</div>
+			<div ng-include="'partials/filter.html'"></div>
 		</div>
 
-	</div>
-	<div ng-if="loading" class="loading">
-		<h1><i class="fa fa-spin fa-spinner"></i> Personen-Liste wird geladen</h1>
-	</div>
+		<div ng-if="loading" class="loading">
+			<h1><i class="fa fa-spin fa-spinner"></i> Personen-Liste<br/>wird geladen</h1>
+		</div>
 
-	<table ng-table="tableParams" template-pagination="partials/pager.html" show-filter="false" class="table table-striped">
+		<table ng-table="tableParams" template-pagination="partials/pager.html" show-filter="false" class="table table-striped">
 
-		<thead>
-		<tr>
-			<th ng-repeat="f in state.fields"
-				class="sortable" ng-class="{
+			<thead>
+			<tr>
+				<th ng-repeat="f in state.fields"
+					class="sortable" ng-class="{
                     'sort-asc': tableParams.isSortBy(f.key, 'asc'),
                     'sort-desc': tableParams.isSortBy(f.key, 'desc')
                   }"
-				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
-				<span ng-bind="f.name"></span>
-				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f.key, 'asc'),'fa-sort-desc':tableParams.isSortBy(f.key, 'desc')}" class="fa"></span>
-			</th>
+					ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+					<span ng-bind="f.name"></span>
+					<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f.key, 'asc'),'fa-sort-desc':tableParams.isSortBy(f.key, 'desc')}" class="fa"></span>
+				</th>
 
-			<th class="text-right">Aktionen</th>
-		</tr>
-		</thead>
+				<th class="text-right">Aktionen</th>
+			</tr>
+			</thead>
 
-		<tbody>
-		<tr ng-repeat="p in $data">
-			<td ng-repeat="f in state.fields">
-				<span ng-bind="getDispayValues(f,p)"></span>
-				<span ng-show="f._type!=='extras'" class="btn-left" title="{{f.name}} bearbeiten" ng-click="editData(f,p)"><i class="fa fa-pencil"></i></span>
-			</td>
-			<td class="col-action-large">
-				<span class="btn-right" ng-click="remove(p)" title="Person löschen"><i class="fa fa-trash"></i></span>
-				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
-				<span class="btn-right" ng-click='mergeDialog(p)' title="Personen zusammenführen"><i class="fa fa-code-fork fa-rotate-270"></i></span>
-				<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
-			</td>
-		</tr>
-		</tbody>
-	</table>
+			<tbody>
+			<tr ng-repeat="p in $data">
+				<td ng-repeat="f in state.fields">
+					<span ng-bind="getDispayValues(f,p)"></span>
+					<span ng-show="f._type!=='extras'" class="btn-left" title="{{f.name}} bearbeiten" ng-click="editData(f,p)"><i class="fa fa-pencil"></i></span>
+				</td>
+				<td class="col-action-large">
+					<span class="btn-right" ng-click="remove(p)" title="Person löschen"><i class="fa fa-trash"></i></span>
+					<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
+					<span class="btn-right" ng-click='mergeDialog(p)' title="Personen zusammenführen"><i class="fa fa-code-fork fa-rotate-270"></i></span>
+					<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
+				</td>
+			</tr>
+			</tbody>
+		</table>
 
 </script>
 
@@ -235,31 +230,30 @@
 			<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
 		</div>
 
-		<div class="col-md-2">
-			<button class="btn btn-default" ui-sref="organisation({id: 'new'})">Organisation anlegen</button>
-		</div>
-
-		<div class="col-md-3">
-			<div class="btn-group">
-				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-					Daten anzeigen <span class="caret"></span>
-				</button>
-				<ul class="dropdown-menu" role="menu">
-					<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
-				</ul>
+		<div class="col-md-5">
+			<div class="pull-right">
+				<label>Aktionen</label>
+				<div>
+					<button class="btn btn-default" ui-sref="organisation({id: 'new'})">Organisation anlegen</button>
+					<div class="btn-group">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+							Daten anzeigen <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
+						</ul>
+					</div>
+				</div>
 			</div>
 		</div>
 
 		<div class="col-md-3">
-			<div class="pull-right has-feedback">
-				<label>Suche</label>
-				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
-				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
-			</div>
+			<div ng-include="'partials/filter.html'"></div>
 		</div>
+
 	</div>
 	<div ng-if="loading" class="loading">
-		<h1><i class="fa fa-spin fa-spinner"></i> Organisationen-Liste wird geladen</h1>
+		<h1><i class="fa fa-spin fa-spinner"></i> Organisationen-Liste<br/>wird geladen</h1>
 	</div>
 
 	<table ng-table="tableParams" template-pagination="partials/pager.html" show-filter="false" class="table table-striped">
@@ -300,38 +294,37 @@
 <script type="text/ng-template" id="partials/entities.html">
 
 	<div class="row">
-		<div class="col-md-3 headline">
+		<div class="col-md-4 headline">
 			<h1>Entitäten</h1>
 
 			<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
 		</div>
 
-		<div class="col-md-4">
-			<button class="btn btn-default" ui-sref="organisation({id: 'new'})">Organisation anlegen</button>
-			<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>
-		</div>
-
-		<div class="col-md-2">
-			<div class="btn-group">
-				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-					Daten anzeigen <span class="caret"></span>
-				</button>
-				<ul class="dropdown-menu" role="menu">
-					<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
-				</ul>
+		<div class="col-md-5">
+			<div class="pull-right">
+				<label>Aktionen</label>
+				<div>
+					<button class="btn btn-default" ui-sref="organisation({id: 'new'})">Organisation anlegen</button>
+					<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>
+					<div class="btn-group">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+							Daten anzeigen <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
+						</ul>
+					</div>
+				</div>
 			</div>
 		</div>
+
 
 		<div class="col-md-3">
-			<div class="pull-right has-feedback">
-				<label>Suche</label>
-				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
-				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
-			</div>
+			<div ng-include="'partials/filter.html'"></div>
 		</div>
 	</div>
 	<div ng-if="loading" class="loading">
-		<h1><i class="fa fa-spin fa-spinner"></i> Entitäten-Liste wird geladen</h1>
+		<h1><i class="fa fa-spin fa-spinner"></i> Entitäten-Liste<br/>wird geladen</h1>
 	</div>
 
 	<table ng-table="tableParams" template-pagination="partials/pager.html" show-filter="false" class="table table-striped">
@@ -379,31 +372,30 @@
 			<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
 		</div>
 
-		<div class="col-md-2">
-			<button class="btn btn-default" ui-sref="relation({id: 'new'})">Verbindung anlegen</button>
-		</div>
 
-		<div class="col-md-3">
-			<div class="btn-group">
-				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-					Daten anzeigen <span class="caret"></span>
-				</button>
-				<ul class="dropdown-menu" role="menu">
-					<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
-				</ul>
+		<div class="col-md-5">
+			<div class="pull-right">
+				<label>Aktionen</label>
+				<div>
+					<button class="btn btn-default" ui-sref="relation({id: 'new'})">Verbindung anlegen</button>
+					<div class="btn-group">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+							Daten anzeigen <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
+						</ul>
+					</div>
+				</div>
 			</div>
 		</div>
 
 		<div class="col-md-3">
-			<div class="pull-right has-feedback">
-				<label>Suche</label>
-				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
-				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
-			</div>
+			<div ng-include="'partials/filter.html'"></div>
 		</div>
 	</div>
 	<div ng-if="loading" class="loading">
-		<h1><i class="fa fa-spin fa-spinner"></i> Verbindungen-Liste wird geladen</h1>
+		<h1><i class="fa fa-spin fa-spinner"></i> Verbindungen-Liste<br/>wird geladen</h1>
 	</div>
 
 	<table ng-table="tableParams" template-pagination="partials/pager.html" show-filter="false" class="table table-striped">
@@ -567,6 +559,27 @@
 	</div>
 </script>
 
+<script type="text/ng-template" id="partials/filter.html">
+	<div class="pull-right">
+		<label>Filter</label>
+
+		<div class="input-group">
+			<input type="text" class="form-control" ng-model="filter.text" placeholder="Filter {{filter.mode.name}}" ng-enter="refilter()">
+
+			<div class="input-group-btn" ng-show="fields.length>1">
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>
+				<ul class="dropdown-menu dropdown-menu-right" role="menu">
+
+					<li ng-class="{active:!filter.mode}"><a href ng-click="setFilterMode(null)">Alle Felder</a></li>
+					<li><a href ng-show="filter.text.length>0" ng-click="resetFilter()"><i class="fa fa-remove"></i> Filter entfernen</a></li>
+					<li class="divider"></li>
+					<li ng-repeat="o in state.fields" ng-class="{active:filter.mode==o}" ng-click="setFilterMode(o)"><a href ng-bind="o.name"></a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</script>
+
 <script type="text/ng-template" id="partials/users.html">
 
 	<div class="row">
@@ -577,15 +590,16 @@
 		</div>
 
 		<div class="col-md-3">
-			<button class="btn btn-default" ui-sref="user({id: 'new'})">Benutzerin anlegen</button>
+			<div class="pull-right">
+				<label>Aktionen</label>
+				<div>
+					<button class="btn btn-default" ui-sref="user({id: 'new'})">Benutzerin anlegen</button>
+				</div>
+			</div>
 		</div>
 
 		<div class="col-md-3">
-			<div class="pull-right has-feedback">
-				<label>Suche</label>
-				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
-				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
-			</div>
+			<div ng-include="'partials/filter.html'"></div>
 		</div>
 	</div>
 
@@ -681,15 +695,16 @@
 		</div>
 
 		<div class="col-md-3">
-			<button class="btn btn-default" ui-sref="field({id: 'new'})">Datenfeld anlegen</button>
+			<div class="pull-right">
+				<label>Aktionen</label>
+				<div>
+					<button class="btn btn-default" ui-sref="field({id: 'new'})">Datenfeld anlegen</button>
+				</div>
+			</div>
 		</div>
 
 		<div class="col-md-3">
-			<div class="pull-right has-feedback">
-				<label>Suche</label>
-				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
-				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
-			</div>
+			<div ng-include="'partials/filter.html'"></div>
 		</div>
 	</div>
 
@@ -1059,6 +1074,7 @@
 					<li ng-repeat="t in tags"><a href ng-click="addEntry('tags', t)" ng-bind="t"></a></li>
 				</ul>
 			</span>
+
 			<div class="has-feedback">
 				<input type="text" class="form-control" placeholder="Schlagworte" ng-model="edit.tags" datasets="datasetTags" ngtypeahead>
 				<span ng-show="canAddEntry('tags', edit.tags)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry('tags', edit.tags)"></span>
@@ -1109,19 +1125,20 @@
 		</div>
 
 		<div class="col-md-3">
-			<button class="btn btn-default" ng-click="newEntry();">Eintrag anlegen</button>
+			<div class="pull-right">
+				<label>Aktionen</label>
+				<div>
+					<button class="btn btn-default" ng-click="newEntry();">Eintrag anlegen</button>
+				</div>
+			</div>
 		</div>
 
 		<div class="col-md-3">
-			<div class="pull-right has-feedback">
-				<label>Suche</label>
-				<input type="text" ng-model="filter.text" placeholder="Suche" ng-enter="refilter()">
-				<span ng-show="filter.text.length>0" class="form-control-feedback clickable" ng-click="resetFilter()"><i class="fa fa-remove"></i></span>
-			</div>
+			<div ng-include="'partials/filter.html'"></div>
 		</div>
 	</div>
 	<div ng-if="loading" class="loading">
-		<h1><i class="fa fa-spin fa-spinner"></i> Whitelist wird geladen</h1>
+		<h1><i class="fa fa-spin fa-spinner"></i> Whitelist<br/>wird geladen</h1>
 	</div>
 
 	<table ng-table="tableParams" template-pagination="partials/pager-blank.html" show-filter="false" class="table table-striped">
