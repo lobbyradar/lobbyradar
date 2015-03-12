@@ -203,7 +203,7 @@ var execute = function(finish){
 					importer: "kabinette",
 					created: (new Date()),
 					updated: (new Date()),
-					type: "entity",
+					type: "person",
 					tags: ["kabinette"].concat(item.tags),
 					name: item.name,
 					aliases: [],
