@@ -11,6 +11,8 @@ console.log('Prepare Layout');
 var nodes = data.nodes;
 var links = data.links;
 
+if (process.argv[2]) maxIterations = parseInt(process.argv[2], 10);
+
 links.forEach(function (link, index) {
 	if (link.source === undefined) {
 		console.log(link, index)
@@ -46,7 +48,6 @@ var force = d3.layout.force()
 	.alpha(0.1)
 
 force.on('tick', function () {
-	console.log('.');
 	interation++;
 
 	var alpha = 0.1 * Math.pow(0.05, interation/maxIterations);
@@ -58,8 +59,8 @@ force.on('tick', function () {
 		return
 	}
 
-	if (interation % 25 == 0) {
-		//console.log(interation);
+	if (interation % 100 == 0) {
+		console.log((100*interation/maxIterations).toFixed(1)+'%');
 		savePositions();
 	}
 })
@@ -68,7 +69,7 @@ console.log('Start Layout');
 force.start();
 
 function savePositions() {
-	console.log('write positions');
+	//console.log('write positions');
 	var positions = nodes.map(function (node) {
 		return {
 			i: node.id,
