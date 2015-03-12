@@ -478,7 +478,7 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 		return result.map(function (v) {
 			if (!v.value) return '';
 			if ((v.format == 'strings') || (v.format == 'tags')) return v.value.join(', ');
-			else if (v.format == 'bool') return v.value ? 'ja' : 'nein';
+			else if (v.format == 'bool') return v.value ? 'Ja' : 'Nein';
 			else if (v.format == 'link') return v.value.url;
 			else if (v.format == 'date') return dateFilter(v.value.date, v.value.fmt);
 			else if (v.format == 'number') return v.value;
@@ -538,7 +538,13 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 
 	$scope.resetFilter = function () {
 		$scope.filter.text = '';
-		$scope.tableParams.reload();
+		$scope.filter.mode = null;
+		$scope.refilter();
+	};
+
+	$scope.setFilterMode = function (field) {
+		$scope.filter.mode = field;
+		$scope.refilter();
 	};
 
 	$scope.removeFromList = function (id) {
@@ -586,13 +592,25 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		state.table.page = params.page();
 		state.table.count = params.count();
 		state.table.sorting = params.sorting();
+		var orderedData = $scope.list;
 
-		var orderedData = $scope.filter.text.length == 0 ? $scope.list : $scope.list.filter(function (o) {
-			return (
-			((o.name || '').indexOf($scope.filter.text) >= 0) ||
-			((o.tags ? o.tags : []).join(',').indexOf($scope.filter.text) >= 0)
-			);
-		});
+		if ($scope.filter.text.length > 0) {
+			var allFilter = function (o) {
+				var found = false;
+				state.fields.forEach(function (f) {
+					if (!found) {
+						var s = $scope.getDispayValues(f, o);
+						found = (s.indexOf($scope.filter.text) >= 0);
+					}
+				});
+				return found;
+			};
+			var singleFilter = function (o) {
+				var s = $scope.getDispayValues($scope.filter.mode, o) || '';
+				return (s.indexOf($scope.filter.text) >= 0);
+			};
+			orderedData = orderedData.filter($scope.filter.mode ? singleFilter : allFilter);
+		}
 
 		if ($scope.filter.special) {
 			orderedData = orderedData.filter(function (o) {
@@ -1102,10 +1120,20 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 
 app.controller('FieldsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, fields) {
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, fields, 'fields', 200);
+	$scope.fields = [
+		{name: 'Name', key: 'name', format: 'string', _type: 'fields'},
+		{name: 'Schlüssel', key: 'key', format: 'string', _type: 'fields'},
+		{name: 'Format', key: 'format', format: 'string', _type: 'fields'},
+		{name: 'Typ', key: 'mode', format: 'string', _type: 'fields'},
+		{name: 'Standard', key: 'default', format: 'bool', _type: 'fields'}
+	];
+	$scope.state.fields = $scope.fields;
 });
 
 app.controller('UsersCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, users) {
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, users, 'users', 200);
+	$scope.fields = [{name: 'Name', key: 'name', format: 'string', _type: 'fields'}];
+	$scope.state.fields = $scope.fields;
 });
 
 app.controller('TagEdit', function ($scope) {
@@ -1786,6 +1814,9 @@ app.controller('WhitelistCtrl', function ($scope, $resource, $filter, $modal, ng
 			whitelist.remove({site: opt.id}, {site: opt.id}, onsuccess, onerror);
 		}
 	}, 'whitelist', 5000);
+
+	$scope.fields = [{name: 'URL', key: 'name', format: 'string', _type: 'fields'}];
+	$scope.state.fields = $scope.fields;
 
 	$scope.newEntry = function () {
 		editModalDialog($modal,
