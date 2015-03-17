@@ -16,6 +16,6 @@ var api = require(path.resolve(__dirname, "../lib/api.js"))(config.api, db);
 
 api.relgraph(function(err, graph){
 	debug("retrieved %d edges", graph.length);
-	fs.writeFileSync(path.resolve(__dirname, "../assets/cache/relgraph.json"), JSON.stringify(graph,null,"\t"));
+	fs.writeFileSync(path.resolve(__dirname, "../assets/cache/relgraph.json"), JSON.stringify(graph));
 	process.exit();
 });
