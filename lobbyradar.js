@@ -149,7 +149,7 @@ app.get("/api/search", function (req, res) {
 });
 
 // search api, post
-app.get("/api/search", function (req, res) {
+app.post("/api/search", function (req, res) {
 
 	// check for query property
 	if (!req.body.hasOwnProperty("q")) return res.type("json").status("200").json({error: "no query", result: []});
