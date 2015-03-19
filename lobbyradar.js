@@ -16,7 +16,7 @@ var passportlocal = require("passport-local");
 var passport = require("passport");
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
-var	sessionstore = require('express-session-json')(session);
+var sessionstore = require('express-session-json')(session);
 
 // config
 var config = require("./config.js");
