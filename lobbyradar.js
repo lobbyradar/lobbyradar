@@ -165,6 +165,15 @@ app.post("/api/search", function (req, res) {
 	});
 });
 
+// route api, get+post
+app.all("/api/route/:from/:to", function (req, res) {
+
+	// perform route search
+	api.route(req.params.from, req.params.to, function(err, result){
+		res.type("json").status("200").json({err: ((err)?err.message:null), result: result||null});
+	});
+});
+
 // whitelist
 app.get("/api/plugin/whitelist", function (req, res) {
 	debug("get plugin whitelist");

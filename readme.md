@@ -119,6 +119,41 @@ List relation tags
 
 List all relations
 
+### `GET /api/route/{entid}/{entid}`
+
+Find shortest connection(s) between entities. Result:
+
+```javascript
+{
+	"routes": [
+		[entid, entid, entid, ...],
+		[entid, entid, entid, ...],
+		...
+	],
+	"entities": {
+		entid: {
+			"name": "<name>", 
+			"type":"<type>"
+		},
+		...
+	},
+	"relations": {
+		relid: {
+			"type": type,
+			"entities": [entid, entid]
+		},
+		...
+	},
+	"map": {
+		entid: {
+			entid: relid,
+			...
+		},
+		...
+	}
+}
+```
+
 ## Data API
 
 See [api.md](./api.md)
