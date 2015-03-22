@@ -39,8 +39,8 @@ var execute = function(finish){
 			quelle: (set.quelle||null),
 			ents: []
 				.concat(set.mitarbeiter.replace(/^\s+|\s+$/g,'').split(/,\s+/).map(function(s){ return { type: "person", name: s, rel: "position" }}))
-				.concat(set.kunden.replace(/^\s+|\s+$/g,'').split(/,\s+/).map(function(s){ return { type: "organisation", name: s, rel: "business" }}))
-				.concat(set.bestandteil.replace(/^\s+|\s+$/g,'').split(/,\s+/).map(function(s){ return { type: "organisation", name: s, rel: "association" }}))
+				.concat(set.kunden.replace(/^\s+|\s+$/g,'').split(/,\s+/).map(function(s){ return { type: "entity", name: s, rel: "business" }}))
+				.concat(set.bestandteil.replace(/^\s+|\s+$/g,'').split(/,\s+/).map(function(s){ return { type: "entity", name: s, rel: "association" }}))
 				.filter(function(i){ return (i.name !== null && i.name !== "");  })
 		};
 
@@ -49,7 +49,7 @@ var execute = function(finish){
 				importer: "pr",
 				created: (new Date()),
 				updated: (new Date()),
-				type: "organisation",
+				type: "entity",
 				tags: set.tags,
 				name: set.name,
 				aliases: [],
