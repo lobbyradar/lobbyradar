@@ -160,6 +160,10 @@ app.factory('entities', function ($resource) {
 			remove: {
 				method: 'POST',
 				params: {cmd: 'delete'}
+			},
+			multitags: {
+				method: 'POST',
+				params: {cmd: 'multitags'}
 			}
 		}
 	);
@@ -659,19 +663,101 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 	$scope.state = state;
 	state.fields = state.fields || [];
 
+	$scope.checks = {
+		enabled: false,
+		value: '',
+		dataset: {
+			options: {
+				minLength: 2,
+				highlight: true
+			},
+			displayKey: "value",
+			source: function (q, callback) {
+				var matches = [];
+				var search = function () {
+					var substrRegex = new RegExp(q, 'i');
+					$.each($scope.checks.dataset.tags, function (i, s) {
+						if (substrRegex.test(s)) {
+							matches.push({value: s});
+						}
+					});
+					callback(matches);
+				};
+				if ($scope.checks.dataset.tags) return search();
+				tags.list({type: mode}, function (data) {
+						if (data.error) {
+							callback(matches);
+							return reportServerError($scope, data.error);
+						}
+						$scope.checks.dataset.tags = data.result;
+						search();
+					},
+					function (err) {
+						callback(matches);
+						console.error(err);
+					}
+				);
+
+			}
+		}
+	};
+
+	$scope.addTag = function () {
+		var tag = $scope.checks.value.trim();
+		if (tag.length == 0) return reportServerError($scope, 'Ungültiges Schlagwort');
+		var list = $scope.list.filter(function (p) {
+			return (p.$checked) && (p.tags.indexOf($scope.checks.value) < 0);
+		});
+		if (list.length == 0) return reportServerError($scope, 'Ungültige Auswahl');
+		var ids = list.map(function (p) {
+			return p._id;
+		});
+		entities.multitags({mode: 'add', tag: tag, ids: ids}, function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			list.forEach(function (p) {
+				p.tags.push(tag);
+			});
+			console.log(data);
+		}, function (err) {
+			console.error(err);
+		});
+	};
+
+	$scope.removeTag = function () {
+		var tag = $scope.checks.value.trim();
+		if (tag.length == 0) return reportServerError($scope, 'Ungültiges Schlagwort');
+		var list = $scope.list.filter(function (p) {
+			return (p.$checked) && (p.tags.indexOf($scope.checks.value) >= 0);
+		});
+		if (list.length == 0) return reportServerError($scope, 'Ungültige Auswahl');
+		var ids = list.map(function (p) {
+			return p._id;
+		});
+		entities.multitags({mode: 'remove', tag: tag, ids: ids}, function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			list.forEach(function (p) {
+				p.tags = p.tags.filter(function (t) {
+					return t != tag;
+				})
+			});
+		}, function (err) {
+			console.error(err);
+		});
+	};
+
 	var fixedfields = [
 		{name: 'Name', key: 'name', format: 'string', _type: 'fields'},
 		{name: 'Aliase', key: 'aliases', format: 'tags', _type: 'fields'},
 		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'},
 		{name: 'Anzahl Verbindungen', key: 'connections', format: 'number', _type: 'extras'}
 	];
-	if (mode == 'entities') fixedfields.push({name: 'Art', key: 'type', format: 'string', _type: 'fields'});
+	if (mode == 'all') fixedfields.push({name: 'Art', key: 'type', format: 'string', _type: 'fields'});
 
 	if (state.fields.length == 0) {
 		state.fields.push(fixedfields[0]);
 		state.fields.push(fixedfields[1]);
 		state.fields.push(fixedfields[2]);
-		if (mode == 'entities') state.fields.push(fixedfields[4]);
+		if (mode == 'all') state.fields.push(fixedfields[4]);
 	}
 
 	fields.list({mode: mode}, function (data) {
@@ -899,7 +985,6 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 
 	};
 
-	//var searchObject = $location.search();
 };
 
 app.controller('PersonsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, persons, entities, fields, tags) {
@@ -907,11 +992,11 @@ app.controller('PersonsCtrl', function ($scope, $location, $resource, $filter, $
 });
 
 app.controller('OrganisationsCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, entities, fields, tags) {
-	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, entities, fields, tags, 'organisations', 'Organisation');
+	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, organisations, entities, fields, tags, 'entities', 'Organisation');
 });
 
 app.controller('EntitiesCtrl', function ($scope, $location, $resource, $filter, $modal, ngTableParams, entities, fields, tags) {
-	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, entities, entities, fields, tags, 'entities', 'Entität');
+	entitiesListCtrl($scope, $location, $resource, $filter, $modal, ngTableParams, entities, entities, fields, tags, 'all', 'Entität');
 });
 
 app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, relations, fields, tags) {
@@ -1368,7 +1453,7 @@ app.controller('PersonEditCtrl', function ($scope, $state, $stateParams, persons
 });
 
 app.controller('OrganisationEditCtrl', function ($scope, $state, $stateParams, organisations, fields, tags) {
-	typedEntityEditCtrl($scope, $state, $stateParams, organisations, fields, tags, 'entity', 'organisations', 'Organisation');
+	typedEntityEditCtrl($scope, $state, $stateParams, organisations, fields, tags, 'entity', 'entities', 'Organisation');
 });
 
 app.controller('LoginCtrl', function ($scope, $state, $stateParams, $resource, $rootScope, auth) {

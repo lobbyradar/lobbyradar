@@ -154,15 +154,11 @@
 
 			<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
 
-			<div class="checkbox">
-				<label>
-					<input type="checkbox" ng-checked="filter.special" ng-click="toggleSpecialFilter()"> Nicht-Standard-Namen filtern
-				</label>
-			</div>
 		</div>
 		<div class="col-md-5">
 			<div class="pull-right">
 				<label>Aktionen</label>
+
 				<div>
 					<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>
 					<div class="btn-group">
@@ -176,48 +172,75 @@
 				</div>
 			</div>
 		</div>
-
 		<div class="col-md-3">
 			<div ng-include="'partials/filter.html'"></div>
 		</div>
+	</div>
 
-		<div ng-if="loading" class="loading">
-			<h1><i class="fa fa-spin fa-spinner"></i> Personen-Liste<br/>wird geladen</h1>
-		</div>
+	<div ng-if="loading" class="loading">
+		<h1><i class="fa fa-spin fa-spinner"></i> Personen-Liste<br/>wird geladen</h1>
+	</div>
 
-		<table ng-table="tableParams" template-pagination="partials/pager.html" show-filter="false" class="table table-striped">
+	<form class="form-inline">
 
-			<thead>
-			<tr>
-				<th ng-repeat="f in state.fields"
-					class="sortable" ng-class="{
+		<label class="checkbox-inline">
+			<input type="checkbox" ng-model="checks.enabled"> Massenzuweisung Schlagworte
+		</label>
+
+		<label class="checkbox-inline">
+			<input type="checkbox" ng-checked="filter.special" ng-click="toggleSpecialFilter()"> Nicht-Standard-Namen filtern
+		</label>
+
+	</form>
+
+	<div class="well" ng-show="checks.enabled">
+		<form class="form">
+			<label>Schlagwort</label>
+
+			<div class="form-group" ng-controller="AutoCompleteCtrl">
+				<input type="text" class="form-control" placeholder="Text" ng-model="checks.value" datasets="checks.dataset" ngtypeahead>
+			</div>
+		</form>
+
+		<button type="button" class="btn btn-default" ng-click="addTag()">Schlagwort hinzufügen</button>
+		<button type="button" class="btn btn-default" ng-click="removeTag()">Schlagwort entfernen</button>
+	</div>
+
+	<table ng-table="tableParams" template-pagination="partials/pager.html" show-filter="false" class="table table-striped">
+
+		<thead>
+		<tr>
+			<th ng-if="checks.enabled"></th>
+			<th ng-repeat="f in state.fields"
+				class="sortable" ng-class="{
                     'sort-asc': tableParams.isSortBy(f.key, 'asc'),
                     'sort-desc': tableParams.isSortBy(f.key, 'desc')
                   }"
-					ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
-					<span ng-bind="f.name"></span>
-					<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f.key, 'asc'),'fa-sort-desc':tableParams.isSortBy(f.key, 'desc')}" class="fa"></span>
-				</th>
+				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+				<span ng-bind="f.name"></span>
+				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f.key, 'asc'),'fa-sort-desc':tableParams.isSortBy(f.key, 'desc')}" class="fa"></span>
+			</th>
 
-				<th class="text-right">Aktionen</th>
-			</tr>
-			</thead>
+			<th class="text-right">Aktionen</th>
+		</tr>
+		</thead>
 
-			<tbody>
-			<tr ng-repeat="p in $data">
-				<td ng-repeat="f in state.fields">
-					<span ng-bind="getDispayValues(f,p)"></span>
-					<span ng-show="f._type!=='extras'" class="btn-left" title="{{f.name}} bearbeiten" ng-click="editData(f,p)"><i class="fa fa-pencil"></i></span>
-				</td>
-				<td class="col-action-large">
-					<span class="btn-right" ng-click="remove(p)" title="Person löschen"><i class="fa fa-trash"></i></span>
-					<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
-					<span class="btn-right" ng-click='mergeDialog(p)' title="Personen zusammenführen"><i class="fa fa-code-fork fa-rotate-270"></i></span>
-					<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
-				</td>
-			</tr>
-			</tbody>
-		</table>
+		<tbody>
+		<tr ng-repeat="p in $data">
+			<td ng-if="checks.enabled"><input type="checkbox" ng-model="p.$checked"></td>
+			<td ng-repeat="f in state.fields">
+				<span ng-bind="getDispayValues(f,p)"></span>
+				<span ng-show="f._type!=='extras'" class="btn-left" title="{{f.name}} bearbeiten" ng-click="editData(f,p)"><i class="fa fa-pencil"></i></span>
+			</td>
+			<td class="col-action-large">
+				<span class="btn-right" ng-click="remove(p)" title="Person löschen"><i class="fa fa-trash"></i></span>
+				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
+				<span class="btn-right" ng-click='mergeDialog(p)' title="Personen zusammenführen"><i class="fa fa-code-fork fa-rotate-270"></i></span>
+				<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
+			</td>
+		</tr>
+		</tbody>
+	</table>
 
 </script>
 
@@ -228,11 +251,13 @@
 			<h1>Organisationen</h1>
 
 			<p>Anzahl <span ng-bind="tableParams.total()"></span></p>
+
 		</div>
 
 		<div class="col-md-5">
 			<div class="pull-right">
 				<label>Aktionen</label>
+
 				<div>
 					<button class="btn btn-default" ui-sref="organisation({id: 'new'})">Organisation anlegen</button>
 					<div class="btn-group">
@@ -250,8 +275,29 @@
 		<div class="col-md-3">
 			<div ng-include="'partials/filter.html'"></div>
 		</div>
-
 	</div>
+
+	<form class="form-inline">
+
+		<label class="checkbox-inline">
+			<input type="checkbox" ng-model="checks.enabled"> Massenzuweisung Schlagworte
+		</label>
+
+	</form>
+
+	<div class="well" ng-show="checks.enabled">
+		<form class="form">
+			<label>Schlagwort</label>
+
+			<div class="form-group" ng-controller="AutoCompleteCtrl">
+				<input type="text" class="form-control" placeholder="Text" ng-model="checks.value" datasets="checks.dataset" ngtypeahead>
+			</div>
+		</form>
+
+		<button type="button" class="btn btn-default" ng-click="addTag()">Schlagwort hinzufügen</button>
+		<button type="button" class="btn btn-default" ng-click="removeTag()">Schlagwort entfernen</button>
+	</div>
+
 	<div ng-if="loading" class="loading">
 		<h1><i class="fa fa-spin fa-spinner"></i> Organisationen-Liste<br/>wird geladen</h1>
 	</div>
@@ -260,6 +306,7 @@
 
 		<thead>
 		<tr>
+			<th ng-if="checks.enabled"></th>
 			<th ng-repeat="f in state.fields"
 				class="sortable" ng-class="{
                     'sort-asc': tableParams.isSortBy(f.key, 'asc'),
@@ -275,6 +322,7 @@
 
 		<tbody>
 		<tr ng-repeat="p in $data">
+			<td ng-if="checks.enabled"><input type="checkbox" ng-model="p.$checked"></td>
 			<td ng-repeat="f in state.fields">
 				<span ng-bind="getDispayValues(f,p)"></span>
 				<span ng-show="f._type!=='extras'" class="btn-left" title="{{f.name}} bearbeiten" ng-click="editData(f,p)"><i class="fa fa-pencil"></i></span>
@@ -303,6 +351,7 @@
 		<div class="col-md-5">
 			<div class="pull-right">
 				<label>Aktionen</label>
+
 				<div>
 					<button class="btn btn-default" ui-sref="organisation({id: 'new'})">Organisation anlegen</button>
 					<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>
@@ -376,6 +425,7 @@
 		<div class="col-md-5">
 			<div class="pull-right">
 				<label>Aktionen</label>
+
 				<div>
 					<button class="btn btn-default" ui-sref="relation({id: 'new'})">Verbindung anlegen</button>
 					<div class="btn-group">
@@ -592,6 +642,7 @@
 		<div class="col-md-3">
 			<div class="pull-right">
 				<label>Aktionen</label>
+
 				<div>
 					<button class="btn btn-default" ui-sref="user({id: 'new'})">Benutzerin anlegen</button>
 				</div>
@@ -697,6 +748,7 @@
 		<div class="col-md-3">
 			<div class="pull-right">
 				<label>Aktionen</label>
+
 				<div>
 					<button class="btn btn-default" ui-sref="field({id: 'new'})">Datenfeld anlegen</button>
 				</div>
@@ -868,8 +920,7 @@
 <script type="text/ng-template" id="partials/datafields.html">
 
 	<div ng-repeat="d in fields" ng-switch="d.format" ng-controller="FieldListEditCtrl">
-		<p class="field-headline"><span ng-bind="d.desc"></span><i ng-show="!d.fixed" class="glyphicon glyphicon-remove btn-right" title="{{d.desc}} entfernen"
-																   ng-click="removeData(d,fields)"></i></p>
+		<p class="field-headline"><span ng-bind="d.desc"></span><i ng-show="!d.fixed" class="glyphicon glyphicon-remove btn-right" title="{{d.desc}} entfernen" ng-click="removeData(d,fields)"></i></p>
 
 		<div ng-switch-when="link" class="row">
 			<form class="form">
@@ -1127,6 +1178,7 @@
 		<div class="col-md-3">
 			<div class="pull-right">
 				<label>Aktionen</label>
+
 				<div>
 					<button class="btn btn-default" ng-click="newEntry();">Eintrag anlegen</button>
 				</div>

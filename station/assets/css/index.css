@@ -113,6 +113,10 @@ body {
 	font-size: 0.8em;
 }
 
+.headline .checkbox {
+	display:inline-block;
+}
+
 .navbar-brand {
 	font-size: 30px;
 	font-family: "Roboto Slab";

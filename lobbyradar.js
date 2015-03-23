@@ -284,6 +284,14 @@ app.all("/api/entity/export", function (req, res) {
 	});
 });
 
+// export.
+app.post("/api/entity/multitags", function (req, res) {
+	debug("multitags");
+	api.ent_multitags(req.body.mode, req.body.tag, req.body.ids, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
 // create relation.
 app.post("/api/relation/create", function (req, res) {
 	debug("create relation");
