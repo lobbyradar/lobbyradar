@@ -636,6 +636,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		total: 0,
 		getData: getData
 	});
+
 	$scope.$watch("filter.text", $scope.refilter);
 
 	$scope.reload = function () {
@@ -717,7 +718,6 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 			list.forEach(function (p) {
 				p.tags.push(tag);
 			});
-			console.log(data);
 		}, function (err) {
 			console.error(err);
 		});
@@ -777,6 +777,8 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 		for (var key in q) {
 			q[key] = q[key].join(',');
 		}
+		if (state.hasRelationWith)
+			q.hasRelationWith = state.hasRelationWith;
 		return q;
 	});
 
