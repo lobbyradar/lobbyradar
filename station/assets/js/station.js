@@ -669,7 +669,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 		value: '',
 		dataset: {
 			options: {
-				minLength: 2,
+				minLength: 1,
 				highlight: true
 			},
 			displayKey: "value",
@@ -702,6 +702,50 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 			}
 		}
 	};
+
+	$scope.hasRelationWith = {
+		value: null,
+		enabled: false,
+		dataset: {
+			name: 'hasRelationWith',
+			options: {
+				minLength: 2,
+				highlight: true
+			},
+			displayKey: "name",
+			source: function (q, callback) {
+				entities.list({search: q}, function (data) {
+					if (data.error) return reportServerError($scope, data.error);
+					callback(data.result);
+				}, function (err) {
+					console.error(err);
+				});
+			}
+		},
+		checkFilter: function () {
+			if (!$scope.hasRelationWith.enabled)
+				$scope.hasRelationWith.filter();
+		},
+		filter: function () {
+			$scope.reload();
+		}
+	};
+	var typeaheadenter = function (sender, event, value, daset, clear) {
+		if ((daset.name == 'hasRelationWith') && value && (value._id)) {
+			$scope.hasRelationWith.id = value._id;
+		}
+	};
+	$scope.$on("typeahead:enter", function (sender, event, value, daset, clear) {
+		typeaheadenter(sender, event, value, daset, clear);
+		if ($scope.hasRelationWith.id && (value == '')) $scope.hasRelationWith.filter();
+	});
+	$scope.$on("typeahead:selected", typeaheadenter);
+	$scope.$on("typeahead:changed", function (sender, value, daset) {
+		if (daset.name == 'hasRelationWith') {
+			$scope.hasRelationWith.id = null;
+		}
+	});
+
 
 	$scope.addTag = function () {
 		var tag = $scope.checks.value.trim();
@@ -777,8 +821,10 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 		for (var key in q) {
 			q[key] = q[key].join(',');
 		}
-		if (state.hasRelationWith)
-			q.hasRelationWith = state.hasRelationWith;
+		if ($scope.hasRelationWith.enabled) {
+			if ($scope.hasRelationWith.id)
+				q.hasRelationWith = $scope.hasRelationWith.id;
+		}
 		return q;
 	});
 

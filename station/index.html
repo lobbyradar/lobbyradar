@@ -182,22 +182,38 @@
 	</div>
 
 	<form class="form-inline">
-
 		<label class="checkbox-inline">
 			<input type="checkbox" ng-model="checks.enabled"> Massenzuweisung Schlagworte
 		</label>
-
 		<label class="checkbox-inline">
 			<input type="checkbox" ng-checked="filter.special" ng-click="toggleSpecialFilter()"> Nicht-Standard-Namen filtern
 		</label>
-
+		<label class="checkbox-inline">
+			<input type="checkbox" ng-model="hasRelationWith.enabled" ng-click="hasRelationWith.checkFilter()"> Nach Verbindung filtern
+		</label>
 	</form>
+
+	<div class="well" ng-show="hasRelationWith.enabled">
+		<form class="form">
+			<label>Hat Verbindung mit</label>
+
+			<div class="form-group">
+				<div class="input-group">
+					<input type="text" class="form-control" placeholder="Person/Organisation auswählen" ng-model="hasRelationWith.value" datasets="hasRelationWith.dataset" ngtypeahead>
+
+					<div class="input-group-btn">
+						<button type="button" class="btn btn-default" ng-click="hasRelationWith.filter()">Filtern</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
 
 	<div class="well" ng-show="checks.enabled">
 		<form class="form">
 			<label>Schlagwort</label>
 
-			<div class="form-group" ng-controller="AutoCompleteCtrl">
+			<div class="form-group">
 				<input type="text" class="form-control" placeholder="Text" ng-model="checks.value" datasets="checks.dataset" ngtypeahead>
 			</div>
 		</form>
@@ -283,19 +299,38 @@
 			<input type="checkbox" ng-model="checks.enabled"> Massenzuweisung Schlagworte
 		</label>
 
+		<label class="checkbox-inline">
+			<input type="checkbox" ng-model="hasRelationWith.enabled" ng-click="hasRelationWith.checkFilter()"> Nach Verbindung filtern
+		</label>
+
 	</form>
 
 	<div class="well" ng-show="checks.enabled">
 		<form class="form">
 			<label>Schlagwort</label>
 
-			<div class="form-group" ng-controller="AutoCompleteCtrl">
+			<div class="form-group">
 				<input type="text" class="form-control" placeholder="Text" ng-model="checks.value" datasets="checks.dataset" ngtypeahead>
 			</div>
 		</form>
 
 		<button type="button" class="btn btn-default" ng-click="addTag()">Schlagwort hinzufügen</button>
 		<button type="button" class="btn btn-default" ng-click="removeTag()">Schlagwort entfernen</button>
+	</div>
+
+	<div class="well" ng-show="hasRelationWith.enabled">
+		<form class="form">
+			<label>Hat Verbindung mit</label>
+			<div class="form-group">
+				<div class="input-group">
+					<input type="text" class="form-control" placeholder="Person/Organisation auswählen" ng-model="hasRelationWith.value" datasets="hasRelationWith.dataset" ngtypeahead>
+
+					<div class="input-group-btn">
+						<button type="button" class="btn btn-default" ng-click="hasRelationWith.filter()">Filtern</button>
+					</div>
+				</div>
+			</div>
+		</form>
 	</div>
 
 	<div ng-if="loading" class="loading">
