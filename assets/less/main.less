@@ -54,7 +54,23 @@ float:right;
 }
 
 .btn-lg { font-size:18px; padding:15px; }
-input.lobbysearch { font-size:18px; }
+input.lobbysearch { 
+  font-size:18px; 
+  border: 0px;
+// -webkit-box-shadow: inset 0px 0px 7px 0px rgba(184,184,184,1);
+// -moz-box-shadow: inset 0px 0px 7px 0px rgba(184,184,184,1);
+// box-shadow: inset 0px 0px 7px 0px rgba(184,184,184,1);
+  padding: 15px;
+  height: 45px;
+}
+.btn-lobbysearch {
+    height: 45px;
+  width: 55px;
+  background: white;
+  z-index: 999;
+  border: 0px;
+  color: @zdf-blue;
+}
 
 .videoWrapper { // responsive videos, ration 16:9
   position: relative;
@@ -91,7 +107,67 @@ input.lobbysearch { font-size:18px; }
   opacity:0.7!important;
   span {  color:#333!important;}
 }
-                                                               
+
+.nav-circle {
+    -moz-border-radius: 50%; 
+    -webkit-border-radius: 50%; 
+    border-radius: 50%;
+    box-shadow:0px 0px 25px @zdf-blue;
+    background: @zdf-blue;
+}
+
+
+.circle-nav {
+  padding:22px 0 18px 18px;
+}
+
+.nav-circle.small {
+  width:40px;
+  height:40px;
+  float:right;
+  display:inline-block;
+  margin-left:10px;
+  font-size:18px!important;
+  padding:8px 12px;
+  color:white;
+  background: @zdf-orange;
+
+  a {
+    color:white;
+    font-size:18px!important;
+    margin:0px!important;
+    &:hover {color:darken(@zdf-orange, 30%)}
+  }
+}   
+
+.nav-circle.big {
+  text-align:center;
+  width:260px;
+  height:260px;
+  padding:30px 15px;
+  color:white;
+  border:2px solid white;
+  p {
+    font-size:90%;
+  }
+    
+  h2 {
+    font-size:16px;
+  }
+
+  .btn {
+    
+  }
+
+  .nav-circle.small {
+    float: left;
+    margin-top:-20px;
+    // display: block;
+    // margin: -10px auto 5px auto;
+  }
+}
+
+                                               
 //              ,,                                                      
 // `7MM"""Yp, `7MM                         `7MM"""Yp,                   
 //   MM    Yb   MM                           MM    Yb                   
@@ -103,89 +179,91 @@ input.lobbysearch { font-size:18px; }
                                                                      
 // ########################################################################################################################
                                                                      
-.zdf-header-blue { height:82px; }
-.zdf-header-blue .search-form  {
-  margin-bottom:20px;
-  margin-top:19px;
 
-  .form-control {
-    height:42px;
-  }
-  input {
-    padding-top:5px;
-      border: 0px;
-  border-radius: 0px;
-  }
-  .input-group-btn button{
-    height:42px;
-  }
-}
-  .miz-logo {
-    float:left!important;
-    margin-top:10px;
-    max-width: 140px;
-  }
 .zdf-header-blue {
+  min-height: 60px;
+  height:60px;
   top:46px;
   position: absolute;
-    z-index:1030;
-    width:100%;
-    overflow:hidden;
-    background: rgba(20,59,82,0.5);
+  z-index:1030;
+  width:100%;
+  background: rgba(20,59,82,0.9);
+  border:0px;
   border-bottom: 1px solid rgba(20,59,82,1);
-  
-  h1 { color:white; }
+  margin-bottom:0px;
+
+  .navbar-toggle {
+    margin:6px;
+    border:0px;
+    color:white;
+    font-size:24px;
+
+    .icon-bar {background-color:white; }
+  }
+
+  .navbar-collapse {
+    border-top:0px;
+
+    &.in,
+    &.collapsing { background-color:#7b7b7b; }
+  }
+
+
+
+  ul.nav {
+    a {
+      color:white; 
+      margin:13px;
+      padding:0px;
+      font-size:14px;
+    }
+  }
+
   .logo-name {
+    padding:3px 0px;
+    height: 30px;
+    margin-left:15px!important;
     padding:5px 0px;
     color:white;
     font-size:32px;
     font-family: "Arial";
     text-align:center;
-    width:100%;
     float: left;
 
+    img { 
+      width:200px;
+      display:inline;
+      margin:17px 0px 0px 0px; 
+    }
+  }
+} // end .zdf-header-blue
+
+@media (min-width: @screen-sm-min) {
+  .zdf-header-blue{
+    height:82px;
+    
+    .logo-name {
+      margin-right:25px;
       img {
-        margin:25px 0px 0px 0px;
-        // max-width:150px;
+        width:250px;
+        margin:25px 0 0 0;
       }
-      // margin: -80px 0px 0px 40px;
-      // margin: -80px 0px 0px 40px; // only needed with fa-stack)
-
-
-
-  .fa-stack {display:none;}
-    .fa-bullseye {
-      color:rgba(255,255,255,0.3);
-      position: relative;
-      margin: -91px 0px 0px -79px;
-      float:left;
-
     }
-    .symbol {
-      color:rgba(255,255,255,1);
-      position: absolute;
-      margin: -30px;
-      float:left;
+    .miz-logo {
+      float:left!important;
+      margin-top:33px;
+      max-width: 150px;
+  
+      img {
+        max-width: 200px;
+        height:auto;
+      }
     }
   }
 }
-
-@media (min-width: @screen-sm-min) { 
-  .zdf-header-blue .logo-name {
-    text-align:left;
-
-    img {
-      // max-width:240px;
-    }
-  }
-}
-
-@media (max-width: 767px) {
-    .zdf-header-blue {
-        position: relative!important;
-        top: auto;
-    }
-}                                                                   
+@media (min-width: @screen-md-min) {}
+@media (min-width: @screen-lg-min) {}
+                                                             
                                                                    
                                                                                                        
                                                                         
@@ -201,6 +279,12 @@ input.lobbysearch { font-size:18px; }
 //                             OOb"                
 
 // ########################################################################################################################                              
+
+
+.social-links {
+  a {float:left;
+    margin-right:5px;}
+}
 
 .share-button.site-share.sharer-0 {
 
@@ -250,17 +334,17 @@ input.lobbysearch { font-size:18px; }
   border:0px!important;
   margin-bottom:0px;
 .miz-logo {
-  width:80px;
+  width:130px;
   height:auto;
   float:left;
-  margin-top: 5px;
-  margin-left: 10px;
+  margin-top: 15px;
+  margin-left: 15px;
 }
 .navbar-toggle {
   border:0px;
 }
 .navbar-brand {
-  margin-left:0px!important;
+  margin-left:10px!important;
   img.zdf-logo-lobbyradar {
     width:150px;
     margin:12px 10px 0px 10px;
@@ -382,6 +466,16 @@ input.lobbysearch { font-size:18px; }
 // ########################################################################################################################
                                              
 
+  .intro {
+    margin-top:13%;
+  }
+
+  .intro {
+    .nav-circle.big {
+      margin:0 auto 30px auto;
+    }
+  }
+
 .overlay {
   background:rgba(12,12,12,0.85);
   width:100%;
@@ -420,22 +514,28 @@ input.lobbysearch { font-size:18px; }
 //                                 MM                                   
 //                                _MM_                                                       
                               
-.abspann-page,
-.faq-page,
-.about-page {
-   &:extend(.bg-gradient);
-   background-position: fixed!important;
-   min-height:100%;     
-
-  p, h1,h2,h3,h4,h5,h6,.panel-body {
+.static-page {
+   // &:extend(.bg-gradient);
+   // background-position: fixed!important;
+   height:100%;
+   min-height:768px;
+   width:100%; 
+  color:white;
+    p, h1,h2,h3,h4,h5,h6,.panel-body {
     color:white;                          
   }
 }
 
-@media (min-width: @screen-md-min) { 
-  .abspann-page,
-  .faq-page,
-  .about-page {
+.home-page {
+  background:url(/assets/images/bg-home.png) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+@media (min-width: @screen-sm-min) { 
+  .static-page {
     padding-top:130px;   
   }
 }
@@ -454,12 +554,12 @@ input.lobbysearch { font-size:18px; }
 
 
 .faq-page {
-  min-height:100%;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-  &:extend(.bg-gradient);
+  // min-height:100%;
+  // -webkit-background-size: cover;
+  // -moz-background-size: cover;
+  // -o-background-size: cover;
+  // background-size: cover;
+  // &:extend(.bg-gradient);
 
   .panel-group { margin-top:20px!important; }
   .panel-default {
@@ -505,8 +605,10 @@ input.lobbysearch { font-size:18px; }
 // ########################################################################################################################
                                                                                                                   
 .fullscreen {
-
+  width:100%;
+  height:100%;
   margin-top:0px;
+  padding-top:20px;
   margin-bottom:-20px;
   position: fixed;
   overflow: scroll;
@@ -527,6 +629,8 @@ input.lobbysearch { font-size:18px; }
   background-size: cover;
   // background: url(../images/earth.png) no-repeat center center fixed; 
 }
+@media (min-width: @screen-sm-min) {.fullscreen{padding-top:0px;}}
+
 #networkviz-wrapper {
   position: fixed;
   width:100%;
@@ -567,6 +671,7 @@ input.lobbysearch { font-size:18px; }
 }
 
 #networkviz {
+
   background: none;
   cursor:-moz-grab;
   cursor:-webkit-grab;
@@ -633,6 +738,7 @@ input.lobbysearch { font-size:18px; }
   z-index: 99!important;
   background:white;
   color:#333;
+    margin-top: 5px;
 }
 
 
@@ -655,6 +761,8 @@ input.lobbysearch { font-size:18px; }
   background:white;
   color:#333;
   padding:19px;
+      margin-top: 5px;
+
   z-index: 99!important;
 
   #backtolist { 

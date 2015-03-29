@@ -1,81 +1,42 @@
 <nav class="zdf-header-grey navbar navbar-default">
+
 	<div class="container">
+
 		<!-- Brand and toggle get grouped for better mobile display -->
 		<div class="navbar-header">
-			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			</button>
+
 			<a class="navbar-brand" href="#">				
-				<img class="hidden-xs zdf-logo img-responsive" src="/assets/images/ZDF-logo-45x26.svg" onerror="this.src='/assets/images/ZDF-logo-45x26.png';this.onerror=null;" alt="ZDF" >
-				<img class="hidden-sm hidden-md hidden-lg  zdf-logo-lobbyradar" src="/assets/images/zdf-lobbyradar-logo.svg" onerror="this.src='/assets/images/zdf-lobbyradar-logo.png';this.onerror=null;" alt="ZDF" width="240" height="auto">
+				<img class="zdf-logo img-responsive" src="/assets/images/ZDF-logo-45x26.svg" onerror="this.src='/assets/images/ZDF-logo-45x26.png';this.onerror=null;" alt="ZDF" >
 			</a>
-			<img class="hidden-sm hidden-md hidden-lg miz-logo" src="/assets/images/logo-miz.png" alt="MIZ" width="auto" height="60">
+
+			<img class="visible-xs-block miz-logo" src="/assets/images/logo-miz.png" alt="MIZ" width="auto" height="60">
 
 		</div>
 
 		<!-- Collect the nav links, forms, and other content for toggling -->
-		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-			<ul class="nav navbar-nav">
+		<div>
+
+			<ul class="nav navbar-nav hidden-xs">
 				<li><a href="http://www.heute.de/" target="_blank">ZDFheute</a></li>
 			</ul>
-			<ul class="nav navbar-nav navbar-right">
-				<li><div class="share-button site-share"></div></li>
-				<li><a data-toggle="modal" data-target="#Extensions" href="#">Download</a></li>
+
+			<ul class="nav navbar-nav navbar-right hidden-xs">
+
 				<li><a href="/faq">FAQ & Hilfe</a></li>
 				<li><a href="/about">Über das Projekt</a></li>
 				<li><a href="/abspann">Abspann</a></li>
+
+				<li class="social-links">
+					<a href="#"><i class="fa fa-facebook"></i></a>
+					<a href="#"><i class="fa fa-twitter"></i></a>
+					<a href="#"><i class="fa fa-google-plus"></i></a>
+					<a href="#"><i class="fa fa-envelope"></i></a>
+				</li>
+
 			</ul>
+
 		</div><!-- /.navbar-collapse -->
-	</div><!-- /.container-fluid -->
+
+	</div><!-- /.container -->
+
 </nav>
-<div class="modal fade" id="Extensions">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Die Lobbyradar Browsererweiterung</h4>
-			</div>
-			<div class="modal-body">
-				<p>Mit der Browser-Erweiterung bekommen Sie die Informationen von Lobbyradar genau dort, wo Sie im Netz unterwegs sind. Einmal installiert, markiert Lobbyradar alle Personen und Organisationen, die in der Lobby-Datenbank hinterlegt sind. Wenn Sie mit der Maus über den Namen fahren, zeigt Lobbyradar die wichtigsten Infos aus unserer Datenbank. So wird so manche Nachricht und Geschichte in einen völlig neuen Kontext gesetzt. Kostenlos, transparent und ohne, dass Ihre Daten gespeichert werden.</p>
-<br/>
-				<div class="list-group">
-					<a href="#" class="list-group-item">
-						<img src="/assets/images/firefox_256x256.png" width="64" height="auto" alt="..." class="browser-logo" style="float:left;">
-						<h4 class="list-group-item-heading">Firefox</h4>
-						<p class="list-group-item-text">		
-						<button class="hidden-xs btn-ext btn btn-info">
-				Installier dir den Durchblick für Firefox!
-			</button></p>
-						<br style="clear:both"/>
-				  </a>
-				  <a href="#" class="list-group-item">
-						<img src="/assets/images/chrome_256x256.png" width="64" height="auto" alt="..." class="browser-logo" style="float:left;">
-						<h4 class="list-group-item-heading">Chrome</h4>
-						<p class="list-group-item-text">		
-						<button class="hidden-xs btn-ext btn btn-info">
-				Installier dir den Durchblick für Chrome!
-			</button></p>
-						<br style="clear:both"/>
-
-					</a>
-					<a href="#" class="list-group-item">
-						<img src="/assets/images/safari_256x256.png" width="64" height="auto" alt="..." class="browser-logo" style="float:left;">
-						<h4 class="list-group-item-heading">Safari</h4>
-						<p class="list-group-item-text">		
-						<button class="hidden-xs btn-ext btn btn-info">
-				Installier dir den Durchblick für Safari!
-			</button></p>
-						<br style="clear:both"/>
-
-				  </a>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">schließen</button>
-			</div>
-		</div><!-- /.modal-content -->
-	</div><!-- /.modal-dialog -->
-</div><!-- /.modal -->

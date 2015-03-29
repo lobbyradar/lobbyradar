@@ -2,35 +2,68 @@
 {{>nav-grey}}
 {{>nav-blue}}
 
-<div class="fullscreen">
 
-	<div class="container" id="main">
-		
-		<div class="row">
-			
-			<div class="col-sm-6 viewport-info col-sm-push-6">
-				{{>vizinfo}}
-			</div>
+<div class="static-page home-page">
+  <div class="container" id="main">
+    
+    <div class="row intro">
+      
+      <div class="col-sm-6 col-md-6 col-lg-3">
+        <div id="video" class="nav-circle big">
 
-			<div class="col-sm-6 col-sm-pull-6 viewport-visual">
-				<span>active entities should move inside this viewport</span>
+        <div  class="nav-circle small">
+          <i class="fa fa-video-camera"></i>
 
-			</div>
+        </div>
+          <h2>Um was geht es<br/>beim Lobbyradar?</h2>
+          <p>
+            Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Maecenas faucibus mollis interdum.
 
-		</div>
+          </p>
+           <a href="/intro"> <button class="btn btn-info btn-sm">Jetzt erfahren!</button></a>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-6 col-lg-3">
+        <div id="extension" class="nav-circle big">
 
-	</div>
-	
-	<div class="overlay"> 
-		{{>intro}}
-	</div>
+        <div class="nav-circle small">
+        <i class="fa fa-download"></i>
+        </div>
+          <h2>Die<br/>Browsererweiterung</h2>
+          <p>Cras mattis consectetur purus sit amet fermentum. Curabitur blandit tempus porttitor. Vivamus sagittis lacus vel augue laoreet rutrum.</p>
+                 <a href="/extension"> <button class="btn btn-info btn-sm">Jetzt Installieren</button></a>
 
-	{{! The Visualisation }}
-	<div style="display:block" id="networkviz-wrapper">
-		<div id="networkviz"></div>
-	</div>
-	
-</div> {{! end .fullscreen }}
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-6 col-lg-3">
+        <div id="news" class="nav-circle big">
+
+        <div class="nav-circle small">
+        <i class="fa fa-newspaper-o"></i>
+        </div>
+        <h2>Aktuelles zum<br/>Lobbyradar</h2>
+        <p>Donec ullamcorper nulla non metus auctor fringilla. Aenean lacinia bibendum nulla sed consectetur.</p>
+                 <a href="http://www.heute.de" target="_blank"> <button class="btn btn-info btn-sm">Zur Heute.de!</button></a>
+
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-6 col-lg-3">
+        <div id="app" class="nav-circle big">
+                                <div class="nav-circle small">
+        <i class="fa fa-sitemap"></i>
+        </div>
+          <h2>Suche nach Personen<br/>und Verbindungen</h2>
+          <p>Nulla vitae elit libero, a pharetra augue. Nullam id dolor id nibh ultricies vehicula ut id elit. Donec ullamcorpr nulla.</p>
+                   <a href="/app">   <button class="btn btn-info btn-sm">Visualisierung öffnen</button></a>
+
+        </div>
+      </div>
+
+
+    </div></div>
+
+  </div>
+
 
 <script type="text/javascript" src="/assets/js/leaflet.js"></script>
 <script type="text/javascript" src="http://lobbyradar.opendatacloud.de/lobbynetwork/graph.js"></script>

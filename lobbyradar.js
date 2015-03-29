@@ -568,7 +568,7 @@ app.all("/entity/:id", function (req, res) {
 			if (ent.sources && ent.sources.length > 0) ent.has_sources = true;
 			if (ent.addresses && ent.addresses.length > 0) ent.has_addresses = true;
 			
-			res.render("index", { // we render index instead and load entity via ajax from FE
+			res.render("app", { // we render index instead and load entity via ajax from FE
 				"err": err,
 				"entity": ent
 			});
@@ -606,7 +606,7 @@ app.all("/list/:type/:letter?", function (req, res) {
 		} else {
 			tmpl["hl_all"] = true;
 		}
-		res.render("index", tmpl);
+		res.render("app", tmpl);
 	});
 });
 
@@ -619,36 +619,41 @@ app.get("/api/autocomplete", function (req, res) {
 });
 
 // index page
-app.all("/", function (req, res) {
-	api.ent_list(function (err, list) {
-		res.render("index", {
-			"list": {
-				"err": err,
-				"item": list
-			}
-		});
-	});
-});
+app.all("/", function (req, res) { res.render("index", {}); });
 
 // FAQ Page (static)
-app.get("/faq", function (req, res) {
-		res.render("faq", {});
-});
+app.get("/faq", function (req, res) { res.render("faq", {}); });
 
 // Abspann Page (static)
 app.get("/abspann", function (req, res) {
 		res.render("abspann", {});
 });
 
+// Intro Page (static)
+app.get("/intro", function (req, res) {
+		res.render("intro", {});
+});
+
+// Abspann Page (static)
+app.get("/extension", function (req, res) {
+		res.render("extension", {});
+});
+
+
 // Abspann Page (static)
 app.get("/about", function (req, res) {
 		res.render("about", {});
 });
 
+// Abspann Page (static)
+app.get("/app", function (req, res) {
+		res.render("app", {});
+});
+
 
 // Search Page (static)
 app.get("/search/:id", function (req, res) {
-		res.render("index", {});
+		res.render("app", {});
 });
 
 // everything else is 404

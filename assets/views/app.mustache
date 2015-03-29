@@ -1,0 +1,44 @@
+{{>header}}
+{{>nav-grey}}
+{{>nav-blue}}
+
+<div class="fullscreen">
+
+	<div class="container" id="main">
+		
+		<div class="row">
+			
+			<div class="col-sm-6 viewport-info col-sm-push-6">
+				<form class="search-form" role="form">
+					<div class="input-group">
+						<input type="text" placeholder="Suchen Sie nach Politikern, Firmen und Journalisten" class="lobbysearch form-control">
+						<span class="input-group-btn">
+							<button class="btn-lobbysearch btn btn-primary" type="button"><i class="fa fa-search"></i></button>
+						</span>
+					</div>
+				</form>
+				{{>vizinfo}}
+			</div>
+
+			<div class="col-sm-6 col-sm-pull-6 viewport-visual">
+				<span>active entities should move inside this viewport</span>
+
+			</div>
+
+		</div>
+
+	</div>
+	{{! The Visualisation }}
+	<div style="display:block" id="networkviz-wrapper">
+		<div id="networkviz"></div>
+	</div>
+	
+</div> {{! end .fullscreen }}
+
+<script type="text/javascript" src="/assets/js/leaflet.js"></script>
+<script type="text/javascript" src="http://lobbyradar.opendatacloud.de/lobbynetwork/graph.js"></script>
+<script type="text/javascript" src="/assets/js/networkviz.js"></script>
+<script type="text/javascript" src="/assets/js/load-list.js"></script>
+<script type="text/javascript" src="/assets/js/load-entity.js"></script>
+
+{{>footer}}
