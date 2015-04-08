@@ -15,41 +15,45 @@
 // var winHeight = $(window).height();
 
 // better cross-browser support
-var winHeight = $(window).height()+150;
+var winHeight = $(window).height() + 150;
 var winWidth = screen.width;
 
 
 // a function to sort arrays
-var sort_by = function(field, reverse, primer){
+var sort_by = function (field, reverse, primer) {
 	var key = primer ?
-		function(x) {return primer(x[field])} :
-		function(x) {return x[field]};
-		reverse = [-1, 1][+!!reverse];
+		function (x) {
+			return primer(x[field])
+		} :
+		function (x) {
+			return x[field]
+		};
+	reverse = [-1, 1][+!!reverse];
 
-		return function (a, b) {
-			return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
-		}
+	return function (a, b) {
+		return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+	}
 }
 
 // Makes the back button work
-window.onpopstate = function(event) {
+window.onpopstate = function (event) {
 
-		var url = window.location.href; // get the url
-		var id = url.split("/")[4]; // extract ID
+	var url = window.location.href; // get the url
+	var id = url.split("/")[4]; // extract ID
 
-		if (window.location.href.indexOf("/entity/") > -1) {
-			loadEntity(id);
-		}
+	if (window.location.href.indexOf("/entity/") > -1) {
+		loadEntity(id);
+	}
 
-		if (window.location.href.indexOf("/search/") > -1) {
-			loadList(id);
-		}
+	if (window.location.href.indexOf("/search/") > -1) {
+		loadList(id);
+	}
 
-		if(location.pathname + location.search + location.hash == "/") {
-			$(".overlay").fadeIn("slow");
-			$( ".result-single" ).slideUp( "slow" );
-			$( ".result-list" ).slideUp( "slow" );
-		}
+	if (location.pathname + location.search + location.hash == "/") {
+		$(".overlay").fadeIn("slow");
+		$(".result-single").slideUp("slow");
+		$(".result-list").slideUp("slow");
+	}
 };
 
 function showShareButton() {
@@ -89,53 +93,55 @@ function showShareButton() {
 // _MM_ YMMMMM9  `YMMM9'Yb.YMMMMMM_      _MMMMMMM _MM_MYMMMM9   YMMM9 
 
 function loadList(id) {
-		$( ".leaflet-control-zoom" ).css( "display",'block' );
+	$(".leaflet-control-zoom").css("display", 'block');
 
-		$( ".result-single" ).slideUp( "slow" );
+	$(".result-single").slideUp("slow");
 
-		var req = null;
-		var $resultName = id;
+	var req = null;
+	var $resultName = id;
 
-		if (req) req.abort();
-		req = $.getJSON("/api/autocomplete", {
-			q: id
-		}, function(data){
-			console.log(data);
-			if (data === undefined || data.length == 0) {
-				var $ul = $("<div class='message'>Es konnten keine Einträge gefunden werden. Bitte Groß- und Kleinschreibung beachten.</div>");
-				$( ".result-list" ).slideDown( "slow" );
-				$(".result-list .results .list-group", "#main").remove();
-				$(".result-list .results .message", "#main").remove();
+	if (req) req.abort();
+	req = $.getJSON("/api/autocomplete", {
+		q: id
+	}, function (data) {
+		console.log(data);
+		if (data === undefined || data.length == 0) {
+			var $ul = $("<div class='message'>Es konnten keine Einträge gefunden werden. Bitte Groß- und Kleinschreibung beachten.</div>");
+			$(".result-list").slideDown("slow");
+			$(".result-list .results .list-group", "#main").remove();
+			$(".result-list .results .message", "#main").remove();
 
-				$(".result-list .results ", "#main").append($ul);
-				$(".result-list .lead").css("display","none");
-				// reset request
-				req = null;
-			} else {
-				data = data.sort(sort_by('name', true, function(a){return a.toUpperCase()}));
-				var $ul = $("<ul class='list-group'></ul>");
-				if (data instanceof Array && data.length > 0) $(data).each(function(idx,e){
-					var $content = '<li class="list-group-item">';
-					$content += '<i class="fa fa-user"></i>&nbsp;';
-					$content += '<a class="ajax-load entity-detail" href="/entity/'+e.id+'">';
-					$content += e.name;
-					$content += ' </a><span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span><div class="clearfix"></div>'
-					$content += '</li>'
-					// $ul.append('<li class="list-group-item"> <a class="ajax-load entity-detail" href="/entity/'+e.id+'">'+e.name+' </a><span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span><div class="clearfix"></div></li>');
-					$ul.append($content);
+			$(".result-list .results ", "#main").append($ul);
+			$(".result-list .lead").css("display", "none");
+			// reset request
+			req = null;
+		} else {
+			data = data.sort(sort_by('name', true, function (a) {
+				return a.toUpperCase()
+			}));
+			var $ul = $("<ul class='list-group'></ul>");
+			if (data instanceof Array && data.length > 0) $(data).each(function (idx, e) {
+				var $content = '<li class="list-group-item">';
+				$content += '<i class="fa fa-user"></i>&nbsp;';
+				$content += '<a class="ajax-load entity-detail" href="/entity/' + e.id + '">';
+				$content += e.name;
+				$content += ' </a><span class="label label-default"><i class="fa fa-share-alt"></i> ' + e.relations + '</span><div class="clearfix"></div>'
+				$content += '</li>'
+				// $ul.append('<li class="list-group-item"> <a class="ajax-load entity-detail" href="/entity/'+e.id+'">'+e.name+' </a><span class="label label-default"><i class="fa fa-share-alt"></i> '+e.relations+'</span><div class="clearfix"></div></li>');
+				$ul.append($content);
 
-					$(".result-list .result-name", "#main").html($resultName);
-					$(".result-list .lead").css("display","block");
-				});
-				$( ".result-list" ).slideDown( "slow" );
-				$(".result-list .results .list-group", "#main").remove();
-				$(".result-list .results ", "#main").append($ul);
-				$(".result-list .message").remove();
+				$(".result-list .result-name", "#main").html($resultName);
+				$(".result-list .lead").css("display", "block");
+			});
+			$(".result-list").slideDown("slow");
+			$(".result-list .results .list-group", "#main").remove();
+			$(".result-list .results ", "#main").append($ul);
+			$(".result-list .message").remove();
 
-				// reset request
-				req = null;
-			}
-		});
+			// reset request
+			req = null;
+		}
+	});
 
 }
 
@@ -144,8 +150,8 @@ function loadList(id) {
 // as opposed to a deep link
 // and set the url
 function loadEntityAjax(id) {
-		loadEntity(id);
-		window.history.pushState(null, 'entity', '/entity/'+id);
+	loadEntity(id);
+	window.history.pushState(null, 'entity', '/entity/' + id);
 }
 
 
@@ -165,7 +171,11 @@ function loadEntityAjax(id) {
 //                                                                               YMM        
 
 function isExistant(el) {
-	if (el !== undefined) { if (el != 0 || undefined || '' || null) { return true; } }
+	if (el !== undefined) {
+		if (el != 0 || undefined || '' || null) {
+			return true;
+		}
+	}
 	// else
 	return false;
 }
@@ -174,17 +184,19 @@ function isExistant(el) {
 // used in Deeplink and Detail from List
 function loadEntity(id) {
 
-	$( ".leaflet-control-zoom" ).css( "display",'block' );
+	$(".leaflet-control-zoom").css("display", 'block');
 
 	showShareButton();
 
 	var req = null;
-	if (req) { req.abort(); }
-	$( ".result-list" ).slideUp( "slow" );
-  $('.fullscreen').animate({scrollTop: 0});
+	if (req) {
+		req.abort();
+	}
+	$(".result-list").slideUp("slow");
+	$('.fullscreen').animate({scrollTop: 0});
 
 	NetworkViz.highlightEntity(id);
-	$( "#backtolist" ).css( "display",'inline-block' ); // always show the backbutton
+	$("#backtolist").css("display", 'inline-block'); // always show the backbutton
 
 	// change the url + history literal object
 	// history.pushState(null, null, '/entity/'+id);
@@ -192,7 +204,7 @@ function loadEntity(id) {
 	// console.log('Object History Data ID: '+obj.historyData.id);
 	// 
 
-	req = $.getJSON("/api/entity/get/"+id, {relations:true}, function(data){
+	req = $.getJSON("/api/entity/get/" + id, {relations: true}, function (data) {
 		var $content = '<div class="entity">';
 
 		if (data.hasOwnProperty("result")) {
@@ -201,21 +213,29 @@ function loadEntity(id) {
 			var hasAddIncome = false;
 
 			// check for the different types of data
-			for(var i = 0, data; data = entity.data[i]; i++) {
-				if (data.format == 'photo' && data.key == 'photo' && data.desc == 'Foto') 			{ var hasPhotos = true; }
-				if (data.desc == 'Quelle') 			{ var hasSource = true; }
-				if (data.key == 'address') 		{ var hasAddress = true; }
-				if (data.key == 'link') 				{ var hasLinks = true; }
+			for (var i = 0, data; data = entity.data[i]; i++) {
+				if (data.format == 'photo' && data.key == 'photo' && data.desc == 'Foto') {
+					var hasPhotos = true;
+				}
+				if (data.desc == 'Quelle') {
+					var hasSource = true;
+				}
+				if (data.key == 'address') {
+					var hasAddress = true;
+				}
+				if (data.key == 'link') {
+					var hasLinks = true;
+				}
 			}
 
 			$content += '<div class="row row-results">';
 
 			if (hasPhotos) {
 				console.log('Entity has Photos');
-				$(entity.data).each(function(idx,data){
+				$(entity.data).each(function (idx, data) {
 					if (data.format == 'photo' && data.key == 'photo' && data.desc == 'Foto') {
 						if (isExistant(data.value.url)) {
-							$content += '<div class="col-md-3"><div class="entity-img" style="background-image:url('+data.value.url+')" /></div>';
+							$content += '<div class="col-md-3"><div class="entity-img" style="background-image:url(' + data.value.url + ')" /></div>';
 							return false;
 						}
 					}
@@ -228,7 +248,7 @@ function loadEntity(id) {
 			if (entity.type == 'person') {
 				$content += '<i class="fa fa-user"></i>&nbsp;'; // PERSON
 			}
-			$(entity.data).each(function(idx,e){
+			$(entity.data).each(function (idx, e) {
 				if (entity.type == 'entity' && e.key == 'partei') {
 					$content += '<i class="fa fa-pie-chart"></i>&nbsp;'; // PARTEI
 				} else if (entity.type == 'entity' && e.key == 'legalform') {
@@ -237,32 +257,31 @@ function loadEntity(id) {
 			});
 			$content += entity.name;
 			$content += '</h1>';
-			$(entity.data).each(function(idx,data){
+			$(entity.data).each(function (idx, data) {
 				if (data.key == 'bundesland') {
-					$content += '<p>'+data.value+'</p>'; // PARTEI
+					$content += '<p>' + data.value + '</p>'; // PARTEI
 				}
 			});
-			$(entity.tags).each(function(idx,tag){
+			$(entity.tags).each(function (idx, tag) {
 				if (tag == 'mdb') {
 					$content += '<p>Mitglied des Bundestag</p>';
-				}else if( tag == 'lobbyist'){
+				} else if (tag == 'lobbyist') {
 					$content += '<p>LobbyistIn / InteressensvertreterIn</p>'
-				}else if( tag == 'committee'){
+				} else if (tag == 'committee') {
 					$content += '<p>Ausschuss des Bundestags</p>'
-				}else if( tag == 'lobbyorganisation'){
+				} else if (tag == 'lobbyorganisation') {
 					$content += '<p>Lobbyismus-Organisation registriert beim Deutschen Bundestag</p>'
-				}else if( tag == 'thinktank'){
+				} else if (tag == 'thinktank') {
 					$content += '<p>Think Tank</p>'
-				}else if( tag == 'dax'){
+				} else if (tag == 'dax') {
 					$content += '<p>Dax-Konzern</p>'
-				}else if( tag == 'pr-und-lobbyagentur'){
+				} else if (tag == 'pr-und-lobbyagentur') {
 					$content += '<p>Lobbyismus-Agentur</p>'
 				}
 			});
 			$content += '</div>';
 
 			$content += '</div>';
-
 
 
 			// tags
@@ -272,8 +291,7 @@ function loadEntity(id) {
 			// $content += '<hr/>';
 
 
-
-// ________  ___                                          
+// ________  ___
 // `MMMMMMMb.`MM                                          
 //  MM    `Mb MM                  /                       
 //  MM     MM MM  __     _____   /M      _____     ____   
@@ -286,10 +304,7 @@ function loadEntity(id) {
 // _MM_      _MM_  _MM_ YMMMMM9   YMMM9 YMMMMM9  MYMMMM9  
 
 
-
-
-
-//        _           ___                                    
+//        _           ___
 //       dM.          `MM                                    
 //      ,MMb           MM                                    
 //      d'YM.      ____MM ___  __   ____     ____     ____   
@@ -358,14 +373,14 @@ function loadEntity(id) {
 // _MM_    \M\_YMMMM9 _MM_`YMMM9'Yb.YMMM9 _MM_ YMMMMM9 _MM_  _MM_MYMMMM9  
 
 			if (entity.relations.length > 0) {
-					// var relations = entity.relations.sort(sort_by('entity[name]', true));
-					var relations = entity.relations;
+				// var relations = entity.relations.sort(sort_by('entity[name]', true));
+				var relations = entity.relations;
 				//console.log(relations);
-					$content += '<h4>Verbindungen</<h4></h4>';
-					$content += '<div class="entity-relations-list">';
+				$content += '<h4>Verbindungen</<h4></h4>';
+				$content += '<div class="entity-relations-list">';
 
-					$(relations).each(function(idx,e){
-						if(e.tags[0] !== 'nebentaetigkeit'){
+				$(relations).each(function (idx, e) {
+					if (e.tags[0] !== 'nebentaetigkeit') {
 						$content += '<div class="entity-relations-item">';
 
 // ________                                                             
@@ -389,13 +404,13 @@ function loadEntity(id) {
 								}
 								$content += '">';
 								if (isExistant(e.entity.name)) {
-									$content += e.entity.name+'&nbsp;';
+									$content += e.entity.name + '&nbsp;';
 								}
 							}
 							$content += '</a><br/>';
 							if (isExistant(e.data)) {
 								$content += '<table class="table-condensed table-bordered table">';
-								$(e.data).each(function(idx,data){
+								$(e.data).each(function (idx, data) {
 									if (data.key == 'donation') {
 										$content += '<tr>';
 										$content += '<td>';
@@ -431,12 +446,12 @@ function loadEntity(id) {
 								}
 								$content += '">';
 								if (isExistant(e.entity.name)) {
-									$content += e.entity.name+'&nbsp;';
+									$content += e.entity.name + '&nbsp;';
 								}
 							}
 							$content += '</a><br/>';
 							if (isExistant(e.data)) {
-								$(e.data).each(function(idx,data){
+								$(e.data).each(function (idx, data) {
 									if (data.key == 'position') {
 										if (isExistant(data.value.position)) {
 											$content += data.value.position + '<br/>';
@@ -466,7 +481,7 @@ function loadEntity(id) {
 								}
 								$content += '">';
 								if (isExistant(e.entity.name)) {
-									$content += e.entity.name+'&nbsp;';
+									$content += e.entity.name + '&nbsp;';
 								}
 							}
 							$content += '</a><br/>Mitglied';
@@ -496,13 +511,13 @@ function loadEntity(id) {
 								}
 								$content += '">';
 								if (isExistant(e.entity.name)) {
-									$content += e.entity.name+'&nbsp;';
+									$content += e.entity.name + '&nbsp;';
 								}
 							}
 
 							$content += '</a><br/>';    //"Angaben zur Nebentätigkeit"
 							if (isExistant(e.data)) {
-								$(e.data).each(function(idx,data){
+								$(e.data).each(function (idx, data) {
 									if (data.key == 'activity') {
 										console.log(data);
 										$content += data.value.position + '<br/>';
@@ -512,8 +527,7 @@ function loadEntity(id) {
 							}
 
 
-
-// __________                                                                      
+// __________
 // `MMMMMMMMM                                              68b                     
 //  MM      \                                        /     Y89                     
 //  MM        ____   ___  ____     ____  ___   ___  /M     ___ ____    ___  ____   
@@ -526,7 +540,6 @@ function loadEntity(id) {
 // _MMMMMMMMM _d_  _)MM_ YMMMM9   YMMMM9   YMMM9MM_  YMMM9 _MM_     M      YMMMM9  
 
 
-
 						} else if (e.type == 'executive') {
 
 							$content += '<i class="fa fa-user"></i>&nbsp;';
@@ -537,16 +550,16 @@ function loadEntity(id) {
 								}
 								$content += '">';
 								if (isExistant(e.entity.name)) {
-									$content += e.entity.name+'&nbsp;';
+									$content += e.entity.name + '&nbsp;';
 								}
 							}
 
 							$content += '</a><br/>';    //"Angaben zur Nebentätigkeit"
 							if (isExistant(e.data)) {
-								$(e.data).each(function(idx,data){
+								$(e.data).each(function (idx, data) {
 									if (data.key == 'position') {
 										if (isExistant(data.value)) {
-											$content += data.value ;
+											$content += data.value;
 										}
 									}
 								});
@@ -571,23 +584,23 @@ function loadEntity(id) {
 								}
 								$content += '">';
 								if (isExistant(e.entity.name)) {
-									$content += e.entity.name+'&nbsp;';
+									$content += e.entity.name + '&nbsp;';
 								}
 							}
 							$content += '</a>';
 						}
 
 						$content += '</div>';
-						}else{
-							hasAddIncome = true;
-						}
-					});
-					$content += '</div>';
-				}
+					} else {
+						hasAddIncome = true;
+					}
+				});
+				$content += '</div>';
+			}
 
 			// if a person has additional income
 			//
-			if(hasAddIncome){
+			if (hasAddIncome) {
 				console.log('Entity has additional income');
 				$content += '<div class="row row-results">';
 				$content += '<div class="col-md-12"><h4><i class="fa fa-suitcase"></i>&nbsp;Nebeneinkünfte</h4>' +
@@ -617,7 +630,7 @@ function loadEntity(id) {
 				e.forEach(function (r) {
 					var tags = r.tags;
 					tags.forEach(function (t) {
-						if(t == 'nebentaetigkeit'){
+						if (t == 'nebentaetigkeit') {
 							zuordnung += '<a class="ajax-load entity-connections" href="/entity/';
 							if (isExistant(r.entity)) {
 								if (isExistant(r.entity._id)) {
@@ -625,36 +638,36 @@ function loadEntity(id) {
 								}
 								zuordnung += '">';
 								if (isExistant(r.entity.name)) {
-									zuordnung += r.entity.name+'&nbsp;';
+									zuordnung += r.entity.name + '&nbsp;';
 								}
 							}
 							zuordnung += '</a><br/>';
 						}
 
 						if (isExistant(r.data)) {
-							r.data.forEach(function(data){
+							r.data.forEach(function (data) {
 								if (data.key == 'activity') {
-									if(data.value.type == 'Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag'){
-										if(_a.length === 0)_a = zuordnung + _a;
-										_a += data.value.year+ ' '+data.value.position+' '+data.value.activity+ ' '+data.value.periodical+'<br>';
-									}else if(data.value.type == 'Funktionen in Vereinen, Verbänden und Stiftungen'){
-										if(_b.length === 0)_b = zuordnung + _b;
-										_b += data.value.position+'<br>';
-									}else if(data.value.type == 'Funktionen in Unternehmen'){
-										if(_c.length === 0)_c = zuordnung + _c;
-										_c += data.value.year+ ' '+data.value.position+' '+data.value.activity+ ' '+data.value.periodical+'<br>';
-									}else if(data.value.type == 'Funktionen in Körperschaften und Anstalten des öffentlichen Rechts'){
-										if(_d.length === 0)_d = zuordnung + _d;
-										_d += data.value.year+ ' '+data.value.position+' '+data.value.activity+ ' '+data.value.periodical+'<br>';
-									}else if(data.value.type == 'Entgeltliche Tätigkeiten neben dem Mandat'){
-										if(_e.length === 0)_e = zuordnung + _e;
-										_e += data.value.year+ ' '+data.value.position+' '+data.value.activity+ ' '+data.value.periodical+'<br>';
-									}else if(data.value.type == 'Beteiligungen an Kapital- oder Personengesellschaften'){
-										if(_f.length === 0)_f = zuordnung + _f;
-										_f += data.value.year+ ' '+data.value.position+' '+data.value.activity+ ' '+data.value.periodical+'<br>';
-									}else if(data.value.type == 'Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile'){
-										if(_g.length === 0)_g = zuordnung + _g;
-										_g += data.value.year+ ' '+data.value.position+' '+data.value.activity+ ' '+data.value.periodical+'<br>';
+									if (data.value.type == 'Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag') {
+										if (_a.length === 0)_a = zuordnung + _a;
+										_a += data.value.year + ' ' + data.value.position + ' ' + data.value.activity + ' ' + data.value.periodical + '<br>';
+									} else if (data.value.type == 'Funktionen in Vereinen, Verbänden und Stiftungen') {
+										if (_b.length === 0)_b = zuordnung + _b;
+										_b += data.value.position + '<br>';
+									} else if (data.value.type == 'Funktionen in Unternehmen') {
+										if (_c.length === 0)_c = zuordnung + _c;
+										_c += data.value.year + ' ' + data.value.position + ' ' + data.value.activity + ' ' + data.value.periodical + '<br>';
+									} else if (data.value.type == 'Funktionen in Körperschaften und Anstalten des öffentlichen Rechts') {
+										if (_d.length === 0)_d = zuordnung + _d;
+										_d += data.value.year + ' ' + data.value.position + ' ' + data.value.activity + ' ' + data.value.periodical + '<br>';
+									} else if (data.value.type == 'Entgeltliche Tätigkeiten neben dem Mandat') {
+										if (_e.length === 0)_e = zuordnung + _e;
+										_e += data.value.year + ' ' + data.value.position + ' ' + data.value.activity + ' ' + data.value.periodical + '<br>';
+									} else if (data.value.type == 'Beteiligungen an Kapital- oder Personengesellschaften') {
+										if (_f.length === 0)_f = zuordnung + _f;
+										_f += data.value.year + ' ' + data.value.position + ' ' + data.value.activity + ' ' + data.value.periodical + '<br>';
+									} else if (data.value.type == 'Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile') {
+										if (_g.length === 0)_g = zuordnung + _g;
+										_g += data.value.year + ' ' + data.value.position + ' ' + data.value.activity + ' ' + data.value.periodical + '<br>';
 									}
 								}
 							});
@@ -664,28 +677,28 @@ function loadEntity(id) {
 				});
 
 
-				if(_a.length != 0){
-					_a = '<h5>Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag</h5>'+ _a;
+				if (_a.length != 0) {
+					_a = '<h5>Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag</h5>' + _a;
 				}
-				if(_b.length != 0){
+				if (_b.length != 0) {
 					console.log(_b);
-					_b = '<h5>Funktionen in Vereinen, Verbänden und Stiftungen</h5>'+_b;
+					_b = '<h5>Funktionen in Vereinen, Verbänden und Stiftungen</h5>' + _b;
 				}
-				if(_c.length != 0){
-					_c = '<h5>Funktionen in Unternehmen</h5>'+_c;
+				if (_c.length != 0) {
+					_c = '<h5>Funktionen in Unternehmen</h5>' + _c;
 				}
-				if(_d.length != 0){
-					_d = '<h5>Funktionen in Körperschaften und Anstalten des öffentlichen Rechts</h5>'+_d;
+				if (_d.length != 0) {
+					_d = '<h5>Funktionen in Körperschaften und Anstalten des öffentlichen Rechts</h5>' + _d;
 				}
-				if(_e.length != 0){
+				if (_e.length != 0) {
 					console.log(_e);
-					_e = '<h5>Entgeltliche Tätigkeiten neben dem Mandat</h5>'+_e;
+					_e = '<h5>Entgeltliche Tätigkeiten neben dem Mandat</h5>' + _e;
 				}
-				if(_f.length != 0){
-					_f = '<h5>Beteiligungen an Kapital- oder Personengesellschaften</h5>'+_f;
+				if (_f.length != 0) {
+					_f = '<h5>Beteiligungen an Kapital- oder Personengesellschaften</h5>' + _f;
 				}
-				if(_g.length != 0){
-					_g = '<h5>Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile</h5>'+_g;
+				if (_g.length != 0) {
+					_g = '<h5>Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile</h5>' + _g;
 				}
 				$content = $content + _a + _b + _c + _d + _e + _f + _g;
 				$content += '</div>';
@@ -698,10 +711,10 @@ function loadEntity(id) {
 				$content += '<div class="row row-results">';
 				$content += '<div class="col-md-12"><h4>Links</h4></div>';
 
-				$(entity.data).each(function(idx,data){
+				$(entity.data).each(function (idx, data) {
 					if (data.key == 'link') {
 						$content += '<div class="col-md-12">';
-						$content += '<div class="entity-link"><i class="fa fa-external-link"></i> <a title="'+data.value.url+'" target="_blank" href="'+data.value.url+'">'+data.value.url+'</a></div>';
+						$content += '<div class="entity-link"><i class="fa fa-external-link"></i> <a title="' + data.value.url + '" target="_blank" href="' + data.value.url + '">' + data.value.url + '</a></div>';
 						$content += '</div>';
 					}
 				});
@@ -713,12 +726,12 @@ function loadEntity(id) {
 				$content += '<div class="row row-results">';
 				$content += '<div class="col-md-12"><h4>Quellen</h4></div>';
 
-				$(entity.data).each(function(idx,data){
+				$(entity.data).each(function (idx, data) {
 					if (data.desc == 'Quelle') {
 						$content += '<div class="col-md-12">';
 						$content += '<div class="entity-source">';
 						if (data.value.url !== undefined) {
-							$content += '<i class="fa fa-bookmark"></i> <a title="'+data.value.url+'" target="_blank" href="'+data.value.url+'">';
+							$content += '<i class="fa fa-bookmark"></i> <a title="' + data.value.url + '" target="_blank" href="' + data.value.url + '">';
 							$content += data.value.url;
 							$content += '</a>';
 						}
@@ -731,7 +744,7 @@ function loadEntity(id) {
 			}
 
 
-						// alias
+			// alias
 			// if (entity.aliases.length > 0) {
 			// 	$content += '<h3>Alternative Schreibweisen</h3><p>';
 			// 	$(entity.aliases).each(function(idx,e){ 
@@ -762,12 +775,11 @@ function loadEntity(id) {
 			$content += '<div class="row"><br/>';
 			$content += '<div class="col-sm-12">';
 			$content += '<p class="meta">';
-			$content += '<span>Erstellt: '+moment(entity.created).format("DD.MM.YYYY hh:mm")+'</span><br/>';
-			$content += '<span>Aktualisiert: '+moment(entity.created).format("DD.MM.YYYY hh:mm")+'</span>';
+			$content += '<span>Erstellt: ' + moment(entity.created).format("DD.MM.YYYY hh:mm") + '</span><br/>';
+			$content += '<span>Aktualisiert: ' + moment(entity.created).format("DD.MM.YYYY hh:mm") + '</span>';
 			$content += '</p>';
 			$content += '</div>';
 			$content += '</div>';
-
 
 
 		}
@@ -778,12 +790,10 @@ function loadEntity(id) {
 		// reset request
 		req = null;
 		$(document).trigger('load_entity_complete');
-		$( ".result-single" ).delay( 400 ).slideDown( "slow" );
+		$(".result-single").delay(400).slideDown("slow");
 
 	});
 }
-
-
 
 
 // ________                            ________                          ___
@@ -801,9 +811,9 @@ function loadEntity(id) {
 //                                                                           (8),P       
 //                                                                            YMM   
 
-$( document ).ready(function() {
-	$('.fullscreen').css({  'width': winWidth, 'height': winHeight });
-	$('.static-page').css({  'width': winWidth, 'height': winHeight });
+$(document).ready(function () {
+	$('.fullscreen').css({'width': winWidth, 'height': winHeight});
+	$('.static-page').css({'width': winWidth, 'height': winHeight});
 
 
 	if ($('#networkviz').length == 0) {
@@ -812,12 +822,12 @@ $( document ).ready(function() {
 		NetworkViz.panToEntity(); // missuse the func to get the viz on index
 	}
 
-	$( ".leaflet-control-zoom" ).css( "display",'none' );
+	$(".leaflet-control-zoom").css("display", 'none');
 
 	showShareButton();
 
 	// show whatsapp button on iphone
-	(navigator.userAgent.match(/(iPhone)/g)) ? $(".entypo-whatsapp").addClass('shown') : null ;
+	(navigator.userAgent.match(/(iPhone)/g)) ? $(".entypo-whatsapp").addClass('shown') : null;
 
 	if ($('#networkviz').length == 0) {
 		// map could not be found
@@ -827,7 +837,7 @@ $( document ).ready(function() {
 
 
 	// bring up the details when an entry is clicked a                                                                                                           
-	$('body').on('click', '.ajax-load', function(e) {
+	$('body').on('click', '.ajax-load', function (e) {
 		e.preventDefault();
 		var str = this.href;
 		var entityID = str.split("/")[4];
@@ -836,16 +846,16 @@ $( document ).ready(function() {
 	});
 
 	// click back arrow -> history
-	$('body').on('click', '#backtolist', function(e) {
-    e.preventDefault();
-    window.history.back();
+	$('body').on('click', '#backtolist', function (e) {
+		e.preventDefault();
+		window.history.back();
 	});
 
 	// click back arrow -> history
-	$('body').on('click', 'button.close', function(e) {
-		$( ".result-single" ).slideUp( "slow" );
-		$( ".result-list" ).slideUp( "slow" );
-    e.preventDefault();
+	$('body').on('click', 'button.close', function (e) {
+		$(".result-single").slideUp("slow");
+		$(".result-list").slideUp("slow");
+		e.preventDefault();
 	});
 
 
@@ -867,32 +877,30 @@ $( document ).ready(function() {
 	// this kicks in when we get a deep link to an entity
 	// entity/:id
 	if (window.location.href.indexOf("/entity/") > -1) {
-		$( ".overlay" ).css( "display",'none' ); // we dont need the intro
-		$( "leaflet-control-zoom" ).css( "display",'block' );
+		$(".overlay").css("display", 'none'); // we dont need the intro
+		$("leaflet-control-zoom").css("display", 'block');
 		var str = window.location.href; // get the url 
 		var entityID = str.split("/")[4]; // extract ID
-		console.log('entity.entry, ID: '+entityID);
+		console.log('entity.entry, ID: ' + entityID);
 
 		loadEntity(entityID);
-		$( "#backtolist" ).css( "display",'none' ); // explicit hide on deeplinks
-		$( ".result-single" ).slideDown( "slow" );  // show me the single panel
+		$("#backtolist").css("display", 'none'); // explicit hide on deeplinks
+		$(".result-single").slideDown("slow");  // show me the single panel
 
 	}
 
 
-
-		// this kicks in when we get a deep link to an search
-		// /search/:id
+	// this kicks in when we get a deep link to an search
+	// /search/:id
 	if (window.location.href.indexOf("/search/") > -1) {
 		// $( "#backtolist" ).css( "display",'none' ); // There is no list to go back to 
-		$( ".overlay" ).css( "display",'none' ); // we dont need the intro
+		$(".overlay").css("display", 'none'); // we dont need the intro
 
 		var str = window.location.href; // get the url 
 		var searchID = str.split("/")[4]; // extract ID
-		console.log('Search for: '+searchID);
+		console.log('Search for: ' + searchID);
 		loadList(searchID);
 	}
-
 
 
 //   ____                                     ___             ________                             ___
@@ -925,9 +933,9 @@ $( document ).ready(function() {
 		if (e.which === 13) {
 			var $resultName = $(this).val();
 			$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
-			$( ".result-list" ).slideDown( "slow" );
+			$(".result-list").slideDown("slow");
 
-			history.pushState(null, null, '/search/'+$resultName);
+			history.pushState(null, null, '/search/' + $resultName);
 			loadList($resultName);
 			return false;
 			event.preventDefault();
@@ -935,19 +943,18 @@ $( document ).ready(function() {
 	});
 
 	$('.search-form button').click(function () {
-			var $resultName = $(this).val();
-			$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
-			$( ".result-list" ).slideDown( "slow" );
+		var $resultName = $(this).val();
+		$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
+		$(".result-list").slideDown("slow");
 
-			history.pushState(null, null, '/search/'+$resultName);
-			loadList($resultName);
-			return false;
-			event.preventDefault();
-});
+		history.pushState(null, null, '/search/' + $resultName);
+		loadList($resultName);
+		return false;
+		event.preventDefault();
+	});
 
 
-
-// ________                                ___          __                                      ____                         
+// ________                                ___          __                                      ____
 // `MMMMMMMb.                          68b `MM         69MM                                     `MM'     68b                 
 //  MM    `Mb           /              Y89  MM        6M' `                                      MM      Y89           /     
 //  MM     MM   ____   /M        ___   ___  MM       _MM____  __   _____  ___  __    __          MM      ___   ____   /M     
@@ -970,8 +977,6 @@ $( document ).ready(function() {
 	// });
 
 
-
-
 //     ________                 ___         ____                            ___ ___
 // 68b `MMMMMMMb.               `MM        6MMMMb\                          `MM `MM 68b                    
 // Y89  MM    `Mb                MM       6M'    `                           MM  MM Y89                    
@@ -988,17 +993,19 @@ $( document ).ready(function() {
 //                                                                                                 YMMMM9  
 
 	// http://stackoverflow.com/questions/16437182/issue-with-a-scrollable-div-on-ipad
-	$('body').on('touchmove','.scrollable',function(e) {
+	$('body').on('touchmove', '.scrollable', function (e) {
 		var tot = 0;
-		$(this).children('li:visible').each(function() { tot += $(this).height(); }); // this is not quite right
-		if(tot > $(this).innerHeight()) {
+		$(this).children('li:visible').each(function () {
+			tot += $(this).height();
+		}); // this is not quite right
+		if (tot > $(this).innerHeight()) {
 			e.stopPropagation();
 		}
 	});
 
 	//uses body because jquery on events are called off of the element they are
 	//added to, so bubbling would not work if we used document instead.
-	$('body').on('touchstart','.scrollable',function(e) {
+	$('body').on('touchstart', '.scrollable', function (e) {
 		if (e.currentTarget.scrollTop === 0) {
 			e.currentTarget.scrollTop = 1;
 		} else if (e.currentTarget.scrollHeight === e.currentTarget.scrollTop + e.currentTarget.offsetHeight) {
@@ -1007,7 +1014,9 @@ $( document ).ready(function() {
 	});
 
 	//prevents preventDefault from being called on document if it sees a scrollable div
-	$('body').on('touchmove','.scrollable',function(e) { e.stopPropagation(); });
+	$('body').on('touchmove', '.scrollable', function (e) {
+		e.stopPropagation();
+	});
 
 
 }); // document.ready end
@@ -1025,7 +1034,7 @@ $( document ).ready(function() {
 //      YP       YP      _MM__MM_  _MM_      _MM_    \M\_YMMMM9  MYMMMM9 _MM_dMMMMMMMM YMMMM9  
 
 // make sure div stays full width/height on resize
-$(window).resize(function(){
+$(window).resize(function () {
 	$('.fullscreen').css({
 		'width': winWidth,
 		'height': winHeight,
@@ -1033,11 +1042,11 @@ $(window).resize(function(){
 });
 
 $(window).on("navigate", function (event, data) {
-  var direction = data.state.direction;
-  if (direction == 'back') {
-    alert(window.location.href);
-  }
-  if (direction == 'forward') {
-    // do something else
-  }
+	var direction = data.state.direction;
+	if (direction == 'back') {
+		alert(window.location.href);
+	}
+	if (direction == 'forward') {
+		// do something else
+	}
 });
