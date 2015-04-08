@@ -585,53 +585,109 @@ function loadEntity(id) {
 					$content += '</div>';
 				}
 
+			// if a person has additional income
+			//
 			if(hasAddIncome){
 				console.log('Entity has additional income');
 				$content += '<div class="row row-results">';
 				$content += '<div class="col-md-12"><h4><i class="fa fa-suitcase"></i>&nbsp;Nebeneinkünfte</h4>' +
-				'<h5>Ehrenamtliche Tätigkeiten / Nebeneinkünfte neben dem Mandat</h5>' +
 				'(Stufe 1: über 1.000 &euro;, Stufe 10: über 250.000 &euro;)<br/></div>';
 				$content += '<div class="entity-relations-item">';
 				var e = entity.relations;
+
+				/*
+				 a ["Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag",
+				 b "Funktionen in Vereinen, Verbänden und Stiftungen" ,
+				 c "Funktionen in Unternehmen" ,
+				 d "Funktionen in Körperschaften und Anstalten des öffentlichen Rechts" ,
+				 e "Entgeltliche Tätigkeiten neben dem Mandat" ,
+				 f "Beteiligungen an Kapital- oder Personengesellschaften" ,
+				 g "Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile"]
+				 */
+
+				var _a = '';
+				var _b = '';
+				var _c = '';
+				var _d = '';
+				var _e = '';
+				var _f = '';
+				var _g = '';
+				var zuordnung = '';
+
 				e.forEach(function (r) {
 					var tags = r.tags;
 					tags.forEach(function (t) {
 						if(t == 'nebentaetigkeit'){
-							$content += '<a class="ajax-load entity-connections" href="/entity/';
+							zuordnung += '<a class="ajax-load entity-connections" href="/entity/';
 							if (isExistant(r.entity)) {
 								if (isExistant(r.entity._id)) {
-									$content += r.entity._id;
+									zuordnung += r.entity._id;
 								}
-								$content += '">';
+								zuordnung += '">';
 								if (isExistant(r.entity.name)) {
-									$content += r.entity.name+'&nbsp;';
+									zuordnung += r.entity.name+'&nbsp;';
 								}
 							}
+							zuordnung += '</a><br/>';
 						}
-						$content += '</a><br/>';    //"Angaben zur Nebentätigkeit"
+
 						if (isExistant(r.data)) {
 							r.data.forEach(function(data){
 								if (data.key == 'activity') {
-									console.log(data);
-									if(data.value.year !== null){
-										$content += data.value.year + ', ';
+									if(data.value.type == 'Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag'){
+										if(_a.length === 0)_a = zuordnung + _a;
+										_a += data.value.year+ ' '+data.value.position+' '+data.value.activity+ ' '+data.value.periodical+'<br>';
+									}else if(data.value.type == 'Funktionen in Vereinen, Verbänden und Stiftungen'){
+										if(_b.length === 0)_b = zuordnung + _b;
+										_b += data.value.position+'<br>';
+									}else if(data.value.type == 'Funktionen in Unternehmen'){
+										if(_c.length === 0)_c = zuordnung + _c;
+										_c += data.value.year+ ' '+data.value.position+' '+data.value.activity+ ' '+data.value.periodical+'<br>';
+									}else if(data.value.type == 'Funktionen in Körperschaften und Anstalten des öffentlichen Rechts'){
+										if(_d.length === 0)_d = zuordnung + _d;
+										_d += data.value.year+ ' '+data.value.position+' '+data.value.activity+ ' '+data.value.periodical+'<br>';
+									}else if(data.value.type == 'Entgeltliche Tätigkeiten neben dem Mandat'){
+										if(_e.length === 0)_e = zuordnung + _e;
+										_e += data.value.year+ ' '+data.value.position+' '+data.value.activity+ ' '+data.value.periodical+'<br>';
+									}else if(data.value.type == 'Beteiligungen an Kapital- oder Personengesellschaften'){
+										if(_f.length === 0)_f = zuordnung + _f;
+										_f += data.value.year+ ' '+data.value.position+' '+data.value.activity+ ' '+data.value.periodical+'<br>';
+									}else if(data.value.type == 'Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile'){
+										if(_g.length === 0)_g = zuordnung + _g;
+										_g += data.value.year+ ' '+data.value.position+' '+data.value.activity+ ' '+data.value.periodical+'<br>';
 									}
-									if(data.value.position !== null){
-										$content += data.value.position + ', ';
-									}
-									if(data.value.type !== 'Entgeltliche Tätigkeiten neben dem Mandat'){
-										$content += data.value.type + ', ';
-									}
-									if(data.value.activity !== null){
-										$content += data.value.activity + ', ';
-									}
-									$content += data.value.periodical + ', Stufe ';
-									$content += data.value.level + '<br/>';
 								}
 							});
 						}
 					});
+					zuordnung = '';
 				});
+
+
+				if(_a.length != 0){
+					_a = '<h5>Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag</h5>'+ _a;
+				}
+				if(_b.length != 0){
+					console.log(_b);
+					_b = '<h5>Funktionen in Vereinen, Verbänden und Stiftungen</h5>'+_b;
+				}
+				if(_c.length != 0){
+					_c = '<h5>Funktionen in Unternehmen</h5>'+_c;
+				}
+				if(_d.length != 0){
+					_d = '<h5>Funktionen in Körperschaften und Anstalten des öffentlichen Rechts</h5>'+_d;
+				}
+				if(_e.length != 0){
+					console.log(_e);
+					_e = '<h5>Entgeltliche Tätigkeiten neben dem Mandat</h5>'+_e;
+				}
+				if(_f.length != 0){
+					_f = '<h5>Beteiligungen an Kapital- oder Personengesellschaften</h5>'+_f;
+				}
+				if(_g.length != 0){
+					_g = '<h5>Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile</h5>'+_g;
+				}
+				$content = $content + _a + _b + _c + _d + _e + _f + _g;
 				$content += '</div>';
 				$content += '</div>';
 			}
@@ -645,7 +701,6 @@ function loadEntity(id) {
 				$(entity.data).each(function(idx,data){
 					if (data.key == 'link') {
 						$content += '<div class="col-md-12">';
-
 						$content += '<div class="entity-link"><i class="fa fa-external-link"></i> <a title="'+data.value.url+'" target="_blank" href="'+data.value.url+'">'+data.value.url+'</a></div>';
 						$content += '</div>';
 					}
