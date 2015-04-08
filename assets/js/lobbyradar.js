@@ -247,6 +247,16 @@ function loadEntity(id) {
 					$content += '<p>Mitglied des Bundestag</p>';
 				}else if( tag == 'lobbyist'){
 					$content += '<p>LobbyistIn / InteressensvertreterIn</p>'
+				}else if( tag == 'committee'){
+					$content += '<p>Ausschuss des Bundestags</p>'
+				}else if( tag == 'lobbyorganisation'){
+					$content += '<p>Lobbyismus-Organisation registriert beim Deutschen Bundestag</p>'
+				}else if( tag == 'thinktank'){
+					$content += '<p>Think Tank</p>'
+				}else if( tag == 'dax'){
+					$content += '<p>Dax-Konzern</p>'
+				}else if( tag == 'pr-und-lobbyagentur'){
+					$content += '<p>Lobbyismus-Agentur</p>'
 				}
 			});
 			$content += '</div>';
@@ -490,7 +500,7 @@ function loadEntity(id) {
 								}
 							}
 
-							$content += '</a>(Nebeneinkünfte)<br/>';    //"Angaben zur Nebentätigkeit"
+							$content += '</a><br/>';    //"Angaben zur Nebentätigkeit"
 							if (isExistant(e.data)) {
 								$(e.data).each(function(idx,data){
 									if (data.key == 'activity') {
