@@ -417,7 +417,7 @@ function loadEntity(id) {
 										$content += data.value.year + ' ';
 										$content += '</td>';
 										$content += '<td>';
-										$content += data.value.amount + '€ ';
+										$content += numberWithCommas(data.value.amount) + ' € ';
 										$content += '</td>';
 										$content += '</tr>';
 									}
@@ -793,6 +793,22 @@ function loadEntity(id) {
 		$(".result-single").delay(400).slideDown("slow");
 
 	});
+}
+
+
+// Numberformating
+function numberThousandSep(x) {
+	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+function numberWithCommas(x) {
+	var s = x.toString();
+	s = s.split('.');
+	if (s[1] == undefined) s[1] = '00';
+	if (s[1].length == 1 && s[1] != undefined) s[1] += '0';
+	if (s[1].length > 2) s[1] = s[1].slice(0, 2);
+	var pre = numberThousandSep(s[0]);
+	return pre + ',' + s[1];
 }
 
 
