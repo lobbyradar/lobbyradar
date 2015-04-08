@@ -243,14 +243,16 @@ function loadEntity(id) {
 			});
 			$(entity.tags).each(function(idx,tag){ 
 				if (tag == 'mdb') {
-					$content += '<p>Mitglied des Bundestag</p>'; 
+					$content += '<p>Mitglied des Bundestag</p>';
+				}else if( tag == 'lobbyist'){
+					$content += '<p>LobbyistIn / InteressensvertreterIn</p>'
 				}
 			});
 			$content += '</div>';
 
 			$content += '</div>';
 
-			
+
 
 			// tags
 			// $(data.result.tags).each(function(idx,e){ 
@@ -258,8 +260,8 @@ function loadEntity(id) {
 			// });
 			// $content += '<hr/>';
 
-                               
-                                                       
+
+
 // ________  ___                                          
 // `MMMMMMMb.`MM                                          
 //  MM    `Mb MM                  /                       
@@ -271,11 +273,11 @@ function loadEntity(id) {
 //  MM        MM    MM MM     MM MM    MM     MM      `Mb 
 //  MM        MM    MM YM.   ,M9 YM.  ,YM.   ,M9 L    ,MM 
 // _MM_      _MM_  _MM_ YMMMMM9   YMMM9 YMMMMM9  MYMMMM9  
-                                  
 
 
-                                                          
-                                                          
+
+
+
 //        _           ___                                    
 //       dM.          `MM                                    
 //      ,MMb           MM                                    
@@ -331,7 +333,7 @@ function loadEntity(id) {
 			// 	});
 			// 	$content += '</div>';
 			// }
-                                                               
+
 // ________           ___                                                 
 // `MMMMMMMb.         `MM                 68b                             
 //  MM    `Mb          MM           /     Y89                             
@@ -343,11 +345,11 @@ function loadEntity(id) {
 //  MM   \M\  MM       MM MM'   MM MM      MM MM     MM MM    MM      `Mb 
 //  MM    \M\ YM    d9 MM MM.  ,MM YM.  ,  MM YM.   ,M9 MM    MM L    ,MM 
 // _MM_    \M\_YMMMM9 _MM_`YMMM9'Yb.YMMM9 _MM_ YMMMMM9 _MM_  _MM_MYMMMM9  
-                                                                  
+
 			if (entity.relations.length > 0) {
 					// var relations = entity.relations.sort(sort_by('entity[name]', true));
 					var relations = entity.relations;
-
+				//console.log(relations);
 					$content += '<h4>Verbindungen</<h4></h4>';
 					$content += '<div class="entity-relations-list">';
 					
@@ -367,7 +369,7 @@ function loadEntity(id) {
 // _MMMMMMM9'  YMMMMM9 _MM_  _MM_`YMMM9'Yb.YMMM9 _MM_ YMMMMM9 _MM_  _MM_
                                                                                                                    
 						if (e.type == 'donation') {
-							$content += '<i class="fa fa-euro"></i>&nbsp;Parteispenden: ';
+							$content += '<i class="fa fa-euro"></i>&nbsp;Parteispenden an ';
 							if (isExistant(e.entity)) {
 								$content += '<a class="ajax-load entity-connections" href="/entity/'
 								if (isExistant(e.entity._id)) {
@@ -485,19 +487,19 @@ function loadEntity(id) {
 								}
 							}
 
-							$content += '</a><br/>';    //"Angaben zur Nebentätigkeit"    
+							$content += '</a>(Nebeneinkünfte)<br/>';    //"Angaben zur Nebentätigkeit"
 							if (isExistant(e.data)) {
-								$(e.data).each(function(idx,data){ 
-
+								$(e.data).each(function(idx,data){
 									if (data.key == 'activity') {
+										console.log(data);
 										$content += data.value.position + '<br/>';
 										$content += data.value.type + ' ';
 									}
 								});
-							}  
+							}
 
-                                                                                
-                                                                                
+
+
 // __________                                                                      
 // `MMMMMMMMM                                              68b                     
 //  MM      \                                        /     Y89                     
