@@ -267,6 +267,7 @@ function loadEntity(id) {
 				if (tag == 'mdb') {
 					$content += '<p>Mitglied des Bundestag</p>';
 				} else if (tag == 'lobbyist') {
+					console.log(entity);
 					$content += '<p>LobbyistIn / InteressensvertreterIn</p>'
 				} else if (tag == 'committee') {
 					$content += '<p>Ausschuss des Bundestags</p>'
@@ -636,8 +637,7 @@ function loadEntity(id) {
 			if (hasAddIncome) {
 				console.log('Entity has additional income');
 				$content += '<div class="row row-results">';
-				$content += '<div class="col-md-12"><h4><i class="fa fa-suitcase"></i>&nbsp;Nebeneinkünfte</h4>' +
-				'(Stufe 1: über 1.000 &euro;, Stufe 10: über 250.000 &euro;)</div>';
+				$content += '<div class="col-md-12"><h4><i class="fa fa-suitcase"></i>&nbsp;Nebeneinkünfte</h4></div>';
 				$content += '<div class="entity-relations-item">';
 				var e = entity.relations;
 
