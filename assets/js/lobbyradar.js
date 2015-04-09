@@ -211,6 +211,7 @@ function loadEntity(id) {
 			var entity = data.result;
 			console.log(data.result);
 			var hasAddIncome = false;
+			var isCommittee = false;
 
 			// check for the different types of data
 			for (var i = 0, data; data = entity.data[i]; i++) {
@@ -375,12 +376,12 @@ function loadEntity(id) {
 			if (entity.relations.length > 0) {
 				// var relations = entity.relations.sort(sort_by('entity[name]', true));
 				var relations = entity.relations;
-				//console.log(relations);
+
 				$content += '<h4>Verbindungen</<h4></h4>';
 				$content += '<div class="entity-relations-list">';
 
 				$(relations).each(function (idx, e) {
-					if (e.tags[0] !== 'nebentaetigkeit') {
+					if (e.tags[0] !== 'nebentaetigkeit' && e.tags[0] !== 'committee') {
 						$content += '<div class="entity-relations-item">';
 
 // ________                                                             
@@ -505,7 +506,6 @@ function loadEntity(id) {
 							$content += '<i class="fa fa-suitcase"></i>&nbsp;';
 							$content += '<a class="ajax-load entity-connections" href="/entity/'
 							if (isExistant(e.entity)) {
-								console.log(e);
 								if (isExistant(e.entity._id)) {
 									$content += e.entity._id;
 								}
@@ -519,7 +519,6 @@ function loadEntity(id) {
 							if (isExistant(e.data)) {
 								$(e.data).each(function (idx, data) {
 									if (data.key == 'activity') {
-										console.log(data);
 										$content += data.value.position + '<br/>';
 										$content += data.value.type + ' ';
 									}
@@ -591,10 +590,44 @@ function loadEntity(id) {
 						}
 
 						$content += '</div>';
-					} else {
+					} else if(e.tags[0] == 'nebentaetigkeit') {
 						hasAddIncome = true;
+					}else if(e.tags[0] == 'committee'){
+						isCommittee = true;
 					}
 				});
+				$content += '</div>';
+			}
+
+
+			//if a person is a part of a committee
+			if(isCommittee){
+				console.log('Entity is a part of a committee');
+				$content += '<div class="row row-results">';
+				$content += '<div class="col-md-12"><h4><i class="fa fa-group"></i>&nbsp;Ausschüsse des Bundestags</h4></div>';
+				$content += '<div class="entity-relations-item">';
+
+				var e = entity.relations;
+
+				e.forEach(function (r) {
+					var tags = r.tags;
+					tags.forEach(function (t) {
+						if(t == 'committee'){
+							$content += '<a class="ajax-load entity-connections" href="/entity/';
+							if (isExistant(r.entity)) {
+								if (isExistant(r.entity._id)) {
+									$content += r.entity._id;
+								}
+								$content += '">';
+								if (isExistant(r.entity.name)) {
+									$content += r.entity.name + '&nbsp;';
+								}
+							}
+							$content += '</a><br/>';
+						}
+					});
+				});
+				$content += '</div>';
 				$content += '</div>';
 			}
 
@@ -604,7 +637,7 @@ function loadEntity(id) {
 				console.log('Entity has additional income');
 				$content += '<div class="row row-results">';
 				$content += '<div class="col-md-12"><h4><i class="fa fa-suitcase"></i>&nbsp;Nebeneinkünfte</h4>' +
-				'(Stufe 1: über 1.000 &euro;, Stufe 10: über 250.000 &euro;)<br/></div>';
+				'(Stufe 1: über 1.000 &euro;, Stufe 10: über 250.000 &euro;)</div>';
 				$content += '<div class="entity-relations-item">';
 				var e = entity.relations;
 
@@ -655,19 +688,25 @@ function loadEntity(id) {
 										_b += data.value.position + '<br>';
 									} else if (data.value.type == 'Funktionen in Unternehmen') {
 										if (_c.length === 0)_c = zuordnung + _c;
-										_c += data.value.year + ' ' + data.value.position + ' ' + data.value.activity + ' ' + data.value.periodical + '<br>';
+										_c += data.value.position  + '<br>';
 									} else if (data.value.type == 'Funktionen in Körperschaften und Anstalten des öffentlichen Rechts') {
 										if (_d.length === 0)_d = zuordnung + _d;
 										_d += data.value.year + ' ' + data.value.position + ' ' + data.value.activity + ' ' + data.value.periodical + '<br>';
 									} else if (data.value.type == 'Entgeltliche Tätigkeiten neben dem Mandat') {
 										if (_e.length === 0)_e = zuordnung + _e;
-										_e += data.value.year + ' ' + data.value.position + ' ' + data.value.activity + ' ' + data.value.periodical + '<br>';
+										if(data.value.year != null){
+											_e += data.value.year + ' ';
+										}
+										if(data.value.position != null){
+											_e += data.value.position + ' ';
+										}
+										_e += data.value.activity + ' ' + data.value.periodical + ' Stufe: ' +data.value.level+ '<br>';
 									} else if (data.value.type == 'Beteiligungen an Kapital- oder Personengesellschaften') {
 										if (_f.length === 0)_f = zuordnung + _f;
-										_f += data.value.year + ' ' + data.value.position + ' ' + data.value.activity + ' ' + data.value.periodical + '<br>';
+										//_f += data.value.position + '<br>';
 									} else if (data.value.type == 'Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile') {
 										if (_g.length === 0)_g = zuordnung + _g;
-										_g += data.value.year + ' ' + data.value.position + ' ' + data.value.activity + ' ' + data.value.periodical + '<br>';
+										_g += data.value.activity + ' ' + data.value.periodical + '<br>';
 									}
 								}
 							});
@@ -678,27 +717,25 @@ function loadEntity(id) {
 
 
 				if (_a.length != 0) {
-					_a = '<h5>Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag</h5>' + _a;
+					_a = '<br /><h5>Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag</h5>' + _a;
 				}
 				if (_b.length != 0) {
-					console.log(_b);
-					_b = '<h5>Funktionen in Vereinen, Verbänden und Stiftungen</h5>' + _b;
+					_b = '<br /><h5>Funktionen in Vereinen, Verbänden und Stiftungen</h5>' + _b;
 				}
 				if (_c.length != 0) {
-					_c = '<h5>Funktionen in Unternehmen</h5>' + _c;
+					_c = '<br /><h5>Funktionen in Unternehmen</h5>' + _c;
 				}
 				if (_d.length != 0) {
-					_d = '<h5>Funktionen in Körperschaften und Anstalten des öffentlichen Rechts</h5>' + _d;
+					_d = '<br /><h5>Funktionen in Körperschaften und Anstalten des öffentlichen Rechts</h5>' + _d;
 				}
 				if (_e.length != 0) {
-					console.log(_e);
-					_e = '<h5>Entgeltliche Tätigkeiten neben dem Mandat</h5>' + _e;
+					_e = '<br /><h5>Entgeltliche Tätigkeiten neben dem Mandat</h5>' + _e;
 				}
 				if (_f.length != 0) {
-					_f = '<h5>Beteiligungen an Kapital- oder Personengesellschaften</h5>' + _f;
+					_f = '<br /><h5>Beteiligungen an Kapital- oder Personengesellschaften</h5>' + _f;
 				}
 				if (_g.length != 0) {
-					_g = '<h5>Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile</h5>' + _g;
+					_g = '<br /><h5>Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile</h5>' + _g;
 				}
 				$content = $content + _a + _b + _c + _d + _e + _f + _g;
 				$content += '</div>';
