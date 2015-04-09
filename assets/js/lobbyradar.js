@@ -691,7 +691,7 @@ function loadEntity(id) {
 										_c += data.value.position  + '<br>';
 									} else if (data.value.type == 'Funktionen in Körperschaften und Anstalten des öffentlichen Rechts') {
 										if (_d.length === 0)_d = zuordnung + _d;
-										_d += data.value.year + ' ' + data.value.position + ' ' + data.value.activity + ' ' + data.value.periodical + '<br>';
+										_d += data.value.position + '<br>';
 									} else if (data.value.type == 'Entgeltliche Tätigkeiten neben dem Mandat') {
 										if (_e.length === 0)_e = zuordnung + _e;
 										if(data.value.year != null){
@@ -700,7 +700,10 @@ function loadEntity(id) {
 										if(data.value.position != null){
 											_e += data.value.position + ' ';
 										}
-										_e += data.value.activity + ' ' + data.value.periodical + ' Stufe: ' +data.value.level+ '<br>';
+										if(data.value.activity != null){
+											_e += data.value.activity + ' ';
+										}
+										_e += data.value.periodical + ' Stufe: ' +data.value.level+ '<br>';
 									} else if (data.value.type == 'Beteiligungen an Kapital- oder Personengesellschaften') {
 										if (_f.length === 0)_f = zuordnung + _f;
 										//_f += data.value.position + '<br>';
