@@ -6409,6 +6409,9 @@ body {
   color: white;
   background: #fa7e00;
 }
+.nav-circle.small.newspaper {
+  padding: 9px 11px;
+}
 .nav-circle.small a {
   color: white;
   font-size: 18px!important;
