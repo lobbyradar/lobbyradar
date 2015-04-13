@@ -6358,6 +6358,25 @@ body {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#11354b', endColorstr='#6392a8', GradientType=0);
   /* IE6-9 */
 }
+.grey-gradient,
+.grey-page {
+  background: #a5aaaa;
+  /* Old browsers */
+  background: -moz-linear-gradient(top, #a5aaaa 0%, #909496 46%, #666666 100%, #333333 100%);
+  /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #a5aaaa), color-stop(46%, #909496), color-stop(100%, #666666), color-stop(100%, #333333));
+  /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #a5aaaa 0%, #909496 46%, #666666 100%, #333333 100%);
+  /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #a5aaaa 0%, #909496 46%, #666666 100%, #333333 100%);
+  /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, #a5aaaa 0%, #909496 46%, #666666 100%, #333333 100%);
+  /* IE10+ */
+  background: linear-gradient(to bottom, #a5aaaa 0%, #909496 46%, #666666 100%, #333333 100%);
+  /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#a5aaaa', endColorstr='#333333', GradientType=0);
+  /* IE6-9 */
+}
 .close {
   position: absolute;
   top: 15px;
@@ -6416,6 +6435,53 @@ body {
   float: left;
   margin-top: -20px;
 }
+.zdf-header-blue .navbar-collapse.in,
+.zdf-header-blue .navbar-collapse.collapsing {
+  background-color: #1b4c64 !important;
+}
+.zdf-header-blue .navbar-toggle {
+  color: white!important;
+  padding: 10px 10px 5px 10px;
+}
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+  background-color: transparent !important;
+  color: #fa7e00 !important;
+}
+.second-nav li {
+  float: left;
+  margin: 20px 20px 20px 0;
+}
+.second-nav li.social-links {
+  text-align: center;
+}
+.second-nav li.social-links a {
+  font-size: 24px!important;
+}
+@media (max-width: 767px) {
+  .collapsed-circle-nav a {
+    display: block;
+    width: 100%;
+    min-height: 50px;
+  }
+  .collapsed-circle-nav .nav-circle.small {
+    float: left;
+  }
+  .collapsed-circle-nav span {
+    display: block;
+    float: left;
+    padding: 10px 10px 10px 10px;
+  }
+}
+@media (min-width: 768px) {
+  .collapsed-circle-nav {
+    margin-top: 20px;
+  }
+  .collapsed-circle-nav span {
+    display: none;
+    padding: 10px 10px 10px 10px;
+  }
+}
 .zdf-header-blue {
   min-height: 60px;
   height: 60px;
@@ -6453,7 +6519,7 @@ body {
 .zdf-header-blue .logo-name {
   padding: 3px 0px;
   height: 30px;
-  margin-left: 15px!important;
+  margin-left: 0px!important;
   padding: 5px 0px;
   color: white;
   font-size: 32px;
@@ -6476,15 +6542,6 @@ body {
   .zdf-header-blue .logo-name img {
     width: 250px;
     margin: 25px 0 0 0;
-  }
-  .zdf-header-blue .miz-logo {
-    float: left!important;
-    margin-top: 33px;
-    max-width: 150px;
-  }
-  .zdf-header-blue .miz-logo img {
-    max-width: 200px;
-    height: auto;
   }
 }
 .social-links a {
@@ -6513,6 +6570,18 @@ body {
     text-align: center;
   }
 }
+@media (min-width: 768px) {
+  .zdf-header-grey .miz-logo {
+    float: left!important;
+    margin-top: 10px!important;
+    max-width: 90px;
+    border-left: 0px!important;
+  }
+  .zdf-header-grey .miz-logo img {
+    max-height: 26px;
+    height: auto;
+  }
+}
 .browser-logo {
   margin-right: 10px;
 }
@@ -6529,7 +6598,7 @@ body {
   margin-bottom: 0px;
 }
 .zdf-header-grey .miz-logo {
-  width: 130px;
+  width: 160px;
   height: auto;
   float: left;
   margin-top: 15px;
@@ -6539,7 +6608,7 @@ body {
   border: 0px;
 }
 .zdf-header-grey .navbar-brand {
-  margin-left: 10px!important;
+  margin-left: 0px!important;
 }
 .zdf-header-grey .navbar-brand img.zdf-logo-lobbyradar {
   width: 150px;
@@ -6566,7 +6635,6 @@ body {
 }
 @media (min-width: 992px) {
   .zdf-header-grey ul.navbar-nav a {
-    border-left: 1px solid white;
     padding-left: 7px;
   }
   .zdf-header-grey ul.navbar-right li a {
@@ -6590,9 +6658,9 @@ body {
   display: inline;
 }
 .zdf-header-grey .zdf-logo {
-  margin-top: 7px;
-  max-width: 45px;
-  max-height: 26px;
+  margin-top: 2px;
+  max-width: 100px;
+  max-height: 46px;
   float: left;
 }
 .zdf-header-grey .zdf-nav {
@@ -6635,6 +6703,26 @@ body {
 .intro .nav-circle.big {
   margin: 0 auto 30px auto;
 }
+.circle-link {
+  position: relative;
+  background: #1b4c64;
+}
+.circle-link:hover {
+  border-color: transparent;
+}
+.circle-link .triangle,
+.circle-link .triangle2 {
+  margin: 10px auto;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 20px 40px 0 40px;
+  border-color: #fa7e00 transparent transparent transparent;
+}
+.circle-link .triangle2 {
+  margin-top: -33px;
+  border-color: #1b4c64 transparent transparent transparent;
+}
 .overlay {
   background: rgba(12, 12, 12, 0.85);
   width: 100%;
@@ -6657,10 +6745,18 @@ body {
     margin-top: 150px;
   }
 }
+.about-intro {
+  line-height: 1.35;
+  margin-top: 20px;
+}
+p.first-p {
+  margin-top: 20px;
+}
 .static-page {
   height: 100%;
   min-height: 768px;
   width: 100%;
+  padding-top: 80px;
   color: white;
 }
 .static-page p,
@@ -6718,7 +6814,7 @@ body {
   width: 100%;
   height: 100%;
   margin-top: 0px;
-  padding-top: 20px;
+  padding-top: 70px;
   margin-bottom: -20px;
   position: fixed;
   overflow: scroll;
@@ -6940,6 +7036,11 @@ body {
 }
 .btn-ext {
   margin-top: 17px;
+}
+@media (max-width: 767px) {
+  .navbar-brand {
+    padding-left: 10px!important;
+  }
 }
 .share-button.sharer-0 {
   -khtml-user-select: none;

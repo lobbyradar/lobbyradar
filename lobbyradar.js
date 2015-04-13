@@ -622,7 +622,10 @@ app.get("/api/autocomplete", function (req, res) {
 app.all("/", function (req, res) { res.render("index", {}); });
 
 // FAQ Page (static)
-app.get("/faq", function (req, res) { res.render("faq", {}); });
+app.get("/oft-gestellte-fragen", function (req, res) { res.render("faq", {}); });
+
+// FAQ Page (static)
+app.get("/artikel", function (req, res) { res.render("articles", {}); });
 
 // Abspann Page (static)
 app.get("/abspann", function (req, res) {
@@ -630,23 +633,23 @@ app.get("/abspann", function (req, res) {
 });
 
 // Intro Page (static)
-app.get("/intro", function (req, res) {
+app.get("/um-was-geht-es", function (req, res) {
 		res.render("intro", {});
 });
 
 // Abspann Page (static)
-app.get("/extension", function (req, res) {
+app.get("/download-plugin", function (req, res) {
 		res.render("extension", {});
 });
 
 
 // Abspann Page (static)
-app.get("/about", function (req, res) {
+app.get("/ueber-uns", function (req, res) {
 		res.render("about", {});
 });
 
 // Abspann Page (static)
-app.get("/app", function (req, res) {
+app.get("/verbindungssuche", function (req, res) {
 		res.render("app", {});
 });
 
