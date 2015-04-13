@@ -637,7 +637,7 @@ function loadEntity(id) {
 			if (hasAddIncome) {
 				console.log('Entity has additional income');
 				$content += '<div class="row row-results">';
-				$content += '<div class="col-md-12"><h4><i class="fa fa-suitcase"></i>&nbsp;Nebeneinkünfte</h4></div>';
+				$content += '<div class="col-md-12"><h4><i class="fa fa-suitcase"></i>&nbsp;Tätigkeit neben dem Bundestagsmandat</h4></div>';
 				$content += '<div class="entity-relations-item">';
 				var e = entity.relations;
 
