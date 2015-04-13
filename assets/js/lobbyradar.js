@@ -587,7 +587,6 @@ function loadEntity(id) {
 // _MMMMMMM9'  YMMMM9 _MM`YMMM9'Yb.YMMM9MM_MM_  YMMM9 
 
 						} else {
-							console.log(e);
 							$content += '<a class="ajax-load entity-connections" href="/entity/'
 							if (isExistant(e.entity)) {
 								if (isExistant(e.entity._id)) {
@@ -602,7 +601,7 @@ function loadEntity(id) {
 						}
 
 						$content += '</div>';
-					} else if(e.tags[0] == 'nebentaetigkeit') {
+					} else if(e.tags[0] == 'nebentaetigkeit' && e.type == 'activity') {
 						hasAddIncome = true;
 					}else if(e.tags[0] == 'committee'){
 						isCommittee = true;
@@ -673,6 +672,7 @@ function loadEntity(id) {
 
 				e.forEach(function (r) {
 					var tags = r.tags;
+
 					tags.forEach(function (t) {
 						if (t == 'nebentaetigkeit') {
 							zuordnung += '<a class="ajax-load entity-connections" href="/entity/';
