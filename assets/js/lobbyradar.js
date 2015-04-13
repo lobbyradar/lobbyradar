@@ -258,14 +258,15 @@ function loadEntity(id) {
 			});
 			$content += entity.name;
 			$content += '</h1>';
-			$(entity.data).each(function (idx, data) {
-				if (data.key == 'bundesland') {
-					$content += '<p>' + data.value + '</p>'; // PARTEI
-				}
-			});
+			// Bundesland herausgenommen
+			//$(entity.data).each(function (idx, data) {
+			//	if (data.key == 'bundesland') {
+			//		$content += '<p>' + data.value + '</p>'; // PARTEI
+			//	}
+			//});
 			$(entity.tags).each(function (idx, tag) {
 				if (tag == 'mdb') {
-					$content += '<p>Mitglied des Bundestag</p>';
+					$content += '<p>Mitglied des Bundestages</p>';
 				} else if (tag == 'lobbyist') {
 					console.log(entity);
 					$content += '<p>LobbyistIn / InteressensvertreterIn</p>'
@@ -377,7 +378,6 @@ function loadEntity(id) {
 			if (entity.relations.length > 0) {
 				// var relations = entity.relations.sort(sort_by('entity[name]', true));
 				var relations = entity.relations;
-
 				$content += '<h4>Verbindungen</<h4></h4>';
 				$content += '<div class="entity-relations-list">';
 
@@ -398,7 +398,13 @@ function loadEntity(id) {
 // _MMMMMMM9'  YMMMMM9 _MM_  _MM_`YMMM9'Yb.YMMM9 _MM_ YMMMMM9 _MM_  _MM_
 
 						if (e.type == 'donation') {
-							$content += '<i class="fa fa-euro"></i>&nbsp;Parteispenden an ';
+							$content += '<i class="fa fa-euro"></i>&nbsp;Parteispenden';
+							//console.log(entity);
+							if(entity.type == 'person'){
+								$content += ' an '
+							}else if(entity.type == 'entity'){
+								$content += ' von '
+							}
 							if (isExistant(e.entity)) {
 								$content += '<a class="ajax-load entity-connections" href="/entity/'
 								if (isExistant(e.entity._id)) {
@@ -439,7 +445,8 @@ function loadEntity(id) {
 //  MM        YM.   ,M9 L    ,MM MM  YM.  ,  MM YM.   ,M9 MM    MM 
 // _MM_        YMMMMM9  MYMMMM9 _MM_  YMMM9 _MM_ YMMMMM9 _MM_  _MM_
 
-						} else if (e.type == 'position') {
+						} else if (e.type == 'position' || e.type == 'government') {
+
 							$content += '<i class="fa fa-user"></i>&nbsp;';
 							$content += '<a class="ajax-load entity-connections" href="/entity/'
 							if (isExistant(e.entity)) {
@@ -455,6 +462,8 @@ function loadEntity(id) {
 							if (isExistant(e.data)) {
 								$(e.data).each(function (idx, data) {
 									if (data.key == 'position') {
+										$content += data.value + '<br/>';
+										// wtf? muss das da bleiben?
 										if (isExistant(data.value.position)) {
 											$content += data.value.position + '<br/>';
 										}
@@ -539,6 +548,7 @@ function loadEntity(id) {
 //  MM      /   d' `MM. YM    d9 YM.   d9 YM.   MM  YM.  ,  MM     YMP    YM    d9 
 // _MMMMMMMMM _d_  _)MM_ YMMMM9   YMMMM9   YMMM9MM_  YMMM9 _MM_     M      YMMMM9  
 
+							// oder GOVERNMENT
 
 						} else if (e.type == 'executive') {
 
@@ -577,6 +587,7 @@ function loadEntity(id) {
 // _MMMMMMM9'  YMMMM9 _MM`YMMM9'Yb.YMMM9MM_MM_  YMMM9 
 
 						} else {
+							console.log(e);
 							$content += '<a class="ajax-load entity-connections" href="/entity/'
 							if (isExistant(e.entity)) {
 								if (isExistant(e.entity._id)) {
@@ -834,6 +845,7 @@ function loadEntity(id) {
 
 	});
 }
+
 
 
 // Numberformating
