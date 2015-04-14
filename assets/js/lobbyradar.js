@@ -1,15 +1,3 @@
-//    ____   ___          ___                ___ 
-//   6MMMMb/ `MM           MM                `MM 
-//  8P    YM  MM           MM                 MM 
-// 6M      Y  MM   _____   MM____      ___    MM 
-// MM         MM  6MMMMMb  MMMMMMb   6MMMMb   MM 
-// MM         MM 6M'   `Mb MM'  `Mb 8M'  `Mb  MM 
-// MM     ___ MM MM     MM MM    MM     ,oMM  MM 
-// MM     `M' MM MM     MM MM    MM ,6MM9'MM  MM 
-// YM      M  MM MM     MM MM    MM MM'   MM  MM 
-//  8b    d9  MM YM.   ,M9 MM.  ,M9 MM.  ,MM  MM 
-//   YMMMM9  _MM_ YMMMMM9 _MYMMMM9  `YMMM9'Yb_MM_
-
 // save the browser dimensions
 // var winWidth = $(window).width();
 // var winHeight = $(window).height();
@@ -79,19 +67,6 @@ function showShareButton() {
 	});
 }
 
-
-// ___                         ___       ____                         
-// `MM                         `MM       `MM'     68b                 
-//  MM                          MM        MM      Y89           /     
-//  MM   _____      ___     ____MM        MM      ___   ____   /M     
-//  MM  6MMMMMb   6MMMMb   6MMMMMM        MM      `MM  6MMMMb\/MMMMM  
-//  MM 6M'   `Mb 8M'  `Mb 6M'  `MM        MM       MM MM'    ` MM     
-//  MM MM     MM     ,oMM MM    MM        MM       MM YM.      MM     
-//  MM MM     MM ,6MM9'MM MM    MM        MM       MM  YMMMMb  MM     
-//  MM MM     MM MM'   MM MM    MM        MM       MM      `Mb MM     
-//  MM YM.   ,M9 MM.  ,MM YM.  ,MM        MM    /  MM L    ,MM YM.  , 
-// _MM_ YMMMMM9  `YMMM9'Yb.YMMMMMM_      _MMMMMMM _MM_MYMMMM9   YMMM9 
-
 function loadList(id) {
 	$(".leaflet-control-zoom").css("display", 'block');
 
@@ -153,22 +128,6 @@ function loadEntityAjax(id) {
 	loadEntity(id);
 	window.history.pushState(null, 'entity', '/entity/' + id);
 }
-
-
-// ___                         ___       __________                                         
-// `MM                         `MM       `MMMMMMMMM                  68b                    
-//  MM                          MM        MM      \            /     Y89   /                
-//  MM   _____      ___     ____MM        MM        ___  __   /M     ___  /M    ____    ___ 
-//  MM  6MMMMMb   6MMMMb   6MMMMMM        MM    ,   `MM 6MMb /MMMMM  `MM /MMMMM `MM(    )M' 
-//  MM 6M'   `Mb 8M'  `Mb 6M'  `MM        MMMMMMM    MMM9 `Mb MM      MM  MM     `Mb    d'  
-//  MM MM     MM     ,oMM MM    MM        MM    `    MM'   MM MM      MM  MM      YM.  ,P   
-//  MM MM     MM ,6MM9'MM MM    MM        MM         MM    MM MM      MM  MM       MM  M    
-//  MM MM     MM MM'   MM MM    MM        MM         MM    MM MM      MM  MM       `Mbd'    
-//  MM YM.   ,M9 MM.  ,MM YM.  ,MM        MM      /  MM    MM YM.  ,  MM  YM.  ,    YMP     
-// _MM_ YMMMMM9  `YMMM9'Yb.YMMMMMM_      _MMMMMMMMM _MM_  _MM_ YMMM9 _MM_  YMMM9     M      
-//                                                                                  d'      
-//                                                                              (8),P       
-//                                                                               YMM        
 
 function isExistant(el) {
 	if (el !== undefined) {
@@ -385,17 +344,6 @@ function loadEntity(id) {
 					if (e.tags[0] !== 'nebentaetigkeit' && e.tags[0] !== 'committee') {
 						$content += '<div class="entity-relations-item">';
 
-// ________                                                             
-// `MMMMMMMb.                                    68b                    
-//  MM    `Mb                              /     Y89                    
-//  MM     MM   _____  ___  __      ___   /M     ___   _____  ___  __   
-//  MM     MM  6MMMMMb `MM 6MMb   6MMMMb /MMMMM  `MM  6MMMMMb `MM 6MMb  
-//  MM     MM 6M'   `Mb MMM9 `Mb 8M'  `Mb MM      MM 6M'   `Mb MMM9 `Mb 
-//  MM     MM MM     MM MM'   MM     ,oMM MM      MM MM     MM MM'   MM 
-//  MM     MM MM     MM MM    MM ,6MM9'MM MM      MM MM     MM MM    MM 
-//  MM     MM MM     MM MM    MM MM'   MM MM      MM MM     MM MM    MM 
-//  MM    .M9 YM.   ,M9 MM    MM MM.  ,MM YM.  ,  MM YM.   ,M9 MM    MM 
-// _MMMMMMM9'  YMMMMM9 _MM_  _MM_`YMMM9'Yb.YMMM9 _MM_ YMMMMM9 _MM_  _MM_
 
 						if (e.type == 'donation') {
 							$content += '<i class="fa fa-euro"></i>&nbsp;Parteispenden';
@@ -433,17 +381,6 @@ function loadEntity(id) {
 								$content += '</table>';
 							}
 
-// ________                                                        
-// `MMMMMMMb.                   68b         68b                    
-//  MM    `Mb                   Y89   /     Y89                    
-//  MM     MM   _____     ____  ___  /M     ___   _____  ___  __   
-//  MM     MM  6MMMMMb   6MMMMb\`MM /MMMMM  `MM  6MMMMMb `MM 6MMb  
-//  MM    .M9 6M'   `Mb MM'    ` MM  MM      MM 6M'   `Mb MMM9 `Mb 
-//  MMMMMMM9' MM     MM YM.      MM  MM      MM MM     MM MM'   MM 
-//  MM        MM     MM  YMMMMb  MM  MM      MM MM     MM MM    MM 
-//  MM        MM     MM      `Mb MM  MM      MM MM     MM MM    MM 
-//  MM        YM.   ,M9 L    ,MM MM  YM.  ,  MM YM.   ,M9 MM    MM 
-// _MM_        YMMMMM9  MYMMMM9 _MM_  YMMM9 _MM_ YMMMMM9 _MM_  _MM_
 
 						} else if (e.type == 'position' || e.type == 'government') {
 
@@ -471,18 +408,6 @@ function loadEntity(id) {
 								});
 							}
 
-// ___       ___                       ___                       
-// `MMb     dMM'                        MM                       
-//  MMM.   ,PMM                         MM                       
-//  M`Mb   d'MM   ____  ___  __    __   MM____     ____  ___  __ 
-//  M YM. ,P MM  6MMMMb `MM 6MMb  6MMb  MMMMMMb   6MMMMb `MM 6MM 
-//  M `Mb d' MM 6M'  `Mb MM69 `MM69 `Mb MM'  `Mb 6M'  `Mb MM69 " 
-//  M  YM.P  MM MM    MM MM'   MM'   MM MM    MM MM    MM MM'    
-//  M  `Mb'  MM MMMMMMMM MM    MM    MM MM    MM MMMMMMMM MM     
-//  M   YP   MM MM       MM    MM    MM MM    MM MM       MM     
-//  M   `'   MM YM    d9 MM    MM    MM MM.  ,M9 YM    d9 MM     
-// _M_      _MM_ YMMMM9 _MM_  _MM_  _MM_MYMMMM9   YMMMM9 _MM_    
-
 						} else if (e.type == 'member') {
 							$content += '<i class="fa fa-group"></i>&nbsp;';
 							$content += '<a class="ajax-load entity-connections" href="/entity/'
@@ -497,20 +422,6 @@ function loadEntity(id) {
 							}
 							$content += '</a><br/>Mitglied';
 
-//        _                                                             
-//       dM.                     68b             68b                    
-//      ,MMb               /     Y89             Y89   /                
-//      d'YM.      ____   /M     ___ ____    ___ ___  /M    ____    ___ 
-//     ,P `Mb     6MMMMb./MMMMM  `MM `MM(    )M' `MM /MMMMM `MM(    )M' 
-//     d'  YM.   6M'   Mb MM      MM  `Mb    d'   MM  MM     `Mb    d'  
-//    ,P   `Mb   MM    `' MM      MM   YM.  ,P    MM  MM      YM.  ,P   
-//    d'    YM.  MM       MM      MM    MM  M     MM  MM       MM  M    
-//   ,MMMMMMMMb  MM       MM      MM    `Mbd'     MM  MM       `Mbd'    
-//   d'      YM. YM.   d9 YM.  ,  MM     YMP      MM  YM.  ,    YMP     
-// _dM_     _dMM_ YMMMM9   YMMM9 _MM_     M      _MM_  YMMM9     M      
-//                                                              d'      
-//                                                          (8),P       
-//                                                           YMM
 						} else if (e.type == 'activity') {
 
 							$content += '<i class="fa fa-suitcase"></i>&nbsp;';
@@ -534,20 +445,6 @@ function loadEntity(id) {
 									}
 								});
 							}
-
-
-// __________
-// `MMMMMMMMM                                              68b                     
-//  MM      \                                        /     Y89                     
-//  MM        ____   ___  ____     ____  ___   ___  /M     ___ ____    ___  ____   
-//  MM    ,   `MM(   )P' 6MMMMb   6MMMMb.`MM    MM /MMMMM  `MM `MM(    )M' 6MMMMb  
-//  MMMMMMM    `MM` ,P  6M'  `Mb 6M'   Mb MM    MM  MM      MM  `Mb    d' 6M'  `Mb 
-//  MM    `     `MM,P   MM    MM MM    `' MM    MM  MM      MM   YM.  ,P  MM    MM 
-//  MM           `MM.   MMMMMMMM MM       MM    MM  MM      MM    MM  M   MMMMMMMM 
-//  MM           d`MM.  MM       MM       MM    MM  MM      MM    `Mbd'   MM       
-//  MM      /   d' `MM. YM    d9 YM.   d9 YM.   MM  YM.  ,  MM     YMP    YM    d9 
-// _MMMMMMMMM _d_  _)MM_ YMMMM9   YMMMM9   YMMM9MM_  YMMM9 _MM_     M      YMMMM9  
-
 							// oder GOVERNMENT
 
 						} else if (e.type == 'executive') {
@@ -574,18 +471,6 @@ function loadEntity(id) {
 									}
 								});
 							}
-// ________              __               ___         
-// `MMMMMMMb.           69MM              `MM         
-//  MM    `Mb          6M' `               MM   /     
-//  MM     MM   ____  _MM__ ___  ___   ___ MM  /M     
-//  MM     MM  6MMMMb MMMM6MMMMb `MM    MM MM /MMMMM  
-//  MM     MM 6M'  `Mb MM8M'  `Mb MM    MM MM  MM     
-//  MM     MM MM    MM MM    ,oMM MM    MM MM  MM     
-//  MM     MM MMMMMMMM MM,6MM9'MM MM    MM MM  MM     
-//  MM     MM MM       MMMM'   MM MM    MM MM  MM     
-//  MM    .M9 YM    d9 MMMM.  ,MM YM.   MM MM  YM.  , 
-// _MMMMMMM9'  YMMMM9 _MM`YMMM9'Yb.YMMM9MM_MM_  YMMM9 
-
 						} else {
 							$content += '<a class="ajax-load entity-connections" href="/entity/'
 							if (isExistant(e.entity)) {
@@ -847,7 +732,6 @@ function loadEntity(id) {
 }
 
 
-
 // Numberformating
 function numberThousandSep(x) {
 	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -862,22 +746,6 @@ function numberWithCommas(x) {
 	var pre = numberThousandSep(s[0]);
 	return pre + ',' + s[1];
 }
-
-
-// ________                            ________                          ___
-// `MMMMMMMb.                          `MMMMMMMb.                        `MM             
-//  MM    `Mb                           MM    `Mb                         MM             
-//  MM     MM   _____     ____          MM     MM   ____      ___     ____MM ____    ___ 
-//  MM     MM  6MMMMMb   6MMMMb.        MM     MM  6MMMMb   6MMMMb   6MMMMMM `MM(    )M' 
-//  MM     MM 6M'   `Mb 6M'   Mb        MM    .M9 6M'  `Mb 8M'  `Mb 6M'  `MM  `Mb    d'  
-//  MM     MM MM     MM MM    `'        MMMMMMM9' MM    MM     ,oMM MM    MM   YM.  ,P   
-//  MM     MM MM     MM MM              MM  \M\   MMMMMMMM ,6MM9'MM MM    MM    MM  M    
-//  MM     MM MM     MM MM              MM   \M\  MM       MM'   MM MM    MM    `Mbd'    
-//  MM    .M9 YM.   ,M9 YM.   d9        MM    \M\ YM    d9 MM.  ,MM YM.  ,MM     YMP     
-// _MMMMMMM9'  YMMMMM9   YMMMM9        _MM_    \M\_YMMMM9  `YMMM9'Yb.YMMMMMM_     M      
-//                                                                               d'      
-//                                                                           (8),P       
-//                                                                            YMM   
 
 $(document).ready(function () {
 	$('.fullscreen').css({'width': winWidth, 'height': winHeight});
@@ -927,21 +795,6 @@ $(document).ready(function () {
 	});
 
 
-// ________                                    ____                  ___       
-// `MMMMMMMb.                                  `MM'     68b          `MM       
-//  MM    `Mb                                   MM      Y89           MM       
-//  MM     MM   ____     ____  __ ____          MM      ___ ___  __   MM   __  
-//  MM     MM  6MMMMb   6MMMMb `M6MMMMb         MM      `MM `MM 6MMb  MM   d'  
-//  MM     MM 6M'  `Mb 6M'  `Mb MM'  `Mb        MM       MM  MMM9 `Mb MM  d'   
-//  MM     MM MM    MM MM    MM MM    MM        MM       MM  MM'   MM MM d'    
-//  MM     MM MMMMMMMM MMMMMMMM MM    MM        MM       MM  MM    MM MMdM.    
-//  MM     MM MM       MM       MM    MM        MM       MM  MM    MM MMPYM.   
-//  MM    .M9 YM    d9 YM    d9 MM.  ,M9        MM    /  MM  MM    MM MM  YM.  
-// _MMMMMMM9'  YMMMM9   YMMMM9  MMYMMM9        _MMMMMMM _MM__MM_  _MM_MM_  YM._
-//                              MM                                             
-//                              MM                                             
-//                             _MM_                                            
-
 	// this kicks in when we get a deep link to an entity
 	// entity/:id
 	if (window.location.href.indexOf("/entity/") > -1) {
@@ -970,18 +823,6 @@ $(document).ready(function () {
 		loadList(searchID);
 	}
 
-
-//   ____                                     ___             ________                             ___
-//  6MMMMb\                                   `MM             `MMMMMMMb.                           `MM                  
-// 6M'    `                                    MM              MM    `Mb                            MM   /              
-// MM         ____      ___   ___  __   ____   MM  __          MM     MM   ____     ____  ___   ___ MM  /M       ____   
-// YM.       6MMMMb   6MMMMb  `MM 6MM  6MMMMb. MM 6MMb         MM     MM  6MMMMb   6MMMMb\`MM    MM MM /MMMMM   6MMMMb\ 
-//  YMMMMb  6M'  `Mb 8M'  `Mb  MM69 " 6M'   Mb MMM9 `Mb        MM    .M9 6M'  `Mb MM'    ` MM    MM MM  MM     MM'    ` 
-//      `Mb MM    MM     ,oMM  MM'    MM    `' MM'   MM        MMMMMMM9' MM    MM YM.      MM    MM MM  MM     YM.      
-//       MM MMMMMMMM ,6MM9'MM  MM     MM       MM    MM        MM  \M\   MMMMMMMM  YMMMMb  MM    MM MM  MM      YMMMMb  
-//       MM MM       MM'   MM  MM     MM       MM    MM        MM   \M\  MM            `Mb MM    MM MM  MM          `Mb 
-// L    ,M9 YM    d9 MM.  ,MM  MM     YM.   d9 MM    MM        MM    \M\ YM    d9 L    ,MM YM.   MM MM  YM.  , L    ,MM 
-// MYMMMM9   YMMMM9  `YMMM9'Yb_MM_     YMMMM9 _MM_  _MM_      _MM_    \M\_YMMMM9  MYMMMM9   YMMM9MM_MM_  YMMM9 MYMMMM9  
 
 	// lazy typeahead
 	// (function(){
@@ -1022,19 +863,6 @@ $(document).ready(function () {
 	});
 
 
-// ________                                ___          __                                      ____
-// `MMMMMMMb.                          68b `MM         69MM                                     `MM'     68b                 
-//  MM    `Mb           /              Y89  MM        6M' `                                      MM      Y89           /     
-//  MM     MM   ____   /M        ___   ___  MM       _MM____  __   _____  ___  __    __          MM      ___   ____   /M     
-//  MM     MM  6MMMMb /MMMMM   6MMMMb  `MM  MM       MMMM`MM 6MM  6MMMMMb `MM 6MMb  6MMb         MM      `MM  6MMMMb\/MMMMM  
-//  MM     MM 6M'  `Mb MM     8M'  `Mb  MM  MM        MM  MM69 " 6M'   `Mb MM69 `MM69 `Mb        MM       MM MM'    ` MM     
-//  MM     MM MM    MM MM         ,oMM  MM  MM        MM  MM'    MM     MM MM'   MM'   MM        MM       MM YM.      MM     
-//  MM     MM MMMMMMMM MM     ,6MM9'MM  MM  MM        MM  MM     MM     MM MM    MM    MM        MM       MM  YMMMMb  MM     
-//  MM     MM MM       MM     MM'   MM  MM  MM        MM  MM     MM     MM MM    MM    MM        MM       MM      `Mb MM     
-//  MM    .M9 YM    d9 YM.  , MM.  ,MM  MM  MM        MM  MM     YM.   ,M9 MM    MM    MM        MM    /  MM L    ,MM YM.  , 
-// _MMMMMMM9'  YMMMM9   YMMM9 `YMMM9'Yb_MM__MM_      _MM__MM_     YMMMMM9 _MM_  _MM_  _MM_      _MMMMMMM _MM_MYMMMM9   YMMM9 
-
-
 	// // bring back the list when the button in detail is clicked           
 	// $('body').on('click', '#backtolist', function(event) {
 	// 	$(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
@@ -1044,21 +872,6 @@ $(document).ready(function () {
 	// 	e.preventDefault();
 	// });
 
-
-//     ________                 ___         ____                            ___ ___
-// 68b `MMMMMMMb.               `MM        6MMMMb\                          `MM `MM 68b                    
-// Y89  MM    `Mb                MM       6M'    `                           MM  MM Y89                    
-// ___  MM     MM    ___     ____MM       MM         ____  ___  __   _____   MM  MM ___ ___  __     __     
-// `MM  MM     MM  6MMMMb   6MMMMMM       YM.       6MMMMb.`MM 6MM  6MMMMMb  MM  MM `MM `MM 6MMb   6MMbMMM 
-//  MM  MM    .M9 8M'  `Mb 6M'  `MM        YMMMMb  6M'   Mb MM69 " 6M'   `Mb MM  MM  MM  MMM9 `Mb 6M'`Mb   
-//  MM  MMMMMMM9'     ,oMM MM    MM            `Mb MM    `' MM'    MM     MM MM  MM  MM  MM'   MM MM  MM   
-//  MM  MM        ,6MM9'MM MM    MM             MM MM       MM     MM     MM MM  MM  MM  MM    MM YM.,M9   
-//  MM  MM        MM'   MM MM    MM             MM MM       MM     MM     MM MM  MM  MM  MM    MM  YMM9    
-//  MM  MM        MM.  ,MM YM.  ,MM       L    ,M9 YM.   d9 MM     YM.   ,M9 MM  MM  MM  MM    MM (M       
-// _MM__MM_       `YMMM9'Yb.YMMMMMM_      MYMMMM9   YMMMM9 _MM_     YMMMMM9 _MM__MM__MM__MM_  _MM_ YMMMMb. 
-//                                                                                                6M    Yb 
-//                                                                                                YM.   d9 
-//                                                                                                 YMMMM9  
 
 	// http://stackoverflow.com/questions/16437182/issue-with-a-scrollable-div-on-ipad
 	$('body').on('touchmove', '.scrollable', function (e) {
@@ -1088,18 +901,6 @@ $(document).ready(function () {
 
 
 }); // document.ready end
-
-// ____              ___                     ________                                          
-// `Mb(      db      )d' 68b                 `MMMMMMMb.                  68b                   
-//  YM.     ,PM.     ,P  Y89                  MM    `Mb                  Y89                   
-//  `Mb     d'Mb     d'  ___ ___  __          MM     MM   ____     ____  ___ _________  ____   
-//   YM.   ,P YM.   ,P   `MM `MM 6MMb         MM     MM  6MMMMb   6MMMMb\`MM MMMMMMMMP 6MMMMb  
-//   `Mb   d' `Mb   d'    MM  MMM9 `Mb        MM    .M9 6M'  `Mb MM'    ` MM /    dMP 6M'  `Mb 
-//    YM. ,P   YM. ,P     MM  MM'   MM        MMMMMMM9' MM    MM YM.      MM     dMP  MM    MM 
-//    `Mb d'   `Mb d'     MM  MM    MM        MM  \M\   MMMMMMMM  YMMMMb  MM    dMP   MMMMMMMM 
-//     YM,P     YM,P      MM  MM    MM        MM   \M\  MM            `Mb MM   dMP    MM       
-//     `MM'     `MM'      MM  MM    MM        MM    \M\ YM    d9 L    ,MM MM  dMP    /YM    d9 
-//      YP       YP      _MM__MM_  _MM_      _MM_    \M\_YMMMM9  MYMMMM9 _MM_dMMMMMMMM YMMMM9  
 
 // make sure div stays full width/height on resize
 $(window).resize(function () {
