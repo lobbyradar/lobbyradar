@@ -171,6 +171,8 @@ function loadEntity(id) {
 			console.log(data.result);
 			var hasAddIncome = false;
 			var isCommittee = false;
+			var hasPartyDonation = false;
+			var donationArray = [];
 
 			// check for the different types of data
 			for (var i = 0, data; data = entity.data[i]; i++) {
@@ -227,7 +229,6 @@ function loadEntity(id) {
 				if (tag == 'mdb') {
 					$content += '<p>Mitglied des Bundestages</p>';
 				} else if (tag == 'lobbyist') {
-					console.log(entity);
 					$content += '<p>LobbyistIn / InteressensvertreterIn</p>'
 				} else if (tag == 'committee') {
 					$content += '<p>Ausschuss des Bundestags</p>'
@@ -337,52 +338,16 @@ function loadEntity(id) {
 			if (entity.relations.length > 0) {
 				// var relations = entity.relations.sort(sort_by('entity[name]', true));
 				var relations = entity.relations;
+				//console.log(relations);
 				$content += '<h4>Verbindungen</<h4></h4>';
 				$content += '<div class="entity-relations-list">';
 
 				$(relations).each(function (idx, e) {
-					if (e.tags[0] !== 'nebentaetigkeit' && e.tags[0] !== 'committee') {
+
+					if (e.tags[0] !== 'nebentaetigkeit' && e.tags[0] !== 'committee' && e.type !== 'donation') {
 						$content += '<div class="entity-relations-item">';
 
-
-						if (e.type == 'donation') {
-							$content += '<i class="fa fa-euro"></i>&nbsp;Parteispenden';
-							//console.log(entity);
-							if(entity.type == 'person'){
-								$content += ' an '
-							}else if(entity.type == 'entity'){
-								$content += ' von '
-							}
-							if (isExistant(e.entity)) {
-								$content += '<a class="ajax-load entity-connections" href="/entity/'
-								if (isExistant(e.entity._id)) {
-									$content += e.entity._id;
-								}
-								$content += '">';
-								if (isExistant(e.entity.name)) {
-									$content += e.entity.name + '&nbsp;';
-								}
-							}
-							$content += '</a><br/>';
-							if (isExistant(e.data)) {
-								$content += '<table class="table-condensed table-bordered table">';
-								$(e.data).each(function (idx, data) {
-									if (data.key == 'donation') {
-										$content += '<tr>';
-										$content += '<td>';
-										$content += data.value.year + ' ';
-										$content += '</td>';
-										$content += '<td>';
-										$content += numberWithCommas(data.value.amount) + ' € ';
-										$content += '</td>';
-										$content += '</tr>';
-									}
-								});
-								$content += '</table>';
-							}
-
-
-						} else if (e.type == 'position' || e.type == 'government') {
+						if (e.type == 'position' || e.type == 'government') {
 
 							$content += '<i class="fa fa-user"></i>&nbsp;';
 							$content += '<a class="ajax-load entity-connections" href="/entity/'
@@ -409,6 +374,8 @@ function loadEntity(id) {
 							}
 
 						} else if (e.type == 'member') {
+							console.log('---member---');
+							console.log(e);
 							$content += '<i class="fa fa-group"></i>&nbsp;';
 							$content += '<a class="ajax-load entity-connections" href="/entity/'
 							if (isExistant(e.entity)) {
@@ -484,20 +451,69 @@ function loadEntity(id) {
 							}
 							$content += '</a>';
 						}
-
 						$content += '</div>';
-					} else if(e.tags[0] == 'nebentaetigkeit' && e.type == 'activity') {
+					} else if (e.tags[0] == 'nebentaetigkeit' && e.type == 'activity') {
 						hasAddIncome = true;
-					}else if(e.tags[0] == 'committee'){
+					} else if (e.tags[0] == 'committee') {
 						isCommittee = true;
+					} else if(e.type == 'donation'){
+						hasPartyDonation = true;
+						donationArray.push(e);
 					}
 				});
 				$content += '</div>';
 			}
 
+			//console.log(donationArray);
+			if(hasPartyDonation){
+				console.log('Entity has party donation');
+				$content += '<div class="row row-results">';
+				var parteiString = 'Parteispende';
+
+				if (entity.type == 'person') {
+					parteiString += ' an '
+				} else if (entity.type == 'entity') {
+					parteiString += ' von '
+				}
+
+				$content += '<div class="col-md-12"><h4><i class="fa fa-euro"></i>&nbsp;'+parteiString+'</h4></div>';
+				$content += '<div class="entity-relations-item">';
+
+				donationArray.forEach(function (d) {
+					if (isExistant(d.entity)) {
+						$content += '<a class="ajax-load entity-connections" href="/entity/'
+						if (isExistant(d.entity._id)) {
+							$content += d.entity._id;
+						}
+						$content += '">';
+						if (isExistant(d.entity.name)) {
+							$content += d.entity.name + '&nbsp;';
+						}
+					}
+					$content += '</a><br/>';
+					if (isExistant(d.data)) {
+						$content += '<table class="table-condensed table-bordered table">';
+						$(d.data).each(function (idx, data) {
+							if (data.key == 'donation') {
+								$content += '<tr>';
+								$content += '<td>';
+								$content += data.value.year + ' ';
+								$content += '</td>';
+								$content += '<td>';
+								$content += numberWithCommas(data.value.amount) + ' € ';
+								$content += '</td>';
+								$content += '</tr>';
+							}
+						});
+						$content += '</table>';
+					}
+				});
+				$content += '</div>';
+				$content += '</div>';
+			}
 
 			//if a person is a part of a committee
-			if(isCommittee){
+			if (isCommittee) {
 				console.log('Entity is a part of a committee');
 				$content += '<div class="row row-results">';
 				$content += '<div class="col-md-12"><h4><i class="fa fa-group"></i>&nbsp;Ausschüsse des Bundestags</h4></div>';
@@ -508,7 +524,7 @@ function loadEntity(id) {
 				e.forEach(function (r) {
 					var tags = r.tags;
 					tags.forEach(function (t) {
-						if(t == 'committee'){
+						if (t == 'committee') {
 							$content += '<a class="ajax-load entity-connections" href="/entity/';
 							if (isExistant(r.entity)) {
 								if (isExistant(r.entity._id)) {
@@ -553,13 +569,15 @@ function loadEntity(id) {
 				var _e = '';
 				var _f = '';
 				var _g = '';
-				var zuordnung = '';
+
+				var ob = [];
 
 				e.forEach(function (r) {
 					var tags = r.tags;
-
 					tags.forEach(function (t) {
+						var zuordnung = '';
 						if (t == 'nebentaetigkeit') {
+							//console.log(r);
 							zuordnung += '<a class="ajax-load entity-connections" href="/entity/';
 							if (isExistant(r.entity)) {
 								if (isExistant(r.entity._id)) {
@@ -571,49 +589,80 @@ function loadEntity(id) {
 								}
 							}
 							zuordnung += '</a><br/>';
-						}
 
-						if (isExistant(r.data)) {
-							r.data.forEach(function (data) {
-								if (data.key == 'activity') {
-									if (data.value.type == 'Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag') {
-										if (_a.length === 0)_a = zuordnung + _a;
-										_a += data.value.year + ' ' + data.value.position + ' ' + data.value.activity + ' ' + data.value.periodical + '<br>';
-									} else if (data.value.type == 'Funktionen in Vereinen, Verbänden und Stiftungen') {
-										if (_b.length === 0)_b = zuordnung + _b;
-										_b += data.value.position + '<br>';
-									} else if (data.value.type == 'Funktionen in Unternehmen') {
-										if (_c.length === 0)_c = zuordnung + _c;
-										_c += data.value.position  + '<br>';
-									} else if (data.value.type == 'Funktionen in Körperschaften und Anstalten des öffentlichen Rechts') {
-										if (_d.length === 0)_d = zuordnung + _d;
-										_d += data.value.position + '<br>';
-									} else if (data.value.type == 'Entgeltliche Tätigkeiten neben dem Mandat') {
-										if (_e.length === 0)_e = zuordnung + _e;
-										if(data.value.year != null){
-											_e += data.value.year + ' ';
-										}
-										if(data.value.position != null){
-											_e += data.value.position + ' ';
-										}
-										if(data.value.activity != null){
-											_e += data.value.activity + ' ';
-										}
-										_e += data.value.periodical + ' Stufe: ' +data.value.level+ '<br>';
-									} else if (data.value.type == 'Beteiligungen an Kapital- oder Personengesellschaften') {
-										if (_f.length === 0)_f = zuordnung + _f;
+							if (isExistant(r.data)) {
+								r.data.forEach(function (d) {
+									if (d.value.type == 'Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag') {
+										_a += zuordnung;
+										_a += d.value.year + ' ' + data.value.position + ' ' + d.value.activity + ' ' + d.value.periodical + '<br>';
+									} else if (d.value.type == 'Funktionen in Vereinen, Verbänden und Stiftungen') {
+										_b += zuordnung;
+										_b += d.value.position + '<br>';
+									} else if (d.value.type == 'Funktionen in Unternehmen') {
+										_c += zuordnung;
+										_c += d.value.position + '<br>';
+									} else if (d.value.type == 'Funktionen in Körperschaften und Anstalten des öffentlichen Rechts') {
+										_d += zuordnung;
+										_d += d.value.position + '<br>';
+									} else if (d.value.type == 'Entgeltliche Tätigkeiten neben dem Mandat') {
+										ob.push(r);
+									} else if (d.value.type == 'Beteiligungen an Kapital- oder Personengesellschaften') {
+										_f += zuordnung;
 										//_f += data.value.position + '<br>';
-									} else if (data.value.type == 'Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile') {
-										if (_g.length === 0)_g = zuordnung + _g;
-										_g += data.value.activity + ' ' + data.value.periodical + '<br>';
+									} else if (d.value.type == 'Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile') {
+										_g += zuordnung;
+										_g += d.value.activity + ' ' + d.value.periodical + '<br>';
 									}
-								}
-							});
+								})
+								zuordnung = '';
+							}
 						}
 					});
-					zuordnung = '';
+
 				});
 
+				//console.log(ob);
+
+				var i = 0,
+					j = 1;
+				for(; j < ob.length; ){
+					if(ob[i]._id == ob[j]._id){
+						ob.splice(i,1);
+					}else{
+						i++;
+						j++;
+					}
+				}
+
+				ob.forEach(function (d) {
+					console.log(d);
+					var zuordnung = '';
+					zuordnung += '<a class="ajax-load entity-connections" href="/entity/';
+					if (isExistant(d.entity)) {
+						if (isExistant(d.entity._id)) {
+							zuordnung += d.entity._id;
+						}
+						zuordnung += '">';
+						if (isExistant(d.entity.name)) {
+							zuordnung += d.entity.name + '&nbsp;';
+						}
+					}
+					zuordnung += '</a><br/>';
+
+					_e += zuordnung;
+					d.data.forEach(function (da) {
+						if (da.value.year != null) {
+							_e += da.value.year + ' ';
+						}
+						if (da.value.position != null) {
+							_e += da.value.position + ' ';
+						}
+						if (da.value.activity != null) {
+							_e += da.value.activity + ' ';
+						}
+						_e += da.value.periodical + ' Stufe: ' + formatStagesAddIncome(da.value.level) + '<br>';
+					})
+				});
 
 				if (_a.length != 0) {
 					_a = '<br /><h5>Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag</h5>' + _a;
@@ -731,6 +780,43 @@ function loadEntity(id) {
 	});
 }
 
+function formatStagesAddIncome(val) {
+	switch (val) {
+		case 1:
+			return " 1 (über 1.000€)";
+			break;
+		case 2:
+			return " 2 (über 3.500€)";
+			break;
+		case 3:
+			return " 3 (über 7.000€)";
+			break;
+		case 4:
+			return " 4 (über 15.000€)";
+			break;
+		case 5:
+			return " 5 (über 30.000€)";
+			break;
+		case 6:
+			return " 6 (über 50.000€)";
+			break;
+		case 7:
+			return " 7 (über 75.000€)";
+			break;
+		case 8:
+			return " 8 (über 100.000€)";
+			break;
+		case 9:
+			return " 9 (über 150.000€)";
+			break;
+		case 10:
+			return " 10 (über 250.000€)";
+			break;
+		default:
+			return " 0 ";
+			break;
+	}
+}
 
 // Numberformating
 function numberThousandSep(x) {
