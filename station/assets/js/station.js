@@ -1829,7 +1829,7 @@ app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relat
 	relationEditCtrl($scope, $state, relations, entities, tags, fields, function () {
 		$state.go('relations');
 	});
-	if ((!$scope.isNew) || (!$scope.relation) || (!$scope.relation.id)) {
+	if ((!$scope.isNew) && ($state.current.name !== 'person')) {
 		relations.item({id: $stateParams.id},
 			function (data) {
 				if (data.error) return reportServerError($scope, data.error);
