@@ -157,153 +157,105 @@ function loadEntity(id) {
 				$content += '<h4>Verbindungen</<h4></h4>';
 				$content += '<div class="entity-relations-list">';
 
-				$(relations).each(function (idx, e) {
+				$(entity.relations).each(function (idx, rel) {
 
-					if (e.tags[0] !== 'nebentaetigkeit' && e.tags[0] !== 'committee' && e.type !== 'donation') {
-						$content += '<div class="entity-relations-item">';
 
-						if (e.type == 'position' || e.type == 'government') {
+					// failsafe check if relation has entity and id
+					if (!(rel.hasOwnProperty("entity"))) return console.log(rel);
+					if (rel.entity.hasOwnProperty("_id") && !(rel.entity.hasOwnProperty("id"))) rel.entity.id = rel.entity._id;
+					if (!(rel.entity.hasOwnProperty("id")) || !rel.entity.id) return alert("#2");
 
-							$content += '<i class="fa fa-user"></i>&nbsp;';
-							if (isExistant(e.entity)) {
-								$content += '<a class="ajax-load entity-connections" href="/entity/';
-								if (isExistant(e.entity._id)) {
-									$content += e.entity._id;
+					// check for committee
+					isCommittee = (rel.tags.indexOf('committee') >= 0);
+
+					switch (rel.type.toLowerCase()) {
+						// activities
+						case "activity":
+
+							// is nebentaetigkeit
+							if (rel.tags.indexOf("nebentaetigkeit") >= 0) {
+
+								switch (entity.type) {
+									case "person":
+										hasAddIncome = true;
+										// no entry for persons with activities?
+									break;
+									case "entity":
+										$content += '<div class="entity-relations-item"><a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a></div>';
+									break;
 								}
-								$content += '">';
-								if (isExistant(e.entity.name)) {
-									$content += e.entity.name + '&nbsp;';
-								}
-								$content += '</a><br/>';
-							}
 
-							if (isExistant(e.data)) {
-								$(e.data).each(function (idx, data) {
-									if (data.key == 'position') {
-										$content += data.value + '<br/>';
-										// wtf? muss das da bleiben?
-										if (isExistant(data.value.position)) {
-											$content += data.value.position + '<br/>';
-										}
-									}
+							// is not nebentaetigkeit
+							} else {
+
+								$content += '<div class="entity-relations-item"><i class="fa fa-suitcase"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>';
+
+								// add activity from data
+								$(rel.data).each(function (idx, data) {
+									if (data.key == 'activity') $content += '<br/>'+data.value.position+', '+data.value.type;
 								});
+
+								$content += '</div>';
+
 							}
 
+						break;
+						// donations
+						case "donation":
+							hasPartyDonation = true;
+							donationArray.push(rel);
+						break;
+						// position or governments, oddly treated the same
+						case "position":
+						case "government":
 
-						} else if (e.type == 'Hausausweise') {
+							$content += '<div class="entity-relations-item"><i class="fa fa-user"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>';
+
+							// add position from data
+							$(rel.data).each(function (idx, data) {
+								if (data.key == 'position') $content += '<br/>'+data.value;
+							});
+
+							$content += '</div>';
+
+						break;
+						// hausausweise
+						case "hausausweise":
+
+							$content += '<div class="entity-relations-item">';
 							$content += 'Hausausweis für: ';
-							$content += '<a class="ajax-load entity-connections" href="/entity/';
-							if (isExistant(e.entity)) {
-								if (isExistant(e.entity._id)) {
-									$content += e.entity._id;
-								}
-								$content += '">';
-								if (isExistant(e.entity.name)) {
-									$content += e.entity.name;
-								}
-							}
-							$content += '</a>';
-							$content += ', ausgestellt von ' + e.data[0].value + ' <br />';
-						} else if (e.type == 'member') {
-							$content += '<i class="fa fa-group"></i>&nbsp;';
-							$content += '<a class="ajax-load entity-connections" href="/entity/'
-							if (isExistant(e.entity)) {
-								if (isExistant(e.entity._id)) {
-									$content += e.entity._id;
-								}
-								$content += '">';
-								if (isExistant(e.entity.name)) {
-									$content += e.entity.name + '&nbsp;';
-								}
-							}
-							$content += '</a><br/>Mitglied';
+							$content += '<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>';
 
-						} else if (e.type == 'activity') {
+							$(rel.data).each(function (idx, data) {
+								if (data.key == 'issues') $content += '<br/>Ausgestellt von <em>'+data.value+"</em>";
+							});
 
-							$content += '<i class="fa fa-suitcase"></i>&nbsp;';
-							$content += '<a class="ajax-load entity-connections" href="/entity/'
-							if (isExistant(e.entity)) {
-								if (isExistant(e.entity._id)) {
-									$content += e.entity._id;
-								}
-								$content += '">';
-								if (isExistant(e.entity.name)) {
-									$content += e.entity.name + '&nbsp;';
-								}
-							}
+							$content += '</div>';
 
-							$content += '</a><br/>';    //"Angaben zur Nebentätigkeit"
-							if (isExistant(e.data)) {
-								$(e.data).each(function (idx, data) {
-									if (data.key == 'activity') {
-										$content += data.value.position + '<br/>';
-										$content += data.value.type + ' ';
-									}
-								});
-							}
+						break;
+						// members od something. could be parties.
+						case "member":
+							$content += '<div class="entity-relations-item"><i class="fa fa-group"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a><br/>Mitglied</div>';
+						break;
+						// executives
+						case "executive":
+							$content += '<div class="entity-relations-item"><i class="fa fa-user"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>'
 
-							// oder GOVERNMENT
-						} else if (e.type == 'executive') {
+							$(rel.data).each(function (idx, data) {
+								if (data.key === 'position') $content += '<br />'+data.value;
+							});
 
-							$content += '<i class="fa fa-user"></i>&nbsp;';
-							$content += '<a class="ajax-load entity-connections" href="/entity/'
-							if (isExistant(e.entity)) {
-								if (isExistant(e.entity._id)) {
-									$content += e.entity._id;
-								}
-								$content += '">';
-								if (isExistant(e.entity.name)) {
-									$content += e.entity.name + '&nbsp;';
-								}
-							}
+							$content += '<br/>Mitglied</div>';
 
-							$content += '</a><br/>';    //"Angaben zur Nebentätigkeit"
-							if (isExistant(e.data)) {
-								$(e.data).each(function (idx, data) {
-									if (data.key == 'position') {
-										if (isExistant(data.value)) {
-											$content += data.value;
-										}
-									}
-								});
-							}
-						} else {
-							$content += '<a class="ajax-load entity-connections" href="/entity/'
-							if (isExistant(e.entity)) {
-								if (isExistant(e.entity._id)) {
-									$content += e.entity._id;
-								}
-								$content += '">';
-								if (isExistant(e.entity.name)) {
-									$content += e.entity.name + '&nbsp;';
-								}
-							}
-							$content += '</a>';
-						}
-						$content += '</div>';
-					} else if (e.tags[0] == 'nebentaetigkeit' && e.type == 'activity' && entity.type == 'person') {
-						hasAddIncome = true;
-					} else if (e.tags[0] == 'nebentaetigkeit' && e.type == 'activity' && entity.type == 'entity') {
-						$content += '<div class="entity-relations-item">';
-						$content += '<a class="ajax-load entity-connections" href="/entity/'
-						if (isExistant(e.entity)) {
-							if (isExistant(e.entity._id)) {
-								$content += e.entity._id;
-							}
-							$content += '">';
-							if (isExistant(e.entity.name)) {
-								$content += e.entity.name + '&nbsp;';
-							}
-						}
-						$content += '</a>';
-						$content += '</div>';
-					} else if (e.tags[0] == 'committee') {
-						isCommittee = true;
-					} else if (e.type == 'donation') {
-						hasPartyDonation = true;
-						donationArray.push(e);
-					}
+						break;
+						// generic display for everything else
+						default:
+							$content += '<div class="entity-relations-item"><a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a><br/>Mitglied</div>';
+						break;
+					};
+
 				});
+
 				$content += '</div>';
 			}
 
