@@ -1,15 +1,3 @@
-//    ____   ___          ___                ___ 
-//   6MMMMb/ `MM           MM                `MM 
-//  8P    YM  MM           MM                 MM 
-// 6M      Y  MM   _____   MM____      ___    MM 
-// MM         MM  6MMMMMb  MMMMMMb   6MMMMb   MM 
-// MM         MM 6M'   `Mb MM'  `Mb 8M'  `Mb  MM 
-// MM     ___ MM MM     MM MM    MM     ,oMM  MM 
-// MM     `M' MM MM     MM MM    MM ,6MM9'MM  MM 
-// YM      M  MM MM     MM MM    MM MM'   MM  MM 
-//  8b    d9  MM YM.   ,M9 MM.  ,M9 MM.  ,MM  MM 
-//   YMMMM9  _MM_ YMMMMM9 _MYMMMM9  `YMMM9'Yb_MM_
-
 // save the browser dimensions
 // var winWidth = $(window).width();
 // var winHeight = $(window).height();
@@ -87,7 +75,6 @@ function showShareButton() {
 		}
 	});
 }
-
          
 function setWidthHeight() {
 	var staticHeight = "";
@@ -101,18 +88,6 @@ function setWidthHeight() {
 	$('.fullscreen').css({  'width': winWidth, 'height': winHeight });
 	$('.static-page').css({  'width': winWidth, 'minHeight': staticHeight });
 }  
-
-// ___                         ___       ____                         
-// `MM                         `MM       `MM'     68b                 
-//  MM                          MM        MM      Y89           /     
-//  MM   _____      ___     ____MM        MM      ___   ____   /M     
-//  MM  6MMMMMb   6MMMMb   6MMMMMM        MM      `MM  6MMMMb\/MMMMM  
-//  MM 6M'   `Mb 8M'  `Mb 6M'  `MM        MM       MM MM'    ` MM     
-//  MM MM     MM     ,oMM MM    MM        MM       MM YM.      MM     
-//  MM MM     MM ,6MM9'MM MM    MM        MM       MM  YMMMMb  MM     
-//  MM MM     MM MM'   MM MM    MM        MM       MM      `Mb MM     
-//  MM YM.   ,M9 MM.  ,MM YM.  ,MM        MM    /  MM L    ,MM YM.  , 
-// _MM_ YMMMMM9  `YMMM9'Yb.YMMMMMM_      _MMMMMMM _MM_MYMMMM9   YMMM9 
 
 function loadList(id) {
 	$(".leaflet-control-zoom").css("display", 'block');
@@ -176,22 +151,6 @@ function loadEntityAjax(id) {
 	window.history.pushState(null, 'entity', '/entity/' + id);
 }
 
-
-// ___                         ___       __________                                         
-// `MM                         `MM       `MMMMMMMMM                  68b                    
-//  MM                          MM        MM      \            /     Y89   /                
-//  MM   _____      ___     ____MM        MM        ___  __   /M     ___  /M    ____    ___ 
-//  MM  6MMMMMb   6MMMMb   6MMMMMM        MM    ,   `MM 6MMb /MMMMM  `MM /MMMMM `MM(    )M' 
-//  MM 6M'   `Mb 8M'  `Mb 6M'  `MM        MMMMMMM    MMM9 `Mb MM      MM  MM     `Mb    d'  
-//  MM MM     MM     ,oMM MM    MM        MM    `    MM'   MM MM      MM  MM      YM.  ,P   
-//  MM MM     MM ,6MM9'MM MM    MM        MM         MM    MM MM      MM  MM       MM  M    
-//  MM MM     MM MM'   MM MM    MM        MM         MM    MM MM      MM  MM       `Mbd'    
-//  MM YM.   ,M9 MM.  ,MM YM.  ,MM        MM      /  MM    MM YM.  ,  MM  YM.  ,    YMP     
-// _MM_ YMMMMM9  `YMMM9'Yb.YMMMMMM_      _MMMMMMMMM _MM_  _MM_ YMMM9 _MM_  YMMM9     M      
-//                                                                                  d'      
-//                                                                              (8),P       
-//                                                                               YMM        
-
 function isExistant(el) {
 	if (el !== undefined) {
 		if (el != 0 || undefined || '' || null) {
@@ -234,6 +193,8 @@ function loadEntity(id) {
 			console.log(data.result);
 			var hasAddIncome = false;
 			var isCommittee = false;
+			var hasPartyDonation = false;
+			var donationArray = [];
 
 			// check for the different types of data
 			for (var i = 0, data; data = entity.data[i]; i++) {
@@ -290,7 +251,6 @@ function loadEntity(id) {
 				if (tag == 'mdb') {
 					$content += '<p>Mitglied des Bundestages</p>';
 				} else if (tag == 'lobbyist') {
-					console.log(entity);
 					$content += '<p>LobbyistIn / InteressensvertreterIn</p>'
 				} else if (tag == 'committee') {
 					$content += '<p>Ausschuss des Bundestags</p>'
@@ -314,32 +274,6 @@ function loadEntity(id) {
 			// 	$content += '<span class="label label-default">'+e+'</span>&nbsp;'; 
 			// });
 			// $content += '<hr/>';
-
-
-// ________  ___
-// `MMMMMMMb.`MM                                          
-//  MM    `Mb MM                  /                       
-//  MM     MM MM  __     _____   /M      _____     ____   
-//  MM     MM MM 6MMb   6MMMMMb /MMMMM  6MMMMMb   6MMMMb\ 
-//  MM    .M9 MMM9 `Mb 6M'   `Mb MM    6M'   `Mb MM'    ` 
-//  MMMMMMM9' MM'   MM MM     MM MM    MM     MM YM.      
-//  MM        MM    MM MM     MM MM    MM     MM  YMMMMb  
-//  MM        MM    MM MM     MM MM    MM     MM      `Mb 
-//  MM        MM    MM YM.   ,M9 YM.  ,YM.   ,M9 L    ,MM 
-// _MM_      _MM_  _MM_ YMMMMM9   YMMM9 YMMMMM9  MYMMMM9  
-
-
-//        _           ___
-//       dM.          `MM                                    
-//      ,MMb           MM                                    
-//      d'YM.      ____MM ___  __   ____     ____     ____   
-//     ,P `Mb     6MMMMMM `MM 6MM  6MMMMb   6MMMMb\  6MMMMb\ 
-//     d'  YM.   6M'  `MM  MM69 " 6M'  `Mb MM'    ` MM'    ` 
-//    ,P   `Mb   MM    MM  MM'    MM    MM YM.      YM.      
-//    d'    YM.  MM    MM  MM     MMMMMMMM  YMMMMb   YMMMMb  
-//   ,MMMMMMMMb  MM    MM  MM     MM            `Mb      `Mb 
-//   d'      YM. YM.  ,MM  MM     YM    d9 L    ,MM L    ,MM 
-// _dM_     _dMM_ YMMMMMM__MM_     YMMMM9  MYMMMM9  MYMMMM9  
 
 			// if (hasAddress) { 
 			// 	console.log('Entity has Adress');
@@ -385,18 +319,6 @@ function loadEntity(id) {
 			// 	$content += '</div>';
 			// }
 
-// ________           ___                                                 
-// `MMMMMMMb.         `MM                 68b                             
-//  MM    `Mb          MM           /     Y89                             
-//  MM     MM   ____   MM    ___   /M     ___   _____  ___  __     ____   
-//  MM     MM  6MMMMb  MM  6MMMMb /MMMMM  `MM  6MMMMMb `MM 6MMb   6MMMMb\ 
-//  MM    .M9 6M'  `Mb MM 8M'  `Mb MM      MM 6M'   `Mb MMM9 `Mb MM'    ` 
-//  MMMMMMM9' MM    MM MM     ,oMM MM      MM MM     MM MM'   MM YM.      
-//  MM  \M\   MMMMMMMM MM ,6MM9'MM MM      MM MM     MM MM    MM  YMMMMb  
-//  MM   \M\  MM       MM MM'   MM MM      MM MM     MM MM    MM      `Mb 
-//  MM    \M\ YM    d9 MM MM.  ,MM YM.  ,  MM YM.   ,M9 MM    MM L    ,MM 
-// _MM_    \M\_YMMMM9 _MM_`YMMM9'Yb.YMMM9 _MM_ YMMMMM9 _MM_  _MM_MYMMMM9  
-
 			if (entity.relations.length > 0) {
 				// var relations = entity.relations.sort(sort_by('entity[name]', true));
 				var relations = entity.relations;
@@ -404,70 +326,11 @@ function loadEntity(id) {
 				$content += '<div class="entity-relations-list">';
 
 				$(relations).each(function (idx, e) {
-					if (e.tags[0] !== 'nebentaetigkeit' && e.tags[0] !== 'committee') {
+
+					if (e.tags[0] !== 'nebentaetigkeit' && e.tags[0] !== 'committee' && e.type !== 'donation') {
 						$content += '<div class="entity-relations-item">';
 
-// ________                                                             
-// `MMMMMMMb.                                    68b                    
-//  MM    `Mb                              /     Y89                    
-//  MM     MM   _____  ___  __      ___   /M     ___   _____  ___  __   
-//  MM     MM  6MMMMMb `MM 6MMb   6MMMMb /MMMMM  `MM  6MMMMMb `MM 6MMb  
-//  MM     MM 6M'   `Mb MMM9 `Mb 8M'  `Mb MM      MM 6M'   `Mb MMM9 `Mb 
-//  MM     MM MM     MM MM'   MM     ,oMM MM      MM MM     MM MM'   MM 
-//  MM     MM MM     MM MM    MM ,6MM9'MM MM      MM MM     MM MM    MM 
-//  MM     MM MM     MM MM    MM MM'   MM MM      MM MM     MM MM    MM 
-//  MM    .M9 YM.   ,M9 MM    MM MM.  ,MM YM.  ,  MM YM.   ,M9 MM    MM 
-// _MMMMMMM9'  YMMMMM9 _MM_  _MM_`YMMM9'Yb.YMMM9 _MM_ YMMMMM9 _MM_  _MM_
-
-						if (e.type == 'donation') {
-							$content += '<i class="fa fa-euro"></i>&nbsp;Parteispenden';
-							//console.log(entity);
-							if(entity.type == 'person'){
-								$content += ' an '
-							}else if(entity.type == 'entity'){
-								$content += ' von '
-							}
-							if (isExistant(e.entity)) {
-								$content += '<a class="ajax-load entity-connections" href="/entity/'
-								if (isExistant(e.entity._id)) {
-									$content += e.entity._id;
-								}
-								$content += '">';
-								if (isExistant(e.entity.name)) {
-									$content += e.entity.name + '&nbsp;';
-								}
-							}
-							$content += '</a><br/>';
-							if (isExistant(e.data)) {
-								$content += '<table class="table-condensed table-bordered table">';
-								$(e.data).each(function (idx, data) {
-									if (data.key == 'donation') {
-										$content += '<tr>';
-										$content += '<td>';
-										$content += data.value.year + ' ';
-										$content += '</td>';
-										$content += '<td>';
-										$content += numberWithCommas(data.value.amount) + ' € ';
-										$content += '</td>';
-										$content += '</tr>';
-									}
-								});
-								$content += '</table>';
-							}
-
-// ________                                                        
-// `MMMMMMMb.                   68b         68b                    
-//  MM    `Mb                   Y89   /     Y89                    
-//  MM     MM   _____     ____  ___  /M     ___   _____  ___  __   
-//  MM     MM  6MMMMMb   6MMMMb\`MM /MMMMM  `MM  6MMMMMb `MM 6MMb  
-//  MM    .M9 6M'   `Mb MM'    ` MM  MM      MM 6M'   `Mb MMM9 `Mb 
-//  MMMMMMM9' MM     MM YM.      MM  MM      MM MM     MM MM'   MM 
-//  MM        MM     MM  YMMMMb  MM  MM      MM MM     MM MM    MM 
-//  MM        MM     MM      `Mb MM  MM      MM MM     MM MM    MM 
-//  MM        YM.   ,M9 L    ,MM MM  YM.  ,  MM YM.   ,M9 MM    MM 
-// _MM_        YMMMMM9  MYMMMM9 _MM_  YMMM9 _MM_ YMMMMM9 _MM_  _MM_
-
-						} else if (e.type == 'position' || e.type == 'government') {
+						if (e.type == 'position' || e.type == 'government') {
 
 							$content += '<i class="fa fa-user"></i>&nbsp;';
 							$content += '<a class="ajax-load entity-connections" href="/entity/'
@@ -493,18 +356,21 @@ function loadEntity(id) {
 								});
 							}
 
-// ___       ___                       ___                       
-// `MMb     dMM'                        MM                       
-//  MMM.   ,PMM                         MM                       
-//  M`Mb   d'MM   ____  ___  __    __   MM____     ____  ___  __ 
-//  M YM. ,P MM  6MMMMb `MM 6MMb  6MMb  MMMMMMb   6MMMMb `MM 6MM 
-//  M `Mb d' MM 6M'  `Mb MM69 `MM69 `Mb MM'  `Mb 6M'  `Mb MM69 " 
-//  M  YM.P  MM MM    MM MM'   MM'   MM MM    MM MM    MM MM'    
-//  M  `Mb'  MM MMMMMMMM MM    MM    MM MM    MM MMMMMMMM MM     
-//  M   YP   MM MM       MM    MM    MM MM    MM MM       MM     
-//  M   `'   MM YM    d9 MM    MM    MM MM.  ,M9 YM    d9 MM     
-// _M_      _MM_ YMMMM9 _MM_  _MM_  _MM_MYMMMM9   YMMMM9 _MM_    
 
+						}else if(e.type == 'Hausausweise'){
+							$content += 'Hausausweis für: ';
+							$content += '<a class="ajax-load entity-connections" href="/entity/';
+							if (isExistant(e.entity)) {
+								if (isExistant(e.entity._id)) {
+									$content += e.entity._id;
+								}
+								$content += '">';
+								if (isExistant(e.entity.name)) {
+									$content += e.entity.name;
+								}
+							}
+							$content += '</a>';
+							$content += ', ausgestellt von '+ e.data[0].value+' <br />';
 						} else if (e.type == 'member') {
 							$content += '<i class="fa fa-group"></i>&nbsp;';
 							$content += '<a class="ajax-load entity-connections" href="/entity/'
@@ -519,20 +385,6 @@ function loadEntity(id) {
 							}
 							$content += '</a><br/>Mitglied';
 
-//        _                                                             
-//       dM.                     68b             68b                    
-//      ,MMb               /     Y89             Y89   /                
-//      d'YM.      ____   /M     ___ ____    ___ ___  /M    ____    ___ 
-//     ,P `Mb     6MMMMb./MMMMM  `MM `MM(    )M' `MM /MMMMM `MM(    )M' 
-//     d'  YM.   6M'   Mb MM      MM  `Mb    d'   MM  MM     `Mb    d'  
-//    ,P   `Mb   MM    `' MM      MM   YM.  ,P    MM  MM      YM.  ,P   
-//    d'    YM.  MM       MM      MM    MM  M     MM  MM       MM  M    
-//   ,MMMMMMMMb  MM       MM      MM    `Mbd'     MM  MM       `Mbd'    
-//   d'      YM. YM.   d9 YM.  ,  MM     YMP      MM  YM.  ,    YMP     
-// _dM_     _dMM_ YMMMM9   YMMM9 _MM_     M      _MM_  YMMM9     M      
-//                                                              d'      
-//                                                          (8),P       
-//                                                           YMM
 						} else if (e.type == 'activity') {
 
 							$content += '<i class="fa fa-suitcase"></i>&nbsp;';
@@ -557,21 +409,7 @@ function loadEntity(id) {
 								});
 							}
 
-
-// __________
-// `MMMMMMMMM                                              68b                     
-//  MM      \                                        /     Y89                     
-//  MM        ____   ___  ____     ____  ___   ___  /M     ___ ____    ___  ____   
-//  MM    ,   `MM(   )P' 6MMMMb   6MMMMb.`MM    MM /MMMMM  `MM `MM(    )M' 6MMMMb  
-//  MMMMMMM    `MM` ,P  6M'  `Mb 6M'   Mb MM    MM  MM      MM  `Mb    d' 6M'  `Mb 
-//  MM    `     `MM,P   MM    MM MM    `' MM    MM  MM      MM   YM.  ,P  MM    MM 
-//  MM           `MM.   MMMMMMMM MM       MM    MM  MM      MM    MM  M   MMMMMMMM 
-//  MM           d`MM.  MM       MM       MM    MM  MM      MM    `Mbd'   MM       
-//  MM      /   d' `MM. YM    d9 YM.   d9 YM.   MM  YM.  ,  MM     YMP    YM    d9 
-// _MMMMMMMMM _d_  _)MM_ YMMMM9   YMMMM9   YMMM9MM_  YMMM9 _MM_     M      YMMMM9  
-
-							// oder GOVERNMENT
-
+						// oder GOVERNMENT
 						} else if (e.type == 'executive') {
 
 							$content += '<i class="fa fa-user"></i>&nbsp;';
@@ -596,20 +434,7 @@ function loadEntity(id) {
 									}
 								});
 							}
-// ________              __               ___         
-// `MMMMMMMb.           69MM              `MM         
-//  MM    `Mb          6M' `               MM   /     
-//  MM     MM   ____  _MM__ ___  ___   ___ MM  /M     
-//  MM     MM  6MMMMb MMMM6MMMMb `MM    MM MM /MMMMM  
-//  MM     MM 6M'  `Mb MM8M'  `Mb MM    MM MM  MM     
-//  MM     MM MM    MM MM    ,oMM MM    MM MM  MM     
-//  MM     MM MMMMMMMM MM,6MM9'MM MM    MM MM  MM     
-//  MM     MM MM       MMMM'   MM MM    MM MM  MM     
-//  MM    .M9 YM    d9 MMMM.  ,MM YM.   MM MM  YM.  , 
-// _MMMMMMM9'  YMMMM9 _MM`YMMM9'Yb.YMMM9MM_MM_  YMMM9 
-
 						} else {
-							console.log(e);
 							$content += '<a class="ajax-load entity-connections" href="/entity/'
 							if (isExistant(e.entity)) {
 								if (isExistant(e.entity._id)) {
@@ -622,20 +447,86 @@ function loadEntity(id) {
 							}
 							$content += '</a>';
 						}
-
 						$content += '</div>';
-					} else if(e.tags[0] == 'nebentaetigkeit') {
+					} else if (e.tags[0] == 'nebentaetigkeit' && e.type == 'activity' && entity.type == 'person') {
 						hasAddIncome = true;
-					}else if(e.tags[0] == 'committee'){
+					}else if (e.tags[0] == 'nebentaetigkeit' && e.type == 'activity' && entity.type == 'entity'){
+						$content += '<div class="entity-relations-item">';
+						$content += '<a class="ajax-load entity-connections" href="/entity/'
+						if (isExistant(e.entity)) {
+							if (isExistant(e.entity._id)) {
+								$content += e.entity._id;
+							}
+							$content += '">';
+							if (isExistant(e.entity.name)) {
+								$content += e.entity.name + '&nbsp;';
+							}
+						}
+						$content += '</a>';
+						$content += '</div>';
+					} else if (e.tags[0] == 'committee') {
 						isCommittee = true;
+					} else if(e.type == 'donation'){
+						hasPartyDonation = true;
+						donationArray.push(e);
+						//var hash = {};
+						//list.forEach(function(obj,index){
+						//	hash[obj.id]=obj;
+						//});
 					}
 				});
 				$content += '</div>';
 			}
 
+			if(hasPartyDonation){
+				console.log('Entity has party donation');
+				$content += '<div class="row row-results">';
+				var parteiString = 'Parteispende';
+
+				if (entity.type == 'person') {
+					parteiString += ' an '
+				} else if (entity.type == 'entity') {
+					parteiString += ' von '
+				}
+
+				$content += '<div class="col-md-12"><h4><i class="fa fa-euro"></i>&nbsp;'+parteiString+'</h4></div>';
+				$content += '<div class="entity-relations-item">';
+
+				donationArray.forEach(function (d) {
+					if (isExistant(d.entity)) {
+						$content += '<a class="ajax-load entity-connections" href="/entity/'
+						if (isExistant(d.entity._id)) {
+							$content += d.entity._id;
+						}
+						$content += '">';
+						if (isExistant(d.entity.name)) {
+							$content += d.entity.name + '&nbsp;';
+						}
+					}
+					$content += '</a><br/>';
+					if (isExistant(d.data)) {
+						$content += '<table class="table-condensed table-bordered table">';
+						$(d.data).each(function (idx, data) {
+							if (data.key == 'donation') {
+								$content += '<tr>';
+								$content += '<td>';
+								$content += data.value.year + ' ';
+								$content += '</td>';
+								$content += '<td>';
+								$content += numberWithCommas(data.value.amount) + ' € ';
+								$content += '</td>';
+								$content += '</tr>';
+							}
+						});
+						$content += '</table>';
+					}
+				});
+				$content += '</div>';
+				$content += '</div>';
+			}
 
 			//if a person is a part of a committee
-			if(isCommittee){
+			if (isCommittee) {
 				console.log('Entity is a part of a committee');
 				$content += '<div class="row row-results">';
 				$content += '<div class="col-md-12"><h4><i class="fa fa-group"></i>&nbsp;Ausschüsse des Bundestags</h4></div>';
@@ -646,7 +537,7 @@ function loadEntity(id) {
 				e.forEach(function (r) {
 					var tags = r.tags;
 					tags.forEach(function (t) {
-						if(t == 'committee'){
+						if (t == 'committee') {
 							$content += '<a class="ajax-load entity-connections" href="/entity/';
 							if (isExistant(r.entity)) {
 								if (isExistant(r.entity._id)) {
@@ -668,114 +559,146 @@ function loadEntity(id) {
 			// if a person has additional income
 			//
 			if (hasAddIncome) {
-				console.log('Entity has additional income');
-				$content += '<div class="row row-results">';
-				$content += '<div class="col-md-12"><h4><i class="fa fa-suitcase"></i>&nbsp;Tätigkeit neben dem Bundestagsmandat</h4></div>';
-				$content += '<div class="entity-relations-item">';
-				var e = entity.relations;
+				if(entity.type == 'person'){
+					console.log('Entity has additional income');
+					$content += '<div class="row row-results">';
+					$content += '<div class="col-md-12"><h4><i class="fa fa-suitcase"></i>&nbsp;Tätigkeit neben dem Bundestagsmandat</h4></div>';
+					$content += '<div class="entity-relations-item">';
+					var e = entity.relations;
 
-				/*
-				 a ["Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag",
-				 b "Funktionen in Vereinen, Verbänden und Stiftungen" ,
-				 c "Funktionen in Unternehmen" ,
-				 d "Funktionen in Körperschaften und Anstalten des öffentlichen Rechts" ,
-				 e "Entgeltliche Tätigkeiten neben dem Mandat" ,
-				 f "Beteiligungen an Kapital- oder Personengesellschaften" ,
-				 g "Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile"]
-				 */
+					/*
+					 a ["Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag",
+					 b "Funktionen in Vereinen, Verbänden und Stiftungen" ,
+					 c "Funktionen in Unternehmen" ,
+					 d "Funktionen in Körperschaften und Anstalten des öffentlichen Rechts" ,
+					 e "Entgeltliche Tätigkeiten neben dem Mandat" ,
+					 f "Beteiligungen an Kapital- oder Personengesellschaften" ,
+					 g "Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile"]
+					 */
 
-				var _a = '';
-				var _b = '';
-				var _c = '';
-				var _d = '';
-				var _e = '';
-				var _f = '';
-				var _g = '';
-				var zuordnung = '';
+					var _a = '';
+					var _b = '';
+					var _c = '';
+					var _d = '';
+					var _e = '';
+					var _f = '';
+					var _g = '';
 
-				e.forEach(function (r) {
-					var tags = r.tags;
-					tags.forEach(function (t) {
-						if (t == 'nebentaetigkeit') {
-							zuordnung += '<a class="ajax-load entity-connections" href="/entity/';
-							if (isExistant(r.entity)) {
-								if (isExistant(r.entity._id)) {
-									zuordnung += r.entity._id;
-								}
-								zuordnung += '">';
-								if (isExistant(r.entity.name)) {
-									zuordnung += r.entity.name + '&nbsp;';
-								}
-							}
-							zuordnung += '</a><br/>';
-						}
+					var ob = [];
 
-						if (isExistant(r.data)) {
-							r.data.forEach(function (data) {
-								if (data.key == 'activity') {
-									if (data.value.type == 'Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag') {
-										if (_a.length === 0)_a = zuordnung + _a;
-										_a += data.value.year + ' ' + data.value.position + ' ' + data.value.activity + ' ' + data.value.periodical + '<br>';
-									} else if (data.value.type == 'Funktionen in Vereinen, Verbänden und Stiftungen') {
-										if (_b.length === 0)_b = zuordnung + _b;
-										_b += data.value.position + '<br>';
-									} else if (data.value.type == 'Funktionen in Unternehmen') {
-										if (_c.length === 0)_c = zuordnung + _c;
-										_c += data.value.position  + '<br>';
-									} else if (data.value.type == 'Funktionen in Körperschaften und Anstalten des öffentlichen Rechts') {
-										if (_d.length === 0)_d = zuordnung + _d;
-										_d += data.value.position + '<br>';
-									} else if (data.value.type == 'Entgeltliche Tätigkeiten neben dem Mandat') {
-										if (_e.length === 0)_e = zuordnung + _e;
-										if(data.value.year != null){
-											_e += data.value.year + ' ';
-										}
-										if(data.value.position != null){
-											_e += data.value.position + ' ';
-										}
-										if(data.value.activity != null){
-											_e += data.value.activity + ' ';
-										}
-										_e += data.value.periodical + ' Stufe: ' +data.value.level+ '<br>';
-									} else if (data.value.type == 'Beteiligungen an Kapital- oder Personengesellschaften') {
-										if (_f.length === 0)_f = zuordnung + _f;
-										//_f += data.value.position + '<br>';
-									} else if (data.value.type == 'Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile') {
-										if (_g.length === 0)_g = zuordnung + _g;
-										_g += data.value.activity + ' ' + data.value.periodical + '<br>';
+					e.forEach(function (r) {
+						var tags = r.tags;
+						tags.forEach(function (t) {
+							var zuordnung = '';
+							if (t == 'nebentaetigkeit') {
+								zuordnung += '<a class="ajax-load entity-connections" href="/entity/';
+								if (isExistant(r.entity)) {
+									if (isExistant(r.entity._id)) {
+										zuordnung += r.entity._id;
+									}
+									zuordnung += '">';
+									if (isExistant(r.entity.name)) {
+										zuordnung += r.entity.name + '&nbsp;';
 									}
 								}
-							});
-						}
+								zuordnung += '</a><br/>';
+
+								if (isExistant(r.data)) {
+									r.data.forEach(function (d) {
+										if (d.value.type == 'Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag') {
+											_a += zuordnung;
+											_a += d.value.year + ' ' + data.value.position + ' ' + d.value.activity + ' ' + d.value.periodical + '<br>';
+										} else if (d.value.type == 'Funktionen in Vereinen, Verbänden und Stiftungen') {
+											_b += zuordnung;
+											_b += d.value.position + '<br>';
+										} else if (d.value.type == 'Funktionen in Unternehmen') {
+											_c += zuordnung;
+											_c += d.value.position + '<br>';
+										} else if (d.value.type == 'Funktionen in Körperschaften und Anstalten des öffentlichen Rechts') {
+											_d += zuordnung;
+											_d += d.value.position + '<br>';
+										} else if (d.value.type == 'Entgeltliche Tätigkeiten neben dem Mandat') {
+											ob.push(r);
+										} else if (d.value.type == 'Beteiligungen an Kapital- oder Personengesellschaften') {
+											_f += zuordnung;
+											//_f += data.value.position + '<br>';
+										} else if (d.value.type == 'Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile') {
+											_g += zuordnung;
+											_g += d.value.activity + ' ' + d.value.periodical + '<br>';
+										}
+									})
+									zuordnung = '';
+								}
+							}
+						});
+
 					});
-					zuordnung = '';
-				});
 
+					var i = 0,
+						j = 1;
+					for(; j < ob.length; ){
+						if(ob[i]._id == ob[j]._id){
+							ob.splice(i,1);
+						}else{
+							i++;
+							j++;
+						}
+					}
 
-				if (_a.length != 0) {
-					_a = '<br /><h5>Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag</h5>' + _a;
+					ob.forEach(function (d) {
+						var zuordnung = '';
+						zuordnung += '<a class="ajax-load entity-connections" href="/entity/';
+						if (isExistant(d.entity)) {
+							if (isExistant(d.entity._id)) {
+								zuordnung += d.entity._id;
+							}
+							zuordnung += '">';
+							if (isExistant(d.entity.name)) {
+								zuordnung += d.entity.name + '&nbsp;';
+							}
+						}
+						zuordnung += '</a><br/>';
+
+						_e += zuordnung;
+						d.data.forEach(function (da) {
+							if (da.value.year != null) {
+								_e += da.value.year + ' ';
+							}
+							if (da.value.position != null) {
+								_e += da.value.position + ' ';
+							}
+							if (da.value.activity != null) {
+								_e += da.value.activity + ' ';
+							}
+							_e += da.value.periodical + ' Stufe: ' + formatStagesAddIncome(da.value.level) + '<br>';
+						})
+					});
+
+					if (_a.length != 0) {
+						_a = '<br /><h5>Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag</h5>' + _a;
+					}
+					if (_b.length != 0) {
+						_b = '<br /><h5>Funktionen in Vereinen, Verbänden und Stiftungen</h5>' + _b;
+					}
+					if (_c.length != 0) {
+						_c = '<br /><h5>Funktionen in Unternehmen</h5>' + _c;
+					}
+					if (_d.length != 0) {
+						_d = '<br /><h5>Funktionen in Körperschaften und Anstalten des öffentlichen Rechts</h5>' + _d;
+					}
+					if (_e.length != 0) {
+						_e = '<br /><h5>Entgeltliche Tätigkeiten neben dem Mandat</h5>' + _e;
+					}
+					if (_f.length != 0) {
+						_f = '<br /><h5>Beteiligungen an Kapital- oder Personengesellschaften</h5>' + _f;
+					}
+					if (_g.length != 0) {
+						_g = '<br /><h5>Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile</h5>' + _g;
+					}
+					$content = $content + _a + _b + _c + _d + _e + _f + _g;
+					$content += '</div>';
+					$content += '</div>';
 				}
-				if (_b.length != 0) {
-					_b = '<br /><h5>Funktionen in Vereinen, Verbänden und Stiftungen</h5>' + _b;
-				}
-				if (_c.length != 0) {
-					_c = '<br /><h5>Funktionen in Unternehmen</h5>' + _c;
-				}
-				if (_d.length != 0) {
-					_d = '<br /><h5>Funktionen in Körperschaften und Anstalten des öffentlichen Rechts</h5>' + _d;
-				}
-				if (_e.length != 0) {
-					_e = '<br /><h5>Entgeltliche Tätigkeiten neben dem Mandat</h5>' + _e;
-				}
-				if (_f.length != 0) {
-					_f = '<br /><h5>Beteiligungen an Kapital- oder Personengesellschaften</h5>' + _f;
-				}
-				if (_g.length != 0) {
-					_g = '<br /><h5>Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile</h5>' + _g;
-				}
-				$content = $content + _a + _b + _c + _d + _e + _f + _g;
-				$content += '</div>';
-				$content += '</div>';
 			}
 
 
@@ -869,7 +792,43 @@ function loadEntity(id) {
 	});
 }
 
-
+function formatStagesAddIncome(val) {
+	switch (val) {
+		case 1:
+			return " 1 (über 1.000€)";
+			break;
+		case 2:
+			return " 2 (über 3.500€)";
+			break;
+		case 3:
+			return " 3 (über 7.000€)";
+			break;
+		case 4:
+			return " 4 (über 15.000€)";
+			break;
+		case 5:
+			return " 5 (über 30.000€)";
+			break;
+		case 6:
+			return " 6 (über 50.000€)";
+			break;
+		case 7:
+			return " 7 (über 75.000€)";
+			break;
+		case 8:
+			return " 8 (über 100.000€)";
+			break;
+		case 9:
+			return " 9 (über 150.000€)";
+			break;
+		case 10:
+			return " 10 (über 250.000€)";
+			break;
+		default:
+			return " 0 ";
+			break;
+	}
+}
 
 // Numberformating
 function numberThousandSep(x) {
@@ -886,23 +845,9 @@ function numberWithCommas(x) {
 	return pre + ',' + s[1];
 }
 
-
-// ________                            ________                          ___
-// `MMMMMMMb.                          `MMMMMMMb.                        `MM             
-//  MM    `Mb                           MM    `Mb                         MM             
-//  MM     MM   _____     ____          MM     MM   ____      ___     ____MM ____    ___ 
-//  MM     MM  6MMMMMb   6MMMMb.        MM     MM  6MMMMb   6MMMMb   6MMMMMM `MM(    )M' 
-//  MM     MM 6M'   `Mb 6M'   Mb        MM    .M9 6M'  `Mb 8M'  `Mb 6M'  `MM  `Mb    d'  
-//  MM     MM MM     MM MM    `'        MMMMMMM9' MM    MM     ,oMM MM    MM   YM.  ,P   
-//  MM     MM MM     MM MM              MM  \M\   MMMMMMMM ,6MM9'MM MM    MM    MM  M    
-//  MM     MM MM     MM MM              MM   \M\  MM       MM'   MM MM    MM    `Mbd'    
-//  MM    .M9 YM.   ,M9 YM.   d9        MM    \M\ YM    d9 MM.  ,MM YM.  ,MM     YMP     
-// _MMMMMMM9'  YMMMMM9   YMMMM9        _MM_    \M\_YMMMM9  `YMMM9'Yb.YMMMMMM_     M      
-//                                                                               d'      
-//                                                                           (8),P       
-//                                                                            YMM   
-
-$( document ).ready(function() {
+$(document).ready(function () {
+	$('.fullscreen').css({'width': winWidth, 'height': winHeight});
+	$('.static-page').css({'width': winWidth, 'height': winHeight});
 
 	setWidthHeight();
 
@@ -914,14 +859,12 @@ $( document ).ready(function() {
 		}
 	}
 
-
 	$(".leaflet-control-zoom").css("display", 'none');
 
 	// showShareButton();
 
 	// show whatsapp button on iphone
 	// (navigator.userAgent.match(/(iPhone)/g)) ? $(".entypo-whatsapp").addClass('shown') : null ;
-
 
 	if ($('#networkviz').length == 0) {
 		// map could not be found
@@ -952,21 +895,6 @@ $( document ).ready(function() {
 	});
 
 
-// ________                                    ____                  ___       
-// `MMMMMMMb.                                  `MM'     68b          `MM       
-//  MM    `Mb                                   MM      Y89           MM       
-//  MM     MM   ____     ____  __ ____          MM      ___ ___  __   MM   __  
-//  MM     MM  6MMMMb   6MMMMb `M6MMMMb         MM      `MM `MM 6MMb  MM   d'  
-//  MM     MM 6M'  `Mb 6M'  `Mb MM'  `Mb        MM       MM  MMM9 `Mb MM  d'   
-//  MM     MM MM    MM MM    MM MM    MM        MM       MM  MM'   MM MM d'    
-//  MM     MM MMMMMMMM MMMMMMMM MM    MM        MM       MM  MM    MM MMdM.    
-//  MM     MM MM       MM       MM    MM        MM       MM  MM    MM MMPYM.   
-//  MM    .M9 YM    d9 YM    d9 MM.  ,M9        MM    /  MM  MM    MM MM  YM.  
-// _MMMMMMM9'  YMMMM9   YMMMM9  MMYMMM9        _MMMMMMM _MM__MM_  _MM_MM_  YM._
-//                              MM                                             
-//                              MM                                             
-//                             _MM_                                            
-
 	// this kicks in when we get a deep link to an entity
 	// entity/:id
 	if (window.location.href.indexOf("/entity/") > -1) {
@@ -996,18 +924,6 @@ $( document ).ready(function() {
 		loadList(searchID);
 	}
 
-
-//   ____                                     ___             ________                             ___
-//  6MMMMb\                                   `MM             `MMMMMMMb.                           `MM                  
-// 6M'    `                                    MM              MM    `Mb                            MM   /              
-// MM         ____      ___   ___  __   ____   MM  __          MM     MM   ____     ____  ___   ___ MM  /M       ____   
-// YM.       6MMMMb   6MMMMb  `MM 6MM  6MMMMb. MM 6MMb         MM     MM  6MMMMb   6MMMMb\`MM    MM MM /MMMMM   6MMMMb\ 
-//  YMMMMb  6M'  `Mb 8M'  `Mb  MM69 " 6M'   Mb MMM9 `Mb        MM    .M9 6M'  `Mb MM'    ` MM    MM MM  MM     MM'    ` 
-//      `Mb MM    MM     ,oMM  MM'    MM    `' MM'   MM        MMMMMMM9' MM    MM YM.      MM    MM MM  MM     YM.      
-//       MM MMMMMMMM ,6MM9'MM  MM     MM       MM    MM        MM  \M\   MMMMMMMM  YMMMMb  MM    MM MM  MM      YMMMMb  
-//       MM MM       MM'   MM  MM     MM       MM    MM        MM   \M\  MM            `Mb MM    MM MM  MM          `Mb 
-// L    ,M9 YM    d9 MM.  ,MM  MM     YM.   d9 MM    MM        MM    \M\ YM    d9 L    ,MM YM.   MM MM  YM.  , L    ,MM 
-// MYMMMM9   YMMMM9  `YMMM9'Yb_MM_     YMMMM9 _MM_  _MM_      _MM_    \M\_YMMMM9  MYMMMM9   YMMM9MM_MM_  YMMM9 MYMMMM9  
 
 	// lazy typeahead
 	// (function(){
@@ -1048,19 +964,6 @@ $( document ).ready(function() {
 	});
 
 
-// ________                                ___          __                                      ____
-// `MMMMMMMb.                          68b `MM         69MM                                     `MM'     68b                 
-//  MM    `Mb           /              Y89  MM        6M' `                                      MM      Y89           /     
-//  MM     MM   ____   /M        ___   ___  MM       _MM____  __   _____  ___  __    __          MM      ___   ____   /M     
-//  MM     MM  6MMMMb /MMMMM   6MMMMb  `MM  MM       MMMM`MM 6MM  6MMMMMb `MM 6MMb  6MMb         MM      `MM  6MMMMb\/MMMMM  
-//  MM     MM 6M'  `Mb MM     8M'  `Mb  MM  MM        MM  MM69 " 6M'   `Mb MM69 `MM69 `Mb        MM       MM MM'    ` MM     
-//  MM     MM MM    MM MM         ,oMM  MM  MM        MM  MM'    MM     MM MM'   MM'   MM        MM       MM YM.      MM     
-//  MM     MM MMMMMMMM MM     ,6MM9'MM  MM  MM        MM  MM     MM     MM MM    MM    MM        MM       MM  YMMMMb  MM     
-//  MM     MM MM       MM     MM'   MM  MM  MM        MM  MM     MM     MM MM    MM    MM        MM       MM      `Mb MM     
-//  MM    .M9 YM    d9 YM.  , MM.  ,MM  MM  MM        MM  MM     YM.   ,M9 MM    MM    MM        MM    /  MM L    ,MM YM.  , 
-// _MMMMMMM9'  YMMMM9   YMMM9 `YMMM9'Yb_MM__MM_      _MM__MM_     YMMMMM9 _MM_  _MM_  _MM_      _MMMMMMM _MM_MYMMMM9   YMMM9 
-
-
 	// // bring back the list when the button in detail is clicked           
 	// $('body').on('click', '#backtolist', function(event) {
 	// 	$(".result-single").animate({height:"toggle",opacity:"toggle", easing: "easeOutQuint"},500);
@@ -1070,21 +973,6 @@ $( document ).ready(function() {
 	// 	e.preventDefault();
 	// });
 
-
-//     ________                 ___         ____                            ___ ___
-// 68b `MMMMMMMb.               `MM        6MMMMb\                          `MM `MM 68b                    
-// Y89  MM    `Mb                MM       6M'    `                           MM  MM Y89                    
-// ___  MM     MM    ___     ____MM       MM         ____  ___  __   _____   MM  MM ___ ___  __     __     
-// `MM  MM     MM  6MMMMb   6MMMMMM       YM.       6MMMMb.`MM 6MM  6MMMMMb  MM  MM `MM `MM 6MMb   6MMbMMM 
-//  MM  MM    .M9 8M'  `Mb 6M'  `MM        YMMMMb  6M'   Mb MM69 " 6M'   `Mb MM  MM  MM  MMM9 `Mb 6M'`Mb   
-//  MM  MMMMMMM9'     ,oMM MM    MM            `Mb MM    `' MM'    MM     MM MM  MM  MM  MM'   MM MM  MM   
-//  MM  MM        ,6MM9'MM MM    MM             MM MM       MM     MM     MM MM  MM  MM  MM    MM YM.,M9   
-//  MM  MM        MM'   MM MM    MM             MM MM       MM     MM     MM MM  MM  MM  MM    MM  YMM9    
-//  MM  MM        MM.  ,MM YM.  ,MM       L    ,M9 YM.   d9 MM     YM.   ,M9 MM  MM  MM  MM    MM (M       
-// _MM__MM_       `YMMM9'Yb.YMMMMMM_      MYMMMM9   YMMMM9 _MM_     YMMMMM9 _MM__MM__MM__MM_  _MM_ YMMMMb. 
-//                                                                                                6M    Yb 
-//                                                                                                YM.   d9 
-//                                                                                                 YMMMM9  
 
 	// http://stackoverflow.com/questions/16437182/issue-with-a-scrollable-div-on-ipad
 	$('body').on('touchmove', '.scrollable', function (e) {
@@ -1114,18 +1002,6 @@ $( document ).ready(function() {
 
 
 }); // document.ready end
-
-// ____              ___                     ________                                          
-// `Mb(      db      )d' 68b                 `MMMMMMMb.                  68b                   
-//  YM.     ,PM.     ,P  Y89                  MM    `Mb                  Y89                   
-//  `Mb     d'Mb     d'  ___ ___  __          MM     MM   ____     ____  ___ _________  ____   
-//   YM.   ,P YM.   ,P   `MM `MM 6MMb         MM     MM  6MMMMb   6MMMMb\`MM MMMMMMMMP 6MMMMb  
-//   `Mb   d' `Mb   d'    MM  MMM9 `Mb        MM    .M9 6M'  `Mb MM'    ` MM /    dMP 6M'  `Mb 
-//    YM. ,P   YM. ,P     MM  MM'   MM        MMMMMMM9' MM    MM YM.      MM     dMP  MM    MM 
-//    `Mb d'   `Mb d'     MM  MM    MM        MM  \M\   MMMMMMMM  YMMMMb  MM    dMP   MMMMMMMM 
-//     YM,P     YM,P      MM  MM    MM        MM   \M\  MM            `Mb MM   dMP    MM       
-//     `MM'     `MM'      MM  MM    MM        MM    \M\ YM    d9 L    ,MM MM  dMP    /YM    d9 
-//      YP       YP      _MM__MM_  _MM_      _MM_    \M\_YMMMM9  MYMMMM9 _MM_dMMMMMMMM YMMMM9  
 
 // make sure div stays full width/height on resize
 $(window).resize(function(){ setWidthHeight(); });
