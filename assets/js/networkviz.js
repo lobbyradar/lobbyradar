@@ -259,7 +259,7 @@ var NetworkViz = (function () {
 	function lookupId(id, callback) {
 		if (!initialized) init();
 		var node = nodeLookup[id];
-		if (!node) return console.error('id not found "'+id+'"');
+		if (!node) return; // console.error('id not found "'+id+'"');
 		callback(node);
 	}
 
