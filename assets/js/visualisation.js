@@ -254,6 +254,9 @@ function loadEntity(id) {
 						case "business":
 							$content += '<div class="entity-relations-item"><i class="fa fa-money"></i> <a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a></div>';
 						break;
+						case "association":
+							$content += '<div class="entity-relations-item"><i class="fa fa-code-fork"></i> <a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a></div>';
+						break;
 						// generic display for everything else
 						default:
 							$content += '<div class="entity-relations-item"><i class="fa fa-share-alt" title="'+rel.type.toLowerCase()+'"></i> <a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a></div>';
