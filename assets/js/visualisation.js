@@ -250,7 +250,7 @@ function loadEntity(id) {
 						break;
 						// generic display for everything else
 						default:
-							$content += '<div class="entity-relations-item"><i class="fa fa-share-alt"></i> <a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a></div>';
+							$content += '<div class="entity-relations-item"><i class="fa fa-share-alt" title="'+rel.type.toLowerCase()+'"></i> <a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a></div>';
 						break;
 					};
 
