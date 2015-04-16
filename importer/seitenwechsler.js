@@ -269,14 +269,14 @@ var execute = function(finish){
 									});
 								};
 
-								if (set.y_begin !== "") {
+								if (set.y_end !== "") {
 									employ_rel.data.push({
-										key: "begin",
+										key: "end",
 										value: {
-											month: (parseInt(set.m_begin,10) || null),
-											year: (parseInt(set.y_begin,10) || null)
+											month: (parseInt(set.m_end,10) || null),
+											year: (parseInt(set.y_end,10) || null)
 										},
-										desc: "Beginn",
+										desc: "Ende",
 										format: "monthyear",
 										auto: true,
 										created: (new Date()),
@@ -299,7 +299,6 @@ var execute = function(finish){
 				
 			});
 		});
-		
 
 	});
 
