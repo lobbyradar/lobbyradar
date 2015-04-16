@@ -231,8 +231,10 @@ function loadEntity(id) {
 							$content += '</div>';
 
 						break;
-						// members od something. could be parties.
+						// members of something. could be parties.
 						case "member":
+						// also: mitglied, because we love consistency #FIXME #WTF #DIEINAFIRE
+						case "mitglied":
 							$content += '<div class="entity-relations-item"><i class="fa fa-group"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a><br/>Mitglied</div>';
 						break;
 						// executives
