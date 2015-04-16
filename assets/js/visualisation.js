@@ -159,7 +159,6 @@ function loadEntity(id) {
 
 				$(entity.relations).each(function (idx, rel) {
 
-
 					// failsafe check if relation has entity and id
 					if (!(rel.hasOwnProperty("entity"))) return console.log(rel);
 					if (rel.entity.hasOwnProperty("_id") && !(rel.entity.hasOwnProperty("id"))) rel.entity.id = rel.entity._id;
@@ -206,10 +205,9 @@ function loadEntity(id) {
 							donationArray.push(rel);
 						break;
 						// position or governments, oddly treated the same
-						case "position":
 						case "government":
 
-							$content += '<div class="entity-relations-item"><i class="fa fa-user"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>';
+							$content += '<div class="entity-relations-item"><i class="fa fa-institution"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>';
 
 							// add position from data
 							$(rel.data).each(function (idx, data) {
@@ -222,7 +220,7 @@ function loadEntity(id) {
 						// hausausweise
 						case "hausausweise":
 
-							$content += '<div class="entity-relations-item">';
+							$content += '<div class="entity-relations-item"><i class="fa fa-key"></i>&nbsp;';
 							$content += 'Hausausweis für: ';
 							$content += '<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>';
 
@@ -238,19 +236,21 @@ function loadEntity(id) {
 							$content += '<div class="entity-relations-item"><i class="fa fa-group"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a><br/>Mitglied</div>';
 						break;
 						// executives
+						case "position":
 						case "executive":
+
 							$content += '<div class="entity-relations-item"><i class="fa fa-user"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>'
 
 							$(rel.data).each(function (idx, data) {
 								if (data.key === 'position') $content += '<br />'+data.value;
 							});
 
-							$content += '<br/>Mitglied</div>';
+							$content += '</div>';
 
 						break;
 						// generic display for everything else
 						default:
-							$content += '<div class="entity-relations-item"><a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a><br/>Mitglied</div>';
+							$content += '<div class="entity-relations-item"><i class="fa fa-share-alt"></i> <a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a></div>';
 						break;
 					};
 
