@@ -165,8 +165,8 @@ function loadEntity(id) {
 						if (e.type == 'position' || e.type == 'government') {
 
 							$content += '<i class="fa fa-user"></i>&nbsp;';
-							$content += '<a class="ajax-load entity-connections" href="/entity/'
 							if (isExistant(e.entity)) {
+								$content += '<a class="ajax-load entity-connections" href="/entity/';
 								if (isExistant(e.entity._id)) {
 									$content += e.entity._id;
 								}
@@ -174,8 +174,9 @@ function loadEntity(id) {
 								if (isExistant(e.entity.name)) {
 									$content += e.entity.name + '&nbsp;';
 								}
+								$content += '</a><br/>';
 							}
-							$content += '</a><br/>';
+
 							if (isExistant(e.data)) {
 								$(e.data).each(function (idx, data) {
 									if (data.key == 'position') {
