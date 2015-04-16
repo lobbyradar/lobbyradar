@@ -66,7 +66,7 @@ function loadEntity(id) {
 
 	NetworkViz.highlightEntity(id);
 	$("#backtolist").css("display", 'inline-block'); // always show the backbutton
-	
+
 	req = $.getJSON("/api/entity/get/" + id, {relations: true}, function (data) {
 		var $content = '<div class="entity">';
 
@@ -301,10 +301,6 @@ function loadEntity(id) {
 					} else if (e.type == 'donation') {
 						hasPartyDonation = true;
 						donationArray.push(e);
-						//var hash = {};
-						//list.forEach(function(obj,index){
-						//  hash[obj.id]=obj;
-						//});
 					}
 				});
 				$content += '</div>';
@@ -466,6 +462,8 @@ function loadEntity(id) {
 
 					});
 
+					ob.sort(function(a, b){ return a-b; });
+
 					var i = 0,
 						j = 1;
 					for (; j < ob.length;) {
@@ -476,6 +474,7 @@ function loadEntity(id) {
 							j++;
 						}
 					}
+
 
 					ob.forEach(function (d) {
 						var zuordnung = '';
