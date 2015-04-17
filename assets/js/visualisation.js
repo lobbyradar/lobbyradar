@@ -206,12 +206,22 @@ function loadEntity(id) {
 						break;
 						// position or governments, oddly treated the same
 						case "government":
-
+							console.log('?');
 							$content += '<div class="entity-relations-item"><i class="fa fa-institution"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>';
 
 							// add position from data
 							$(rel.data).each(function (idx, data) {
 								if (data.key == 'position') $content += '<br/>'+data.value;
+								if(data.key == 'begin') {
+									var d = new Date(data.value)
+									console.log(d.getDate()-1);
+									$content += '<br/>von ' +(d.getDate() - 1)+ '. '+ d.getMonth()+ ' '+ d.getFullYear();
+								}
+								if(data.key == 'end') {
+									var d = new Date(data.value)
+									console.log(d.getDate()-1);
+									$content += ' bis ' +(d.getDate() - 1)+ '. '+ d.getMonth()+ ' '+ d.getFullYear();
+								}
 							});
 
 							$content += '</div>';
