@@ -73,7 +73,7 @@ var createCORSRequest = function(method, url) {
   return xhr;
 };
 
-var url = 'http://www.zdf.de/api/v2/content/p12:37951336';
+var url = 'http://module.zdf.de/api/v2/content/p12:37951336';
 var method = 'GET';
 var xhr = createCORSRequest(method, url);
 
