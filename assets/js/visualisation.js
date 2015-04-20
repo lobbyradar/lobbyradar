@@ -160,9 +160,9 @@ function loadEntity(id) {
 				$(entity.relations).each(function (idx, rel) {
 
 					// failsafe check if relation has entity and id
-					if (!(rel.hasOwnProperty("entity"))) return console.log(rel);
+					if (!(rel.hasOwnProperty("entity"))) return console.log("no entity", rel);
 					if (rel.entity.hasOwnProperty("_id") && !(rel.entity.hasOwnProperty("id"))) rel.entity.id = rel.entity._id;
-					if (!(rel.entity.hasOwnProperty("id")) || !rel.entity.id) return alert("#2");
+					if (!(rel.entity.hasOwnProperty("id")) || !rel.entity.id) return console.log("no id", rel)
 
 					// check for committee
 					isCommittee = (rel.tags.indexOf('committee') >= 0);
