@@ -65,10 +65,11 @@ $(document).ready(function () {
 				}
 			});
 
-		//node.append("text")
-		//	.attr("x", 12)
-		//	.attr("dy", ".35em")
-		//	.text(function(d) { return d.obj.name; });
+		node.append("text")
+			.attr("x", 12)
+			.attr("dy", ".35em")
+			.text(function(d) { return d.name; })
+			.style("display", 'none');
 
 		function tick() {
 			link
@@ -82,19 +83,15 @@ $(document).ready(function () {
 		}
 
 		function mouseover() {
-			d3.select(this).select("circle").transition()
+			d3.select(this).select("text").transition()
 				.duration(750)
-				.attr("r",function (d) {
-					return 2.5 * d.weight;
-				})
+				.style("display", 'block');
 		}
 
 		function mouseout() {
-			d3.select(this).select("circle").transition()
+			d3.select(this).select("text").transition()
 				.duration(750)
-				.attr("r", function (d) {
-					return 2 * d.weight;
-				})
+				.style("display", 'none');
 		}
 
 	});
