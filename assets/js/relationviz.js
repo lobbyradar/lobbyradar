@@ -10,7 +10,7 @@ $(document).ready(function () {
 		console.log(data);
 
 		links = data.result.map(function (relation) {
-			if (relation.entities < 2) return;
+			if (relation.entities.length < 2) return;
 			var source = relation.entities[0];
 			var target = relation.entities[1];
 
