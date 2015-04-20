@@ -349,7 +349,7 @@ app.all("/api/relation/tags", function (req, res) {
 });
 
 // relations by tag.
-app.all("/api/relation/tagged", function (req, res) {
+app.all("/api/relation/tagged/:tag", function (req, res) {
 	debug("relations by tag %s", req.params.tag);
 	api.rels_by_tag(req.params.tag, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
