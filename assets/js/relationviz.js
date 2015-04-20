@@ -4,31 +4,20 @@
 
 $(document).ready(function () {
 
-	var links = [];
-	var nodes = {};
-
 	req = $.getJSON("api/relation/tagged/ruestung", function (data) {
-		//console.log(data);
+		var links = [];
+		var nodes = {};
+		console.log(data);
 
-		data.result.forEach(function (relation) {
-			//console.log(relation);
+		links = data.result.map(function (relation) {
+			var source = relation.entities[0];
+			var target = relation.entities[1];
 
-			var obj = {
-				source: relation.entities[0]._id,
-				s_obj: relation.entities[0],
-				target: relation.entities[1]._id,
-				t_obj: relation.entities[1]
+			return {
+				source: nodes[source._id] || (nodes[source._id] = source),
+				target: nodes[target._id] || (nodes[target._id] = target)
 			};
-
-			links.push(obj);
 		});
-
-		// Compute the distinct nodes from the links.
-		links.forEach(function(link) {
-			link.source = nodes[link.source] || (nodes[link.source] = {name: link.source, obj: link.s_obj});
-			link.target = nodes[link.target] || (nodes[link.target] = {name: link.target, obj: link.t_obj});
-		});
-
 
 		var w = $('#rel_viz')[0].clientWidth,
 			h = $('#rel_viz')[0].clientHeight;
@@ -37,10 +26,10 @@ $(document).ready(function () {
 			.nodes(d3.values(nodes))
 			.links(links)
 			.size([w, h])
-			.friction(0.5)
-			.gravity(0.02)
-			.linkDistance(150)
-			.charge(-100)
+			.gravity(0.3)
+			.linkDistance(100)
+			.charge(-800)
+			.theta(0.4)
 			.on("tick", tick)
 			.start();
 
@@ -69,17 +58,17 @@ $(document).ready(function () {
 				return 10;
 			})
 			.style('fill', function (d) {
-				if(d.obj.type=='person'){
+				if(d.type == 'person'){
 					return '#e39e54';
-				}else if(d.obj.type == 'entity'){
+				}else if(d.type == 'entity'){
 					return '#9ed670';
 				}
 			});
 
-		node.append("text")
-			.attr("x", 12)
-			.attr("dy", ".35em")
-			.text(function(d) { return d.obj.name; });
+		//node.append("text")
+		//	.attr("x", 12)
+		//	.attr("dy", ".35em")
+		//	.text(function(d) { return d.obj.name; });
 
 		function tick() {
 			link
