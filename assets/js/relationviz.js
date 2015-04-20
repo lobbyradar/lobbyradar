@@ -9,8 +9,14 @@ $(document).ready(function () {
 		var nodes = {};
 		console.log(data);
 
-		links = data.result.map(function (relation) {
-			if (relation.entities.length < 2) return;
+		links = data.result.filter(function (relation) {
+			if(!relation.entities[0]) return false;
+			if(!relation.entities[1]) return false;
+			return true;
+		});
+
+		links = links.map(function (relation) {
+			console.log(relation);
 			var source = relation.entities[0];
 			var target = relation.entities[1];
 
