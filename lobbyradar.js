@@ -348,6 +348,14 @@ app.all("/api/relation/tags", function (req, res) {
 	});
 });
 
+// relations by tag.
+app.all("/api/relation/tagged/:tag", function (req, res) {
+	debug("relations by tag %s", req.params.tag);
+	api.rels_by_tag(req.params.tag, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
 // list of relations.
 app.all("/api/relation/list", function (req, res) {
 	debug("relation list");
@@ -651,6 +659,11 @@ app.get("/ueber-uns", function (req, res) {
 // Abspann Page (static)
 app.get("/verbindungssuche", function (req, res) {
 		res.render("app", {});
+});
+
+// Relation Viz
+app.get("/relation", function (req, res) {
+	res.render("relation", {});
 });
 
 
