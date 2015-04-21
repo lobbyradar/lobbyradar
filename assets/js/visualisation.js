@@ -263,12 +263,12 @@ function loadEntity(id) {
 										if (data.key == 'position') $content += '<br/>'+data.value;
 										if(data.key == 'begin') {
 											var d = new Date(data.value);
-											dateString += '<br/>' +  getMonthName(data.value.month)+ '.' + data.value.year;
+											dateString += '<br/>' +  getMonthName(data.value.month)+ ' ' + data.value.year;
 										}
 										if(data.key == 'end') {
 											var d = new Date(data.value);
 											begin = '<br/>';
-											dateString += ' bis ' +  getMonthName(data.value.month)+ '.' + data.value.year + '<br/>';
+											dateString += ' bis ' +  getMonthName(data.value.month)+ ' ' + data.value.year + '<br/>';
 										}
 										console.log('default?');
 										begin = '';
