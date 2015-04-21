@@ -284,7 +284,7 @@ app.all("/api/entity/export", function (req, res) {
 	});
 });
 
-// export.
+// set tags on multiple entities.
 app.post("/api/entity/multitags", function (req, res) {
 	debug("multitags");
 	api.ent_multitags(req.body.mode, req.body.tag, req.body.ids, function (err, result) {
@@ -344,6 +344,14 @@ app.all("/api/relation/types", function (req, res) {
 app.all("/api/relation/tags", function (req, res) {
 	debug("relation tags");
 	api.rel_tags(function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// set tags on multiple entities.
+app.post("/api/relation/multitags", function (req, res) {
+	debug("multitags relation");
+	api.rel_multitags(req.body.mode, req.body.tag, req.body.ids, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });

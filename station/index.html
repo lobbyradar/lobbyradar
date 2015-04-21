@@ -483,10 +483,30 @@
 		<h1><i class="fa fa-spin fa-spinner"></i> Verbindungen-Liste<br/>wird geladen</h1>
 	</div>
 
+	<form class="form-inline">
+		<label class="checkbox-inline">
+			<input type="checkbox" ng-model="checks.enabled"> Massenzuweisung Schlagworte
+		</label>
+	</form>
+
+	<div class="well" ng-show="checks.enabled">
+		<form class="form">
+			<label>Schlagwort</label>
+
+			<div class="form-group">
+				<input type="text" class="form-control" placeholder="Text" ng-model="checks.value" datasets="checks.dataset" ngtypeahead>
+			</div>
+		</form>
+
+		<button type="button" class="btn btn-default" ng-click="addTag()">Schlagwort hinzufügen</button>
+		<button type="button" class="btn btn-default" ng-click="removeTag()">Schlagwort entfernen</button>
+	</div>
+
 	<table ng-table="tableParams" template-pagination="partials/pager.html" show-filter="false" class="table table-striped">
 
 		<thead>
 		<tr>
+			<th ng-if="checks.enabled"></th>
 			<th ng-repeat="f in state.fields"
 				class="sortable" ng-class="{
                     'sort-asc': tableParams.isSortBy(f.key, 'asc'),
@@ -502,6 +522,7 @@
 
 		<tbody>
 		<tr ng-repeat="p in $data">
+			<td ng-if="checks.enabled"><input type="checkbox" ng-model="p.$checked"></td>
 			<td ng-repeat="f in state.fields">
 				<span ng-bind="getDispayValues(f,p)"></span>
 				<span ng-show="f._type!=='extras'" class="btn-left" title="{{f.name}} bearbeiten" ng-click="editData(f,p)"><i class="fa fa-pencil"></i></span>
