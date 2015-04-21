@@ -4,7 +4,11 @@
 
 $(document).ready(function () {
 
-	req = $.getJSON("api/relation/tagged/ruestung", function (data) {
+	// ruestung, verkehr, pharma, bank, seitenwechsler
+	var url = window.location.href; // get the url
+	var id = url.split("/")[4]; // extract ID
+	if(id == '') id = 'ruestung';
+	req = $.getJSON("/api/relation/tagged/"+id, function (data) {
 		var links = [];
 		var nodes = {};
 		console.log(data);
@@ -16,7 +20,6 @@ $(document).ready(function () {
 		});
 
 		links = links.map(function (relation) {
-			console.log(relation);
 			var source = relation.entities[0];
 			var target = relation.entities[1];
 

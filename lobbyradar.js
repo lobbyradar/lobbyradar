@@ -661,11 +661,10 @@ app.get("/verbindungssuche", function (req, res) {
 		res.render("app", {});
 });
 
-// Relation Viz
-app.get("/relation", function (req, res) {
-	res.render("relation", {});
+//// Relation Viz
+app.get("/relation/:tag", function (req, res) {
+	res.render("relation", {tag: req.params.tag});
 });
-
 
 // Search Page (static)
 app.get("/search/:id", function (req, res) {
