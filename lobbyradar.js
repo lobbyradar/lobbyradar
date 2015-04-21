@@ -184,7 +184,7 @@ app.get("/api/plugin/whitelist", function (req, res) {
 
 // export.
 app.all("/api/plugin/export", function (req, res) {
-	debug("relation tags");
+	debug("export");
 	api.ent_export(function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
@@ -271,7 +271,7 @@ app.all("/api/entity/types", function (req, res) {
 // entity tags.
 app.all("/api/entity/tags", function (req, res) {
 	debug("entity tags");
-	api.ent_tags(function (err, result) {
+	api.ent_tags(function(err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -669,6 +669,10 @@ app.get("/verbindungssuche", function (req, res) {
 		res.render("app", {});
 });
 
+//// Relation Viz
+app.get("/relation/:tag", function (req, res) {
+	res.render("relation", {tag: req.params.tag});
+});
 
 // Search Page (static)
 app.get("/search/:id", function (req, res) {
