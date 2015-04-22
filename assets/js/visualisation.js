@@ -314,9 +314,13 @@ function loadEntity(id) {
 				var parteiString = 'Parteispende';
 
 				if (entity.type == 'person') {
-					parteiString += ' an '
+					parteiString += ' an ';
 				} else if (entity.type == 'entity') {
-					parteiString += ' von '
+					var s = ' an ';
+					entity.tags.forEach(function (t) {
+						if(t == 'partei') s = ' von ';
+					})
+					parteiString += s;
 				}
 
 				$content += '<div class="col-md-12"><h4><i class="fa fa-euro"></i>&nbsp;' + parteiString + '</h4></div>';
