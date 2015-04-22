@@ -592,10 +592,18 @@ function loadEntity(id) {
 
 			$content += '<div class="row"><br/>';
 			$content += '<div class="col-sm-6">';
-			$content += '<a class="btn btn-block btn-default" href="#" role="button">Verbindung melden</a>';
+			$content += '<a class="btn btn-block btn-default" href="mailto:lobbyradar@zdf.de?subject=Verbindung melden ';
+			$content += entity.name;
+			$content += ' (';
+			$content += entity._id;
+			$content += ')&body=Ich möchte eine Verbindung melden:" role="button">Verbindung melden</a>';
 			$content += '</div>';
 			$content += '<div class="col-sm-6">';
-			$content += '<a class="btn btn-block btn-default" href="#" role="button">Fehler melden</a>';
+			$content += '<a class="btn btn-block btn-default" href="mailto:lobbyradar@zdf.de?subject=Fehler melden ';
+			$content += entity.name;
+			$content += ' (';
+			$content += entity._id;
+			$content += ')&body=Ich möchte einen Fehler melden:" role="button">Fehler melden</a>';			
 			$content += '</div>';
 			$content += '</div>';
 
