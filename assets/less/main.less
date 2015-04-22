@@ -629,7 +629,12 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a5aaaa', end
 //                                _MM_                                                       
                               
 
-
+.abspann-page {
+  a {
+    color:#ddd;
+    text-decoration:underline;
+  }
+}
 
 .about-intro {
   line-height:1.35;
@@ -699,11 +704,13 @@ p.first-p {
     .panel-heading {
       background-color:transparent!important;
       border:0px!important;
+      padding-left:0px;
       a {color:white;}
       a:after {content:"\f067";font-family:"FontAwesome";}
       a.collapsed:after {content:"\f068";font-family:"FontAwesome";}
     }
     .panel-body {
+      padding-left:0px;
       border-top:0px!important;
     }
   }
