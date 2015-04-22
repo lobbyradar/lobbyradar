@@ -184,7 +184,7 @@ app.get("/api/plugin/whitelist", function (req, res) {
 
 // export.
 app.all("/api/plugin/export", function (req, res) {
-	debug("relation tags");
+	debug("export");
 	api.ent_export(function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
@@ -271,7 +271,7 @@ app.all("/api/entity/types", function (req, res) {
 // entity tags.
 app.all("/api/entity/tags", function (req, res) {
 	debug("entity tags");
-	api.ent_tags(function (err, result) {
+	api.ent_tags(function(err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -284,7 +284,7 @@ app.all("/api/entity/export", function (req, res) {
 	});
 });
 
-// export.
+// set tags on multiple entities.
 app.post("/api/entity/multitags", function (req, res) {
 	debug("multitags");
 	api.ent_multitags(req.body.mode, req.body.tag, req.body.ids, function (err, result) {
@@ -344,6 +344,22 @@ app.all("/api/relation/types", function (req, res) {
 app.all("/api/relation/tags", function (req, res) {
 	debug("relation tags");
 	api.rel_tags(function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// set tags on multiple entities.
+app.post("/api/relation/multitags", function (req, res) {
+	debug("multitags relation");
+	api.rel_multitags(req.body.mode, req.body.tag, req.body.ids, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// relations by tag.
+app.all("/api/relation/tagged/:tag", function (req, res) {
+	debug("relations by tag %s", req.params.tag);
+	api.rels_by_tag(req.params.tag, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -653,6 +669,10 @@ app.get("/verbindungssuche", function (req, res) {
 		res.render("app", {});
 });
 
+//// Relation Viz
+app.get("/relation/:tag", function (req, res) {
+	res.render("relation", {tag: req.params.tag});
+});
 
 // Search Page (static)
 app.get("/search/:id", function (req, res) {

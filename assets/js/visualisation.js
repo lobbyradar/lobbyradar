@@ -160,9 +160,9 @@ function loadEntity(id) {
 				$(entity.relations).each(function (idx, rel) {
 
 					// failsafe check if relation has entity and id
-					if (!(rel.hasOwnProperty("entity"))) return console.log(rel);
+					if (!(rel.hasOwnProperty("entity"))) return console.log("no entity", rel);
 					if (rel.entity.hasOwnProperty("_id") && !(rel.entity.hasOwnProperty("id"))) rel.entity.id = rel.entity._id;
-					if (!(rel.entity.hasOwnProperty("id")) || !rel.entity.id) return alert("#2");
+					if (!(rel.entity.hasOwnProperty("id")) || !rel.entity.id) return console.log("no id", rel)
 
 					// check for committee
 					isCommittee = (rel.tags.indexOf('committee') >= 0);
@@ -209,19 +209,23 @@ function loadEntity(id) {
 							$content += '<div class="entity-relations-item"><i class="fa fa-institution"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>';
 
 							// add position from data
+							var dateString = '';
+							var begin = '<br/> seit ';
 							//TODO monat ausschreiben
 							$(rel.data).each(function (idx, data) {
 								if (data.key == 'position') $content += '<br/>'+data.value;
 								if(data.key == 'begin') {
 									var d = new Date(data.value);
-									$content += '<br/>von ' +(d.getDate() - 1)+ '. '+ d.getMonth()+ ' '+ d.getFullYear();
+									dateString += (d.getDate() - 1)+ '. ' + getMonthName(d.getMonth())+ ' '+ d.getFullYear();
 								}
 								if(data.key == 'end') {
 									var d = new Date(data.value);
-									$content += ' bis ' +(d.getDate() - 1)+ '. '+ d.getMonth()+ ' '+ d.getFullYear();
+									begin = '<br/>';
+									dateString += ' bis ' +(d.getDate() - 1)+ '. '+ getMonthName(d.getMonth())+ ' '+ d.getFullYear()+'<br/>';
 								}
 							});
 
+							$content = $content + begin + dateString;
 							$content += '</div>';
 
 						break;
@@ -247,6 +251,34 @@ function loadEntity(id) {
 						break;
 						// executives
 						case "position":
+							$content += '<div class="entity-relations-item"><i class="fa fa-user"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>';
+							(rel.tags).forEach(function (t) {
+								if(t == 'seitenwechsler'){
+									// add position from data
+									var dateString = '';
+									var begin = '<br/> seit ';
+									//TODO monat ausschreiben
+									$(rel.data).each(function (idx, data) {
+										console.log(data);
+										if (data.key == 'position') $content += '<br/>'+data.value;
+										if(data.key == 'begin') {
+											var d = new Date(data.value);
+											dateString += '<br/>' +  getMonthName(data.value.month)+ ' ' + data.value.year;
+										}
+										if(data.key == 'end') {
+											var d = new Date(data.value);
+											begin = '<br/>';
+											dateString += ' bis ' +  getMonthName(data.value.month)+ ' ' + data.value.year + '<br/>';
+										}
+										console.log('default?');
+										begin = '';
+									});
+
+									$content = $content + begin + dateString;
+								}
+							});
+							$content += '</div>';
+							break;
 						case "executive":
 
 							$content += '<div class="entity-relations-item"><i class="fa fa-user"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>'
@@ -282,9 +314,13 @@ function loadEntity(id) {
 				var parteiString = 'Parteispende';
 
 				if (entity.type == 'person') {
-					parteiString += ' an '
+					parteiString += ' an ';
 				} else if (entity.type == 'entity') {
-					parteiString += ' von '
+					var s = ' an ';
+					entity.tags.forEach(function (t) {
+						if(t == 'partei') s = ' von ';
+					})
+					parteiString += s;
 				}
 
 				$content += '<div class="col-md-12"><h4><i class="fa fa-euro"></i>&nbsp;' + parteiString + '</h4></div>';
@@ -411,7 +447,21 @@ function loadEntity(id) {
 											_b += d.value.position + '<br>';
 										} else if (d.value.type == 'Funktionen in Unternehmen') {
 											_c += zuordnung;
-											_c += d.value.position + '<br>';
+											//_c += d.value.position + '<br>';
+											if (d.value.year != null) {
+												_c += d.value.year + ' ';
+											}
+											if (d.value.position != null) {
+												_c += d.value.position + ' ';
+											}
+											if (d.value.activity != null ) {
+												_c += d.value.activity + ' ';
+											}
+											if(d.value.level !== 0){
+												_c += d.value.periodical + ' Stufe: ' + formatStagesAddIncome(d.value.level);
+											}
+											_c += '<br>';
+
 										} else if (d.value.type == 'Funktionen in Körperschaften und Anstalten des öffentlichen Rechts') {
 											_d += zuordnung;
 											_d += d.value.position + '<br>';
@@ -570,6 +620,52 @@ function loadEntity(id) {
 		$(".result-single").delay(400).slideDown("slow");
 
 	});
+}
+
+function getMonthName(month) {
+	console.log(month);
+	switch (month){
+		case 1:
+			return "Januar";
+			break;
+		case 2:
+			return "Februar";
+			break;
+		case 3:
+			return "März";
+			break;
+		case 4:
+			return "April";
+			break;
+		case 5:
+			return "Mai";
+			break;
+		case 6:
+			return "Juni";
+			break;
+		case 7:
+			return "Juli";
+			break;
+		case 8:
+			return "August";
+			break;
+		case 9:
+			return "September";
+			break;
+		case 10:
+			return "Oktober";
+			break;
+		case 11:
+			return "November";
+			break;
+		case 12:
+			return "Dezember";
+			break;
+		default:
+			return "";
+			break;
+	}
+
 }
 
 function formatStagesAddIncome(val) {

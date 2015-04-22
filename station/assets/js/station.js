@@ -275,6 +275,10 @@ app.factory('relations', function ($resource) {
 			types: {
 				method: 'GET',
 				params: {cmd: 'types'}
+			},
+			multitags: {
+				method: 'POST',
+				params: {cmd: 'multitags'}
 			}
 		}
 	);
@@ -518,16 +522,16 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	var state = $scope.globals.states[mode];
 	$scope.state = state;
 	state.filter = state.filter || {
-		text: '',
-		special: false
-	};
+			text: '',
+			special: false
+		};
 	state.table = state.table || {
-		page: 1,
-		count: defaultcount,
-		sorting: {
-			name: 'asc'
-		}
-	};
+			page: 1,
+			count: defaultcount,
+			sorting: {
+				name: 'asc'
+			}
+		};
 
 	$scope.loading = true;
 
@@ -1249,6 +1253,87 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 		});
 	};
 
+	$scope.checks = {
+		enabled: false,
+		value: '',
+		dataset: {
+			options: {
+				minLength: 1,
+				highlight: true
+			},
+			displayKey: "value",
+			source: function (q, callback) {
+				var matches = [];
+				var search = function () {
+					var substrRegex = new RegExp(q, 'i');
+					$.each($scope.checks.dataset.tags, function (i, s) {
+						if (substrRegex.test(s)) {
+							matches.push({value: s});
+						}
+					});
+					callback(matches);
+				};
+				if ($scope.checks.dataset.tags) return search();
+				tags.list({type: 'relations'}, function (data) {
+						if (data.error) {
+							callback(matches);
+							return reportServerError($scope, data.error);
+						}
+						$scope.checks.dataset.tags = data.result;
+						search();
+					},
+					function (err) {
+						callback(matches);
+						console.error(err);
+					}
+				);
+
+			}
+		}
+	};
+
+	$scope.addTag = function () {
+		var tag = $scope.checks.value.trim();
+		if (tag.length == 0) return reportServerError($scope, 'Ungültiges Schlagwort');
+		var list = $scope.list.filter(function (p) {
+			return (p.$checked) && (p.tags.indexOf($scope.checks.value) < 0);
+		});
+		if (list.length == 0) return reportServerError($scope, 'Ungültige Auswahl');
+		var ids = list.map(function (p) {
+			return p._id;
+		});
+		relations.multitags({mode: 'add', tag: tag, ids: ids}, function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			list.forEach(function (p) {
+				p.tags.push(tag);
+			});
+		}, function (err) {
+			console.error(err);
+		});
+	};
+
+	$scope.removeTag = function () {
+		var tag = $scope.checks.value.trim();
+		if (tag.length == 0) return reportServerError($scope, 'Ungültiges Schlagwort');
+		var list = $scope.list.filter(function (p) {
+			return (p.$checked) && (p.tags.indexOf($scope.checks.value) >= 0);
+		});
+		if (list.length == 0) return reportServerError($scope, 'Ungültige Auswahl');
+		var ids = list.map(function (p) {
+			return p._id;
+		});
+		relations.multitags({mode: 'remove', tag: tag, ids: ids}, function (data) {
+			if (data.error) return reportServerError($scope, data.error);
+			list.forEach(function (p) {
+				p.tags = p.tags.filter(function (t) {
+					return t != tag;
+				})
+			});
+		}, function (err) {
+			console.error(err);
+		});
+	};
+
 });
 
 app.controller('FieldsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, fields) {
@@ -1604,10 +1689,10 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 	};
 
 	$scope.relation = $scope.relation || {
-		tags: [],
-		entities: ['', ''],
-		data: []
-	};
+			tags: [],
+			entities: ['', ''],
+			data: []
+		};
 
 	$scope.modename = 'Verbindung';
 
