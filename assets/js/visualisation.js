@@ -447,7 +447,21 @@ function loadEntity(id) {
 											_b += d.value.position + '<br>';
 										} else if (d.value.type == 'Funktionen in Unternehmen') {
 											_c += zuordnung;
-											_c += d.value.position + '<br>';
+											//_c += d.value.position + '<br>';
+											if (d.value.year != null) {
+												_c += d.value.year + ' ';
+											}
+											if (d.value.position != null) {
+												_c += d.value.position + ' ';
+											}
+											if (d.value.activity != null ) {
+												_c += d.value.activity + ' ';
+											}
+											if(d.value.level !== 0){
+												_c += d.value.periodical + ' Stufe: ' + formatStagesAddIncome(d.value.level);
+											}
+											_c += '<br>';
+
 										} else if (d.value.type == 'Funktionen in Körperschaften und Anstalten des öffentlichen Rechts') {
 											_d += zuordnung;
 											_d += d.value.position + '<br>';
