@@ -644,6 +644,7 @@ function getMonthName(month) {
 			return "Dezember";
 			break;
 		default:
+			return "";
 			break;
 	}
 
