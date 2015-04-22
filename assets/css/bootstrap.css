@@ -6438,6 +6438,9 @@ body {
   float: left;
   margin-top: -20px;
 }
+.nav-circle.big .nav-circle.small.newspaper {
+  padding: 9px 11px;
+}
 .zdf-header-blue .navbar-collapse.in,
 .zdf-header-blue .navbar-collapse.collapsing {
   background-color: #1b4c64 !important;
