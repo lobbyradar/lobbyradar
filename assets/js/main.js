@@ -12,24 +12,24 @@ function getDocHeight() {
   );
 }
 
-var winHeight = $(window).height() + 150,
-    winWidth = screen.width;
+// var winHeight = $(window).height() + 150,
+//     winWidth = screen.width;
 
 // a function to sort arrays
 var sort_by = function (field, reverse, primer) {
   var key = primer ?
     function (x) {
-      return primer(x[field])
+      return primer(x[field]);
     } :
     function (x) {
-      return x[field]
+      return x[field];
     };
   reverse = [-1, 1][+!!reverse];
 
   return function (a, b) {
     return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
-  }
-}
+  };
+};
          
 function setWidthHeight() {
   var staticHeight = "";
@@ -47,7 +47,7 @@ function setWidthHeight() {
 
 function isExistant(el) {
   if (el !== undefined) {
-    if (el != 0 || undefined || '' || null) {
+    if (el !== 0 || undefined || '' || null) {
       return true;
     }
   }
@@ -71,9 +71,6 @@ function numberWithCommas(x) {
 }
 
 $(document).ready(function () {
-
-  $('.fullscreen').css({'width': winWidth, 'height': winHeight});
-  $('.static-page').css({'width': winWidth, 'height': winHeight});
 
   setWidthHeight();
 
@@ -110,10 +107,10 @@ $(window).resize(function(){ setWidthHeight(); });
 
 $(window).on("navigate", function (event, data) {
   var direction = data.state.direction;
-  if (direction == 'back') {
-    alert(window.location.href);
+  if (direction === 'back') {
+    // go back
   }
-  if (direction == 'forward') {
+  if (direction === 'forward') {
     // do something else
   }
 });
@@ -122,8 +119,10 @@ $(window).on("navigate", function (event, data) {
 window.onpopstate = function (event) {
   var url = window.location.href; // get the url
   var id = url.split("/")[4]; // extract ID
+
   if (window.location.href.indexOf("/entity/") > -1) { loadEntity(id); }
   if (window.location.href.indexOf("/search/") > -1) { loadList(id); }
+  
   if (location.pathname + location.search + location.hash == "/") {
     $(".overlay").fadeIn("slow");
     $(".result-single").slideUp("slow");
