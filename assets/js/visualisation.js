@@ -211,7 +211,6 @@ function loadEntity(id) {
 							// add position from data
 							var dateString = '';
 							var begin = '<br/> seit ';
-							//TODO monat ausschreiben
 							$(rel.data).each(function (idx, data) {
 								if (data.key == 'position') $content += '<br/>'+data.value;
 								if(data.key == 'begin') {
@@ -257,21 +256,19 @@ function loadEntity(id) {
 									// add position from data
 									var dateString = '';
 									var begin = '<br/> seit ';
-									//TODO monat ausschreiben
 									$(rel.data).each(function (idx, data) {
-										console.log(data);
-										if (data.key == 'position') $content += '<br/>'+data.value;
+										if (data.key == 'position'){
+											$content += '<br/>'+data.value;
+											begin = '<br/>';
+										}
 										if(data.key == 'begin') {
-											var d = new Date(data.value);
-											dateString += '<br/>' +  getMonthName(data.value.month)+ ' ' + data.value.year;
+											begin = '<br/> seit ';
+											dateString = '' +  getMonthName(data.value.month)+ ' ' + data.value.year;
 										}
 										if(data.key == 'end') {
-											var d = new Date(data.value);
 											begin = '<br/>';
 											dateString += ' bis ' +  getMonthName(data.value.month)+ ' ' + data.value.year + '<br/>';
 										}
-										console.log('default?');
-										begin = '';
 									});
 
 									$content = $content + begin + dateString;
@@ -623,7 +620,6 @@ function loadEntity(id) {
 }
 
 function getMonthName(month) {
-	console.log(month);
 	switch (month){
 		case 1:
 			return "Januar";
