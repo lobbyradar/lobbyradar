@@ -12,7 +12,7 @@ function loadList(id) {
 	}, function (data) {
 		console.log(data);
 		if (data === undefined || data.length == 0) {
-			var $ul = $("<div class='message'>Es konnten keine Einträge gefunden werden. Bitte Groß- und Kleinschreibung beachten.</div>");
+			var $ul = $("<div class='message'>Es konnten leider keine Einträge gefunden werden.</div>");
 			$(".result-list").slideDown("slow");
 			$(".result-list .results .list-group", "#main").remove();
 			$(".result-list .results .message", "#main").remove();
