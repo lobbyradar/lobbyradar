@@ -142,7 +142,7 @@ function loadEntity(id) {
 					$content += '<p>Lobbyismus-Organisation registriert beim Deutschen Bundestag</p>'
 				} else if (tag == 'thinktank') {
 					$content += '<p>Think Tank</p>'
-				} else if (tag == 'dax') {
+				} else if (tag == 'dax' && entity.type == 'entity') {
 					$content += '<p>Dax-Konzern</p>'
 				} else if (tag == 'pr-und-lobbyagentur') {
 					$content += '<p>Lobbyismus-Agentur</p>'
