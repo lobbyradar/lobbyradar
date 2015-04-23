@@ -134,6 +134,8 @@ function loadEntity(id) {
 					$content += '<p>Mitglied des Bundestages</p>';
 				} else if (tag == 'lobbyist') {
 					$content += '<p>LobbyistIn / InteressensvertreterIn</p>'
+				} else if (tag == 'anwaltskanzlei') {
+					$content += '<p>Anwaltskanzlei</p>'
 				} else if (tag == 'committee') {
 					$content += '<p>Ausschuss des Bundestags</p>'
 				} else if (tag == 'lobbyorganisation') {
