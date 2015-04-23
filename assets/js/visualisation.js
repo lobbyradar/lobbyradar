@@ -791,7 +791,7 @@ $(document).ready(function () {
 
 	// Or when he or she clicks the search button
 	$('.search-form button').click(function () {
-		var $resultName = $(this).val();
+		var $resultName = $('.lobbysearch').val();
 		$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
 		$(".result-list").slideDown("slow");
 		history.pushState(null, null, '/search/' + $resultName);
