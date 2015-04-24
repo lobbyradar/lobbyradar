@@ -134,13 +134,15 @@ function loadEntity(id) {
 					$content += '<p>Mitglied des Bundestages</p>';
 				} else if (tag == 'lobbyist') {
 					$content += '<p>LobbyistIn / InteressensvertreterIn</p>'
+				} else if (tag == 'anwaltskanzlei') {
+					$content += '<p>Anwaltskanzlei</p>'
 				} else if (tag == 'committee') {
 					$content += '<p>Ausschuss des Bundestags</p>'
 				} else if (tag == 'lobbyorganisation') {
 					$content += '<p>Lobbyismus-Organisation registriert beim Deutschen Bundestag</p>'
 				} else if (tag == 'thinktank') {
 					$content += '<p>Think Tank</p>'
-				} else if (tag == 'dax') {
+				} else if (tag == 'dax' && entity.type == 'entity') {
 					$content += '<p>Dax-Konzern</p>'
 				} else if (tag == 'pr-und-lobbyagentur') {
 					$content += '<p>Lobbyismus-Agentur</p>'
@@ -211,7 +213,6 @@ function loadEntity(id) {
 							// add position from data
 							var dateString = '';
 							var begin = '<br/> seit ';
-							//TODO monat ausschreiben
 							$(rel.data).each(function (idx, data) {
 								if (data.key == 'position') $content += '<br/>'+data.value;
 								if(data.key == 'begin') {
@@ -257,21 +258,19 @@ function loadEntity(id) {
 									// add position from data
 									var dateString = '';
 									var begin = '<br/> seit ';
-									//TODO monat ausschreiben
 									$(rel.data).each(function (idx, data) {
-										console.log(data);
-										if (data.key == 'position') $content += '<br/>'+data.value;
+										if (data.key == 'position'){
+											$content += '<br/>'+data.value;
+											begin = '<br/>';
+										}
 										if(data.key == 'begin') {
-											var d = new Date(data.value);
-											dateString += '<br/>' +  getMonthName(data.value.month)+ ' ' + data.value.year;
+											begin = '<br/> seit ';
+											dateString = '' +  getMonthName(data.value.month)+ ' ' + data.value.year;
 										}
 										if(data.key == 'end') {
-											var d = new Date(data.value);
 											begin = '<br/>';
 											dateString += ' bis ' +  getMonthName(data.value.month)+ ' ' + data.value.year + '<br/>';
 										}
-										console.log('default?');
-										begin = '';
 									});
 
 									$content = $content + begin + dateString;
@@ -631,7 +630,6 @@ function loadEntity(id) {
 }
 
 function getMonthName(month) {
-	console.log(month);
 	switch (month){
 		case 1:
 			return "Januar";
