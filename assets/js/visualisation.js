@@ -12,7 +12,7 @@ function loadList(id) {
 	}, function (data) {
 		console.log(data);
 		if (data === undefined || data.length == 0) {
-			var $ul = $("<div class='message'>Es konnten keine Einträge gefunden werden. Bitte Groß- und Kleinschreibung beachten.</div>");
+			var $ul = $("<div class='message'>Es konnten leider keine Einträge gefunden werden.</div>");
 			$(".result-list").slideDown("slow");
 			$(".result-list .results .list-group", "#main").remove();
 			$(".result-list .results .message", "#main").remove();
@@ -591,10 +591,18 @@ function loadEntity(id) {
 
 			$content += '<div class="row"><br/>';
 			$content += '<div class="col-sm-6">';
-			$content += '<a class="btn btn-block btn-default" href="#" role="button">Verbindung melden</a>';
+			$content += '<a class="btn btn-block btn-default" href="mailto:lobbyradar@zdf.de?subject=Verbindung melden ';
+			$content += entity.name;
+			$content += ' (';
+			$content += entity._id;
+			$content += ')&body=Ich möchte eine Verbindung melden:" role="button">Verbindung melden</a>';
 			$content += '</div>';
 			$content += '<div class="col-sm-6">';
-			$content += '<a class="btn btn-block btn-default" href="#" role="button">Fehler melden</a>';
+			$content += '<a class="btn btn-block btn-default" href="mailto:lobbyradar@zdf.de?subject=Fehler melden ';
+			$content += entity.name;
+			$content += ' (';
+			$content += entity._id;
+			$content += ')&body=Ich möchte einen Fehler melden:" role="button">Fehler melden</a>';			
 			$content += '</div>';
 			$content += '</div>';
 
@@ -781,7 +789,7 @@ $(document).ready(function () {
 
 	// Or when he or she clicks the search button
 	$('.search-form button').click(function () {
-		var $resultName = $(this).val();
+		var $resultName = $('.lobbysearch').val();
 		$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
 		$(".result-list").slideDown("slow");
 		history.pushState(null, null, '/search/' + $resultName);
