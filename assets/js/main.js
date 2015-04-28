@@ -81,7 +81,7 @@ function numberWithCommas(x) {
 }
 
 $(document).ready(function () {
-
+moment.locale('de'); 
   // share twitter button
   $('a.tweet').click(function(e){
     e.preventDefault();

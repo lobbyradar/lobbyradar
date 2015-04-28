@@ -17,7 +17,7 @@ function createCORSRequest(method, url) {
 
 // Make the actual CORS request.
 function makeCorsRequest() {
-  var url = 'http://www.zdf.de/api/v2/content/p12:37951336';
+  var url = 'http://module.zdf.de/api/v2/content/p12:37951336';
 
   var xhr = createCORSRequest('GET', url);
   if (!xhr) {
@@ -27,16 +27,16 @@ function makeCorsRequest() {
 
   // Response handlers.
   xhr.onload = function() {
-    XMLdata = $(xhr.responseText)
+    XMLdata = $(xhr.responseText);
     var Treffer = XMLdata.find("treffer");
 
     Treffer.find("teaser").each(function () {
       $article = $('<div class="article"></div>');
       $article.append(  "<h2>" + $(this).find("dachzeile").text() + "</h2>" +
                         "<h3>" + $(this).find("teaserTitel").text() + "</h3>" +
-                        "<span>" + $(this).find("datum").text() + "</span>" + 
+                        "<span>" + moment($(this).find("datum").text()).format('LLLL') + "</span>" + 
                         "<p>" + $(this).find("teaserText").text() + "</p>" +
-                        "<a href=''>Zum Artikel gehen</a>" );
+                        "<a role='button' class='hidden-xs btn-ext btn btn-info' href=''>Zum Artikel gehen</a>" );
 
       $article.append( "<br/>" );
       $(".articles").append($article);
