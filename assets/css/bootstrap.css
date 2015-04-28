@@ -6830,6 +6830,12 @@ p.first-p {
   padding-left: 0px;
   border-top: 0px!important;
 }
+.articles .article a {
+  margin-top: 0px;
+}
+.articles .article h3 {
+  margin-top: -5px;
+}
 .modal {
   color: #111;
 }
