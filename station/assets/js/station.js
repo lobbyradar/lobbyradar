@@ -445,12 +445,15 @@ var reportServerError = function ($scope, err) {
 
 // ------------------- controllers -------------------
 
-var o = {"key": "photo",
+var o = {
+	"key": "photo",
 	"value": {
 		"url": "http://www.bundestag.de/image/241388/Hochformat__2x3/177/265/8575bd619adc1928ffeaeef795d25c70/fD/merkel_angela_gross.jpg",
-		"copyright": "© CDU/ Dominik Butzmann "},
+		"copyright": "© CDU/ Dominik Butzmann "
+	},
 	"desc": "Foto", "format": "photo", "auto": true, "created": "2015-01-30T13:16:19.123Z",
-	"updated": "2015-01-30T13:16:19.123Z", "id": "0e7e0cd5aabfd09f92908d8e89c2c60290faad58b27beb26e15ba472814045c5"};
+	"updated": "2015-01-30T13:16:19.123Z", "id": "0e7e0cd5aabfd09f92908d8e89c2c60290faad58b27beb26e15ba472814045c5"
+};
 
 app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 	'use strict';
@@ -1919,11 +1922,16 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 };
 
 app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relations, entities, tags, fields) {
-	$scope.isNew = (!$stateParams.id) || ($stateParams.id == 'new');
+	if ($scope.data && $scope.data.relation) {
+		$scope.relation = $scope.data.relation;
+		$scope.isNew = false;
+	} else {
+		$scope.isNew = (!$stateParams.id) || ($stateParams.id == 'new');
+	}
 	relationEditCtrl($scope, $state, relations, entities, tags, fields, function () {
 		$state.go('relations');
 	});
-	if ((!$scope.isNew) && ($state.current.name !== 'person')) {
+	if ((!$scope.relation.id) && (!$scope.isNew) && ($state.current.name !== 'person')) {
 		relations.item({id: $stateParams.id},
 			function (data) {
 				if (data.error) return reportServerError($scope, data.error);
