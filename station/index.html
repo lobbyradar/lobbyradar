@@ -981,8 +981,8 @@
 		<div ng-switch-when="link" class="row">
 			<form class="form">
 				<div class="form-group col-md-12">
-					<label>Link</label>
-					<input type="url" class="form-control" placeholder="Link" ng-model="d.value.url">
+					<label>URL</label>
+					<input type="url" class="form-control" placeholder="URL" ng-model="d.value.url">
 				</div>
 				<div class="form-group col-md-12">
 					<label>Bemerkung</label>
@@ -1077,6 +1077,19 @@
 			<form class="form">
 				<div class="form-group col-md-12" ng-controller="AutoCompleteCtrl">
 					<input type="text" class="form-control" placeholder="Text" ng-model="d.value" datasets="datasetString" ngtypeahead>
+				</div>
+			</form>
+		</div>
+
+		<div ng-switch-when="photo" class="row">
+			<form class="form">
+				<div class="form-group col-md-12">
+					<label>URL</label>
+					<input type="url" class="form-control" placeholder="URL" ng-model="d.value.url">
+				</div>
+				<div class="form-group col-md-12">
+					<label>Copyright</label>
+					<input type="text" class="form-control" placeholder="Copyright" ng-model="d.value.copyright">
 				</div>
 			</form>
 		</div>
