@@ -5,6 +5,7 @@
 * Backup! (SV)
 * alle die Tag 'mdb' haben sollen eine Verb. zum Bundestag haben -> Karte soll danach auf Bundestag zentriert werden (MK)
 * einige Verbindungen sind zu undefined eingetragen 
+* sind die beiden Bundestagsabgeordneten, die vorher irgendwie zusammen geführt wurden, nach dem scraping korrekt mit daten und werden sie auch korrekt gescrapt
 
 ## Datenbank
 * Editfeld für Bilder
