@@ -6438,6 +6438,9 @@ body {
   float: left;
   margin-top: -20px;
 }
+.nav-circle.big .nav-circle.small.newspaper {
+  padding: 9px 11px;
+}
 .zdf-header-blue .navbar-collapse.in,
 .zdf-header-blue .navbar-collapse.collapsing {
   background-color: #1b4c64 !important;
@@ -6700,8 +6703,13 @@ body {
     top: auto;
   }
 }
+.static-page.home-page .container {
+  height: 100%;
+}
 .intro {
-  margin-top: 13%;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
 }
 .intro .nav-circle.big {
   margin: 0 auto 30px auto;
@@ -6709,13 +6717,19 @@ body {
 .circle-link {
   position: relative;
   background: #1b4c64;
+  line-height: 2;
+  padding: 10px 0px;
 }
 .circle-link:hover {
   border-color: transparent;
+  text-decoration: none;
+}
+.circle-link:hover .triangle {
+  border-color: #c76400 transparent transparent transparent;
 }
 .circle-link .triangle,
 .circle-link .triangle2 {
-  margin: 10px auto;
+  margin: 0px auto;
   width: 0;
   height: 0;
   border-style: solid;
@@ -6723,7 +6737,7 @@ body {
   border-color: #fa7e00 transparent transparent transparent;
 }
 .circle-link .triangle2 {
-  margin-top: -33px;
+  margin-top: -23px;
   border-color: #1b4c64 transparent transparent transparent;
 }
 .overlay {
@@ -6747,6 +6761,10 @@ body {
   .overlay .container {
     margin-top: 150px;
   }
+}
+.abspann-page a {
+  color: #ddd;
+  text-decoration: underline;
 }
 .about-intro {
   line-height: 1.35;
@@ -6795,6 +6813,7 @@ p.first-p {
 .faq-page .panel-default .panel-heading {
   background-color: transparent!important;
   border: 0px!important;
+  padding-left: 0px;
 }
 .faq-page .panel-default .panel-heading a {
   color: white;
@@ -6808,6 +6827,7 @@ p.first-p {
   font-family: "FontAwesome";
 }
 .faq-page .panel-default .panel-body {
+  padding-left: 0px;
   border-top: 0px!important;
 }
 .modal {

@@ -180,6 +180,11 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a5aaaa', end
     margin-top:-20px;
     // display: block;
     // margin: -10px auto 5px auto;
+
+
+    &.newspaper {
+      padding:9px 11px;
+    }
   }
 }
 
@@ -544,9 +549,14 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a5aaaa', end
                                              
 // ########################################################################################################################
                                              
-
+.static-page.home-page .container {
+  height:100%;
+}
   .intro {
-    margin-top:13%;
+    // margin-top:13%;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   .intro {
@@ -560,23 +570,27 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a5aaaa', end
   position: relative;
   background: #1b4c64;
   // border: 4px solid #fa7e00;
-
+  line-height:2;
+  padding:10px 0px;
   &:hover {
     border-color:transparent;
+    text-decoration: none;
+    .triangle {
+      border-color: darken(#fa7e00,10%) transparent transparent transparent;
+    }
   }
 
   .triangle,
   .triangle2 {
-    margin:10px auto;
+    margin:0px auto;
     width: 0;
     height: 0;
     border-style: solid;
     border-width: 20px 40px 0 40px;
     border-color: #fa7e00 transparent transparent transparent;
-
   }
   .triangle2 {
-    margin-top:-33px;
+    margin-top:-23px;
     border-color: #1b4c64 transparent transparent transparent;
   }
 
@@ -620,7 +634,12 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a5aaaa', end
 //                                _MM_                                                       
                               
 
-
+.abspann-page {
+  a {
+    color:#ddd;
+    text-decoration:underline;
+  }
+}
 
 .about-intro {
   line-height:1.35;
@@ -690,11 +709,13 @@ p.first-p {
     .panel-heading {
       background-color:transparent!important;
       border:0px!important;
+      padding-left:0px;
       a {color:white;}
       a:after {content:"\f067";font-family:"FontAwesome";}
       a.collapsed:after {content:"\f068";font-family:"FontAwesome";}
     }
     .panel-body {
+      padding-left:0px;
       border-top:0px!important;
     }
   }

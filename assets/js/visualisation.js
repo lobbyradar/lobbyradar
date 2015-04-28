@@ -12,7 +12,7 @@ function loadList(id) {
 	}, function (data) {
 		console.log(data);
 		if (data === undefined || data.length == 0) {
-			var $ul = $("<div class='message'>Es konnten keine Einträge gefunden werden. Bitte Groß- und Kleinschreibung beachten.</div>");
+			var $ul = $("<div class='message'>Es konnten leider keine Einträge gefunden werden.</div>");
 			$(".result-list").slideDown("slow");
 			$(".result-list .results .list-group", "#main").remove();
 			$(".result-list .results .message", "#main").remove();
@@ -134,13 +134,15 @@ function loadEntity(id) {
 					$content += '<p>Mitglied des Bundestages</p>';
 				} else if (tag == 'lobbyist') {
 					$content += '<p>LobbyistIn / InteressensvertreterIn</p>'
+				} else if (tag == 'anwaltskanzlei') {
+					$content += '<p>Anwaltskanzlei</p>'
 				} else if (tag == 'committee') {
 					$content += '<p>Ausschuss des Bundestags</p>'
 				} else if (tag == 'lobbyorganisation') {
 					$content += '<p>Lobbyismus-Organisation registriert beim Deutschen Bundestag</p>'
 				} else if (tag == 'thinktank') {
 					$content += '<p>Think Tank</p>'
-				} else if (tag == 'dax') {
+				} else if (tag == 'dax' && entity.type == 'entity') {
 					$content += '<p>Dax-Konzern</p>'
 				} else if (tag == 'pr-und-lobbyagentur') {
 					$content += '<p>Lobbyismus-Agentur</p>'
@@ -211,7 +213,6 @@ function loadEntity(id) {
 							// add position from data
 							var dateString = '';
 							var begin = '<br/> seit ';
-							//TODO monat ausschreiben
 							$(rel.data).each(function (idx, data) {
 								if (data.key == 'position') $content += '<br/>'+data.value;
 								if(data.key == 'begin') {
@@ -257,21 +258,19 @@ function loadEntity(id) {
 									// add position from data
 									var dateString = '';
 									var begin = '<br/> seit ';
-									//TODO monat ausschreiben
 									$(rel.data).each(function (idx, data) {
-										console.log(data);
-										if (data.key == 'position') $content += '<br/>'+data.value;
+										if (data.key == 'position'){
+											$content += '<br/>'+data.value;
+											begin = '<br/>';
+										}
 										if(data.key == 'begin') {
-											var d = new Date(data.value);
-											dateString += '<br/>' +  getMonthName(data.value.month)+ ' ' + data.value.year;
+											begin = '<br/> seit ';
+											dateString = '' +  getMonthName(data.value.month)+ ' ' + data.value.year;
 										}
 										if(data.key == 'end') {
-											var d = new Date(data.value);
 											begin = '<br/>';
 											dateString += ' bis ' +  getMonthName(data.value.month)+ ' ' + data.value.year + '<br/>';
 										}
-										console.log('default?');
-										begin = '';
 									});
 
 									$content = $content + begin + dateString;
@@ -314,9 +313,13 @@ function loadEntity(id) {
 				var parteiString = 'Parteispende';
 
 				if (entity.type == 'person') {
-					parteiString += ' an '
+					parteiString += ' an ';
 				} else if (entity.type == 'entity') {
-					parteiString += ' von '
+					var s = ' an ';
+					entity.tags.forEach(function (t) {
+						if(t == 'partei') s = ' von ';
+					})
+					parteiString += s;
 				}
 
 				$content += '<div class="col-md-12"><h4><i class="fa fa-euro"></i>&nbsp;' + parteiString + '</h4></div>';
@@ -443,7 +446,21 @@ function loadEntity(id) {
 											_b += d.value.position + '<br>';
 										} else if (d.value.type == 'Funktionen in Unternehmen') {
 											_c += zuordnung;
-											_c += d.value.position + '<br>';
+											//_c += d.value.position + '<br>';
+											if (d.value.year != null) {
+												_c += d.value.year + ' ';
+											}
+											if (d.value.position != null) {
+												_c += d.value.position + ' ';
+											}
+											if (d.value.activity != null ) {
+												_c += d.value.activity + ' ';
+											}
+											if(d.value.level !== 0){
+												_c += d.value.periodical + ' Stufe: ' + formatStagesAddIncome(d.value.level);
+											}
+											_c += '<br>';
+
 										} else if (d.value.type == 'Funktionen in Körperschaften und Anstalten des öffentlichen Rechts') {
 											_d += zuordnung;
 											_d += d.value.position + '<br>';
@@ -574,10 +591,18 @@ function loadEntity(id) {
 
 			$content += '<div class="row"><br/>';
 			$content += '<div class="col-sm-6">';
-			$content += '<a class="btn btn-block btn-default" href="#" role="button">Verbindung melden</a>';
+			$content += '<a class="btn btn-block btn-default" href="mailto:lobbyradar@zdf.de?subject=Verbindung melden ';
+			$content += entity.name;
+			$content += ' (';
+			$content += entity._id;
+			$content += ')&body=Ich möchte eine Verbindung melden:" role="button">Verbindung melden</a>';
 			$content += '</div>';
 			$content += '<div class="col-sm-6">';
-			$content += '<a class="btn btn-block btn-default" href="#" role="button">Fehler melden</a>';
+			$content += '<a class="btn btn-block btn-default" href="mailto:lobbyradar@zdf.de?subject=Fehler melden ';
+			$content += entity.name;
+			$content += ' (';
+			$content += entity._id;
+			$content += ')&body=Ich möchte einen Fehler melden:" role="button">Fehler melden</a>';			
 			$content += '</div>';
 			$content += '</div>';
 
@@ -605,7 +630,6 @@ function loadEntity(id) {
 }
 
 function getMonthName(month) {
-	console.log(month);
 	switch (month){
 		case 1:
 			return "Januar";
@@ -644,6 +668,7 @@ function getMonthName(month) {
 			return "Dezember";
 			break;
 		default:
+			return "";
 			break;
 	}
 
@@ -764,7 +789,7 @@ $(document).ready(function () {
 
 	// Or when he or she clicks the search button
 	$('.search-form button').click(function () {
-		var $resultName = $(this).val();
+		var $resultName = $('.lobbysearch').val();
 		$(".overlay").fadeOut("slow"); // fade out the overlay, when search gets into focus
 		$(".result-list").slideDown("slow");
 		history.pushState(null, null, '/search/' + $resultName);
