@@ -1,11 +1,14 @@
 # Backend
+## LR 2.0
+* Neue Einträge vorhanden, Anzeige im Frontent, Events darauf anbieten 
+	* manuelle Änderungen vom ZDF (einfach zu implementieren) 
+
+
 # Todo Donenrstag
-* keine Scraper mehr laufen lassen!
-* fehlende Verbindungen (SV)
+
+* fehlende Verbindungen (SV+KD) - spätestens Donnerstag c-base (einige Verbindungen sind zu undefined eingetragen)
 * Backup! (SV)
 * alle die Tag 'mdb' haben sollen eine Verb. zum Bundestag haben -> Karte soll danach auf Bundestag zentriert werden (MK)
-* einige Verbindungen sind zu undefined eingetragen 
-* sind die beiden Bundestagsabgeordneten, die vorher irgendwie zusammen geführt wurden, nach dem scraping korrekt mit daten und werden sie auch korrekt gescrapt
 
 ## Datenbank
 * Editfeld für Bilder
