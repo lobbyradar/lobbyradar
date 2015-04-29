@@ -353,6 +353,7 @@ app.run(function ($rootScope, $state, auth) {
 var okcancelModalDialog = function ($modal, data, cb) {
 	var modalInstance = $modal.open({
 		templateUrl: 'partials/ask.html',
+		size: 'lg',
 		controller: function ($scope, $modalInstance, data) {
 			$scope.data = data;
 			$scope.ok = function () {
@@ -379,6 +380,7 @@ var okcancelModalDialog = function ($modal, data, cb) {
 var editModalDialog = function ($modal, data, templateUrl, cb) {
 	var modalInstance = $modal.open({
 		templateUrl: templateUrl,
+		size: 'lg',
 		controller: function ($scope, $modalInstance, data) {
 
 			$scope.data = data;
@@ -414,6 +416,7 @@ var editModalDialog = function ($modal, data, templateUrl, cb) {
 var infoModalDialog = function ($modal, data, templateUrl, cb) {
 	var modalInstance = $modal.open({
 		templateUrl: templateUrl,
+		size: 'lg',
 		controller: function ($scope, $modalInstance, data) {
 
 			$scope.data = data;
@@ -444,16 +447,6 @@ var reportServerError = function ($scope, err) {
 };
 
 // ------------------- controllers -------------------
-
-var o = {
-	"key": "photo",
-	"value": {
-		"url": "http://www.bundestag.de/image/241388/Hochformat__2x3/177/265/8575bd619adc1928ffeaeef795d25c70/fD/merkel_angela_gross.jpg",
-		"copyright": "© CDU/ Dominik Butzmann "
-	},
-	"desc": "Foto", "format": "photo", "auto": true, "created": "2015-01-30T13:16:19.123Z",
-	"updated": "2015-01-30T13:16:19.123Z", "id": "0e7e0cd5aabfd09f92908d8e89c2c60290faad58b27beb26e15ba472814045c5"
-};
 
 app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 	'use strict';
@@ -511,6 +504,14 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 					if (v.value.postcode) sl.push(v.value.postcode);
 					if (v.value.city) sl.push(v.value.city);
 					if (v.value.country) sl.push(v.value.country);
+				}
+				return sl.join('; ');
+			}
+			else if (v.format == 'photo') {
+				var sl = [];
+				if (v.value) {
+					if (v.value.url) sl.push(v.value.url);
+					if (v.value.copyright) sl.push(v.value.copyright);
 				}
 				return sl.join('; ');
 			}
@@ -1931,7 +1932,10 @@ app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relat
 	relationEditCtrl($scope, $state, relations, entities, tags, fields, function () {
 		$state.go('relations');
 	});
-	if ((!$scope.relation.id) && (!$scope.isNew) && ($state.current.name !== 'person')) {
+	if ($scope.data && $scope.data.relation) {
+		$scope.relation = $scope.data.relation;
+		$scope.isNew = false;
+	} else if ((!$scope.isNew) && ($state.current.name !== 'person')) {
 		relations.item({id: $stateParams.id},
 			function (data) {
 				if (data.error) return reportServerError($scope, data.error);

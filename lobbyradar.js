@@ -634,6 +634,16 @@ app.get("/api/autocomplete", function (req, res) {
 	});
 });
 
+// clean db.
+app.get("/api/db/clean", function (req, res) {
+	debug("clean db command");
+	if( (!req.user)|| (req.user.name!=='admin')) return res.status("200").send('nope');
+	api.db_clean(function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+
 // index page
 app.all("/", function (req, res) { res.render("index", {}); });
 
@@ -682,7 +692,6 @@ app.get("/search/:id", function (req, res) {
 // everything else is 404
 app.all("*", function (req, res) {
 	res.status(404).render("404", { "err": "Wir konnten unter dieser URL leider nichts finden." });
-;
 });
 
 if (config.defaultadmin) {
