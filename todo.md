@@ -2,6 +2,8 @@
 ## LR 2.0
 * Neue Einträge vorhanden, Anzeige im Frontent, Events darauf anbieten 
 	* manuelle Änderungen vom ZDF (einfach zu implementieren) 
+* wir sollten uns über die tags gedanken machen, die eher eine Verbindung sein sollten zB mdb -> tagliste und erklärung wäre hübsch für die doku
+* ggf sollte man die felder email, adresse sowie www voneinander trennen. damit wird das 
 
 
 # Todo Donenrstag
