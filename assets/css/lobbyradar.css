@@ -18,3 +18,7 @@
 	width: 200px;
 	line-height: 1.1em;
 }
+
+#rel_viz {
+	position: relative;
+}

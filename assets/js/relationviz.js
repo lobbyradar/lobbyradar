@@ -27,8 +27,9 @@ $(document).ready(function () {
 			.style("z-index", "10")
 			.style("visibility", "hidden");
 
-		var rad = d3.scale.linear()
-			.range([3, 30]);
+		function rad(v) { return 30*Math.sqrt(v) };
+
+		console.log(rad);
 
 		links = data.result.filter(function (relation) {
 			if (!relation.entities[0]) return false;
@@ -56,9 +57,9 @@ $(document).ready(function () {
 		var force = d3.layout.force()
 			.nodes(d3.values(nodes))
 			.links(links)
-			.gravity(0.3)
-			.linkDistance(120)
-			.charge(-800)
+			.gravity(0.2)
+			.linkDistance(140)
+			.charge(function (node) { return -300*rad(node.weight) })
 			.theta(0.4)
 			.on("tick", tick)
 			.start();
@@ -81,9 +82,12 @@ $(document).ready(function () {
 			.attr("class", "node")
 			.on("mouseover", function (d) {
 				//console.log('x: '+x+' y: '+y);
+				var x = parseFloat(this.getAttribute('cx'));
+				var y = parseFloat(this.getAttribute('cy'));
+				var r = parseFloat(this.getAttribute('r'));
 				return tooltip.style("visibility", "visible")
-					.style("top", (d3.event.clientY) + "px")
-					.style("left", (d3.event.clientX) + "px")
+					.style("top", (y) + "px")
+					.style("left", (x+r) + "px")
 					.text(d.name);
 			})
 			.on("mouseout", function (d) {
@@ -114,7 +118,7 @@ $(document).ready(function () {
 
 
 		console.log('min: ' + min + ' max: ' + max);
-		rad.domain([min, max]);
+
 		console.log(d3.selectAll('circle')[0].length);
 
 		d3.selectAll('circle')
@@ -122,7 +126,7 @@ $(document).ready(function () {
 				return rad(d.weight);
 			});
 
-		console.log(node.data());
+		var scale = 1;
 		//radius abschätzen der gesammte viz indem ich durch die nodes
 		// resize event und tickfkt aufrufen
 		function tick() {
@@ -133,7 +137,8 @@ $(document).ready(function () {
 				if (r > maxR) maxR = r;
 			});
 
-			var scale = 0.48 * Math.min(w, h) / maxR;
+			var newScale = 0.48 * Math.min(w, h) / maxR;
+			scale = Math.pow(Math.pow(scale, 10)*newScale, 1/11);
 
 			link
 				.attr("x1", function (d) {
@@ -147,7 +152,10 @@ $(document).ready(function () {
 				})
 				.attr("y2", function (d) {
 					return scale * d.target.y + h / 2;
-				});
+				})
+				.attr("stroke-opacity", function (d) {
+					return Math.min(1,scale*10);
+				})
 
 			node
 				.attr("cx", function (d) {
@@ -155,6 +163,9 @@ $(document).ready(function () {
 				})
 				.attr("cy", function (d) {
 					return scale * d.y + h / 2;
+				})
+				.attr("r", function (d) {
+					return scale * rad(d.weight);
 				});
 		}
 
