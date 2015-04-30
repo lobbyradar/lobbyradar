@@ -22,15 +22,15 @@ links.forEach(function (link, index) {
 
 // Find biggest Node
 
-var biggestNode = {size:0};
+var centerNode = {size:0};
 
 nodes.forEach(function (node) {
-	if (node.size > biggestNode.size) biggestNode = node;
+	if (node.id == '552ff9ceaf9ee96e1c1df7c9') centerNode = node;
 })
 
-biggestNode.x = 0;
-biggestNode.y = 0;
-biggestNode.fixed = true;
+centerNode.x = 0;
+centerNode.y = 0;
+centerNode.fixed = true;
 
 // Prepare layout
 
