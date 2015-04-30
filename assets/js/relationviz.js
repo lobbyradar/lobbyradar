@@ -4,6 +4,12 @@
 
 $(document).ready(function () {
 
+	d3.selection.prototype.moveToFront = function () {
+		return this.each(function () {
+			this.parentNode.appendChild(this);
+		});
+	};
+
 	// ruestung, verkehr, pharma, bank, seitenwechsler
 	var url = window.location.href; // get the url
 	var id = url.split("/")[4]; // extract ID
