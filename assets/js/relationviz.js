@@ -13,8 +13,8 @@ $(document).ready(function () {
 	// ruestung, verkehr, pharma, bank, seitenwechsler
 	var url = window.location.href; // get the url
 	var id = url.split("/")[4]; // extract ID
-	if(id == '') id = 'ruestung';
-	req = $.getJSON("/api/relation/tagged/"+id, function (data) {
+	if (id == '') id = 'ruestung';
+	req = $.getJSON("/api/relation/tagged/" + id, function (data) {
 		var links = [];
 		var nodes = {};
 		//console.log(data);
@@ -27,9 +27,12 @@ $(document).ready(function () {
 			.style("z-index", "10")
 			.style("visibility", "hidden");
 
+		var rad = d3.scale.linear()
+			.range([3, 30]);
+
 		links = data.result.filter(function (relation) {
-			if(!relation.entities[0]) return false;
-			if(!relation.entities[1]) return false;
+			if (!relation.entities[0]) return false;
+			if (!relation.entities[1]) return false;
 			return true;
 		});
 
@@ -42,18 +45,19 @@ $(document).ready(function () {
 				target: nodes[target._id] || (nodes[target._id] = target)
 			};
 		});
-
-		var w = $('#rel_viz')[0].clientWidth,
-			h = $('#rel_viz')[0].clientHeight;
+		var w = $('#rel_viz').innerWidth(),
+			h = $('#rel_viz').innerHeight() - 130;
 
 		var parent = d3.select('#rel_viz');
+
+		var min = 1e10,
+			max = -1e10;
 
 		var force = d3.layout.force()
 			.nodes(d3.values(nodes))
 			.links(links)
-			.size([w, h])
 			.gravity(0.3)
-			.linkDistance(100)
+			.linkDistance(120)
 			.charge(-800)
 			.theta(0.4)
 			.on("tick", tick)
@@ -73,54 +77,85 @@ $(document).ready(function () {
 
 		var node = svg.selectAll(".node")
 			.data(force.nodes())
-			.enter().append("g")
+			.enter().append("circle")
 			.attr("class", "node")
-			.on("mouseover", function(d){
-				var trans = this.getAttribute('transform');
-				var a = trans.split('(')[1].split(',');
-				var b = a[1];
-
-				var x = a[0],
-					y = b.slice(0,b.length-1);
+			.on("mouseover", function (d) {
 				//console.log('x: '+x+' y: '+y);
 				return tooltip.style("visibility", "visible")
-					.style("top", (d3.event.clientY)+"px")
-					.style("left",(d3.event.clientX)+"px")
+					.style("top", (d3.event.clientY) + "px")
+					.style("left", (d3.event.clientX) + "px")
 					.text(d.name);
 			})
-			.on("mouseout", function(d){
+			.on("mouseout", function (d) {
 				return tooltip.style("visibility", "hidden");
-			});
-
-		node.append("circle")
-			.attr("r", function (d) {
-				//return 2 * d.weight;
-				return 10;
 			})
 			.style('fill', function (d) {
-				if(d.type == 'person'){
+				if (d.type == 'person') {
 					return '#fee915';
-				}else if(d.type == 'entity'){
+				} else if (d.type == 'entity') {
 					return '#a3db19';
 				}
 			});
 
-		//node.append("text")
-		//	.attr("x", 12)
-		//	.attr("dy", ".35em")
-		//	.attr('font-weight', 'bold')
-		//	.text(function(d) { return d.name; })
-		//	.style("display", 'none');
+		links.forEach(function (l) {
+			if (l.source.weight < min) {
+				min = l.source.weight;
+			}
+			if (l.source.weight > max) {
+				max = l.source.weight;
+			}
+			if (l.target.weight < min) {
+				min = l.target.weight;
+			}
+			if (l.target.weight > max) {
+				max = l.target.weight;
+			}
+		});
 
+
+		console.log('min: ' + min + ' max: ' + max);
+		rad.domain([min, max]);
+		console.log(d3.selectAll('circle')[0].length);
+
+		d3.selectAll('circle')
+			.attr('r', function (d) {
+				return rad(d.weight);
+			});
+
+		console.log(node.data());
+		//radius abschätzen der gesammte viz indem ich durch die nodes
+		// resize event und tickfkt aufrufen
 		function tick() {
+			var maxR = 1;
+
+			node.data().forEach(function (n) {
+				var r = Math.sqrt(n.x * n.x + n.y * n.y) + rad(n.weight);
+				if (r > maxR) maxR = r;
+			});
+
+			var scale = 0.48 * Math.min(w, h) / maxR;
+
 			link
-				.attr("x1", function(d) { return d.source.x; })
-				.attr("y1", function(d) { return d.source.y; })
-				.attr("x2", function(d) { return d.target.x; })
-				.attr("y2", function(d) { return d.target.y; });
+				.attr("x1", function (d) {
+					return scale * d.source.x + w / 2;
+				})
+				.attr("y1", function (d) {
+					return scale * d.source.y + h / 2;
+				})
+				.attr("x2", function (d) {
+					return scale * d.target.x + w / 2;
+				})
+				.attr("y2", function (d) {
+					return scale * d.target.y + h / 2;
+				});
 
 			node
-				.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+				.attr("cx", function (d) {
+					return scale * d.x + w / 2;
+				})
+				.attr("cy", function (d) {
+					return scale * d.y + h / 2;
+				});
 		}
 
 		function mouseover() {
