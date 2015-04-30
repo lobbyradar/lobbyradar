@@ -13,6 +13,12 @@ var data = require('./lib/prepare_data.js');
 var nodes = data.nodes;
 var links = data.links;
 
+nodes.forEach(function (node) {
+	node.x *= data.config.scale;
+	node.y *= data.config.scale;
+	node.r *= data.config.scale;
+})
+
 if (process.argv[2]) antialias = parseInt(process.argv[2], 10);
 
 saveTiles(maxTileLevel);

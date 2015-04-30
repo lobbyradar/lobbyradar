@@ -16,9 +16,9 @@ function exportPositions() {
 			id: node.id,
 			name: node.name,
 			type: node.type,
-			r: Math.round(node.r*4),
-			x: Math.round(node.x*4),
-			y: Math.round(node.y*4)
+			x: Math.round(node.x*4*data.config.scale),
+			y: Math.round(node.y*4*data.config.scale),
+			r: Math.round(node.r*4*data.config.scale)
 		}
 	});
 

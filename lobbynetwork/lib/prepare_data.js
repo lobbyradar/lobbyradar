@@ -79,5 +79,8 @@ console.log('data import finished');
 
 module.exports = {
 	nodes: nodes,
-	links: links
+	links: links,
+	config: {
+		scale: 0.95
+	}
 }
