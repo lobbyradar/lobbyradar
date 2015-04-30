@@ -129,7 +129,7 @@ function saveTiles(maxDepth) {
 			var cx = imageSize*(1/2 - x0/Math.pow(2,z0));
 			var cy = imageSize*(1/2 - y0/Math.pow(2,z0));
 
-			var strokeWidth = (0.5/scale);
+			var strokeWidth = (0.5/scale)*data.config.scale;
 
 			var commands = [
 				'push graphic-context',
