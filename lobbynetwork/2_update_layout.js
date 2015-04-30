@@ -1,5 +1,5 @@
 var maxIterations = 2000;
-var graphScale = 0.98;
+var graphScale = 0.96;
 
 var fs = require('fs');
 var d3 = require('d3');
