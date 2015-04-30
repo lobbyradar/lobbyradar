@@ -17,7 +17,15 @@ $(document).ready(function () {
 	req = $.getJSON("/api/relation/tagged/"+id, function (data) {
 		var links = [];
 		var nodes = {};
-		console.log(data);
+		//console.log(data);
+
+		var tooltip = d3.select("#rel_viz")
+			.append("div")
+			.attr("class", "tipp")
+			.attr("id", "tip")
+			.style("position", "absolute")
+			.style("z-index", "10")
+			.style("visibility", "hidden");
 
 		links = data.result.filter(function (relation) {
 			if(!relation.entities[0]) return false;
@@ -37,6 +45,8 @@ $(document).ready(function () {
 
 		var w = $('#rel_viz')[0].clientWidth,
 			h = $('#rel_viz')[0].clientHeight;
+
+		var parent = d3.select('#rel_viz');
 
 		var force = d3.layout.force()
 			.nodes(d3.values(nodes))
@@ -58,15 +68,30 @@ $(document).ready(function () {
 			.enter().append("line")
 			.attr("class", "link")
 			.style('fill', 'none')
-			.style('stroke', 'red')
+			.style('stroke', 'rgb(20,59,82)')
 			.style('stroke-width', '1.5px');
 
 		var node = svg.selectAll(".node")
 			.data(force.nodes())
 			.enter().append("g")
 			.attr("class", "node")
-			.on("mouseover", mouseover)
-			.on("mouseout", mouseout);
+			.on("mouseover", function(d){
+				console.log(this);
+				var trans = this.getAttribute('transform');
+				var a = trans.split('(')[1].split(',');
+				var b = a[1];
+
+				var x = a[0],
+					y = b.slice(0,b.length-1);
+				//console.log('x: '+x+' y: '+y);
+				return tooltip.style("visibility", "visible")
+					.style("top", (y)+"px")
+					.style("left",(x)+"px")
+					.text(d.name);
+			})
+			.on("mouseout", function(d){
+				return tooltip.style("visibility", "hidden");
+			});
 
 		node.append("circle")
 			.attr("r", function (d) {
@@ -75,17 +100,18 @@ $(document).ready(function () {
 			})
 			.style('fill', function (d) {
 				if(d.type == 'person'){
-					return '#e39e54';
+					return '#fee915';
 				}else if(d.type == 'entity'){
-					return '#9ed670';
+					return '#a3db19';
 				}
 			});
 
-		node.append("text")
-			.attr("x", 12)
-			.attr("dy", ".35em")
-			.text(function(d) { return d.name; })
-			.style("display", 'none');
+		//node.append("text")
+		//	.attr("x", 12)
+		//	.attr("dy", ".35em")
+		//	.attr('font-weight', 'bold')
+		//	.text(function(d) { return d.name; })
+		//	.style("display", 'none');
 
 		function tick() {
 			link
@@ -99,6 +125,8 @@ $(document).ready(function () {
 		}
 
 		function mouseover() {
+			console.log(this);
+			d3.select(this).moveToFront();
 			d3.select(this).select("text").transition()
 				.duration(750)
 				.style("display", 'block');
