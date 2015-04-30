@@ -1,3 +1,20 @@
 .leaflet-overlay-pane * {
-	pointer-events:none;
+	pointer-events: none;
+}
+
+.overdings {
+	min-width: 100px;
+	padding: 5px;
+	text-align: center;
+	display: inline;
+	background: rgba(26, 65, 87, 0.9);
+	text-shadow: none;
+	box-shadow: 0px 0px 50px #2b7aa0;
+	position: absolute;
+	color: #fff;
+	font-weight: bold;
+	vertical-align: baseline;
+	font-size: 16px;
+	width: 200px;
+	line-height: 1.1em;
 }

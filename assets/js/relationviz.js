@@ -21,7 +21,7 @@ $(document).ready(function () {
 
 		var tooltip = d3.select("#rel_viz")
 			.append("div")
-			.attr("class", "tipp")
+			.attr("class", "overdings")
 			.attr("id", "tip")
 			.style("position", "absolute")
 			.style("z-index", "10")
@@ -76,7 +76,6 @@ $(document).ready(function () {
 			.enter().append("g")
 			.attr("class", "node")
 			.on("mouseover", function(d){
-				console.log(this);
 				var trans = this.getAttribute('transform');
 				var a = trans.split('(')[1].split(',');
 				var b = a[1];
@@ -85,8 +84,8 @@ $(document).ready(function () {
 					y = b.slice(0,b.length-1);
 				//console.log('x: '+x+' y: '+y);
 				return tooltip.style("visibility", "visible")
-					.style("top", (y)+"px")
-					.style("left",(x)+"px")
+					.style("top", (d3.event.clientY)+"px")
+					.style("left",(d3.event.clientX)+"px")
 					.text(d.name);
 			})
 			.on("mouseout", function(d){
