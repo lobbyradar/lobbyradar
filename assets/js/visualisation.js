@@ -156,7 +156,7 @@ function loadEntity(id) {
 			if (entity.relations.length > 0) {
 				// var relations = entity.relations.sort(sort_by('entity[name]', true));
 				var relations = entity.relations;
-				$content += '<h4>Verbindungen</<h4></h4>';
+				$content += '<h4>'+ entity.relations.length +' Verbindungen</<h4></h4>';
 				$content += '<div class="entity-relations-list">';
 
 				$(entity.relations).each(function (idx, rel) {
