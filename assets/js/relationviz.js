@@ -17,6 +17,8 @@ $(document).ready(function () {
 
 	// we change the selected value from the dropdown to current relation
 	$("form.theme-switch select").val("/relation/"+id);
+	// we inserted an empty option to prevent flickering and now we remove it
+	$("form.theme-switch select option[value='']").remove();
 
 	req = $.getJSON("/api/relation/tagged/" + id, function (data) {
 		var links = [];

@@ -73,8 +73,53 @@ input.lobbysearch {
 
 
 .theme-switch {
-  position: relative;
+  position: fixed;
   z-index: 99;
+  select {
+    padding:10px;
+    margin: 0;
+    background: #FFF;
+    color:#888;
+    border:none;
+    outline:none;
+    border-radius:1px;
+    display: inline-block;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    appearance:none;
+    cursor:pointer;
+}
+
+/* Targetting Webkit browsers only. FF will show the dropdown arrow with so much padding. */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    select {padding-right:30px}
+}
+
+label {position:relative}
+label:after {
+    content:'< >';
+    font:11px "Helvetica", monospace;
+    font-weight:bold;
+    color:#888;
+    -webkit-transform:rotate(90deg);
+    -moz-transform:rotate(90deg);
+    -ms-transform:rotate(90deg);
+    transform:rotate(90deg);
+    right:8px; top:14px;
+    padding:0 0 2px;
+    border-bottom:1px solid #FFF;
+    position:absolute;
+    pointer-events:none;
+}
+label:before {
+    content:'';
+    right:6px; top:12px;
+    width:20px; height:20px;
+    background:#FFF;
+    position:absolute;
+    pointer-events:none;
+    display:block;
+}
 }
 .videoWrapper { // responsive videos, ration 16:9
   position: relative;
@@ -871,7 +916,7 @@ p.first-p {
 
 .viewport-visual {
   min-height:250px;
-  margin-top:170px;
+  margin-top:145px;
   border:1px solid red;
   span {
     font-size:70%;
