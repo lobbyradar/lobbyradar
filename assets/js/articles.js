@@ -31,18 +31,19 @@ function makeCorsRequest() {
     var Treffer = XMLdata.find("treffer");
 
     Treffer.find("teaser").each(function () {
+      var htmlanswer = $(this).html()
+      var beiref = $("beitrag_reference", htmlanswer).attr ("ref");
+      var beirefsplit = beiref.split(":");
+      var beitragsurl = "http://www.heute.de/" + beirefsplit[2]
+      
       $article = $('<div class="article"></div>');
       $article.append(  "<h2>" + $(this).find("dachzeile").text() + "</h2>" +
                         "<h3>" + $(this).find("teaserTitel").text() + "</h3>" +
                         "<span>" + moment($(this).find("datum").text()).format('LLLL') + "</span>" + 
                         "<p>" + $(this).find("teaserText").text() + "</p>" +
-                        "<a role='button' class='hidden-xs btn-ext btn btn-info' href=''>Zum Artikel gehen</a>" );
-
+                        "<a role='button' target='_blank' class='hidden-xs btn-ext btn btn-info' href='" + beitragsurl + "'>Zum Artikel gehen</a>" );
       $article.append( "<br/>" );
       $(".articles").append($article);
-      console.log($(this).find("datum").text());
-      console.log($(this).find("teaserText").text());
-
     });
   };
 
