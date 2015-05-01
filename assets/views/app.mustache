@@ -11,7 +11,7 @@
 			<div class="col-sm-6 viewport-info col-sm-push-6">
 				<form class="search-form" role="form">
 					<div class="input-group">
-						<input type="text" placeholder="Suchen Sie nach Politikern, Firmen und Journalisten" class="lobbysearch form-control">
+						<input type="text" placeholder="Suchen Sie nach Politikern und Firmen" class="lobbysearch form-control">
 						<span class="input-group-btn">
 							<button class="btn-lobbysearch btn btn-primary" type="button"><i class="fa fa-search"></i></button>
 						</span>
@@ -21,7 +21,17 @@
 			</div>
 
 			<div class="col-sm-6 col-sm-pull-6 viewport-visual">
-				<span>active entities should move inside this viewport</span>
+				<form class="theme-switch" name="form">
+<select name="link" SIZE="1" onChange="window.location.href = document.form.link.options[document.form.link.selectedIndex].value;">
+<option selected value="/verbindungssuche"> Gesamtansicht </option>
+<option value="/relation/pharma"> Pharma </option>
+<option value="/relation/bank"> Bank </option>
+<option value="/relation/ruestung"> Rüstung </option>
+<option value="/relation/verkehr"> Verkehr </option>
+<option value="/relation/seitenwechsler"> Seitenwechsler </option>
+</select>
+</form>
+
 
 			</div>
 

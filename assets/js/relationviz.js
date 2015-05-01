@@ -14,6 +14,10 @@ $(document).ready(function () {
 	var url = window.location.href; // get the url
 	var id = url.split("/")[4]; // extract ID
 	if (id == '') id = 'ruestung';
+
+	// we change the selected value from the dropdown to current relation
+	$("form.theme-switch select").val("/relation/"+id);
+
 	req = $.getJSON("/api/relation/tagged/" + id, function (data) {
 		var links = [];
 		var nodes = {};

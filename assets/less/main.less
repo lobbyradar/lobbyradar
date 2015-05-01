@@ -58,7 +58,7 @@ input.lobbysearch {
   // -webkit-box-shadow: inset 0px 0px 7px 0px rgba(184,184,184,1);
   // -moz-box-shadow: inset 0px 0px 7px 0px rgba(184,184,184,1);
   // box-shadow: inset 0px 0px 7px 0px rgba(184,184,184,1);
-  padding: 15px;
+  padding: 0 15px;
   height: 45px;
 }
 
@@ -71,6 +71,11 @@ input.lobbysearch {
   color: @zdf-blue;
 }
 
+
+.theme-switch {
+  position: relative;
+  z-index: 99;
+}
 .videoWrapper { // responsive videos, ration 16:9
   position: relative;
   padding-bottom: 56.25%; /* 16:9 */
@@ -780,6 +785,14 @@ p.first-p {
   // background: url(../images/earth.png) no-repeat center center fixed; 
 }
 @media (min-width: @screen-sm-min) {.fullscreen{padding-top:0px;}}
+
+#relationviz-wrapper {
+  position: fixed;
+  width:100%;
+  top:46px;
+  left:0;
+  bottom:0px;
+}
 
 #networkviz-wrapper {
   position: fixed;
