@@ -69,6 +69,7 @@ function loadEntity(id) {
 
 	req = $.getJSON("/api/entity/get/" + id, {relations: true}, function (data) {
 		var $content = '<div class="entity">';
+		console.log(id);
 
 		if (data.hasOwnProperty("result")) {
 			var entity = data.result;

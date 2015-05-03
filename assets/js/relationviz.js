@@ -99,6 +99,10 @@ $(document).ready(function () {
 			.on("mouseout", function (d) {
 				return tooltip.style("visibility", "hidden");
 			})
+			.on('click', function (d) {
+				console.log(d._id);
+				//loadEntity(d._id);
+			})
 			.style('fill', function (d) {
 				if (d.type == 'person') {
 					return '#fee915';
