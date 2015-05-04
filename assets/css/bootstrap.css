@@ -6326,7 +6326,7 @@ input.lobbysearch {
   color: #1b4c64;
 }
 .theme-switch {
-  position: fixed;
+  position: relative;
   z-index: 99;
   /* Targetting Webkit browsers only. FF will show the dropdown arrow with so much padding. */
 }
@@ -6334,6 +6334,7 @@ input.lobbysearch {
   float: left;
   background: #FFF;
   color: #999;
+  font-size: 16px!important;
   padding: 10px 0px 10px 15px;
 }
 .theme-switch select {
@@ -6347,6 +6348,8 @@ input.lobbysearch {
   outline: none;
   border-radius: 1px;
   display: inline-block;
+  line-height: 1.4em;
+  font-size: 16px!important;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -6361,6 +6364,7 @@ input.lobbysearch {
 }
 .theme-switch label {
   position: relative;
+  font-size: 16px!important;
 }
 .theme-switch label:after {
   content: '\f103';
@@ -7002,7 +7006,6 @@ p.first-p {
 }
 .viewport-visual {
   min-height: 250px;
-  margin-top: 145px;
   border: 1px solid red;
   border: 0px;
 }
@@ -7012,6 +7015,9 @@ p.first-p {
   color: red;
   margin-left: -10px;
   display: none;
+}
+@media (min-width: 768px) {
+  margin-top: 145px;
 }
 .result-list {
   position: relative;

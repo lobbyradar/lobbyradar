@@ -73,13 +73,14 @@ input.lobbysearch {
 
 
 .theme-switch {
-  position: fixed;
+  position: relative;
   z-index: 99;
-
+  
   .theme-switch-label {
     float: left;
     background: #FFF;
     color:#999;
+    font-size: 16px!important;
     padding: 10px 0px 10px 15px;
   }
   select {
@@ -93,12 +94,13 @@ input.lobbysearch {
     outline:none;
     border-radius:1px;
     display: inline-block;
+    line-height:1.4em;
+    font-size: 16px!important;
     -webkit-appearance:none;
     -moz-appearance:none;
     appearance:none;
     cursor:pointer;
     padding-right:35px;
-
   }
 
   /* Targetting Webkit browsers only. FF will show the dropdown arrow with so much padding. */
@@ -113,7 +115,7 @@ input.lobbysearch {
     }
   }
 
-  label {position:relative}
+  label {position:relative;font-size: 16px!important;}
   label:after {
       content:'\f103';
       font:16px FontAwesome, monospace;
@@ -936,7 +938,6 @@ p.first-p {
 
 .viewport-visual {
   min-height:250px;
-  margin-top:145px;
   border:1px solid red;
   span {
     font-size:70%;
@@ -946,6 +947,10 @@ p.first-p {
     display:none;
   }
   border:0px;
+}
+@media (min-width: @screen-sm-min) { 
+
+  margin-top:145px;
 }
                                                                
 //                                            ,,                  
