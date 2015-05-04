@@ -23,7 +23,6 @@ $(document).ready(function () {
 	req = $.getJSON("/api/relation/tagged/" + id, function (data) {
 		var links = [];
 		var nodes = {};
-		//console.log(data);
 
 		var tooltip = d3.select("#rel_viz")
 			.append("div")
@@ -35,7 +34,6 @@ $(document).ready(function () {
 
 		function rad(v) { return 30*Math.sqrt(v) };
 
-		//console.log(rad);
 
 		links = data.result.filter(function (relation) {
 			if (!relation.entities[0]) return false;
@@ -73,8 +71,9 @@ $(document).ready(function () {
 		var svg = d3.select("#rel_viz").append("svg")
 			.attr("width", w)
 			.attr("height", h);
+		var g = svg.append('g');
 
-		var link = svg.selectAll(".link")
+		var link = g.selectAll(".link")
 			.data(force.links())
 			.enter().append("line")
 			.attr("class", "link")
@@ -82,12 +81,11 @@ $(document).ready(function () {
 			.style('stroke', 'rgb(20,59,82)')
 			.style('stroke-width', '1.5px');
 
-		var node = svg.selectAll(".node")
+		var node = g.selectAll(".node")
 			.data(force.nodes())
 			.enter().append("circle")
 			.attr("class", "node")
 			.on("mouseover", function (d) {
-				//console.log('x: '+x+' y: '+y);
 				var x = parseFloat(this.getAttribute('cx'));
 				var y = parseFloat(this.getAttribute('cy'));
 				var r = parseFloat(this.getAttribute('r'));
@@ -100,7 +98,6 @@ $(document).ready(function () {
 				return tooltip.style("visibility", "hidden");
 			})
 			.on('click', function (d) {
-				console.log(d._id);
 				loadEntity2(d._id);
 			})
 			.style('fill', function (d) {
@@ -126,19 +123,12 @@ $(document).ready(function () {
 			}
 		});
 
-
-		//console.log('min: ' + min + ' max: ' + max);
-
-		//console.log(d3.selectAll('circle')[0].length);
-
 		d3.selectAll('circle')
 			.attr('r', function (d) {
 				return rad(d.weight);
 			});
 
 		var scale = 1;
-		//radius abschätzen der gesammte viz indem ich durch die nodes
-		// resize event und tickfkt aufrufen
 		function tick() {
 			var maxR = 1;
 
@@ -856,6 +846,11 @@ $(document).ready(function () {
 		}
 	}
 	$('body').on('click', 'button.close', function (e) {
+		$(".result-single").slideUp("slow");
+		$(".result-list").slideUp("slow");
+		e.preventDefault();
+	});
+	$('body').on('click', '#backtolist', function (e) {
 		$(".result-single").slideUp("slow");
 		$(".result-list").slideUp("slow");
 		e.preventDefault();
