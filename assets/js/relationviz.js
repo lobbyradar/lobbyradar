@@ -105,7 +105,9 @@ $(document).ready(function () {
 				loadEntity2(d._id);
 				trans_x = (-w/4);
 				trans_y = 0;
-				g.attr('transform', "translate("+trans_x+", "+trans_y+")");
+				g.transition()
+					.attr('transform', "translate("+trans_x+", "+trans_y+")")
+					.duration(2000);
 				var x = parseFloat(this.getAttribute('cx')) + trans_x;
 				var y = parseFloat(this.getAttribute('cy')) + trans_y;
 				var r = parseFloat(this.getAttribute('r'));
@@ -866,7 +868,9 @@ $(document).ready(function () {
 		e.preventDefault();
 		trans_x = 0;
 		trans_y = 0;
-		g.attr('transform', 'translate('+trans_x+', '+trans_y+')');
+		g.transition()
+			.attr('transform', 'translate('+trans_x+', '+trans_y+')')
+			.duration(2000);
 	});
 	$('body').on('click', '#backtolist', function (e) {
 		$(".result-single").slideUp("slow");
