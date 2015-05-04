@@ -4,6 +4,10 @@
 
 $(document).ready(function () {
 
+	var trans_x = 0,
+		trans_y = 0;
+	var g;
+
 	d3.selection.prototype.moveToFront = function () {
 		return this.each(function () {
 			this.parentNode.appendChild(this);
@@ -71,7 +75,7 @@ $(document).ready(function () {
 		var svg = d3.select("#rel_viz").append("svg")
 			.attr("width", w)
 			.attr("height", h);
-		var g = svg.append('g');
+		g = svg.append('g');
 
 		var link = g.selectAll(".link")
 			.data(force.links())
@@ -86,8 +90,8 @@ $(document).ready(function () {
 			.enter().append("circle")
 			.attr("class", "node")
 			.on("mouseover", function (d) {
-				var x = parseFloat(this.getAttribute('cx'));
-				var y = parseFloat(this.getAttribute('cy'));
+				var x = parseFloat(this.getAttribute('cx')) + trans_x;
+				var y = parseFloat(this.getAttribute('cy')) + trans_y;
 				var r = parseFloat(this.getAttribute('r'));
 				return tooltip.style("visibility", "visible")
 					.style("top", (y) + "px")
@@ -99,6 +103,16 @@ $(document).ready(function () {
 			})
 			.on('click', function (d) {
 				loadEntity2(d._id);
+				trans_x = (-w/4);
+				trans_y = 0;
+				g.attr('transform', "translate("+trans_x+", "+trans_y+")");
+				var x = parseFloat(this.getAttribute('cx')) + trans_x;
+				var y = parseFloat(this.getAttribute('cy')) + trans_y;
+				var r = parseFloat(this.getAttribute('r'));
+				return tooltip.style("visibility", "visible")
+					.style("top", (y) + "px")
+					.style("left", (x+r) + "px")
+					.text(d.name);
 			})
 			.style('fill', function (d) {
 				if (d.type == 'person') {
@@ -170,7 +184,6 @@ $(document).ready(function () {
 		}
 
 		function mouseover() {
-			console.log(this);
 			d3.select(this).moveToFront();
 			d3.select(this).select("text").transition()
 				.duration(750)
@@ -849,6 +862,9 @@ $(document).ready(function () {
 		$(".result-single").slideUp("slow");
 		$(".result-list").slideUp("slow");
 		e.preventDefault();
+		trans_x = 0;
+		trans_y = 0;
+		g.attr('transform', 'translate('+trans_x+', '+trans_y+')');
 	});
 	$('body').on('click', '#backtolist', function (e) {
 		$(".result-single").slideUp("slow");
