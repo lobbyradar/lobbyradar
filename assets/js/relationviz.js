@@ -259,13 +259,17 @@ $(document).ready(function () {
 				if (entity.type == 'person') {
 					$content += '<i class="fa fa-user"></i>&nbsp;'; // PERSON
 				}
+				var icon = '';
 				$(entity.data).each(function (idx, e) {
 					if (entity.type == 'entity' && e.key == 'partei') {
-						$content += '<i class="fa fa-pie-chart"></i>&nbsp;'; // PARTEI
+						console.log('pie chart?');
+						icon =  '<i class="fa fa-pie-chart"></i>&nbsp;'; // PARTEI
 					} else if (entity.type == 'entity' && e.key == 'legalform') {
-						$content += '<i class="fa fa-building-o"></i>&nbsp;'; // PARTEI
+						console.log('whatever?');
+						icon = '<i class="fa fa-building-o"></i>&nbsp;'; // PARTEI
 					}
 				});
+				$content += icon;
 				$content += entity.name;
 				$content += '</h1>';
 				// Bundesland herausgenommen
