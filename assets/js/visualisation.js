@@ -726,10 +726,9 @@ function loadEntityAjax(id) {
 
 
 $(document).ready(function () {
-	if ($(window).width() > 768) {
-		NetworkViz.panToEntity(); // missuse the func to get the viz on index
-		NetworkViz.setClickHandler(loadEntityAjax);
-	}
+
+	NetworkViz.panToEntity(); // missuse the func to get the viz on index
+	NetworkViz.setClickHandler(loadEntityAjax);
 
 	$(".leaflet-control-zoom").css("display", 'none');
 

@@ -123,9 +123,7 @@ var NetworkViz = (function () {
 
 	function mouseclick(e) {
 		if (!clickHandler) return;
-
 		var node = findNode(e.latlng);
-
 		if (node) {
 			clickHandler(node.id);
 			e.originalEvent.preventDefault();
