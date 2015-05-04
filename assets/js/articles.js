@@ -17,7 +17,7 @@ function createCORSRequest(method, url) {
 
 // Make the actual CORS request.
 function makeCorsRequest() {
-  var url = 'http://module.zdf.de/api/v2/content/p12:37951336';
+  var url = 'https://module.zdf.de/api/v2/content/p12:37951336';
 
   var xhr = createCORSRequest('GET', url);
   if (!xhr) {

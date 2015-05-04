@@ -624,19 +624,23 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a5aaaa', end
 .static-page.home-page .container {
   height:100%;
 }
-  .intro {
-    // margin-top:13%;
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
-  }
 
   .intro {
     .nav-circle.big {
       margin:0 auto 30px auto;
     }
   }
-
+  @media (min-width: @screen-sm-min) {
+  .intro {
+  margin: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  height: 209px;
+  }
+}
 
 .circle-link {
   position: relative;
@@ -949,8 +953,9 @@ p.first-p {
   border:0px;
 }
 @media (min-width: @screen-sm-min) { 
-
-  margin-top:145px;
+  .viewport-visual {
+    margin-top:145px;
+  }
 }
                                                                
 //                                            ,,                  

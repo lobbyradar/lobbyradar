@@ -6770,13 +6770,19 @@ body {
 .static-page.home-page .container {
   height: 100%;
 }
-.intro {
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
-}
 .intro .nav-circle.big {
   margin: 0 auto 30px auto;
+}
+@media (min-width: 768px) {
+  .intro {
+    margin: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: 209px;
+  }
 }
 .circle-link {
   position: relative;
@@ -7017,7 +7023,9 @@ p.first-p {
   display: none;
 }
 @media (min-width: 768px) {
-  margin-top: 145px;
+  .viewport-visual {
+    margin-top: 145px;
+  }
 }
 .result-list {
   position: relative;
