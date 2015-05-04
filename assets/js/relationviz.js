@@ -8,11 +8,22 @@ $(document).ready(function () {
 		trans_y = 0;
 	var g;
 
+	var w = $('#rel_viz').innerWidth(),
+		h = $('#rel_viz').innerHeight() - 130;
+
 	d3.selection.prototype.moveToFront = function () {
 		return this.each(function () {
 			this.parentNode.appendChild(this);
 		});
 	};
+
+	var tooltip = d3.select("#rel_viz")
+		.append("div")
+		.attr("class", "overdings")
+		.attr("id", "tip")
+		.style("position", "absolute")
+		.style("z-index", "10")
+		.style("visibility", "hidden");
 
 	// ruestung, verkehr, pharma, bank, seitenwechsler
 	var url = window.location.href; // get the url
@@ -28,16 +39,7 @@ $(document).ready(function () {
 		var links = [];
 		var nodes = {};
 
-		var tooltip = d3.select("#rel_viz")
-			.append("div")
-			.attr("class", "overdings")
-			.attr("id", "tip")
-			.style("position", "absolute")
-			.style("z-index", "10")
-			.style("visibility", "hidden");
-
 		function rad(v) { return 30*Math.sqrt(v) };
-
 
 		links = data.result.filter(function (relation) {
 			if (!relation.entities[0]) return false;
@@ -54,8 +56,7 @@ $(document).ready(function () {
 				target: nodes[target._id] || (nodes[target._id] = target)
 			};
 		});
-		var w = $('#rel_viz').innerWidth(),
-			h = $('#rel_viz').innerHeight() - 130;
+
 
 		var parent = d3.select('#rel_viz');
 
@@ -101,21 +102,8 @@ $(document).ready(function () {
 			.on("mouseout", function (d) {
 				return tooltip.style("visibility", "hidden");
 			})
-			.on('click', function (d) {
-				loadEntity2(d._id);
-				trans_x = (-w/4);
-				trans_y = 0;
-				g.transition()
-					.attr('transform', "translate("+trans_x+", "+trans_y+")")
-					.duration(2000);
-				var x = parseFloat(this.getAttribute('cx')) + trans_x;
-				var y = parseFloat(this.getAttribute('cy')) + trans_y;
-				var r = parseFloat(this.getAttribute('r'));
-				return tooltip.style("visibility", "visible")
-					.style("top", (y) + "px")
-					.style("left", (x+r) + "px")
-					.text(d.name);
-			})
+			.on('click', clickHandler)
+			.on('touchstart', clickHandler)
 			.style('fill', function (d) {
 				if (d.type == 'person') {
 					return '#fee915';
@@ -123,6 +111,8 @@ $(document).ready(function () {
 					return '#a3db19';
 				}
 			});
+
+
 
 		links.forEach(function (l) {
 			if (l.source.weight < min) {
@@ -199,6 +189,25 @@ $(document).ready(function () {
 		}
 
 	});
+
+	var clickHandler = function (d) {
+		loadEntity2(d._id);
+		trans_x = (-w/4);
+		trans_y = 0;
+		g.transition()
+			.attr('transform', "translate("+trans_x+", "+trans_y+")")
+			.duration(2000);
+		var x = parseFloat(this.getAttribute('cx')) + trans_x;
+		var y = parseFloat(this.getAttribute('cy')) + trans_y;
+		var r = parseFloat(this.getAttribute('r'));
+		return tooltip.transition().
+			style("visibility", "visible")
+			.style("top", (y) + "px")
+			.style("left", (x+r) + "px")
+			.text(d.name)
+			.duration(2000);
+	}
+
 
 	// load an entity from ID and build up html
 // used in Deeplink and Detail from List
