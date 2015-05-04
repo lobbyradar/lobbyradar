@@ -23,7 +23,7 @@ $(document).ready(function () {
 		.attr("id", "tip")
 		.style("position", "absolute")
 		.style("z-index", "10")
-		.style("visibility", "hidden");
+		.style('visibility', 'hidden');
 
 	// ruestung, verkehr, pharma, bank, seitenwechsler
 	var url = window.location.href; // get the url
@@ -56,7 +56,6 @@ $(document).ready(function () {
 				target: nodes[target._id] || (nodes[target._id] = target)
 			};
 		});
-
 
 		var parent = d3.select('#rel_viz');
 
@@ -200,12 +199,11 @@ $(document).ready(function () {
 		var x = parseFloat(this.getAttribute('cx')) + trans_x;
 		var y = parseFloat(this.getAttribute('cy')) + trans_y;
 		var r = parseFloat(this.getAttribute('r'));
-		return tooltip.transition().
-			style("visibility", "visible")
+		
+		tooltip.style("visibility", "visible")
 			.style("top", (y) + "px")
 			.style("left", (x+r) + "px")
-			.text(d.name)
-			.duration(2000);
+			.text(d.name);
 	}
 
 
