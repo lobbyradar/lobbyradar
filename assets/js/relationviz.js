@@ -215,11 +215,9 @@ $(document).ready(function () {
 
 		req = $.getJSON("/api/entity/get/" + id, {relations: true}, function (data) {
 			var $content = '<div class="entity">';
-			console.log(id);
 
 			if (data.hasOwnProperty("result")) {
 				var entity = data.result;
-				console.log(data.result);
 				var hasAddIncome = false;
 				var isCommittee = false;
 				var hasPartyDonation = false;
