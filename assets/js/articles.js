@@ -41,7 +41,7 @@ function makeCorsRequest() {
                         "<h3>" + $(this).find("teaserTitel").text() + "</h3>" +
                         "<span>" + moment($(this).find("datum").text()).format('LLLL') + "</span>" + 
                         "<p>" + $(this).find("teaserText").text() + "</p>" +
-                        "<a role='button' target='_blank' class='hidden-xs btn-ext btn btn-info' href='" + beitragsurl + "'>Zum Artikel gehen</a>" );
+                        "<a role='button' target='_blank' class='btn-ext btn btn-info' href='" + beitragsurl + "'>Zum Artikel gehen</a>" );
       $article.append( "<br/>" );
       $(".articles").append($article);
     });

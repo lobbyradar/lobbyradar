@@ -51,7 +51,7 @@ function setWidthHeight() {
   else {                        staticHeight = winHeight; }
   
   $('.fullscreen').css({  'width': winWidth, 'height': winHeight });
-  $('.static-page').css({  'width': winWidth, 'minHeight': staticHeight, 'height': staticHeight });
+  $('.static-page').css({  'width': winWidth, 'minHeight': staticHeight });
 }  
 
 
