@@ -49,13 +49,6 @@ function setWidthHeight() {
 
   if (docHeight > winHeight) {  staticHeight = docHeight; } 
   else {                        staticHeight = winHeight; }
-
-  console.log('WinHeight: ' + winHeight);
-  console.log('WinWidth: ' + winWidth);
-  console.log('docHeight: ' + docHeight);
-  console.log('staticHeight: ' + staticHeight);
-
-  // var staticHeight = docHeight;
   
   $('.fullscreen').css({  'width': winWidth, 'height': winHeight });
   $('.static-page').css({  'width': winWidth, 'minHeight': staticHeight, 'height': staticHeight });

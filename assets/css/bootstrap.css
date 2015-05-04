@@ -6286,16 +6286,6 @@ button.close {
     display: none !important;
   }
 }
-.entypo-whatsapp.shown {
-  display: block!important;
-}
-.entypo-whatsapp.shown a {
-  display: inline-block !important;
-  width: 100%!important;
-  height: 50px!important;
-  float: left!important;
-  margin-top: -40px !important;
-}
 * {
   -webkit-font-smoothing: antialiased;
 }
@@ -6328,7 +6318,6 @@ input.lobbysearch {
 .theme-switch {
   position: relative;
   z-index: 99;
-  /* Targetting Webkit browsers only. FF will show the dropdown arrow with so much padding. */
 }
 .theme-switch .theme-switch-label {
   float: left;
@@ -6336,31 +6325,6 @@ input.lobbysearch {
   color: #999;
   font-size: 16px!important;
   padding: 10px 0px 10px 15px;
-}
-.theme-switch select {
-  padding: 10px;
-  margin: 0;
-  width: 100%;
-  background: #FFF;
-  color: #999;
-  border: none;
-  font-weight: normal;
-  outline: none;
-  border-radius: 1px;
-  display: inline-block;
-  line-height: 1.4em;
-  font-size: 16px!important;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  cursor: pointer;
-  padding-right: 35px;
-}
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-  .theme-switch .theme-switch select {
-    font-weight: normal;
-    padding-right: 30px;
-  }
 }
 .theme-switch label {
   position: relative;
@@ -6388,6 +6352,32 @@ input.lobbysearch {
   position: absolute;
   pointer-events: none;
   display: block;
+}
+.theme-switch select {
+  padding: 10px;
+  margin: 0;
+  width: 100%;
+  background: #FFF;
+  color: #999;
+  border: none;
+  font-weight: normal;
+  outline: none;
+  border-radius: 1px;
+  display: inline-block;
+  line-height: 1.4em;
+  font-size: 16px!important;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  padding-right: 35px;
+}
+/* Targetting Webkit browsers only. FF will show the dropdown arrow with so much padding. */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .theme-switch select {
+    font-weight: normal;
+    padding-right: 30px;
+  }
 }
 .videoWrapper {
   position: relative;
@@ -6617,28 +6607,6 @@ body {
 .social-links a {
   float: left;
   margin-right: 5px;
-}
-.share-button.site-share.sharer-0 .social.networks-5.center {
-  margin-left: -135px !important;
-}
-.share-button.site-share.sharer-0 .social.networks-5 ul {
-  width: 360px!important;
-}
-.share-button.site-share.sharer-0 .social.networks-5 ul .entypo-whatsapp {
-  background: #0E9814;
-}
-.share-button.site-share.sharer-0 .social.networks-5 ul .entypo-whatsapp:before {
-  content: "\f232" !important;
-  font-family: "FontAwesome" !important;
-}
-@media (min-width: 1200px) {
-  .share-button.site-share.sharer-0 {
-    margin-right: 115px!important;
-  }
-  .share-button.site-share.sharer-0 label {
-    min-width: 120px;
-    text-align: center;
-  }
 }
 @media (min-width: 768px) {
   .zdf-header-grey .miz-logo {
@@ -7012,7 +6980,6 @@ p.first-p {
 }
 .viewport-visual {
   min-height: 250px;
-  border: 1px solid red;
   border: 0px;
 }
 .viewport-visual span {
