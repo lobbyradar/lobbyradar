@@ -6333,6 +6333,7 @@ input.lobbysearch {
 .theme-switch select {
   padding: 10px;
   margin: 0;
+  width: 100%;
   background: #FFF;
   color: #888;
   border: none;
@@ -6343,9 +6344,11 @@ input.lobbysearch {
   -moz-appearance: none;
   appearance: none;
   cursor: pointer;
+  padding-right: 70px;
 }
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
-  .theme-switch select {
+  .theme-switch .theme-switch select {
+    font-weight: normal;
     padding-right: 30px;
   }
 }
@@ -6353,15 +6356,11 @@ input.lobbysearch {
   position: relative;
 }
 .theme-switch label:after {
-  content: '< >';
-  font: 11px "Helvetica", monospace;
+  content: '\f103';
+  font: 16px FontAwesome, monospace;
   font-weight: bold;
   color: #888;
-  -webkit-transform: rotate(90deg);
-  -moz-transform: rotate(90deg);
-  -ms-transform: rotate(90deg);
-  transform: rotate(90deg);
-  right: 8px;
+  right: 14px;
   top: 14px;
   padding: 0 0 2px;
   border-bottom: 1px solid #FFF;
@@ -6370,7 +6369,7 @@ input.lobbysearch {
 }
 .theme-switch label:before {
   content: '';
-  right: 6px;
+  right: 12px;
   top: 12px;
   width: 20px;
   height: 20px;

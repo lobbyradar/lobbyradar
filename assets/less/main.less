@@ -78,6 +78,7 @@ input.lobbysearch {
   select {
     padding:10px;
     margin: 0;
+    width:100%;
     background: #FFF;
     color:#888;
     border:none;
@@ -88,39 +89,50 @@ input.lobbysearch {
     -moz-appearance:none;
     appearance:none;
     cursor:pointer;
-}
+    padding-right:70px;
 
-/* Targetting Webkit browsers only. FF will show the dropdown arrow with so much padding. */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-    select {padding-right:30px}
-}
+  }
 
-label {position:relative}
-label:after {
-    content:'< >';
-    font:11px "Helvetica", monospace;
-    font-weight:bold;
-    color:#888;
-    -webkit-transform:rotate(90deg);
-    -moz-transform:rotate(90deg);
-    -ms-transform:rotate(90deg);
-    transform:rotate(90deg);
-    right:8px; top:14px;
-    padding:0 0 2px;
-    border-bottom:1px solid #FFF;
-    position:absolute;
-    pointer-events:none;
-}
-label:before {
-    content:'';
-    right:6px; top:12px;
-    width:20px; height:20px;
-    background:#FFF;
-    position:absolute;
-    pointer-events:none;
-    display:block;
-}
-}
+  /* Targetting Webkit browsers only. FF will show the dropdown arrow with so much padding. */
+  @media screen and (-webkit-min-device-pixel-ratio:0) {
+    .theme-switch {
+
+      select {
+        font-weight:normal;
+        padding-right:30px;
+
+      }
+    }
+  }
+
+  label {position:relative}
+  label:after {
+      content:'\f103';
+      font:16px FontAwesome, monospace;
+      font-weight:bold;
+      color:#888;
+      // -webkit-transform:rotate(90deg);
+      // -moz-transform:rotate(90deg);
+      // -ms-transform:rotate(90deg);
+      // transform:rotate(90deg);
+      right:14px; top:14px;
+      padding:0 0 2px;
+      border-bottom:1px solid #FFF;
+      position:absolute;
+      pointer-events:none;
+  }
+  label:before {
+      content:'';
+      right:12px; top:12px;
+      width:20px; height:20px;
+      background:#FFF;
+      position:absolute;
+      pointer-events:none;
+      display:block;
+  }
+} //end .theme-switch
+
+
 .videoWrapper { // responsive videos, ration 16:9
   position: relative;
   padding-bottom: 56.25%; /* 16:9 */
