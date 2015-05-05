@@ -55,6 +55,9 @@ function makeCorsRequest() {
 
 }
 
-makeCorsRequest(); 
+// currently we import the articles manually ^^
+// but soon this will work.
+
+// makeCorsRequest(); 
 
 
