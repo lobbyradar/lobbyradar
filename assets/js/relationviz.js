@@ -251,7 +251,7 @@ $(document).ready(function () {
 				$content += '<div class="row row-results">';
 
 				if (hasPhotos) {
-					console.log('Entity has Photos');
+					//console.log('Entity has Photos');
 					$(entity.data).each(function (idx, data) {
 						if (data.format == 'photo' && data.key == 'photo' && data.desc == 'Foto') {
 							if (isExistant(data.value.url)) {
@@ -271,10 +271,10 @@ $(document).ready(function () {
 				var icon = '';
 				$(entity.data).each(function (idx, e) {
 					if (entity.type == 'entity' && e.key == 'partei') {
-						console.log('pie chart?');
+						//console.log('pie chart?');
 						icon =  '<i class="fa fa-pie-chart"></i>&nbsp;'; // PARTEI
 					} else if (entity.type == 'entity' && e.key == 'legalform') {
-						console.log('whatever?');
+						//console.log('whatever?');
 						icon = '<i class="fa fa-building-o"></i>&nbsp;'; // PARTEI
 					}
 				});
@@ -320,9 +320,9 @@ $(document).ready(function () {
 					$(entity.relations).each(function (idx, rel) {
 
 						// failsafe check if relation has entity and id
-						if (!(rel.hasOwnProperty("entity"))) return console.log("no entity", rel);
+						if (!(rel.hasOwnProperty("entity"))) return;// console.log("no entity", rel);
 						if (rel.entity.hasOwnProperty("_id") && !(rel.entity.hasOwnProperty("id"))) rel.entity.id = rel.entity._id;
-						if (!(rel.entity.hasOwnProperty("id")) || !rel.entity.id) return console.log("no id", rel)
+						if (!(rel.entity.hasOwnProperty("id")) || !rel.entity.id) return;// console.log("no id", rel)
 
 						// check for committee
 						isCommittee = (rel.tags.indexOf('committee') >= 0);
@@ -466,7 +466,7 @@ $(document).ready(function () {
 				}
 
 				if (hasPartyDonation) {
-					console.log('Entity has party donation');
+					//console.log('Entity has party donation');
 					$content += '<div class="row row-results">';
 					var parteiString = 'Parteispende';
 
@@ -518,7 +518,7 @@ $(document).ready(function () {
 
 				//if a person is a part of a committee
 				if (isCommittee) {
-					console.log('Entity is a part of a committee');
+					//console.log('Entity is a part of a committee');
 					$content += '<div class="row row-results">';
 					$content += '<div class="col-md-12"><h4><i class="fa fa-group"></i>&nbsp;Ausschüsse des Bundestags</h4></div>';
 					$content += '<div class="entity-relations-item">';
@@ -551,7 +551,7 @@ $(document).ready(function () {
 				//
 				if (hasAddIncome) {
 					if (entity.type == 'person') {
-						console.log('Entity has additional income');
+						//console.log('Entity has additional income');
 						$content += '<div class="row row-results">';
 						$content += '<div class="col-md-12"><h4><i class="fa fa-suitcase"></i>&nbsp;Tätigkeit neben dem Bundestagsmandat</h4></div>';
 						$content += '<div class="entity-relations-item">';
@@ -711,7 +711,7 @@ $(document).ready(function () {
 
 
 				if (hasLinks) {
-					console.log('Entity has Links');
+					//console.log('Entity has Links');
 					$content += '<div class="row row-results">';
 					$content += '<div class="col-md-12"><h4>Links</h4></div>';
 
@@ -726,7 +726,7 @@ $(document).ready(function () {
 				}
 
 				if (hasSource) {
-					console.log('Entity has Source');
+					//console.log('Entity has Source');
 					$content += '<div class="row row-results">';
 					$content += '<div class="col-md-12"><h4>Quellen</h4></div>';
 

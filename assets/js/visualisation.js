@@ -10,7 +10,7 @@ function loadList(id) {
 	req = $.getJSON("/api/autocomplete", {
 		q: id
 	}, function (data) {
-		console.log(data);
+		//console.log(data);
 		if (data === undefined || data.length == 0) {
 			var $ul = $("<div class='message'>Es konnten leider keine Einträge gefunden werden.</div>");
 			$(".result-list").slideDown("slow");
@@ -69,11 +69,11 @@ function loadEntity(id) {
 
 	req = $.getJSON("/api/entity/get/" + id, {relations: true}, function (data) {
 		var $content = '<div class="entity">';
-		console.log(id);
+		//console.log(id);
 
 		if (data.hasOwnProperty("result")) {
 			var entity = data.result;
-			console.log(data.result);
+			//console.log(data.result);
 			var hasAddIncome = false;
 			var isCommittee = false;
 			var hasPartyDonation = false;
@@ -98,7 +98,7 @@ function loadEntity(id) {
 			$content += '<div class="row row-results">';
 
 			if (hasPhotos) {
-				console.log('Entity has Photos');
+				//console.log('Entity has Photos');
 				$(entity.data).each(function (idx, data) {
 					if (data.format == 'photo' && data.key == 'photo' && data.desc == 'Foto') {
 						if (isExistant(data.value.url)) {
@@ -118,10 +118,10 @@ function loadEntity(id) {
 			var icon = '';
 			$(entity.data).each(function (idx, e) {
 				if (entity.type == 'entity' && e.key == 'partei') {
-					console.log('pie chart?');
+					//console.log('pie chart?');
 					icon =  '<i class="fa fa-pie-chart"></i>&nbsp;'; // PARTEI
 				} else if (entity.type == 'entity' && e.key == 'legalform') {
-					console.log('whatever?');
+					//console.log('whatever?');
 					icon = '<i class="fa fa-building-o"></i>&nbsp;'; // PARTEI
 				}
 			});
@@ -167,9 +167,9 @@ function loadEntity(id) {
 				$(entity.relations).each(function (idx, rel) {
 
 					// failsafe check if relation has entity and id
-					if (!(rel.hasOwnProperty("entity"))) return console.log("no entity", rel);
+					if (!(rel.hasOwnProperty("entity"))) return;// console.log("no entity", rel);
 					if (rel.entity.hasOwnProperty("_id") && !(rel.entity.hasOwnProperty("id"))) rel.entity.id = rel.entity._id;
-					if (!(rel.entity.hasOwnProperty("id")) || !rel.entity.id) return console.log("no id", rel)
+					if (!(rel.entity.hasOwnProperty("id")) || !rel.entity.id) return;// console.log("no id", rel)
 
 					// check for committee
 					isCommittee = (rel.tags.indexOf('committee') >= 0);
@@ -313,7 +313,7 @@ function loadEntity(id) {
 			}
 
 			if (hasPartyDonation) {
-				console.log('Entity has party donation');
+				//console.log('Entity has party donation');
 				$content += '<div class="row row-results">';
 				var parteiString = 'Parteispende';
 
@@ -365,7 +365,7 @@ function loadEntity(id) {
 
 			//if a person is a part of a committee
 			if (isCommittee) {
-				console.log('Entity is a part of a committee');
+				//console.log('Entity is a part of a committee');
 				$content += '<div class="row row-results">';
 				$content += '<div class="col-md-12"><h4><i class="fa fa-group"></i>&nbsp;Ausschüsse des Bundestags</h4></div>';
 				$content += '<div class="entity-relations-item">';
@@ -398,7 +398,7 @@ function loadEntity(id) {
 			//
 			if (hasAddIncome) {
 				if (entity.type == 'person') {
-					console.log('Entity has additional income');
+					//console.log('Entity has additional income');
 					$content += '<div class="row row-results">';
 					$content += '<div class="col-md-12"><h4><i class="fa fa-suitcase"></i>&nbsp;Tätigkeit neben dem Bundestagsmandat</h4></div>';
 					$content += '<div class="entity-relations-item">';
@@ -558,7 +558,7 @@ function loadEntity(id) {
 
 
 			if (hasLinks) {
-				console.log('Entity has Links');
+				//console.log('Entity has Links');
 				$content += '<div class="row row-results">';
 				$content += '<div class="col-md-12"><h4>Links</h4></div>';
 
@@ -573,7 +573,7 @@ function loadEntity(id) {
 			}
 
 			if (hasSource) {
-				console.log('Entity has Source');
+				//console.log('Entity has Source');
 				$content += '<div class="row row-results">';
 				$content += '<div class="col-md-12"><h4>Quellen</h4></div>';
 
@@ -760,7 +760,7 @@ $(document).ready(function () {
 		$("leaflet-control-zoom").css("display", 'block');
 		var str = window.location.href; // get the url
 		var entityID = str.split("/")[4]; // extract ID
-		console.log('entity.entry, ID: ' + entityID);
+		//console.log('entity.entry, ID: ' + entityID);
 		loadEntity(entityID);
 		$("#backtolist").css("display", 'none'); // explicit hide on deeplinks
 		$(".result-single").slideDown("slow");  // show me the single panel
@@ -773,7 +773,7 @@ $(document).ready(function () {
 		$(".overlay").css("display", 'none'); // we dont need the intro
 		var str = window.location.href; // get the url
 		var searchID = str.split("/")[4]; // extract ID
-		console.log('Search for: ' + searchID);
+		//console.log('Search for: ' + searchID);
 		loadList(searchID);
 	}
 

@@ -21,7 +21,7 @@ function makeCorsRequest() {
 
   var xhr = createCORSRequest('GET', url);
   if (!xhr) {
-    console.log('CORS not supported');
+    //console.log('CORS not supported');
     return;
   }
 
@@ -48,7 +48,7 @@ function makeCorsRequest() {
   };
 
   xhr.onerror = function() {
-    console.log('Woops, there was an error making the request.');
+    //console.log('Woops, there was an error making the request.');
   };
 
   xhr.send();

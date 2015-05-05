@@ -17,7 +17,7 @@ var NetworkViz = (function () {
 	var clickHandler = false;
 
 	function init() {
-		if (!graph) return console.error('graph.js not loaded ... yet')
+		if (!graph) return;// console.error('graph.js not loaded ... yet')
 
 		initialized = true;
 
