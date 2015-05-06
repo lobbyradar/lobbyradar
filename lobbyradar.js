@@ -88,8 +88,8 @@ app.use(cookieParser('domo arigato mr roboto'));
 app.use(session({
 	secret: 'domo arigato mr roboto',
 	resave: false,
-	saveUninitialized: false,
-	store: new sessionstore()
+	saveUninitialized: false
+	//,store: new sessionstore() //disabled crappy session store now (json ist written with every new user)
 }));
 app.use(passport.initialize());
 app.use(passport.session());
