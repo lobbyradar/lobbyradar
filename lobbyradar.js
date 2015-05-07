@@ -176,6 +176,8 @@ app.all("/api/route/:from/:to", function (req, res) {
 
 // whitelist
 app.get("/api/plugin/whitelist", function (req, res) {
+	res.sendfile('/var/www/lobbyradar.opendatacloud.de/lobbyradar/assets/data/whitelist.json');
+	return;
 	debug("get plugin whitelist");
 	api.whitelist_get(function(err, result){
 		res.type("json").status("200").json({err: ((err)?err.message:null), result: result});
@@ -184,6 +186,10 @@ app.get("/api/plugin/whitelist", function (req, res) {
 
 // export.
 app.all("/api/plugin/export", function (req, res) {
+
+	res.sendfile('/var/www/lobbyradar.opendatacloud.de/lobbyradar/assets/data/entities.json');
+	return;
+
 	debug("export");
 	api.ent_export(function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
