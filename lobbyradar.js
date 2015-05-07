@@ -190,6 +190,22 @@ app.all("/api/plugin/export", function (req, res) {
 	});
 });
 
+// whitelist
+app.get("/api/plugin/whitelist2", function (req, res) {
+	debug("get plugin whitelist");
+	api.whitelist_get(function(err, result){
+		res.type("json").status("200").json({err: ((err)?err.message:null), result: result});
+	});
+});
+
+// export.
+app.all("/api/plugin/export2", function (req, res) {
+	debug("export");
+	api.ent_export(function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
 // create entity. 
 app.post("/api/entity/create", function (req, res) {
 	debug("create entity for \"%s\"", req.body.ent.name);
