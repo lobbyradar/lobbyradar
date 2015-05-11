@@ -39,10 +39,11 @@ if (config.hasOwnProperty("nsa") && (config.nsa)) {
 		server: config.nsa,
 		service: "lobbyradar",
 		interval: "10s"
-	}).start(function(){
-		debug("started heartbeat");
-	});
-};
+	}).start(function () {
+			debug("started heartbeat");
+		});
+}
+;
 
 /* configure passport */
 passport.serializeUser(function (user, done) {
@@ -104,7 +105,7 @@ app.use(bodyparser.urlencoded({
 	extended: false
 }));
 
-var nice_error = function(err){
+var nice_error = function (err) {
 	if (!err) return;
 	return err.toString();
 };
@@ -113,11 +114,11 @@ var nice_error = function(err){
 app.use("/api", function (req, res, next) {
 	debug("request to api");
 
-	if (!(/^\/(users|fields)\//i.test(req.url)) && ["GET","HEAD"].indexOf(req.method) >= 0) {
+	if (!(/^\/(users|fields)\//i.test(req.url)) && ["GET", "HEAD"].indexOf(req.method) >= 0) {
 		debug("api access public");
 		return next();
 	}
-	if (req.user)  {
+	if (req.user) {
 		debug("api access by user %s", req.user.name);
 		return next();
 	}
@@ -130,8 +131,8 @@ app.use("/api", function (req, res, next) {
 
 // search api, get
 app.get("/api/search-fields", function (req, res) {
-	api.search_fields(function(err, result){
-		res.type("json").status("200").json({err: ((err)?err.message:null), result: result});
+	api.search_fields(function (err, result) {
+		res.type("json").status("200").json({err: ((err) ? err.message : null), result: result});
 	});
 });
 
@@ -140,11 +141,15 @@ app.get("/api/search", function (req, res) {
 
 	// sanitize query
 	if (!req.query.hasOwnProperty("q")) return res.type("json").status("200").json({error: "no query", result: []});
-	try { var query = JSON.parse(req.query.q); } catch (err) { return res.type("json").status("200").json({error: err.message, result: []}); }
+	try {
+		var query = JSON.parse(req.query.q);
+	} catch (err) {
+		return res.type("json").status("200").json({error: err.message, result: []});
+	}
 
 	// perform search
-	api.search(query, function(err, result){
-		res.type("json").status("200").json({err: ((err)?err.message:null), result: result});
+	api.search(query, function (err, result) {
+		res.type("json").status("200").json({err: ((err) ? err.message : null), result: result});
 	});
 });
 
@@ -156,12 +161,16 @@ app.post("/api/search", function (req, res) {
 
 	// try to parse if no json
 	if (typeof req.body.q === "object") var query = req.body.q;
-	else if (typeof req.body.q === "string") try { var query = JSON.parse(req.body.q); } catch (err) { return res.type("json").status("200").json({error: err.message, result: []}); }
+	else if (typeof req.body.q === "string") try {
+		var query = JSON.parse(req.body.q);
+	} catch (err) {
+		return res.type("json").status("200").json({error: err.message, result: []});
+	}
 	else return res.type("json").status("200").json({error: "invalid query", result: []});
 	
 	// perform search
-	api.search(q, function(err, result){
-		res.type("json").status("200").json({err: ((err)?err.message:null), result: result});
+	api.search(q, function (err, result) {
+		res.type("json").status("200").json({err: ((err) ? err.message : null), result: result});
 	});
 });
 
@@ -169,38 +178,36 @@ app.post("/api/search", function (req, res) {
 app.all("/api/route/:from/:to", function (req, res) {
 
 	// perform route search
-	api.route(req.params.from, req.params.to, function(err, result){
-		res.type("json").status("200").json({err: ((err)?err.message:null), result: result||null});
+	api.route(req.params.from, req.params.to, function (err, result) {
+		res.type("json").status("200").json({err: ((err) ? err.message : null), result: result || null});
 	});
 });
 
 // whitelist
 app.get("/api/plugin/whitelist", function (req, res) {
-	res.sendfile('/var/www/lobbyradar.opendatacloud.de/lobbyradar/assets/data/whitelist.json');
-	return;
 	debug("get plugin whitelist");
-	api.whitelist_get(function(err, result){
-		res.type("json").status("200").json({err: ((err)?err.message:null), result: result});
+	res.set('Content-Type', 'application/json');
+	res.sendfile('whitelist.json', {
+		maxAge: 60 * 60 * 1000,
+		root: __dirname + '/assets/data/'
 	});
 });
 
 // export.
 app.all("/api/plugin/export", function (req, res) {
-
-	res.sendfile('/var/www/lobbyradar.opendatacloud.de/lobbyradar/assets/data/entities.json');
-	return;
-
 	debug("export");
-	api.ent_export(function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
+	res.set('Content-Type', 'application/json');
+	res.sendfile('entities.json', {
+		maxAge: 60 * 60 * 1000,
+		root: __dirname + '/assets/data/'
 	});
 });
 
 // whitelist
 app.get("/api/plugin/whitelist2", function (req, res) {
 	debug("get plugin whitelist");
-	api.whitelist_get(function(err, result){
-		res.type("json").status("200").json({err: ((err)?err.message:null), result: result});
+	api.whitelist_get(function (err, result) {
+		res.type("json").status("200").json({err: ((err) ? err.message : null), result: result});
 	});
 });
 
@@ -252,24 +259,24 @@ app.get("/api/entity/list2", function (req, res) {
 
 // delete entity.
 app.post("/api/entity/delete/:id", function (req, res) {
-	debug("delete entity %s", req.params.id||req.body.id);
-	api.ent_delete(req.params.id||req.body.id, function (err, result) {
+	debug("delete entity %s", req.params.id || req.body.id);
+	api.ent_delete(req.params.id || req.body.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
 
 // update entity.
 app.post("/api/entity/update/:id", function (req, res) {
-	debug("update entity %s", req.params.id||req.body.id);
-	api.ent_update(req.params.id||req.body.id, req.body.ent, function (err, result) {
+	debug("update entity %s", req.params.id || req.body.id);
+	api.ent_update(req.params.id || req.body.id, req.body.ent, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
 
 // upmerge entity.
 app.post("/api/entity/upmerge/:id", function (req, res) {
-	debug("upmerge entity %s", req.params.id||req.body.id);
-	api.ent_upmerge(req.params.id||req.body.id, req.body.ent, function (err, result) {
+	debug("upmerge entity %s", req.params.id || req.body.id);
+	api.ent_upmerge(req.params.id || req.body.id, req.body.ent, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -293,7 +300,7 @@ app.all("/api/entity/types", function (req, res) {
 // entity tags.
 app.all("/api/entity/tags", function (req, res) {
 	debug("entity tags");
-	api.ent_tags(function(err, result) {
+	api.ent_tags(function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -317,7 +324,7 @@ app.post("/api/entity/multitags", function (req, res) {
 // create relation.
 app.post("/api/relation/create", function (req, res) {
 	debug("create relation");
-	api.rel_create(req.body.rel||req.body.relation, function (err, result) {
+	api.rel_create(req.body.rel || req.body.relation, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -332,24 +339,24 @@ app.all("/api/relation/get/:id", function (req, res) {
 
 // delete relation.
 app.post("/api/relation/delete/:id", function (req, res) {
-	debug("delete relation %s", req.params.id||req.body.id);
-	api.rel_delete(req.params.id||req.body.id, function (err, result) {
+	debug("delete relation %s", req.params.id || req.body.id);
+	api.rel_delete(req.params.id || req.body.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
 
 // update relation.
 app.post("/api/relation/update/:id", function (req, res) {
-	debug("update relation %s", req.params.id||req.body.id);
-	api.rel_update(req.params.id||req.body.id, req.body.rel||req.body.relation, function (err, result) {
+	debug("update relation %s", req.params.id || req.body.id);
+	api.rel_update(req.params.id || req.body.id, req.body.rel || req.body.relation, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
 
 // upmerge relation.
 app.post("/api/relation/upmerge/:id", function (req, res) {
-	debug("upmerge relation %s", req.params.id||req.body.id);
-	api.rel_upmerge(req.params.id||req.body.id, req.body.rel, function (err, result) {
+	debug("upmerge relation %s", req.params.id || req.body.id);
+	api.rel_upmerge(req.params.id || req.body.id, req.body.rel, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -399,7 +406,7 @@ app.get("/api/users/list", function (req, res) {
 	debug("list users");
 	if (!req.user || !req.user.admin) res.sendStatus(401);
 	api.user_list(function (err, result) {
-		result = (!result) ? null : result.map(function(u){
+		result = (!result) ? null : result.map(function (u) {
 			//remove password
 			return {
 				_id: u._id,
@@ -422,9 +429,9 @@ app.post("/api/users/create", function (req, res) {
 
 // delete user.
 app.all("/api/users/delete/:id", function (req, res) {
-	debug("delete user %s", req.params.id||req.body.id);
+	debug("delete user %s", req.params.id || req.body.id);
 	if (!req.user || !req.user.admin) res.sendStatus(401);
-	api.user_delete(req.params.id||req.body.id, function (err, result) {
+	api.user_delete(req.params.id || req.body.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -440,9 +447,9 @@ app.all("/api/users/get/:id", function (req, res) {
 
 // update user.
 app.post("/api/users/update/:id", function (req, res) {
-	debug("update user %s", req.params.id||req.body.id);
+	debug("update user %s", req.params.id || req.body.id);
 	if (!req.user || !req.user.admin) res.sendStatus(401);
-	api.user_update(req.params.id||req.body.id, req.body.user, function (err, result) {
+	api.user_update(req.params.id || req.body.id, req.body.user, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -497,8 +504,8 @@ app.post("/api/fields/create", function (req, res) {
 
 // delete field.
 app.all("/api/fields/delete/:id", function (req, res) {
-	debug("delete field %s", req.params.id||req.body.id);
-	api.field_delete(req.params.id||req.body.id, function (err, result) {
+	debug("delete field %s", req.params.id || req.body.id);
+	api.field_delete(req.params.id || req.body.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -521,8 +528,8 @@ app.all("/api/fields/get/:id", function (req, res) {
 
 // update field.
 app.post("/api/fields/update/:id", function (req, res) {
-	debug("update field %s", req.params.id||req.body.id);
-	api.field_update(req.params.id||req.body.id, req.body.field, function (err, result) {
+	debug("update field %s", req.params.id || req.body.id);
+	api.field_update(req.params.id || req.body.id, req.body.field, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -545,7 +552,7 @@ app.all("/api/tags/list", function (req, res) {
 
 // current user.
 app.get("/user", function (req, res) {
-	if (req.user) res.type("json").status("200").json({error: null, result: {name:req.user.name,admin:req.user.admin}});
+	if (req.user) res.type("json").status("200").json({error: null, result: {name: req.user.name, admin: req.user.admin}});
 	else res.type("json").sendStatus(401);
 });
 
@@ -556,7 +563,7 @@ app.post('/login', function (req, res, next) {
 		if (!user)  return res.sendStatus(401);
 		req.logIn(user, function (err) {
 			if (err) return next(err);
-			res.type("json").status("200").json({error: null, result: {name:user.name,admin:user.admin}});
+			res.type("json").status("200").json({error: null, result: {name: user.name, admin: user.admin}});
 		});
 	})(req, res, next);
 });
@@ -575,23 +582,25 @@ app.all("/api", function (req, res) {
 // entity page
 app.all("/entity/:id", function (req, res) {
 	api.ent_get(req.params.id, function (err, ent) {
-		if (err) return res.render("entity", { "err": err });
-		if (ent === null || !ent.hasOwnProperty("_id")) return res.status(404).render("404", { "err": "Diese Entität existiert nicht" });
+		if (err) return res.render("entity", {"err": err});
+		if (ent === null || !ent.hasOwnProperty("_id")) return res.status(404).render("404", {"err": "Diese Entität existiert nicht"});
 		api.ent_rels(ent._id, function (err, rels) {
 			ent.relations = rels;
 			// rework data
-			ent.data = ent.data.filter(function(d){
+			ent.data = ent.data.filter(function (d) {
 				switch (d.key) {
 					case "source":
 						if (!ent.hasOwnProperty("sources")) ent.sources = [];
 						ent.sources.push(d.value);
-					break;
+						break;
 					case "address":
 						if (!ent.hasOwnProperty("addresses")) ent.addresses = [];
 						ent.addresses.push(d.value);
-					break;
+						break;
 					// other stuff here
-					default: return true; break;
+					default:
+						return true;
+						break;
 				}
 				return false;
 			});
@@ -651,7 +660,7 @@ app.all("/list/:type/:letter?", function (req, res) {
 // autocomplete
 app.get("/api/autocomplete", function (req, res) {
 	if (!req.query.hasOwnProperty("q") || req.query.q === null || req.query.q === "") return res.status(200).json([]);
-	api.autocomplete(req.query.q, function(err, result){
+	api.autocomplete(req.query.q, function (err, result) {
 		res.status(200).json(result);
 	});
 });
@@ -659,7 +668,7 @@ app.get("/api/autocomplete", function (req, res) {
 // clean db.
 app.get("/api/db/clean", function (req, res) {
 	debug("clean db command");
-	if( (!req.user)|| (req.user.name!=='admin')) return res.status("200").send('nope');
+	if ((!req.user) || (req.user.name !== 'admin')) return res.status("200").send('nope');
 	api.db_clean(function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
@@ -667,38 +676,44 @@ app.get("/api/db/clean", function (req, res) {
 
 
 // index page
-app.all("/", function (req, res) { res.render("index", {}); });
+app.all("/", function (req, res) {
+	res.render("index", {});
+});
 
 // FAQ Page (static)
-app.get("/oft-gestellte-fragen", function (req, res) { res.render("faq", {}); });
+app.get("/oft-gestellte-fragen", function (req, res) {
+	res.render("faq", {});
+});
 
 // FAQ Page (static)
-app.get("/artikel", function (req, res) { res.render("articles", {}); });
+app.get("/artikel", function (req, res) {
+	res.render("articles", {});
+});
 
 // Abspann Page (static)
 app.get("/abspann", function (req, res) {
-		res.render("abspann", {});
+	res.render("abspann", {});
 });
 
 // Intro Page (static)
 app.get("/um-was-geht-es", function (req, res) {
-		res.render("intro", {});
+	res.render("intro", {});
 });
 
 // Abspann Page (static)
 app.get("/download-plugin", function (req, res) {
-		res.render("extension", {});
+	res.render("extension", {});
 });
 
 
 // Abspann Page (static)
 app.get("/ueber-uns", function (req, res) {
-		res.render("about", {});
+	res.render("about", {});
 });
 
 // Abspann Page (static)
 app.get("/verbindungssuche", function (req, res) {
-		res.render("app", {});
+	res.render("app", {});
 });
 
 //// Relation Viz
@@ -708,16 +723,17 @@ app.get("/relation/:tag", function (req, res) {
 
 // Search Page (static)
 app.get("/search/:id", function (req, res) {
-		res.render("app", {});
+	res.render("app", {});
 });
 
 // everything else is 404
 app.all("*", function (req, res) {
-	res.status(404).render("404", { "err": "Wir konnten unter dieser URL leider nichts finden." });
+	res.status(404).render("404", {"err": "Wir konnten unter dieser URL leider nichts finden."});
 });
 
 if (config.defaultadmin) {
-	api.user_create({name: config.defaultadmin.name, pass: config.defaultadmin.pass, admin: true}, function () {});
+	api.user_create({name: config.defaultadmin.name, pass: config.defaultadmin.pass, admin: true}, function () {
+	});
 }
 
 // determine listen method
@@ -762,13 +778,13 @@ process.on("SIGINT", function () {
 	if (sockfile) return fs.unlink(sockfile, function (err) {
 		if (err) return console.error("failed to clean up old socket", path.basename(sockfile), err);
 		debug("cleaned up old socket %s", path.basename(sockfile));
-		if (heartbeat) return heartbeat.end(function(){
+		if (heartbeat) return heartbeat.end(function () {
 			debug("ended heartbeat");
 			process.exit();
 		});
 		process.exit();
 	});
-	if (heartbeat) return heartbeat.end(function(){
+	if (heartbeat) return heartbeat.end(function () {
 		debug("ended heartbeat");
 		process.exit();
 	});
