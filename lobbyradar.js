@@ -1,8 +1,13 @@
 #!/usr/bin/env node
 
 // node modules
+var passportlocal = require("passport-local");
+var cookieParser = require('cookie-parser');
+var sessionstore = require('express-session-json')(session);
 var bodyparser = require("body-parser");
+var passport = require("passport");
 var mustache = require("mustache-express");
+var session = require('express-session');
 var express = require("express");
 var mongojs = require("mongojs");
 var moment = require("moment");
@@ -12,11 +17,6 @@ var path = require("path");
 var unq = require("unq");
 var nsa = require("nsa");
 var fs = require("fs");
-var passportlocal = require("passport-local");
-var passport = require("passport");
-var cookieParser = require('cookie-parser');
-var session = require('express-session');
-var sessionstore = require('express-session-json')(session);
 
 // config
 var config = require("./config.js");
@@ -27,10 +27,10 @@ if (!config.hasOwnProperty("listen")) {
 	process.exit();
 }
 
-// load mongojs 
+// database connection 
 var db = mongojs(config.db, ["entities", "relations", "users", "fields", "dataindex"]);
 
-// local modules
+// api instance
 var api = require("./lib/api.js")(config.api, db);
 
 // use nsa if configured
@@ -39,17 +39,15 @@ if (config.hasOwnProperty("nsa") && (config.nsa)) {
 		server: config.nsa,
 		service: "lobbyradar",
 		interval: "10s"
-	}).start(function () {
-			debug("started heartbeat");
-		});
-}
-;
+	}).start(function(){
+		debug("started heartbeat");
+	});
+};
 
-/* configure passport */
+// configure passport
 passport.serializeUser(function (user, done) {
 	done(null, user._id);
 });
-
 passport.deserializeUser(function (id, done) {
 	api.user_get(id, function (err, user) {
 		if (err)
@@ -58,7 +56,6 @@ passport.deserializeUser(function (id, done) {
 			done(null, user);
 	});
 });
-
 passport.use(new passportlocal.Strategy(function (username, password, done) {
 	api.user_auth(username, password, function (err, user) {
 		if ((err) || (!user)) {
@@ -85,9 +82,10 @@ app.use("/assets", express.static(path.resolve(__dirname, "assets")));
 // static backend
 app.use("/station", express.static(path.resolve(__dirname, "station")));
 
-app.use(cookieParser('domo arigato mr roboto'));
+// cookie parser
+app.use(cookieParser(config.secret));
 app.use(session({
-	secret: 'domo arigato mr roboto',
+	secret: config.secret,
 	resave: false,
 	saveUninitialized: false
 	//,store: new sessionstore() //disabled crappy session store now (json ist written with every new user)
@@ -105,6 +103,7 @@ app.use(bodyparser.urlencoded({
 	extended: false
 }));
 
+// helper method for resutning errors
 var nice_error = function (err) {
 	if (!err) return;
 	return err.toString();

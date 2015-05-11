@@ -35,6 +35,9 @@ module.exports = {
 		}
 	},
 
+	// cookie/session secret
+	secret: "<cookie secret>",
+
 	// default credentials for admin interface
 	defaultadmin: {
 		name: "admin",
