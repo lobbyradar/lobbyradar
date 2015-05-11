@@ -1,217 +1,119 @@
 # Lobbyradar
 
-## Todo
+Lobbyradar ist ein gemeinsames Projekt von ZDF [heute.de](http://www.heute.de/), dem [Medieninnovationszentrum Babelsberg MIZ](http://www.miz-babelsberg.de/) und [OpenDataCity](https://opendatacity.de/). 
 
-* check data consistency
-	* orphaned relations ✓
-	* prename/surname mixup from import ✓
-	* double data sets from different imports
-* complex search interface ✓
-* creaxtend relation type consitency
-* relation aggregation
-* suggestion api
-* updates api
-* whitelist backend api ✓
+Unternehmen, Verbände und Vereine – alle haben Interessen, die sie durchsetzen wollen. Deshalb stehen sie in stetigem Austausch miteinander und mit der Politik, um ihre Interessen zu vertreten. Damit sind sie ein Teil des politischen Systems. Schwierig wird es, wenn Lobbygruppen mit mehr Geld oder besseren Kontakten mehr Einfluss haben als Lobbys mit weniger Mitarbeitern und finanziellen Möglichkeiten. Und wenn niemand außerhalb etwas davon mitbekommt. Dann besteht die Gefahr, dass Politiker nicht im Sinne der Allgemeinheit entscheiden, sondern sich die Interessen Einzelner durchsetzen. Der ZDF-Lobbyradar zeigt Verbindungen zwischen Politik, Wirtschaft und Interessenvertretern und macht Lobbyismus transparenter. 
 
-## Cached Data
+## Installation
 
-For high load environments, results may be cached as staic files:
+Stellen Sie sicher, dass [node.js](https://nodejs.org/) oder [io.js](https://nodejs.org/) installiert sind.
+Benötigt werden außerdem [MongoDB](https://www.mongodb.org/) und [GraphicsMagick](http://www.graphicsmagick.org/).
 
-* `/api/plugin/whitelist` — [/assets/cache/whitelist.json](/assets/cache/whitelist.json) and [/assets/cache/whitelist.json.gz](/assets/cache/whitelist.json.gz)
-* `/api/plugin/export` — [/assets/cache/entities.json](/assets/cache/entities.json) and [/assets/cache/entities.json.gz](/assets/cache/entities.json.gz)
-
-Their use is recommended and may be enforced. Those files are recreated in an interval of 5 minutes. 
-
-## HTTP API
-
-### `GET /api/plugin/whitelist`
-
-Get domain whitelist for plugin
-
-### `GET /api/plugin/export`
-
-Get entity export for plugin
-
-### `GET /api/search-fields`
-
-Get a list of Search fields and their data types.
-
-### `POST /api/search` or `GET /api/search?q={query}`
-
-Search entities and relations. When calling this API endpoint a json object query `q` has 
-to be submitted via POST data or GET parameter:
-
-``` javascript
-{
-	"collection": "entities",			// which collection to query
-	"type": "person",						// which type to query
-	"query": [{								// query elements
-		"field": "activity.year",		// field
-		"operation": "number.equal",	// comparison operator
-		"value": 2013						// comparison value
-	},{
-		"field": "url",
-		"operation": "string.match",
-		"value": "bundestag.de"
-	}]
-};
+```
+git clone https://github.com/lobbyradar/lobbyradar.git
+cd lobbyradar
+npm install
+cp config.js.dist config.js
 ```
 
-Operators for each data types are:
+Passen Sie nun die Datei `config.js` an.
 
-* `string.match`
-* `url.match`
-* `bool.is`
-* `number.equal`
-* `number.greater`
-* `number.lesser`
-* `number.differs`
-* `number.between`
-* `date.equal`
-* `date.greater`
-* `date.lesser`
-* `date.differs`
-* `date.between`
+## Ausführen des Servers
 
-### `GET /api/autocomplete?q={query}`
+Die Software startet einen Webserver, je nach Konfiguration hört dieser auf einem Socket oder einem TCP-Port. 
 
-Fast entity autocompletion search by names and aliases
-
-### `GET /api/entity/get/{id}?relations=true`
-
-Get data for an entity specified by `id`. Include relations if `relations` parameter is set.
-
-### `GET /api/entity/list?letter={letter|}&words={words|}&type={person|entity|}` _deprecated_
-
-List all entities specified by starting `letter`, containing `words` and matching `type`
-
-### `GET /api/entity/types`
-
-List entity types
-
-### `GET /api/entity/tags`
-
-List entity tags
-
-### `GET /api/entity/export` _deprecated, use `/api/plugin/export` instead_
-
-Export entities as subset of entities containing entity type, name, aliases and relations in minimalized form.
-
-``` javascript
-{
-	id: [							// entity id
-		type,						// entity type
-		[name, alias, ...],	// name and aliases
-		[id, ...]				// ids of related entities
-	]
-}
-``` 
-
-### `GET /api/relation/types`
-
-List relation types
-
-### `GET /api/relation/tags`
-
-List relation tags
-
-### `GET /api/relation/list`
-
-List all relations
-
-### `GET /api/route/{entid}/{entid}`
-
-Find shortest connection(s) between entities. Result:
-
-```javascript
-{
-	"routes": [
-		[entid, entid, entid, ...],
-		[entid, entid, entid, ...],
-		...
-	],
-	"entities": {
-		entid: {
-			"name": "<name>", 
-			"type":"<type>"
-		},
-		...
-	},
-	"relations": {
-		relid: {
-			"type": type,
-			"entities": [entid, entid]
-		},
-		...
-	},
-	"map": {
-		entid: {
-			entid: relid,
-			...
-		},
-		...
-	}
-}
+```
+DEBUG=app,api node ./lobbyradar.js
 ```
 
-## Data API
+## Anlegen, Bearbeiten und Importieren von Daten
 
-See [api.md](./api.md)
+Daten können über mehrere Wege eingegeben werden.
 
-## Data Structure
+### Datenbank-Import
 
-### Entity Object
+Die einfachste Möglichkeit ist ein Import der gesamten Datenbank mittels `mongorestore`. 
 
-``` javascript
-{
-	_id: id,	// mongodb id
-	importer: "str", // importer string
-	created: (new Date()), // date object
-	updated: (new Date()), // date object
-	type: "person", // string
-	tags: ["tag"], // array of strings
-	name: "Name", // string
-	slug: "name", // ascii representation of name
-	aliases: ["Name", "Alt. Name"], // array of strings
-	data: [{
-		id: id, // ObjectID()
-		key: "address",
-		value: {what:ever},
-		desc: "Description",
-		format: "address", // string, number, address, list, date, ...
-		auto: true,
-		created: (new Date()), // date object
-		updated: (new Date()) // date object
-	}],
-	search: [
-		"name",
-		"alt name"
-	] // searchable ascii representations of name and aliases
-}
-``` 
+```
+git clone https://github.com/lobbyradar/dumps.git
+mongorestore --db lobbyradar --collection entities dumps/entities.bson
+mongorestore --db lobbyradar --collection relations dumps/relations.bson
+```
 
-### Relation
+Dumps der Datenbank finden sich [in unserem Github-Repository](https://github.com/lobbyradar/dumps).
+
+### Importer
+
+Eine Möglichkeit, Daten automatisiert einzugeben, ist die Benutzung eines Daten-Importers. Diese werden gesondert veröffentlicht.
+
+### Verwaltungs-Oberfläche
+
+Über die Verwaltungs-Oberfläche können Einträge bequem per Webbrowser verwaltet werden. Die URL lautet
+
+`http://<server>:<port>/station`
+
+### Software API
+
+Daten können direkt über die Software-API eingegeben werden. Beispiel-Code:
 
 ``` javascript
-{
-	_id: id, // mongodb id
-	importer: "str", // importer string
-	created: (new Date()), // date object
-	updated: (new Date()), // date object
-	entities: [id, id], // from, to; mongodb ids
-	type: "employee", // string
-	tags: ["tag"], // array of strings
-	weight: 0, // float, 0..1
-	data: [{
-		id: id, // ObjectID()
-		key: "address",
-		value: {what:ever},
-		desc: "Description",
-		format: "address", // string, number, address, list, date, ...
-		auto: true,
-		created: (new Date()), // date object
-		updated: (new Date()) // date object
-	}]
-}
-``` 
+var config = require("config.js")
+var mongojs = require("mongojs");
+var db = mongojs(config.db, ["entities","relations"]);
+var api = require(path.resolve(__dirname, "../lib/api.js"))(config.api, db);
+
+// create entity
+api.ent_create({
+	name: "Name",
+	type: "person",
+	tags: ["tag1","tag2"],
+	aliases: [],
+	data: [] // see docs
+}, function(err, id_1){
+	// create another entity
+	api.ent_create({
+		name: "Firma",
+		type: "entity",
+		tags: ["tag1","tag2"],
+		aliases: [],
+		data: []
+	}, function(err, id_2){
+		// create relation between entities
+		api.rel_create({
+			entities: [id_1, id_2],
+			type: "type", // see doc/types.md
+			tags: ["tag1"],
+			weight: 1,
+			data: []
+		}, function(err, rel_id){
+			console.log("created relation "+rel_id+" between "+id_1+" and "+id_2+"");
+		});
+	});
+});
+```
+
+Eine audführliche Beschreibung der Schnittstelle findet sich [in der Dokumentation](./doc/api.md);
+
+## Generieren der Netzwerk-Visualisierung
+
+Die Netzwerk-Visualisierung wird aus dem gesamten Datenbestand in Form von Karten-Kacheln gerendert.
+
+```
+cd ./lobbynetwork
+node ./1_get_data.js
+node ./2_update_layout.js
+node ./3_export_positions.js
+node ./4_generate_tiles.js
+```
+
+## Open Source
+
+Die Quellen des Projektes stehen unter der [MIT Lizenz](./license,md) offen.
+
+## Open Data
+
+Die [Daten](https://github.com/lobbyradar/dumps) können unter [Open Data Commons Attribution License](http://opendatacommons.org/licenses/by/1.0/) verwendet werden.
+
+
+
 
