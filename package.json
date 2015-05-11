@@ -3,15 +3,12 @@
   "version": "0.1.1",
   "description": "lobbyradar api",
   "main": "lobbyradar.js",
-  "scripts": {
-    "test": "null"
-  },
   "repository": {
     "type": "git",
-    "url": "https://git.opendatacity.de/opendatacity/lobbyradar.git"
+    "url": "https://github.com/lobbyradar/lobbyradar.git"
   },
-  "author": "yetzt <node@yetzt.me> (https://yetzt.me/)",
-  "license": "Public Domain",
+  "author": "Datenfreunde UG <info@datenfreunde.com> (http://datenfreunde.de/)",
+  "license": "MIT",
   "dependencies": {
     "JSONStream": "^0.10.0",
     "async": "^0.9.0",
