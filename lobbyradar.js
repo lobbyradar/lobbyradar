@@ -3,11 +3,11 @@
 // node modules
 var passportlocal = require("passport-local");
 var cookieParser = require('cookie-parser');
-var sessionstore = require('express-session-json')(session);
 var bodyparser = require("body-parser");
 var passport = require("passport");
 var mustache = require("mustache-express");
 var session = require('express-session');
+var sessionstore = require('express-session-json')(session);
 var express = require("express");
 var mongojs = require("mongojs");
 var moment = require("moment");
@@ -88,7 +88,7 @@ app.use(session({
 	secret: config.secret,
 	resave: false,
 	saveUninitialized: false
-	//,store: new sessionstore() //disabled crappy session store now (json ist written with every new user)
+	//,store: new sessionstore() //disabled crappy session store now (json is written with _every_ request)
 }));
 app.use(passport.initialize());
 app.use(passport.session());
