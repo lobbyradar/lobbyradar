@@ -52,6 +52,14 @@ Eine Möglichkeit, Daten automatisiert einzugeben, ist die Benutzung eines Daten
 
 `http://<server>:<port>/station`
 
+Vorher die Komponenten mit [Bower](http://bower.io/) installieren
+
+```
+cd station/assets
+bower install
+```
+
+
 ### Software API
 
 Daten können direkt über die Software-API eingegeben werden. Beispiel-Code:
@@ -92,7 +100,7 @@ api.ent_create({
 });
 ```
 
-Eine audführliche Beschreibung der Schnittstelle findet sich [in der Dokumentation](./doc/api.md);
+Eine ausführliche Beschreibung der Schnittstelle findet sich [in der Dokumentation](./doc/api.md);
 
 ## Generieren der Netzwerk-Visualisierung
 
