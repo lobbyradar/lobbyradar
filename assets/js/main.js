@@ -56,13 +56,10 @@ function setWidthHeight() {
 
 
 function isExistant(el) {
-  if (el !== undefined) {
-    if (el !== 0 || undefined || '' || null) {
-      return true;
-    }
+  if (el == null || el === '' || el === 0) {
+      return false;
   }
-  // else
-  return false;
+  return true;
 }
 
 // Numberformating
