@@ -20,7 +20,7 @@
     "dur": "0.0.2",
     "express": "^4.10.4",
     "express-session": "^1.10.0",
-    "express-session-json": "0.0.8",
+    "express-session-json-store": "github:ffalt/express-session-json-store",
     "gm": "^1.17.0",
     "moment": "^2.8.4",
     "mongojs": "^0.18.0",

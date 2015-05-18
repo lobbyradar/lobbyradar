@@ -7,7 +7,7 @@ var bodyparser = require("body-parser");
 var passport = require("passport");
 var mustache = require("mustache-express");
 var session = require('express-session');
-var sessionstore = require('express-session-json')(session);
+var sessionJSONstore = require('express-session-json-store')(session);
 var express = require("express");
 var mongojs = require("mongojs");
 var moment = require("moment");
@@ -39,10 +39,10 @@ if (config.hasOwnProperty("nsa") && (config.nsa)) {
 		server: config.nsa,
 		service: "lobbyradar",
 		interval: "10s"
-	}).start(function(){
-		debug("started heartbeat");
-	});
-};
+	}).start(function () {
+			debug("started heartbeat");
+		});
+}
 
 // configure passport
 passport.serializeUser(function (user, done) {
@@ -79,19 +79,29 @@ app.set("views", path.resolve(__dirname, "assets/views"));
 // static assets
 app.use("/assets", express.static(path.resolve(__dirname, "assets")));
 
-// static backend
-app.use("/station", express.static(path.resolve(__dirname, "station")));
-
 // cookie parser
 app.use(cookieParser(config.secret));
-app.use(session({
+var sessionMiddleware = session({
 	secret: config.secret,
 	resave: false,
-	saveUninitialized: false
-	//,store: new sessionstore() //disabled crappy session store now (json is written with _every_ request)
-}));
-app.use(passport.initialize());
-app.use(passport.session());
+	saveUninitialized: false,
+	store: new sessionJSONstore({
+		path: __dirname,
+		ttl: 0 //station session are valid forever
+	})
+});
+
+//app.use(passport.initialize());
+
+var passportMiddleware = passport.initialize();
+var passportSessionMiddleware = passport.session();
+function sessionHandler(req, res, next) {
+	sessionMiddleware(req, res, function () {
+		passportMiddleware(req, res, function () {
+			passportSessionMiddleware(req, res, next);
+		})
+	});
+}
 
 // parse application/json
 app.use(bodyparser.json({
@@ -218,14 +228,6 @@ app.all("/api/plugin/export2", function (req, res) {
 	});
 });
 
-// create entity. 
-app.post("/api/entity/create", function (req, res) {
-	debug("create entity for \"%s\"", req.body.ent.name);
-	api.ent_create(req.body.ent, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
 // get entity.
 app.all("/api/entity/get/:id", function (req, res) {
 	debug("get entity %s", req.params.id);
@@ -256,38 +258,6 @@ app.get("/api/entity/list2", function (req, res) {
 	});
 });
 
-// delete entity.
-app.post("/api/entity/delete/:id", function (req, res) {
-	debug("delete entity %s", req.params.id || req.body.id);
-	api.ent_delete(req.params.id || req.body.id, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
-// update entity.
-app.post("/api/entity/update/:id", function (req, res) {
-	debug("update entity %s", req.params.id || req.body.id);
-	api.ent_update(req.params.id || req.body.id, req.body.ent, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
-// upmerge entity.
-app.post("/api/entity/upmerge/:id", function (req, res) {
-	debug("upmerge entity %s", req.params.id || req.body.id);
-	api.ent_upmerge(req.params.id || req.body.id, req.body.ent, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
-// merge entities.
-app.post("/api/entity/merge", function (req, res) {
-	debug("merge entity %s", req.body.ids);
-	api.ent_merge(req.body.ids, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
 // entity types.
 app.all("/api/entity/types", function (req, res) {
 	debug("entity types");
@@ -312,50 +282,10 @@ app.all("/api/entity/export", function (req, res) {
 	});
 });
 
-// set tags on multiple entities.
-app.post("/api/entity/multitags", function (req, res) {
-	debug("multitags");
-	api.ent_multitags(req.body.mode, req.body.tag, req.body.ids, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
-// create relation.
-app.post("/api/relation/create", function (req, res) {
-	debug("create relation");
-	api.rel_create(req.body.rel || req.body.relation, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
 // get relation.
 app.all("/api/relation/get/:id", function (req, res) {
 	debug("get relation %s", req.params.id);
 	api.rel_get(req.params.id, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
-// delete relation.
-app.post("/api/relation/delete/:id", function (req, res) {
-	debug("delete relation %s", req.params.id || req.body.id);
-	api.rel_delete(req.params.id || req.body.id, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
-// update relation.
-app.post("/api/relation/update/:id", function (req, res) {
-	debug("update relation %s", req.params.id || req.body.id);
-	api.rel_update(req.params.id || req.body.id, req.body.rel || req.body.relation, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
-// upmerge relation.
-app.post("/api/relation/upmerge/:id", function (req, res) {
-	debug("upmerge relation %s", req.params.id || req.body.id);
-	api.rel_upmerge(req.params.id || req.body.id, req.body.rel, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -372,14 +302,6 @@ app.all("/api/relation/types", function (req, res) {
 app.all("/api/relation/tags", function (req, res) {
 	debug("relation tags");
 	api.rel_tags(function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
-// set tags on multiple entities.
-app.post("/api/relation/multitags", function (req, res) {
-	debug("multitags relation");
-	api.rel_multitags(req.body.mode, req.body.tag, req.body.ids, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -417,15 +339,6 @@ app.get("/api/users/list", function (req, res) {
 	});
 });
 
-// create user.
-app.post("/api/users/create", function (req, res) {
-	debug("create user", req.body.user);
-	if (!req.user || !req.user.admin) res.sendStatus(401);
-	api.user_create(req.body.user, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
 // delete user.
 app.all("/api/users/delete/:id", function (req, res) {
 	debug("delete user %s", req.params.id || req.body.id);
@@ -444,15 +357,6 @@ app.all("/api/users/get/:id", function (req, res) {
 	});
 });
 
-// update user.
-app.post("/api/users/update/:id", function (req, res) {
-	debug("update user %s", req.params.id || req.body.id);
-	if (!req.user || !req.user.admin) res.sendStatus(401);
-	api.user_update(req.params.id || req.body.id, req.body.user, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
 // get whitelist.
 app.get("/api/whitelist/list", function (req, res) {
 	debug("list whitelist");
@@ -461,42 +365,10 @@ app.get("/api/whitelist/list", function (req, res) {
 	});
 });
 
-// create whitelist.
-app.post("/api/whitelist/create", function (req, res) {
-	debug("create whitelist entry", req.body.site);
-	api.whitelist_add(req.body.site, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
-// update whitelist.
-app.post("/api/whitelist/update", function (req, res) {
-	debug("update whitelist entry", req.body.site, req.body.replacement);
-	api.whitelist_update(req.body.site, req.body.replacement, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
-// delete whitelist.
-app.post("/api/whitelist/delete", function (req, res) {
-	debug("delete whitelist entry %s", req.body.site);
-	api.whitelist_remove(req.body.site, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
 // get fields.
 app.get("/api/fields/list", function (req, res) {
 	debug("list fields");
 	api.field_list(req.query.mode, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
-// create field.
-app.post("/api/fields/create", function (req, res) {
-	debug("create field", req.body.field);
-	api.field_create(req.body.field, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -525,14 +397,6 @@ app.all("/api/fields/get/:id", function (req, res) {
 	});
 });
 
-// update field.
-app.post("/api/fields/update/:id", function (req, res) {
-	debug("update field %s", req.params.id || req.body.id);
-	api.field_update(req.params.id || req.body.id, req.body.field, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
 // get fields from entities.
 app.get("/api/fields/entities", function (req, res) {
 	debug("get fields from entities");
@@ -547,30 +411,6 @@ app.all("/api/tags/list", function (req, res) {
 	api.tags(req.query.type, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
-});
-
-// current user.
-app.get("/user", function (req, res) {
-	if (req.user) res.type("json").status("200").json({error: null, result: {name: req.user.name, admin: req.user.admin}});
-	else res.type("json").sendStatus(401);
-});
-
-// login user.
-app.post('/login', function (req, res, next) {
-	passport.authenticate('local', function (err, user, info) {
-		if (err) return next(err);
-		if (!user)  return res.sendStatus(401);
-		req.logIn(user, function (err) {
-			if (err) return next(err);
-			res.type("json").status("200").json({error: null, result: {name: user.name, admin: user.admin}});
-		});
-	})(req, res, next);
-});
-
-// logout user.
-app.post('/logout', function (req, res, next) {
-	req.logout();
-	res.sendStatus(200);
 });
 
 // default api method.
@@ -673,7 +513,6 @@ app.get("/api/db/clean", function (req, res) {
 	});
 });
 
-
 // index page
 app.all("/", function (req, res) {
 	res.render("index", {});
@@ -704,7 +543,6 @@ app.get("/download-plugin", function (req, res) {
 	res.render("extension", {});
 });
 
-
 // Abspann Page (static)
 app.get("/ueber-uns", function (req, res) {
 	res.render("about", {});
@@ -715,7 +553,7 @@ app.get("/verbindungssuche", function (req, res) {
 	res.render("app", {});
 });
 
-//// Relation Viz
+// Relation Viz
 app.get("/relation/:tag", function (req, res) {
 	res.render("relation", {tag: req.params.tag});
 });
@@ -723,6 +561,185 @@ app.get("/relation/:tag", function (req, res) {
 // Search Page (static)
 app.get("/search/:id", function (req, res) {
 	res.render("app", {});
+});
+
+
+/*
+ * backend api
+ */
+
+// create entity.
+app.post("/api/entity/create", sessionHandler, function (req, res) {
+	debug("create entity for \"%s\"", req.body.ent.name);
+	api.ent_create(req.body.ent, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// create user.
+app.post("/api/users/create", sessionHandler, function (req, res) {
+	debug("create user", req.body.user);
+	if (!req.user || !req.user.admin) res.sendStatus(401);
+	api.user_create(req.body.user, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// update user.
+app.post("/api/users/update/:id", sessionHandler, function (req, res) {
+	debug("update user %s", req.params.id || req.body.id);
+	if (!req.user || !req.user.admin) res.sendStatus(401);
+	api.user_update(req.params.id || req.body.id, req.body.user, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// create whitelist.
+app.post("/api/whitelist/create", sessionHandler, function (req, res) {
+	debug("create whitelist entry", req.body.site);
+	api.whitelist_add(req.body.site, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// update whitelist.
+app.post("/api/whitelist/update", sessionHandler, function (req, res) {
+	debug("update whitelist entry", req.body.site, req.body.replacement);
+	api.whitelist_update(req.body.site, req.body.replacement, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// delete whitelist.
+app.post("/api/whitelist/delete", sessionHandler, function (req, res) {
+	debug("delete whitelist entry %s", req.body.site);
+	api.whitelist_remove(req.body.site, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// create field.
+app.post("/api/fields/create", sessionHandler, function (req, res) {
+	debug("create field", req.body.field);
+	api.field_create(req.body.field, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// update field.
+app.post("/api/fields/update/:id", sessionHandler, function (req, res) {
+	debug("update field %s", req.params.id || req.body.id);
+	api.field_update(req.params.id || req.body.id, req.body.field, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// static backend
+app.use("/station", sessionHandler, express.static(path.resolve(__dirname, "station")));
+
+// current user.
+app.get("/user", sessionHandler, function (req, res) {
+	if (req.user) res.type("json").status("200").json({error: null, result: {name: req.user.name, admin: req.user.admin}});
+	else res.type("json").sendStatus(401);
+});
+
+// login user.
+app.post('/login', sessionHandler, function (req, res, next) {
+	passport.authenticate('local', function (err, user, info) {
+		if (err) return next(err);
+		if (!user)  return res.sendStatus(401);
+		req.logIn(user, function (err) {
+			if (err) return next(err);
+			req.session.authenticated = true;
+			res.type("json").status("200").json({error: null, result: {name: user.name, admin: user.admin}});
+		});
+	})(req, res, next);
+});
+
+// logout user.
+app.post('/logout', sessionHandler, function (req, res, next) {
+	req.logout();
+	res.sendStatus(200);
+});
+
+// set tags on multiple entities.
+app.post("/api/relation/multitags", sessionHandler, function (req, res) {
+	debug("multitags relation");
+	api.rel_multitags(req.body.mode, req.body.tag, req.body.ids, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// delete entity.
+app.post("/api/entity/delete/:id", sessionHandler, function (req, res) {
+	debug("delete entity %s", req.params.id || req.body.id);
+	api.ent_delete(req.params.id || req.body.id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// update entity.
+app.post("/api/entity/update/:id", sessionHandler, function (req, res) {
+	debug("update entity %s", req.params.id || req.body.id);
+	api.ent_update(req.params.id || req.body.id, req.body.ent, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// upmerge entity.
+app.post("/api/entity/upmerge/:id", sessionHandler, function (req, res) {
+	debug("upmerge entity %s", req.params.id || req.body.id);
+	api.ent_upmerge(req.params.id || req.body.id, req.body.ent, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// merge entities.
+app.post("/api/entity/merge", sessionHandler, function (req, res) {
+	debug("merge entity %s", req.body.ids);
+	api.ent_merge(req.body.ids, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// set tags on multiple entities.
+app.post("/api/entity/multitags", sessionHandler, function (req, res) {
+	debug("multitags");
+	api.ent_multitags(req.body.mode, req.body.tag, req.body.ids, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// create relation.
+app.post("/api/relation/create", sessionHandler, function (req, res) {
+	debug("create relation");
+	api.rel_create(req.body.rel || req.body.relation, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// delete relation.
+app.post("/api/relation/delete/:id", sessionHandler, function (req, res) {
+	debug("delete relation %s", req.params.id || req.body.id);
+	api.rel_delete(req.params.id || req.body.id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// update relation.
+app.post("/api/relation/update/:id", sessionHandler, function (req, res) {
+	debug("update relation %s", req.params.id || req.body.id);
+	api.rel_update(req.params.id || req.body.id, req.body.rel || req.body.relation, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// upmerge relation.
+app.post("/api/relation/upmerge/:id", sessionHandler, function (req, res) {
+	debug("upmerge relation %s", req.params.id || req.body.id);
+	api.rel_upmerge(req.params.id || req.body.id, req.body.rel, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
 });
 
 // everything else is 404
