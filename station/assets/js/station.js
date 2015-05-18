@@ -73,6 +73,11 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			templateUrl: "partials/user.html",
 			controller: 'UserEditCtrl'
 		})
+		.state('import', {
+			url: "/import",
+			templateUrl: "partials/import.html",
+			controller: 'ImportCtrl'
+		})
 		.state('login', {
 			url: "/login",
 			templateUrl: "partials/login.html",
@@ -2179,6 +2184,10 @@ app.controller('FieldListEditCtrl', function ($scope) {
 			list.splice(i, 1);
 		}
 	};
+});
+
+app.controller('ImportCtrl', function ($scope) {
+	//
 });
 
 // ------------------- directives -------------------

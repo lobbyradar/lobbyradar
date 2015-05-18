@@ -6,10 +6,10 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Lobbyradarstation</title>
 
-	<link href="../assets/fonts/roboto-slab/roboto-slab.css" rel="stylesheet" type="text/css">
-	<link rel="stylesheet" href="assets/bower_components/fontawesome/css/font-awesome.min.css">
-	<link rel="stylesheet" href="assets/bower_components/bootstrap/dist/css/bootstrap.min.css">
-	<link rel="stylesheet" href="assets/css/index.css">
+	<link rel="stylesheet" type="text/css" href="assets/bower_components/roboto-slab-fontface/roboto-slab-fontface.css">
+	<link rel="stylesheet" type="text/css" href="assets/bower_components/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="assets/bower_components/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="assets/css/index.css">
 	<script src="assets/bower_components/jquery/dist/jquery.min.js"></script>
 	<script src="assets/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script src="assets/bower_components/typeahead.js/dist/typeahead.jquery.min.js"></script>
@@ -321,6 +321,7 @@
 	<div class="well" ng-show="hasRelationWith.enabled">
 		<form class="form">
 			<label>Hat Verbindung mit</label>
+
 			<div class="form-group">
 				<div class="input-group">
 					<input type="text" class="form-control" placeholder="Person/Organisation auswählen" ng-model="hasRelationWith.value" datasets="hasRelationWith.dataset" ngtypeahead>
@@ -1314,6 +1315,11 @@
 		</button>
 		<button class="btn btn-warning" ng-click="cancel()">Abbruch</button>
 	</div>
+
+</script>
+
+<script type="text/ng-template" id="partials/import.html">
+OK
 
 </script>
 
