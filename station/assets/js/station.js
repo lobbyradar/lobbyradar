@@ -331,6 +331,25 @@ app.factory('auth', function ($resource) {
 	);
 });
 
+app.factory('imports', function ($resource) {
+	'use strict';
+	return $resource('/api/imports/:cmd/:id', {}, {
+			list: {
+				method: 'GET',
+				params: {cmd: 'list'}
+			},
+			accept: {
+				method: 'GET',
+				params: {cmd: 'accept'}
+			},
+			reject: {
+				method: 'GET',
+				params: {cmd: 'reject'}
+			}
+		}
+	);
+});
+
 // ------------------- main -------------------
 
 app.run(function ($rootScope, $state, auth) {
@@ -464,6 +483,7 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 			"bool": "Ja/Nein-Wert",
 			"address": "Adresse",
 			"date": "Datum",
+			"range": "Datumsbereich",
 			"photo": "Foto"
 		},
 		fielddefaults: {
@@ -474,6 +494,7 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 			"bool": true,
 			"address": {},
 			"date": {},
+			"range": {},
 			"photo": {}
 		},
 		states: {}
@@ -499,6 +520,7 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 			else if (v.format == 'bool') return v.value ? 'Ja' : 'Nein';
 			else if (v.format == 'link') return v.value.url;
 			else if (v.format == 'date') return dateFilter(v.value.date, v.value.fmt);
+			else if (v.format == 'range') return dateFilter(v.value.start, v.value.fmt) + ' - ' + dateFilter(v.value.end, v.value.fmt);
 			else if (v.format == 'number') return v.value;
 			else if (v.format == 'address') {
 				var sl = [];
@@ -540,16 +562,16 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	var state = $scope.globals.states[mode];
 	$scope.state = state;
 	state.filter = state.filter || {
-			text: '',
-			special: false
-		};
+		text: '',
+		special: false
+	};
 	state.table = state.table || {
-			page: 1,
-			count: defaultcount,
-			sorting: {
-				name: 'asc'
-			}
-		};
+		page: 1,
+		count: defaultcount,
+		sorting: {
+			name: 'asc'
+		}
+	};
 
 	$scope.loading = true;
 
@@ -1707,10 +1729,10 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 	};
 
 	$scope.relation = $scope.relation || {
-			tags: [],
-			entities: ['', ''],
-			data: []
-		};
+		tags: [],
+		entities: ['', ''],
+		data: []
+	};
 
 	$scope.modename = 'Verbindung';
 
@@ -1969,7 +1991,7 @@ app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, en
 				headline: 'Verbindung löschen?',
 				question: 'Soll "' + $scope.item.name + '"-"' + rel.entity.name + '" gelöscht werden?'
 			}
-			, function (data) {
+			, function () {
 				relations.remove({id: rel._id}, {id: rel._id}, function () {
 					$scope.relations = $scope.relations.filter(function (oe) {
 						return oe != rel;
@@ -2004,7 +2026,7 @@ app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, en
 				}
 			},
 			'partials/relation-modal.html'
-			, function (result) {
+			, function () {
 				entities.item({id: $scope.item._id, relations: true}, function (data) {
 					if (data.error) return reportServerError($scope, data.error);
 					$scope.relations = data.result.relations;
@@ -2116,11 +2138,21 @@ app.controller('WhitelistCtrl', function ($scope, $resource, $filter, $modal, ng
 app.controller('DatepickerCtrl', function ($scope) {
 
 	$scope.dtp_today = function () {
-		$scope.dtp_value.date = new Date();
+		if ($scope.dtp_range_value) {
+			$scope.dtp_value.start = new Date();
+			$scope.dtp_value.end = new Date();
+		} else {
+			$scope.dtp_value.date = new Date();
+		}
 	};
 
 	$scope.dtp_clear = function () {
-		$scope.dtp_value.date = null;
+		if ($scope.dtp_range_value) {
+			$scope.dtp_value.start = null;
+			$scope.dtp_value.end = null;
+		} else {
+			$scope.dtp_value.date = null;
+		}
 	};
 
 	$scope.dtp_open = function ($event) {
@@ -2186,8 +2218,12 @@ app.controller('FieldListEditCtrl', function ($scope) {
 	};
 });
 
-app.controller('ImportCtrl', function ($scope) {
-	//
+app.controller('ImportCtrl', function ($scope, imports) {
+	imports.list(function (data) {
+		$scope.imports = data.result;
+	}, function (err) {
+		console.log(err);
+	})
 });
 
 // ------------------- directives -------------------

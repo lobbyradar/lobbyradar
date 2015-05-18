@@ -1066,6 +1066,35 @@
 			</form>
 		</div>
 
+		<div ng-switch-when="range" class="row">
+			<form class="form" ng-controller="DatepickerCtrl" ng-init="dtp_range_value=d.value;">
+				<div class="form-group col-md-6">
+					<label>Start</label>
+
+					<p class="input-group">
+						<input type="text" class="form-control" datepicker-options="dtp_dateOptions" datepicker-popup="{{d.value.fmt}}" ng-model="d.value.start" is-open="dtp_opened" ng-required="true" close-text="Schließen"/>
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-default" ng-click="dtp_open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+						</span>
+					</p>
+				</div>
+				<div class="form-group col-md-6">
+					<label>Ende</label>
+
+					<p class="input-group">
+						<input type="text" class="form-control" datepicker-options="dtp_dateOptions" datepicker-popup="{{d.value.fmt}}" ng-model="d.value.end" is-open="dtp_opened" ng-required="true" close-text="Schließen"/>
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-default" ng-click="dtp_open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+						</span>
+					</p>
+				</div>
+				<div class="form-group col-md-6">
+					<label>Format</label>
+					<select class="form-control" ng-model="d.value.fmt" ng-options="f.fmt as f.name for f in dtp_formats"></select>
+				</div>
+			</form>
+		</div>
+
 		<div ng-switch-when="number" class="row">
 			<form class="form">
 				<div class="form-group col-md-4">
@@ -1319,7 +1348,10 @@
 </script>
 
 <script type="text/ng-template" id="partials/import.html">
-OK
+
+	<div ng-repeat="import in imports">
+		<span ng-bind="import.name"></span>
+	</div>
 
 </script>
 

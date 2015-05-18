@@ -27,12 +27,8 @@ module.exports = {
 		cachedir: "assets/cache",
 
 		// whitelist file
-		whitelist: "assets/data/whitelist.json",
+		whitelist: "assets/data/whitelist.json"
 
-		// api keys
-		keys: {
-			"<apikey>": "<username>"
-		}
 	},
 
 	// cookie/session secret
