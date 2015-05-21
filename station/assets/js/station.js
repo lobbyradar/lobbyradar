@@ -821,7 +821,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 		if (mode == 'all') state.fields.push(fixedfields[4]);
 	}
 
-	fields.list({mode: mode}, function (data) {
+	fields.list({mode: mode == 'entities' ? 'organisations' : mode}, function (data) {
 		if (data.error) return reportServerError($scope, data.error);
 		$scope.fields = fixedfields.concat(data.result);
 	}, function (err) {
@@ -1463,7 +1463,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 		);
 	}
 
-	fields.list({mode: mode}, function (data) {
+	fields.list({mode: mode == 'entities' ? 'organisations' : mode}, function (data) {
 			if (data.error) return reportServerError($scope, data.error);
 			$scope.fields = data.result;
 			if ($scope.isNew) {
