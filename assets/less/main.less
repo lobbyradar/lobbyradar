@@ -83,6 +83,7 @@ input.lobbysearch {
       display:block;
     }
   }
+
   select {
     padding:10px;
     margin: 0;
@@ -99,6 +100,13 @@ input.lobbysearch {
     -webkit-appearance:none;
     -moz-appearance:none;
     appearance:none;
+
+    /* this apperarently helps hiding the dropdown arrow in FireFox prior to v30*/
+    /* The bug is fixed in FF v35 */
+    /* https://gist.github.com/joaocunha/6273016 */
+    text-indent:0.01px; 
+    text-overflow:' '; 
+
     cursor:pointer;
     padding-right:35px;
   }
@@ -120,6 +128,7 @@ input.lobbysearch {
   height: 0;
 
   iframe {
+    border:none;
     position: absolute;
     top: 0;
     left: 0;
