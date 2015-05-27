@@ -6392,6 +6392,7 @@ input.lobbysearch {
   height: 0;
 }
 .videoWrapper iframe {
+  border: none;
   position: absolute;
   top: 0;
   left: 0;
