@@ -69,7 +69,7 @@ function loadEntity(id) {
 
 	req = $.getJSON("/api/entity/get/" + id, {relations: true}, function (data) {
 		var $content = '<div class="entity">';
-		//console.log(id);
+		//console.log(data.result);
 
 		if (data.hasOwnProperty("result")) {
 			var entity = data.result;
@@ -78,6 +78,7 @@ function loadEntity(id) {
 			var isCommittee = false;
 			var hasPartyDonation = false;
 			var donationArray = [];
+			var vis = 'hidden';
 
 			// check for the different types of data
 			for (var i = 0, data; data = entity.data[i]; i++) {
@@ -92,6 +93,9 @@ function loadEntity(id) {
 				}
 				if (data.key == 'link') {
 					var hasLinks = true;
+				}
+				if (data.key == 'verified') {
+					if(data.value) vis = 'visible';
 				}
 			}
 
@@ -110,7 +114,7 @@ function loadEntity(id) {
 			}
 
 			// title
-			$content += '<div class="col-md-9">';
+			$content += '<div class="col-md-9" style="width: 100%;">';
 			$content += '<h1 class="name">';
 			if (entity.type == 'person') {
 				$content += '<i class="fa fa-user"></i>&nbsp;'; // PERSON
@@ -127,6 +131,7 @@ function loadEntity(id) {
 			});
 			$content += icon;
 			$content += entity.name;
+			$content +='&nbsp;<i id="certified" style="visibility: '+vis+';" class="fa fa-check-square-o"></i>';
 			$content += '</h1>';
 			// Bundesland herausgenommen
 			//$(entity.data).each(function (idx, data) {

@@ -199,7 +199,7 @@ $(document).ready(function () {
 		var x = parseFloat(this.getAttribute('cx')) + trans_x;
 		var y = parseFloat(this.getAttribute('cy')) + trans_y;
 		var r = parseFloat(this.getAttribute('r'));
-		
+
 		tooltip.style("visibility", "visible")
 			.style("top", (y) + "px")
 			.style("left", (x+r) + "px")
