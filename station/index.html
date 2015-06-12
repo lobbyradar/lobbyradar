@@ -1347,10 +1347,25 @@
 
 </script>
 
-<script type="text/ng-template" id="partials/import.html">
+<script type="text/ng-template" id="partials/update.html">
 
-	<div ng-repeat="import in imports">
-		<span ng-bind="import.name"></span>
+	<div class="fa-" ng-repeat="entity in updates">
+		<i class="fa" ng-class="{'fa-user':entity.type=='person','fa-building-o':entity.type=='entity'}"></i>
+		<span ng-click="show(entity)" ng-bind="entity.name"></span>
+
+		<div ng-if="entity.update">
+			Importer: <span ng-bind="entity.update.entity.importer"></span><br/>
+
+			<div ng-repeat="d in entity.update.entity.data">
+				<span ng-bind="d.desc"></span>
+				<span ng-bind="getDispayValues(d,entity.update.entity)"></span>
+			</div>
+			Relations:
+			<div ng-repeat="rel in entity.update.relations">
+				-> <span ng-bind="rel.entity.name"></span>
+			</div>
+
+		</div>
 	</div>
 
 </script>

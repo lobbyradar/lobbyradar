@@ -11,7 +11,6 @@ var sessionJSONstore = require('express-session-json-store')(session);
 var express = require("express");
 var mongojs = require("mongojs");
 var moment = require("moment");
-var crypto = require("crypto");
 var debug = require("debug")("app");
 var path = require("path");
 var unq = require("unq");
@@ -732,9 +731,16 @@ app.post("/api/relation/upmerge/:id", sessionUserHandler, function (req, res) {
 });
 
 // list imports.
-app.post("/api/imports/list", sessionUserHandler, function (req, res) {
+app.get("/api/update/list", sessionUserHandler, function (req, res) {
 	debug("list imports");
-	api.imports_list(function (err, result) {
+	api.update_list(function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.get("/api/update/get/:id", sessionUserHandler, function (req, res) {
+	debug("get update ", req.params.id);
+	api.update_ent_info(req.params.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });

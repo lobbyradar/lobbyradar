@@ -73,10 +73,10 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			templateUrl: "partials/user.html",
 			controller: 'UserEditCtrl'
 		})
-		.state('import', {
-			url: "/import",
-			templateUrl: "partials/import.html",
-			controller: 'ImportCtrl'
+		.state('update', {
+			url: "/update",
+			templateUrl: "partials/update.html",
+			controller: 'UpdateCtrl'
 		})
 		.state('login', {
 			url: "/login",
@@ -331,12 +331,16 @@ app.factory('auth', function ($resource) {
 	);
 });
 
-app.factory('imports', function ($resource) {
+app.factory('update', function ($resource) {
 	'use strict';
-	return $resource('/api/imports/:cmd/:id', {}, {
+	return $resource('/api/update/:cmd/:id', {}, {
 			list: {
 				method: 'GET',
 				params: {cmd: 'list'}
+			},
+			get: {
+				method: 'GET',
+				params: {cmd: 'get'}
 			},
 			accept: {
 				method: 'GET',
@@ -562,16 +566,16 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	var state = $scope.globals.states[mode];
 	$scope.state = state;
 	state.filter = state.filter || {
-		text: '',
-		special: false
-	};
+			text: '',
+			special: false
+		};
 	state.table = state.table || {
-		page: 1,
-		count: defaultcount,
-		sorting: {
-			name: 'asc'
-		}
-	};
+			page: 1,
+			count: defaultcount,
+			sorting: {
+				name: 'asc'
+			}
+		};
 
 	$scope.loading = true;
 
@@ -1729,10 +1733,10 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 	};
 
 	$scope.relation = $scope.relation || {
-		tags: [],
-		entities: ['', ''],
-		data: []
-	};
+			tags: [],
+			entities: ['', ''],
+			data: []
+		};
 
 	$scope.modename = 'Verbindung';
 
@@ -2218,12 +2222,25 @@ app.controller('FieldListEditCtrl', function ($scope) {
 	};
 });
 
-app.controller('ImportCtrl', function ($scope, imports) {
-	imports.list(function (data) {
-		$scope.imports = data.result;
+app.controller('UpdateCtrl', function ($scope, update) {
+	update.list(function (data) {
+		$scope.updates = data.result;
 	}, function (err) {
 		console.log(err);
-	})
+	});
+
+	$scope.show = function (entity) {
+		if (entity.update) {
+			entity.update = null;
+			return;
+		}
+		update.get({id: entity._id}, function (data) {
+			entity.update = data.result;
+		}, function (err) {
+			console.log(err);
+		})
+	}
+
 });
 
 // ------------------- directives -------------------
