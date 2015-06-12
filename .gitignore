@@ -7,7 +7,7 @@ bower_components
 scripts
 .codekit-cache
 config.codekit
-
+sessions.json
 lobbynetwork/positions.json
 
 lobbynetwork/links.json

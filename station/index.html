@@ -6,10 +6,10 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Lobbyradarstation</title>
 
-	<link href="../assets/fonts/roboto-slab/roboto-slab.css" rel="stylesheet" type="text/css">
-	<link rel="stylesheet" href="assets/bower_components/fontawesome/css/font-awesome.min.css">
-	<link rel="stylesheet" href="assets/bower_components/bootstrap/dist/css/bootstrap.min.css">
-	<link rel="stylesheet" href="assets/css/index.css">
+	<link rel="stylesheet" type="text/css" href="assets/bower_components/roboto-slab-fontface/roboto-slab-fontface.css">
+	<link rel="stylesheet" type="text/css" href="assets/bower_components/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="assets/bower_components/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="assets/css/index.css">
 	<script src="assets/bower_components/jquery/dist/jquery.min.js"></script>
 	<script src="assets/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script src="assets/bower_components/typeahead.js/dist/typeahead.jquery.min.js"></script>
@@ -321,6 +321,7 @@
 	<div class="well" ng-show="hasRelationWith.enabled">
 		<form class="form">
 			<label>Hat Verbindung mit</label>
+
 			<div class="form-group">
 				<div class="input-group">
 					<input type="text" class="form-control" placeholder="Person/Organisation auswählen" ng-model="hasRelationWith.value" datasets="hasRelationWith.dataset" ngtypeahead>
@@ -1065,6 +1066,35 @@
 			</form>
 		</div>
 
+		<div ng-switch-when="range" class="row">
+			<form class="form" ng-controller="DatepickerCtrl" ng-init="dtp_range_value=d.value;">
+				<div class="form-group col-md-6">
+					<label>Start</label>
+
+					<p class="input-group">
+						<input type="text" class="form-control" datepicker-options="dtp_dateOptions" datepicker-popup="{{d.value.fmt}}" ng-model="d.value.start" is-open="dtp_opened" ng-required="true" close-text="Schließen"/>
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-default" ng-click="dtp_open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+						</span>
+					</p>
+				</div>
+				<div class="form-group col-md-6">
+					<label>Ende</label>
+
+					<p class="input-group">
+						<input type="text" class="form-control" datepicker-options="dtp_dateOptions" datepicker-popup="{{d.value.fmt}}" ng-model="d.value.end" is-open="dtp_opened" ng-required="true" close-text="Schließen"/>
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-default" ng-click="dtp_open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+						</span>
+					</p>
+				</div>
+				<div class="form-group col-md-6">
+					<label>Format</label>
+					<select class="form-control" ng-model="d.value.fmt" ng-options="f.fmt as f.name for f in dtp_formats"></select>
+				</div>
+			</form>
+		</div>
+
 		<div ng-switch-when="number" class="row">
 			<form class="form">
 				<div class="form-group col-md-4">
@@ -1313,6 +1343,14 @@
 			<span ng-if="data.isNew">Anlegen</span>
 		</button>
 		<button class="btn btn-warning" ng-click="cancel()">Abbruch</button>
+	</div>
+
+</script>
+
+<script type="text/ng-template" id="partials/import.html">
+
+	<div ng-repeat="import in imports">
+		<span ng-bind="import.name"></span>
 	</div>
 
 </script>

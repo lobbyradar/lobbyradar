@@ -1,23 +1,42 @@
 #!/usr/bin/env node
+
 module.exports = {
-	api: {
-		reindex: "5min",
-		recache: "5min",
-		cachedir: "assets/cache",
-		whitelist: "assets/data/whitelist.json",
-		keys: {
-//			"apikey": "Username"
-		}
-	},
+
+	// listen on either a socket or host:port
 	listen: {
 		socket: "lobbyradar.sock",
 		// host: "localhost",
 		// port: 9000
 	},
+
+	// mongodb connect string
 	db: "mongodb://127.0.0.1/lobbyradar",
-	nsa: null, // "udp4://server:port/",
+
+	// network status aggregator
+	nsa: "udp4://<server>:<port>/",
+
+	api: {
+
+		// timeinterval for rebuilding search index
+		reindex: "5min",
+
+		// time interval for rebuilding cache
+		recache: "5min",
+
+		// cache directory
+		cachedir: "assets/cache",
+
+		// whitelist file
+		whitelist: "assets/data/whitelist.json"
+
+	},
+
+	// cookie/session secret
+	secret: "<cookie secret>",
+
+	// default credentials for admin interface
 	defaultadmin: {
 		name: "admin",
-		pass: "totalsupergehaim007"
+		pass: "<password>"
 	}
 };
