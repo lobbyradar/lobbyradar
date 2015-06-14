@@ -482,7 +482,7 @@ loadFile(xingmap_entities, parseEntities, function (err, entities_raw) {
 	//console.log(bla);
 	loadFile(xingmap_relation, parseRelations, function (err, relations_raw) {
 		var intermed = validate(entities_raw, relations_raw);
-		api.update_store(intermed, function () {
+		api.update_intermed(intermed, function () {
 			console.log('done');
 			process.exit();
 		});
