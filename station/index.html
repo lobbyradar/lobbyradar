@@ -1349,26 +1349,120 @@
 
 <script type="text/ng-template" id="partials/update.html">
 
-	<div class="fa-" ng-repeat="entity in updates">
-		<i class="fa" ng-class="{'fa-user':entity.type=='person','fa-building-o':entity.type=='entity'}"></i>
-		<span ng-click="show(entity)" ng-bind="entity.name"></span>
-
-		<div ng-if="entity.update">
-			Importer: <span ng-bind="entity.update.entity.importer"></span><br/>
-
-			<div ng-repeat="d in entity.update.entity.data">
-				<span ng-bind="d.desc"></span>
-				<span ng-bind="getDispayValues(d,entity.update.entity)"></span>
+	<div class="update">
+		<div class="item" ng-repeat="entry in updates | pagination: curPage * pageSize | limitTo: pageSize">
+			<div class="info" ng-click="show(entry)">
+				<i class="fa" ng-class="{'fa-plus':!entry.$visible,'fa-minus':entry.$visible}"></i>
+				<i class="fa" ng-class="{'fa-user':entry.type=='person','fa-building-o':entry.type=='entity'}"></i>
+				<span ng-bind="entry.name"></span>
+				<!--<i ng-if="entry.$visible" class="fa fa-remove"></i>-->
 			</div>
-			Relations:
-			<div ng-repeat="rel in entity.update.relations">
-				-> <span ng-bind="rel.entity.name"></span>
-			</div>
+			<i ng-if="entry.$loading" class="fa fa-spin fa-spinner fa-2x"></i>
 
+			<div ng-if="entry.$visible" class="details">
+
+				<!--<div class="details-head" ng-bind="entry.type=='person'?'Person':'Organisation'"></div>-->
+
+				<div class="detail-row">
+					<div class="detail-col">
+
+						<div class="btn-group" dropdown is-open="entry.$isopen">
+							<a href class="dropdown-toggle" dropdown-toggle>
+								<span ng-bind="entry.update.entity.name"></span>
+								<span ng-repeat="a in entry.update.entity.aliases">, {{a}}</span>
+								<span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu" role="menu">
+								<li><a href ng-click="deleteEntity(entry);">Eintrag löschen</a></li>
+							</ul>
+						</div>
+						<div>
+							<span class="detail-label">Importer:</span> <span ng-bind="entry.update.entity.importer"></span><br/>
+						</div>
+						<div ng-repeat="d in entry.update.entity.data">
+							<span class="detail-label" ng-bind="d.desc"></span>
+							<span ng-bind="d | fieldvalue"></span>
+							<!--<i class="fa fa-remove"></i>-->
+						</div>
+					</div>
+					<div class="detail-col alignmiddle" ng-if="entry.update.matches.length==0">
+						<a href ng-click="createEntity(entry)"><i class="fa fa-arrow-right"></i> Eintrag anlegen</a>
+						<a href ng-click="searchEntity(entry)"><i class="fa fa-search"></i> Eintrag suchen</a>
+					</div>
+					<div class="detail-col" ng-if="(entry.update.matches.length==1)">
+						<span ng-bind="entry.update.matches[0].name"></span><br/>
+						<span class="detail-label">Importer:</span> <span ng-bind="entry.update.matches[0].importer"></span><br/>
+
+						<div ng-if="(entry.update.entity.data.length>0)">
+							<div ng-repeat="d in entry.update.matches[0].data">
+								<span class="detail-label" ng-bind="d.desc"></span>
+								<span ng-bind="d | fieldvalue"></span>
+								<!--<i class="fa fa-remove"></i>-->
+							</div>
+						</div>
+					</div>
+					<div class="detail-col" ng-if="entry.update.matches.length>1">
+						<div ng-repeat="ent in entry.update.matches">
+							-> <span ng-bind="ent.name"></span>
+						</div>
+					</div>
+				</div>
+
+				<div class="relations" ng-if="entry.update.relations.length">
+					<div class="detail-row">
+						<div class="detail-col">
+							<div class="details-head">Verbindungen</div>
+						</div>
+						<div class="detail-col alignmiddle">
+							<a ng-if="entry.update.relations.length>1" href ng-click="createRelations(entry)"><i class="fa fa-arrow-right"></i> Alle Verbindungen eintragen</a>
+						</div>
+					</div>
+
+					<div class="detail-row" ng-repeat="rel in entry.update.relations">
+						<div class="detail-col">
+							<div class="btn-group" dropdown is-open="rel.$isopen">
+								<a href class="dropdown-toggle" dropdown-toggle>
+									<b ng-bind="rel.entity.name"></b>
+									<span class="caret"></span>
+								</a>
+								<ul class="dropdown-menu" role="menu">
+									<li><a href ng-click="createRelation(rel)">Verbindung eintragen</a></li>
+									<li><a href ng-click="deleteRelation(rel);">Verbindung löschen</a></li>
+								</ul>
+							</div>
+
+							<div class="detail-field" ng-repeat="d in rel.data">
+								<span ng-bind="d | fieldvalue"></span>
+							</div>
+						</div>
+						<div class="detail-col alignmiddle" ng-if="rel.matches.length==0">
+							<b ng-bind="rel.entity.matches[0].name"></b><br/>
+							<a href ng-click="createRelation(rel)"><i class="fa fa-arrow-right"></i> Verbindung eintragen</a>
+						</div>
+						<div class="detail-col alignmiddle" ng-if="rel.matches.length==1">
+							<b ng-bind="rel.entity.name"></b><br/>
+							<div class="detail-field" ng-repeat="d in rel.matches[0].data">
+								<span ng-bind="d | fieldvalue"></span>
+							</div>
+						</div>
+						<div class="detail-col alignmiddle" ng-if="rel.matches.length>1">
+							<div ng-repeat="ent in rel.matches">
+								-> <span ng-bind="rel"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="pagination-div" ng-show="updates.length>pageSize">
+			<button class="btn btn-default btn-sm" type="button" ng-disabled="curPage == 0" ng-click="curPage=curPage-1">Zurück</button>
+			<span class="btn">Seite <span ng-bind="curPage + 1"></span> von <span ng-bind="numberOfPages()"></span></span>
+			<button class="btn btn-default btn-sm" type="button" ng-disabled="curPage >= images.length/pageSize - 1" ng-click="curPage = curPage+1">Nächste</button>
 		</div>
 	</div>
 
 </script>
+
 
 </body>
 </html>

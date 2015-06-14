@@ -731,16 +731,43 @@ app.post("/api/relation/upmerge/:id", sessionUserHandler, function (req, res) {
 });
 
 // list imports.
-app.get("/api/update/list", sessionUserHandler, function (req, res) {
+app.get("/api/update/entity/list", sessionUserHandler, function (req, res) {
 	debug("list imports");
 	api.update_list(function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
 
-app.get("/api/update/get/:id", sessionUserHandler, function (req, res) {
+app.get("/api/update/entity/get/:id", sessionUserHandler, function (req, res) {
 	debug("get update ", req.params.id);
 	api.update_ent_info(req.params.id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.post("/api/update/entity/delete/:id", sessionUserHandler, function (req, res) {
+	debug("delete update ", req.params.id || req.body.id);
+	api.update_ent_delete(req.params.id || req.body.id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.post("/api/update/relation/delete/:id", sessionUserHandler, function (req, res) {
+	debug("delete update relation ", req.params.id || req.body.id);
+	api.update_rel_delete(req.params.id || req.body.id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.post("/api/update/entity/create/:id", sessionUserHandler, function (req, res) {
+	debug("create update entity", req.params.id || req.body.id);
+	api.update_ent_create(req.params.id || req.body.id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+app.post("/api/update/relation/create/:id", sessionUserHandler, function (req, res) {
+	debug("create update relation", req.params.id || req.body.id);
+	api.update_rel_create(req.params.id || req.body.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -751,7 +778,12 @@ app.all("*", function (req, res) {
 });
 
 if (config.defaultadmin) {
-	api.user_create({name: config.defaultadmin.name, pass: config.defaultadmin.pass, admin: true}, function () {
+	api.user_find(config.defaultadmin.name, function (err, user) {
+		if (err) console.log(err);
+		if (!user)
+			api.user_create({name: config.defaultadmin.name, pass: config.defaultadmin.pass, admin: true}, function (err) {
+				if (err) console.log(err);
+			});
 	});
 }
 

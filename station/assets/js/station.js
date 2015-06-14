@@ -333,22 +333,30 @@ app.factory('auth', function ($resource) {
 
 app.factory('update', function ($resource) {
 	'use strict';
-	return $resource('/api/update/:cmd/:id', {}, {
-			list: {
+	return $resource('/api/update/:mode/:cmd/:id', {}, {
+			listUpdates: {
 				method: 'GET',
-				params: {cmd: 'list'}
+				params: {cmd: 'list', mode: 'entity'}
 			},
-			get: {
+			getUpdate: {
 				method: 'GET',
-				params: {cmd: 'get'}
+				params: {cmd: 'get', mode: 'entity'}
 			},
-			accept: {
-				method: 'GET',
-				params: {cmd: 'accept'}
+			deleteUpdate: {
+				method: 'POST',
+				params: {cmd: 'delete', mode: 'entity'}
 			},
-			reject: {
-				method: 'GET',
-				params: {cmd: 'reject'}
+			deleteRelation: {
+				method: 'POST',
+				params: {cmd: 'delete', mode: 'relation'}
+			},
+			createEntity: {
+				method: 'POST',
+				params: {cmd: 'create', mode: 'entity'}
+			},
+			createRelation: {
+				method: 'POST',
+				params: {cmd: 'create', mode: 'relation'}
 			}
 		}
 	);
@@ -474,6 +482,56 @@ var reportServerError = function ($scope, err) {
 	}, 500);
 };
 
+var getDisplayValue = function (v, dateFilter) {
+	if (!v.value) return '';
+	if ((v.format == 'strings') || (v.format == 'tags')) return v.value.join(', ');
+	else if (v.format == 'bool') return v.value ? 'Ja' : 'Nein';
+	else if (v.format == 'link') return v.value.url;
+	else if (v.format == 'date') return dateFilter(v.value.date, v.value.fmt);
+	else if (v.format == 'range') return (v.value.start ? dateFilter(v.value.start, v.value.fmt) : '') + ' - ' + (v.value.end ? dateFilter(v.value.end, v.value.fmt) : '');
+	else if (v.format == 'number') return v.value;
+	else if (v.format == 'address') {
+		var sl = [];
+		if (v.value) {
+			if (v.value.name) sl.push(v.value.name);
+			if (v.value.addr) sl.push(v.value.addr);
+			if (v.value.street) sl.push(v.value.street);
+			if (v.value.postcode) sl.push(v.value.postcode);
+			if (v.value.city) sl.push(v.value.city);
+			if (v.value.country) sl.push(v.value.country);
+		}
+		return sl.join('; ');
+	}
+	else if (v.format == 'photo') {
+		var sl = [];
+		if (v.value) {
+			if (v.value.url) sl.push(v.value.url);
+			if (v.value.copyright) sl.push(v.value.copyright);
+		}
+		return sl.join('; ');
+	}
+	return v.value;
+};
+
+var getDispayValues = function (field, entity, dateFilter) {
+	var result = [];
+	if (['extras', 'fields'].indexOf(field._type) >= 0) {
+		if (entity[field.key] !== undefined) {
+			result.push({format: field.format, value: entity[field.key]});
+		}
+	} else {
+		if (entity.data && entity.data.length)
+			entity.data.forEach(function (d) {
+				if (field.key == d.key) {
+					result.push(d);
+				}
+			})
+	}
+	return result.map(function (v) {
+		return getDisplayValue(v, dateFilter);
+	}).join(', ');
+};
+
 // ------------------- controllers -------------------
 
 app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
@@ -505,49 +563,7 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 	};
 
 	$scope.getDispayValues = function (field, entity) {
-		var result = [];
-		if (['extras', 'fields'].indexOf(field._type) >= 0) {
-			if (entity[field.key] !== undefined) {
-				result.push({format: field.format, value: entity[field.key]});
-			}
-		} else {
-			if (entity.data && entity.data.length)
-				entity.data.forEach(function (d) {
-					if (field.key == d.key) {
-						result.push(d);
-					}
-				})
-		}
-		return result.map(function (v) {
-			if (!v.value) return '';
-			if ((v.format == 'strings') || (v.format == 'tags')) return v.value.join(', ');
-			else if (v.format == 'bool') return v.value ? 'Ja' : 'Nein';
-			else if (v.format == 'link') return v.value.url;
-			else if (v.format == 'date') return dateFilter(v.value.date, v.value.fmt);
-			else if (v.format == 'range') return dateFilter(v.value.start, v.value.fmt) + ' - ' + dateFilter(v.value.end, v.value.fmt);
-			else if (v.format == 'number') return v.value;
-			else if (v.format == 'address') {
-				var sl = [];
-				if (v.value) {
-					if (v.value.name) sl.push(v.value.name);
-					if (v.value.addr) sl.push(v.value.addr);
-					if (v.value.street) sl.push(v.value.street);
-					if (v.value.postcode) sl.push(v.value.postcode);
-					if (v.value.city) sl.push(v.value.city);
-					if (v.value.country) sl.push(v.value.country);
-				}
-				return sl.join('; ');
-			}
-			else if (v.format == 'photo') {
-				var sl = [];
-				if (v.value) {
-					if (v.value.url) sl.push(v.value.url);
-					if (v.value.copyright) sl.push(v.value.copyright);
-				}
-				return sl.join('; ');
-			}
-			return v.value;
-		}).join(', ');
+		return getDispayValues(field, entity, dateFilter);
 	};
 
 	$scope.logout = function () {
@@ -2223,24 +2239,121 @@ app.controller('FieldListEditCtrl', function ($scope) {
 });
 
 app.controller('UpdateCtrl', function ($scope, update) {
-	update.list(function (data) {
+
+	$scope.updates = [];
+
+	update.listUpdates(function (data) {
+		data.result.sort(function (a, b) {
+			if (a.name < b.name) return -1;
+			if (a.name > b.name) return 1;
+			return 0;
+		});
+
 		$scope.updates = data.result;
 	}, function (err) {
 		console.log(err);
 	});
 
-	$scope.show = function (entity) {
-		if (entity.update) {
-			entity.update = null;
+	$scope.curPage = 0;
+	$scope.pageSize = 25;
+
+	$scope.numberOfPages = function () {
+		return Math.ceil($scope.updates.length / $scope.pageSize);
+	};
+
+	$scope.show = function (entry) {
+		if (entry.$loading) return;
+		if (entry.$visible) {
+			entry.$visible = false;
 			return;
 		}
-		update.get({id: entity._id}, function (data) {
-			entity.update = data.result;
+		if (!entry.update) {
+			entry.$loading = true;
+			update.getUpdate({id: entry._id}, function (data) {
+				entry.update = data.result;
+				entry.$loading = false;
+				entry.$visible = true;
+			}, function (err) {
+				console.log(err);
+			});
+		} else {
+			entry.$visible = true;
+		}
+	};
+
+	var removeUpdate = function (id) {
+		$scope.updates = $scope.updates.filter(function (entry) {
+			return (entry._id !== id);
+		});
+	};
+
+	var getEntryByID = function (id) {
+		return $scope.updates.filter(function (entry) {
+			return (entry._id == id);
+		})[0];
+	};
+
+	var replaceUpdate = function (entry, update) {
+		var i = $scope.updates.indexOf(entry);
+		if (i >= 0) $scope.updates[i].update = update;
+	};
+
+	$scope.deleteEntity = function (entry) {
+		update.deleteUpdate({id: entry._id}, {id: entry._id}, function (data) {
+			$scope.updates = $scope.updates.filter(function (ent) {
+				return entry !== ent;
+			})
 		}, function (err) {
 			console.log(err);
-		})
-	}
+		});
+	};
 
+	$scope.deleteRelation = function (rel) {
+		update.deleteRelation({id: rel._id}, {id: rel._id}, function (data) {
+			data.result.forEach(function (update) {
+				var entry = getEntryByID(update.entity._id);
+				replaceUpdate(entry, update);
+			});
+		}, function (err) {
+			console.log(err);
+		});
+	};
+
+	$scope.createEntity = function (entry) {
+		update.createEntity({id: entry._id}, {id: entry._id}, function (data) {
+			if (data.result.deleted) return removeUpdate(entry._id);
+			replaceUpdate(entry, data.result);
+		}, function (err) {
+			console.log(err);
+		});
+	};
+
+	$scope.createRelation = function (rel) {
+		update.createRelation({id: rel._id}, {id: rel._id}, function (data) {
+			data.result.forEach(function (update) {
+				if (update.deleted) return removeUpdate(update._id);
+				var entry = getEntryByID(update.entity._id);
+				replaceUpdate(entry, update);
+			});
+		}, function (err) {
+			console.log(err);
+		});
+	}
+});
+
+app.filter('pagination', function () {
+	return function (input, start) {
+		start = +start;
+		return input.slice(start);
+	};
+});
+
+app.filter('fieldvalue', function (dateFilter) {
+	'use strict';
+	return function (input) {
+		if (input == null) return "";
+		return getDisplayValue(input, dateFilter);
+	};
 });
 
 // ------------------- directives -------------------

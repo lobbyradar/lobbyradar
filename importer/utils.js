@@ -1,6 +1,10 @@
 var path = require("path");
 var slug = require("slug");
+var crypto = require("crypto");
 var mongojs = require("mongojs");
+var config = require(path.resolve(__dirname, "../config.js"));
+var db = mongojs(config.db, ["entities", "relations", "users", "update", "fields", "dataindex"]);
+var api = require(path.resolve(__dirname, "../lib/api.js"))(config.api, db);
 
 var utils = {};
 
@@ -68,9 +72,9 @@ utils.relation_specs = {
 				"value": {
 					start: val.start ? val.start.valueOf() : null,
 					end: val.end ? val.end.valueOf() : null,
-					format: val.format ? val.format : 'yyyy'
+					fmt: val.format ? val.format : 'yyyy'
 				},
-				"desc": "Datumbereich",
+				"desc": "Zeitraum",
 				"format": "range"
 			});
 		}
@@ -91,6 +95,7 @@ utils.validateDataField = function (field) {
 	field.auto = true;
 	field.created = (new Date());
 	field.updated = (new Date());
+	field.id = crypto.pseudoRandomBytes(32).toString('hex');
 };
 
 utils.validateEntity = function (entity) {
@@ -106,9 +111,6 @@ utils.validateRelation = function (rel) {
 };
 
 utils.submit = function (intermed, cb) {
-	var config = require(path.resolve(__dirname, "../config.js"));
-	var db = mongojs(config.db, ["entities", "relations", "users", "update", "fields", "dataindex"]);
-	var api = require(path.resolve(__dirname, "../lib/api.js"))(config.api, db);
 	api.update_store(intermed, cb);
 };
 
