@@ -3,6 +3,7 @@ var debug = require("debug")("cleanup");
 var async = require("async");
 var path = require("path");
 var fs = require("fs");
+var utils = require("../lib/utils.js");
 
 /*
 
@@ -89,42 +90,12 @@ var filterDupFields = function (data, remove_list) {
 		var d = data[i];
 		for (var j = i + 1; j < data.length; j++) {
 			var d2 = data[j];
-			if (fields_equal(d, d2)) {
+			if (utils.fields_equal(d, d2)) {
 				d2.removal = 'Duplicate';
 				remove_list.push(d2);
 			}
 		}
 	}
-};
-
-var fields_equal = function (f1, f2) {
-	if ((f1.key !== f2.key) || (f1.auto !== f2.auto) || (f1.desc !== f2.desc) || (f1.format !== f2.format)) {
-		return false;
-	}
-	if (typeof f1.value !== typeof f2.value) {
-		return false;
-	}
-	switch (typeof f1.value) {
-		case 'string':
-		case 'bool':
-		case 'number':
-			return f1.value == f2.value;
-			break;
-		case 'object':
-			var keys = Object.keys(f1.value);
-			for (var i = 0; i < keys.length; i++) {
-				var key = keys[i];
-				if (f1.value[key] !== f2.value[key]) {
-					return false;
-				}
-			}
-			break;
-		default:
-			console.log('compare todo type', typeof f1.value, typeof f1.value);
-			return false;
-			break;
-	}
-	return true;
 };
 
 var fixEntities = function (cb) {

@@ -1,6 +1,11 @@
 var XLSX = require('xlsx-extract').XLSX;
-var crypto = require("crypto");
-var utils = require("./utils.js");
+var utils = require("../lib/utils.js");
+var path = require("path");
+var slug = require("slug");
+var mongojs = require("mongojs");
+var config = require(path.resolve(__dirname, "../config.js"));
+var db = mongojs(config.db, ["entities", "relations", "users", "update", "fields", "dataindex"]);
+var api = require(path.resolve(__dirname, "../lib/api.js"))(config.api, db);
 
 var xingmap_entities = [
 	{type: 'update_id', entity: 0, entity_type: "person"},
@@ -38,6 +43,88 @@ var xingmap_relation = [
 	{}
 ];
 
+utils.entity_specs = {
+	'update_id': function (val, entity) {
+		entity.update_id = val;
+	},
+	'name': function (val, entity) {
+		entity.name = val;
+	},
+	'url': function (val, entity) {
+		if ((typeof val === "string") && (val !== "")) {
+			entity.data.push({
+				"key": "url",
+				"value": val,
+				"desc": "URL",
+				"format": "url"
+			});
+		}
+	},
+	'staff': function (val, entity) {
+		var num = parseInt(val, 10);
+		if ((typeof num === "number") && !isNaN(num)) {
+			entity.data.push({
+				"key": "staff",
+				"value": num,
+				"desc": "Anzahl der Mitarbeiter",
+				"format": "number"
+			});
+		}
+	},
+	'notes': function (val, entity) {
+		if ((typeof val === "string") && (val !== "")) {
+			entity.data.push({
+				"key": "notes",
+				"value": val,
+				"desc": "Notizen",
+				"format": "string"
+			});
+		}
+	}
+};
+
+utils.relation_specs = {
+	'update_id1': function (val, rel) {
+		rel.update_id1 = val;
+	},
+	'update_id2': function (val, rel) {
+		rel.update_id2 = val;
+	},
+	'position': function (val, rel) {
+		if ((typeof val === "string") && (val !== "")) {
+			rel.data.push({
+				"key": "position",
+				"value": val,
+				"desc": "Position",
+				"format": "string"
+			});
+		}
+	},
+	'range': function (val, rel) {
+		if (val && (val.start || val.end)) {
+			rel.data.push({
+				"key": "range",
+				"value": {
+					start: val.start ? val.start.valueOf() : null,
+					end: val.end ? val.end.valueOf() : null,
+					fmt: val.format ? val.format : 'yyyy'
+				},
+				"desc": "Zeitraum",
+				"format": "range"
+			});
+		}
+	},
+	'notes': function (val, entity) {
+		if ((typeof val === "string") && (val !== "")) {
+			entity.data.push({
+				"key": "notes",
+				"value": val,
+				"desc": "Notizen",
+				"format": "string"
+			});
+		}
+	}
+};
 
 var loadFile = function (parse_map, parse, cb) {
 	var result = [];
@@ -395,7 +482,7 @@ loadFile(xingmap_entities, parseEntities, function (err, entities_raw) {
 	//console.log(bla);
 	loadFile(xingmap_relation, parseRelations, function (err, relations_raw) {
 		var intermed = validate(entities_raw, relations_raw);
-		utils.submit(intermed, function () {
+		api.update_store(intermed, function () {
 			console.log('done');
 			process.exit();
 		});
