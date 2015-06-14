@@ -297,7 +297,6 @@ var parseRelations = function (parse_map, row) {
 	return relations;
 };
 
-
 var validate = function (entities, relations) {
 	var hash = {};
 	var slugs = {};
@@ -365,14 +364,20 @@ var validate = function (entities, relations) {
 		return entity;
 	});
 
+	entities = Object.keys(hash).map(function (key) {
+		var entity = hash[key];
+		utils.validateEntity(entity);
+		return entity;
+	});
+
 	return {
-		entities: Object.keys(hash).map(function (key) {
-			var entity = hash[key];
-			utils.validateEntity(entity);
-			return entity;
-		}),
+		entities: entities,
 		relations: relations.map(function (rel) {
 			if (!hash[rel.update_id1] || !hash[rel.update_id2]) return null;
+			var ents = entities.filter(function (e) {
+				return ((rel.update_id1 == e.update_id) || (rel.update_id2 == e.update_id));
+			});
+			if (ents.length !== 2) return null;
 			utils.validateRelation(rel);
 			return rel;
 		}).filter(function (rel) {
@@ -382,16 +387,17 @@ var validate = function (entities, relations) {
 };
 
 loadFile(xingmap_entities, parseEntities, function (err, entities_raw) {
-	bla.sort(function (a, b) {
-		if (a < b) return 1;
-		if (a > b) return -1;
-		return 0;
-	});
-	console.log(bla);
+	//bla.sort(function (a, b) {
+	//	if (a < b) return 1;
+	//	if (a > b) return -1;
+	//	return 0;
+	//});
+	//console.log(bla);
 	loadFile(xingmap_relation, parseRelations, function (err, relations_raw) {
 		var intermed = validate(entities_raw, relations_raw);
 		utils.submit(intermed, function () {
 			console.log('done');
+			process.exit();
 		});
 	});
 });
