@@ -27,7 +27,7 @@ if (!config.hasOwnProperty("listen")) {
 }
 
 // database connection 
-var db = mongojs(config.db, ["entities", "relations", "users", "fields", "dataindex"]);
+var db = mongojs(config.db, ["entities", "relations", "users", "fields", "whitelist", "dataindex"]);
 
 // api instance
 var api = require("./lib/api.js")(config.api, db);

@@ -619,7 +619,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		$scope.list = $scope.list.filter(function (oe) {
 			return oe._id != id;
 		});
-		$scope.refilter();
+		$scope.tableParams.reload();
 	};
 
 	$scope.reloadEntry = function (item, cb) {
