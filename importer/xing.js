@@ -51,12 +51,24 @@ utils.entity_specs = {
 		entity.name = val;
 	},
 	'url': function (val, entity) {
-		if ((typeof val === "string") && (val !== "")) {
+		if ((typeof val === "string")) {
+			if (val.toLowerCase().indexOf('http') !== 0) val = 'http://' + val;
 			entity.data.push({
 				"key": "url",
 				"value": val,
 				"desc": "URL",
 				"format": "url"
+			});
+		}
+	},
+	'link': function (val, entity) {
+		if ((typeof val === "string") && (val !== "")) {
+			if (val.toLowerCase().indexOf('http') !== 0) val = 'http://';
+			entity.data.push({
+				"key": "link",
+				"value": {url: val},
+				"desc": "Link",
+				"format": "link"
 			});
 		}
 	},
@@ -319,6 +331,7 @@ var skipRow = function (row) {
 	if (val.indexOf('praktikum') >= 0) return true;
 	if (val.indexOf('praktikant') >= 0) return true;
 	if (val.indexOf('trainee') >= 0) return true;
+	if (val.indexOf('volontär') >= 0) return true;
 	if (val.indexOf('volunteer') >= 0) return true;
 	if (val.indexOf('diplomand') >= 0) return true;
 	if (val.indexOf('aushilfe') >= 0) return true;
@@ -482,6 +495,11 @@ loadFile(xingmap_entities, parseEntities, function (err, entities_raw) {
 	//console.log(bla);
 	loadFile(xingmap_relation, parseRelations, function (err, relations_raw) {
 		var intermed = validate(entities_raw, relations_raw);
+		intermed.entities.sort(function (a, b) {
+			if (a.name < b.name) return -1;
+			if (a.name > b.name) return 1;
+			return 0;
+		});
 		api.update_intermed(intermed, function () {
 			console.log('done');
 			process.exit();

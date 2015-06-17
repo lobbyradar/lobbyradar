@@ -346,6 +346,10 @@ app.factory('update', function ($resource) {
 				method: 'POST',
 				params: {cmd: 'delete', mode: 'entity'}
 			},
+			applyEntityData: {
+				method: 'POST',
+				params: {cmd: 'apply', mode: 'entity'}
+			},
 			deleteRelation: {
 				method: 'POST',
 				params: {cmd: 'delete', mode: 'relation'}
@@ -353,6 +357,14 @@ app.factory('update', function ($resource) {
 			createEntity: {
 				method: 'POST',
 				params: {cmd: 'create', mode: 'entity'}
+			},
+			chooseEntity: {
+				method: 'POST',
+				params: {cmd: 'choose', mode: 'entity'}
+			},
+			saveEntity: {
+				method: 'POST',
+				params: {cmd: 'save', mode: 'entity'}
 			},
 			createRelation: {
 				method: 'POST',
@@ -482,11 +494,19 @@ var reportServerError = function ($scope, err) {
 	}, 500);
 };
 
+var reportConnectionError = function ($scope, err) {
+	console.error(err);
+	setTimeout(function () {
+		alert(err.status + ': ' + err.statusText);
+	}, 500);
+};
+
 var getDisplayValue = function (v, dateFilter) {
 	if (!v.value) return '';
 	if ((v.format == 'strings') || (v.format == 'tags')) return v.value.join(', ');
 	else if (v.format == 'bool') return v.value ? 'Ja' : 'Nein';
 	else if (v.format == 'link') return v.value.url;
+	else if (v.format == 'url') return v.value;
 	else if (v.format == 'date') return dateFilter(v.value.date, v.value.fmt);
 	else if (v.format == 'range') return (v.value.start ? dateFilter(v.value.start, v.value.fmt) : '') + ' - ' + (v.value.end ? dateFilter(v.value.end, v.value.fmt) : '');
 	else if (v.format == 'number') return v.value;
@@ -542,6 +562,7 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 			"tags": "Text-Liste",
 			"number": "Zahl",
 			"link": "Link",
+			"url": "URL",
 			"bool": "Ja/Nein-Wert",
 			"address": "Adresse",
 			"date": "Datum",
@@ -553,6 +574,7 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 			"tags": [],
 			"number": 0,
 			"link": {},
+			"url": "",
 			"bool": true,
 			"address": {},
 			"date": {},
@@ -630,7 +652,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 			$scope.refilter();
 			if (cb) cb();
 		}, function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		});
 	};
 
@@ -645,7 +667,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 					if (data.error) return reportServerError($scope, data.error);
 					$scope.removeFromList(o._id);
 				}, function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				})
 			});
 	};
@@ -713,7 +735,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 				$scope.loading = false;
 			},
 			function (err) {
-				console.error(err);
+				reportConnectionError($scope, err);
 			}
 		);
 	};
@@ -759,7 +781,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 					},
 					function (err) {
 						callback(matches);
-						console.error(err);
+						reportConnectionError($scope, err);
 					}
 				);
 
@@ -782,7 +804,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 					if (data.error) return reportServerError($scope, data.error);
 					callback(data.result);
 				}, function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				});
 			}
 		},
@@ -827,7 +849,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 				p.tags.push(tag);
 			});
 		}, function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		});
 	};
 
@@ -849,7 +871,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 				})
 			});
 		}, function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		});
 	};
 
@@ -872,7 +894,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 		if (data.error) return reportServerError($scope, data.error);
 		$scope.fields = fixedfields.concat(data.result);
 	}, function (err) {
-		console.error(err);
+		reportConnectionError($scope, err);
 	});
 
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, api, mode, 10, function () {
@@ -936,7 +958,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 									},
 									function (err) {
 										callback(matches);
-										console.error(err);
+										reportConnectionError($scope, err);
 									}
 								);
 							}
@@ -1013,7 +1035,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 								cb();
 							},
 							function (err) {
-								console.error(err);
+								reportConnectionError($scope, err);
 							}
 						);
 					},
@@ -1031,7 +1053,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 					$scope.refilter();
 				});
 		}, function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		});
 	};
 
@@ -1063,7 +1085,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 				});
 			},
 			function (err) {
-				console.error(err);
+				reportConnectionError($scope, err);
 			}
 		);
 	};
@@ -1085,7 +1107,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 								$scope.reloadEntry(item, cb);
 							},
 							function (err) {
-								console.error(err);
+								reportConnectionError($scope, err);
 							}
 						)
 					}
@@ -1142,7 +1164,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 			$scope.fields = fixedfields.concat(data.result);
 		},
 		function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		}
 	);
 
@@ -1214,7 +1236,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 									},
 									function (err) {
 										callback(matches);
-										console.error(err);
+										reportConnectionError($scope, err);
 									}
 								);
 							}
@@ -1291,7 +1313,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 								cb();
 							},
 							function (err) {
-								console.error(err);
+								reportConnectionError($scope, err);
 							}
 						);
 					},
@@ -1309,7 +1331,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 					$scope.refilter();
 				});
 		}, function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		});
 	};
 
@@ -1344,7 +1366,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 					},
 					function (err) {
 						callback(matches);
-						console.error(err);
+						reportConnectionError($scope, err);
 					}
 				);
 
@@ -1368,7 +1390,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 				p.tags.push(tag);
 			});
 		}, function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		});
 	};
 
@@ -1390,7 +1412,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 				})
 			});
 		}, function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		});
 	};
 
@@ -1437,7 +1459,7 @@ app.controller('TagEdit', function ($scope) {
 	};
 });
 
-app.controller('MergeEntitiesCtrl', function ($scope, entities) {
+app.controller('SearchEntitiesCtrl', function ($scope, entities) {
 	var mode = $scope.data.mode;
 	$scope.data.org = {};
 	$scope.typeaheadDatasetEntities = {
@@ -1457,7 +1479,7 @@ app.controller('MergeEntitiesCtrl', function ($scope, entities) {
 					if (data.error) return reportServerError($scope, data.error);
 					callback(data.result);
 				}, function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				});
 		}
 	};
@@ -1505,7 +1527,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 				$scope.item = data.result;
 			},
 			function (err) {
-				console.error(err);
+				reportConnectionError($scope, err);
 			}
 		);
 	}
@@ -1522,7 +1544,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 			}
 		},
 		function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		}
 	);
 
@@ -1533,7 +1555,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 			$scope.tags = data.result;
 		},
 		function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		}
 	);
 
@@ -1616,7 +1638,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 					$scope.back();
 				},
 				function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				}
 			);
 		});
@@ -1630,7 +1652,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 					$scope.back();
 				},
 				function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				}
 			);
 		});
@@ -1691,7 +1713,7 @@ var typedSimpleEditCtrl = function ($scope, $state, $stateParams, api, type, mod
 					$state.go(mode);
 				},
 				function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				}
 			);
 		});
@@ -1707,7 +1729,7 @@ var typedSimpleEditCtrl = function ($scope, $state, $stateParams, api, type, mod
 					$state.go(mode);
 				},
 				function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				}
 			);
 		});
@@ -1724,7 +1746,7 @@ var typedSimpleEditCtrl = function ($scope, $state, $stateParams, api, type, mod
 				$scope[type] = data.result;
 			},
 			function (err) {
-				console.error(err);
+				reportConnectionError($scope, err);
 			}
 		);
 	}
@@ -1766,7 +1788,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 					aftersave();
 				},
 				function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				}
 			);
 		});
@@ -1780,7 +1802,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 					aftersave();
 				},
 				function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				}
 			);
 		});
@@ -1799,7 +1821,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 			$scope.tags = data.result;
 		},
 		function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		}
 	);
 
@@ -1809,7 +1831,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 			$scope.types = data.result;
 		},
 		function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		}
 	);
 
@@ -1825,7 +1847,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 			}
 		},
 		function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		}
 	);
 
@@ -1844,7 +1866,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 						if (data.error) return reportServerError($scope, data.error);
 						callback(data.result);
 					}, function (err) {
-						console.error(err);
+						reportConnectionError($scope, err);
 					});
 			}
 		};
@@ -1954,7 +1976,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 					$scope.edit.oneorg = data.result.name;
 					$scope.edit.one = data.result;
 				}, function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				});
 			if (v.entities[1])
 				entities.item({id: v.entities[1]}, function (data) {
@@ -1962,7 +1984,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 					$scope.edit.twoorg = data.result.name;
 					$scope.edit.two = data.result;
 				}, function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				});
 		}
 	});
@@ -1989,7 +2011,7 @@ app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relat
 				$scope.relation = data.result;
 			},
 			function (err) {
-				console.error(err);
+				reportConnectionError($scope, err);
 			}
 		);
 	}
@@ -2017,7 +2039,7 @@ app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, en
 						return oe != rel;
 					});
 				}, function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				})
 			});
 	};
@@ -2051,7 +2073,7 @@ app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, en
 					if (data.error) return reportServerError($scope, data.error);
 					$scope.relations = data.result.relations;
 				}, function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				});
 			});
 	};
@@ -2118,7 +2140,7 @@ app.controller('WhitelistCtrl', function ($scope, $resource, $filter, $modal, ng
 							cb();
 						},
 						function (err) {
-							console.error(err);
+							reportConnectionError($scope, err);
 						}
 					)
 				}
@@ -2143,7 +2165,7 @@ app.controller('WhitelistCtrl', function ($scope, $resource, $filter, $modal, ng
 							cb();
 						},
 						function (err) {
-							console.error(err);
+							reportConnectionError($scope, err);
 						}
 					)
 				}
@@ -2222,7 +2244,7 @@ app.controller('AutoCompleteCtrl', function ($scope, autocomplete) {
 						if (data.error) return reportServerError($scope, data.error);
 						callback(data.result);
 					}, function (err) {
-						console.error(err);
+						reportConnectionError($scope, err);
 					});
 			}
 		};
@@ -2238,7 +2260,33 @@ app.controller('FieldListEditCtrl', function ($scope) {
 	};
 });
 
-app.controller('UpdateCtrl', function ($scope, update) {
+app.controller('ModalUpdateEditorCtrl', function ($scope, fields, tags, update) {
+	var item = angular.copy($scope.data.item);
+
+	$scope.data.validate = function (result, cb) {
+		update.saveEntity({id: item._id}, {id: item._id, ent: item},
+			function (data) {
+				if (data.error) return reportServerError($scope, data.error);
+				$scope.data.update = data.result;
+				cb(true);
+			},
+			function (err) {
+				reportConnectionError($scope, err);
+			}
+		);
+	};
+	var modename = item.type == 'person' ? 'Person' : 'Organisation';
+	var mode = item.type == 'person' ? 'persons' : 'entities';
+	$scope.edit = {};
+	typedEntityEditCtrl($scope, {}, {}, {
+		item: function (params, cb) {
+			cb(item);
+		}
+	}, fields, tags, item.type, mode, modename);
+	$scope.item = item;
+});
+
+app.controller('UpdateCtrl', function ($scope, $modal, update) {
 
 	$scope.updates = [];
 
@@ -2264,6 +2312,7 @@ app.controller('UpdateCtrl', function ($scope, update) {
 	$scope.show = function (entry) {
 		if (entry.$loading) return;
 		if (entry.$visible) {
+			entry.update = null;
 			entry.$visible = false;
 			return;
 		}
@@ -2298,6 +2347,43 @@ app.controller('UpdateCtrl', function ($scope, update) {
 		if (i >= 0) $scope.updates[i].update = update;
 	};
 
+	$scope.searchEntity = function (entry) {
+		editModalDialog($modal,
+			{
+				mode: entry.update.entity.type == 'person' ? 'persons' : 'entities',
+				item: entry.update.entity,
+				validate: function (data, cb) {
+					if (!data.edit._id) return;
+					update.chooseEntity({id: entry._id}, {id: entry._id, ent: data.edit._id},
+						function (data) {
+							if (data.error) return reportServerError($scope, data.error);
+							if (data.result.deleted) return removeUpdate(entry._id);
+							replaceUpdate(entry, data.result);
+							cb(true);
+						},
+						function (err) {
+							reportConnectionError($scope, err);
+						}
+					);
+				}
+			},
+			'partials/search-modal.html'
+			, function (data) {});
+	};
+
+	$scope.editEntity = function (entry) {
+		editModalDialog($modal,
+			{
+				item: entry.update.entity
+			},
+			'partials/update-entity-modal.html'
+			, function (data) {
+				if (data.update.deleted) return removeUpdate(entry._id);
+				entry.name = data.update.entity.name;
+				replaceUpdate(entry, data.update);
+			});
+	};
+
 	$scope.deleteEntity = function (entry) {
 		update.deleteUpdate({id: entry._id}, {id: entry._id}, function (data) {
 			$scope.updates = $scope.updates.filter(function (ent) {
@@ -2328,6 +2414,15 @@ app.controller('UpdateCtrl', function ($scope, update) {
 		});
 	};
 
+	$scope.applyEntityData = function (entry) {
+		update.applyEntityData({id: entry._id}, {id: entry._id}, function (data) {
+			if (data.result.deleted) return removeUpdate(entry._id);
+			replaceUpdate(entry, data.result);
+		}, function (err) {
+			console.log(err);
+		});
+	};
+
 	$scope.createRelation = function (rel) {
 		update.createRelation({id: rel._id}, {id: rel._id}, function (data) {
 			data.result.forEach(function (update) {
@@ -2340,6 +2435,8 @@ app.controller('UpdateCtrl', function ($scope, update) {
 		});
 	}
 });
+
+// ------------------- filter -------------------
 
 app.filter('pagination', function () {
 	return function (input, start) {

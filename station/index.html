@@ -542,14 +542,29 @@
 
 	<h1><span ng-bind="modename"></span> <span ng-if="isNew">anlegen</span><span ng-if="!isNew">bearbeiten</span></h1>
 
+	<div ng-include="'partials/entity-edit.html'"></div>
+
+	<div class="pull-right">
+		<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
+		<button ng-if="isNew" class="btn btn-primary" ng-click="createnew()">Anlegen</button>
+		<button type="button" class="btn btn-default" ng-click="back()">Abbruch</button>
+	</div>
+
+	<hr/>
+
+	<h1>Verbindungen</h1>
+
+	<div ng-include="'partials/relations-owned.html'"></div>
+
+</script>
+
+<script type="text/ng-template" id="partials/entity-edit.html">
 	<form role="form">
 
 		<div class="form-group">
 			<label for="name">Name</label>
 			<input type="text" class="form-control" id="name" placeholder="Name" ng-model="item.name">
 		</div>
-
-		<hr/>
 
 		<div class="row">
 
@@ -589,6 +604,7 @@
 
 	<div ngdatafields data-fields="item.data" data-fieldsowner="item"></div>
 
+
 	<hr/>
 
 	<div class="btn-group">
@@ -601,17 +617,22 @@
 		</ul>
 	</div>
 
-	<div class="pull-right">
-		<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
-		<button ng-if="isNew" class="btn btn-primary" ng-click="createnew()">Anlegen</button>
-		<button type="button" class="btn btn-default" ng-click="back()">Abbruch</button>
+</script>
+
+<script type="text/ng-template" id="partials/update-entity-modal.html">
+	<div ng-controller="ModalUpdateEditorCtrl">
+		<div class="modal-header">
+			<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
+			<h4 class="modal-title"><span ng-bind="modename"></span> bearbeiten</h4>
+		</div>
+		<div class="modal-body">
+			<div ng-include="'partials/entity-edit.html'"></div>
+		</div>
+		<div class="modal-footer">
+			<button class="btn btn-primary" ng-click="ok()">Aktualisieren</button>
+			<button type="button" class="btn btn-warning" ng-click="cancel()">Abbruch</button>
+		</div>
 	</div>
-
-	<hr/>
-
-	<h1>Verbindungen</h1>
-	<div ng-include="'partials/relations-owned.html'"></div>
-
 </script>
 
 <script type="text/ng-template" id="partials/relations-modal.html">
@@ -650,12 +671,7 @@
 			<tr ng-repeat="o in relations">
 				<td ng-bind="o.entity.name"></td>
 				<td ng-bind="o.type"></td>
-				<!--<td ng-bind="o.weight"></td>-->
-				<!--<td ng-bind="o.updated"></td>-->
-				<!--<td ng-bind="o.created"></td>-->
 				<td ng-bind="o.tags"></td>
-				<!--<td ng-bind="o.entities"></td>-->
-				<!--<td ng-bind="o.data"></td>-->
 				<td class="col-action">
 					<span class="btn-right" ng-click="remove(o)" title="Verbindung löschen"><i class="fa fa-trash"></i></span>
 					<span class="btn-right" ng-click="edit(o)" title="Verbindung bearbeiten"><i class="fa fa-edit"></i></span>
@@ -901,7 +917,7 @@
 				<div class="form-group col-md-12">
 					<div class="checkbox">
 						<label>
-							<input type="checkbox" ng-model="field.default"> Standard (Feld beim Neuanlegen von Entitäten automatisch eintragen)
+							<input type="checkbox" ng-model="field.default"> Standard (Feld beim Neuanlegen von Entitäten automatisch anlegen)
 						</label>
 					</div>
 				</div>
@@ -955,7 +971,7 @@
 		<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
 		<h4 class="modal-title">{{data.modename}} zusammenführen</h4>
 	</div>
-	<div class="modal-body" ng-controller="MergeEntitiesCtrl">
+	<div class="modal-body" ng-controller="SearchEntitiesCtrl">
 		<form class="form">
 			<div class="form-group">
 				<label>{{data.entity.name}} zusammenführen mit</label>
@@ -974,6 +990,27 @@
 
 </script>
 
+<script type="text/ng-template" id="partials/search-modal.html">
+	<div class="modal-header">
+		<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
+		<h4 class="modal-title">Suchen</h4>
+	</div>
+	<div class="modal-body" ng-controller="SearchEntitiesCtrl">
+		<form class="form">
+			<div class="form-group">
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="{{data.modename}}" ng-model="data.edit.name" datasets="typeaheadDatasetEntities" ngtypeahead>
+					<span ng-show="data.edit._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="ok()">OK</button>
+		<button class="btn btn-warning" ng-click="cancel()">Abbruch</button>
+	</div>
+</script>
+
 <script type="text/ng-template" id="partials/datafields.html">
 
 	<div ng-repeat="d in fields" ng-switch="d.format" ng-controller="FieldListEditCtrl">
@@ -981,13 +1018,22 @@
 
 		<div ng-switch-when="link" class="row">
 			<form class="form">
-				<div class="form-group col-md-12">
+				<div class="form-group col-md-6">
 					<label>URL</label>
-					<input type="url" class="form-control" placeholder="URL" ng-model="d.value.url">
+					<input type="text" class="form-control" placeholder="URL" ng-model="d.value.url">
 				</div>
-				<div class="form-group col-md-12">
+				<div class="form-group col-md-6">
 					<label>Bemerkung</label>
 					<input type="text" class="form-control" placeholder="Bemerkung" ng-model="d.value.remark">
+				</div>
+			</form>
+		</div>
+
+		<div ng-switch-when="url" class="row">
+			<form class="form">
+				<div class="form-group col-md-12">
+					<label>URL</label>
+					<input type="text" class="form-control" placeholder="URL" ng-model="d.value">
 				</div>
 			</form>
 		</div>
@@ -1373,6 +1419,8 @@
 								<span class="caret"></span>
 							</a>
 							<ul class="dropdown-menu" role="menu">
+								<li><a href ng-click="editEntity(entry)">Eintrag bearbeiten</a></li>
+								<li><a href ng-click="searchEntity(entry)">Eintrag suchen</a></li>
 								<li><a href ng-click="deleteEntity(entry);">Eintrag löschen</a></li>
 							</ul>
 						</div>
@@ -1385,21 +1433,21 @@
 							<!--<i class="fa fa-remove"></i>-->
 						</div>
 					</div>
-					<div class="detail-col alignmiddle" ng-if="entry.update.matches.length==0">
-						<a href ng-click="createEntity(entry)"><i class="fa fa-arrow-right"></i> Eintrag anlegen</a>
-						<a href ng-click="searchEntity(entry)"><i class="fa fa-search"></i> Eintrag suchen</a>
+					<div class="detail-col" ng-if="entry.update.matches.length==0">
+						<a href ng-click="createEntity(entry)"><i class="fa fa-arrow-right"></i> Eintrag anlegen</a><br/>
 					</div>
 					<div class="detail-col" ng-if="(entry.update.matches.length==1)">
 						<span ng-bind="entry.update.matches[0].name"></span><br/>
 						<span class="detail-label">Importer:</span> <span ng-bind="entry.update.matches[0].importer"></span><br/>
+						<a ng-if="entry.update.entity.data.length>0" href ng-click="applyEntityData(entry)"><i class="fa fa-arrow-right"></i> Daten übernehmen</a><br/>
 
-						<div ng-if="(entry.update.entity.data.length>0)">
-							<div ng-repeat="d in entry.update.matches[0].data">
-								<span class="detail-label" ng-bind="d.desc"></span>
-								<span ng-bind="d | fieldvalue"></span>
-								<!--<i class="fa fa-remove"></i>-->
-							</div>
-						</div>
+						<!--<div ng-if="(entry.update.entity.data.length>0)">-->
+							<!--<div ng-repeat="d in entry.update.matches[0].data">-->
+								<!--<span class="detail-label" ng-bind="d.desc"></span>-->
+								<!--<span ng-bind="d | fieldvalue"></span>-->
+								<!--&lt;!&ndash;<i class="fa fa-remove"></i>&ndash;&gt;-->
+							<!--</div>-->
+						<!--</div>-->
 					</div>
 					<div class="detail-col" ng-if="entry.update.matches.length>1">
 						<div ng-repeat="ent in entry.update.matches">
@@ -1413,8 +1461,8 @@
 						<div class="detail-col">
 							<div class="details-head">Verbindungen</div>
 						</div>
-						<div class="detail-col alignmiddle">
-							<a ng-if="entry.update.relations.length>1" href ng-click="createRelations(entry)"><i class="fa fa-arrow-right"></i> Alle Verbindungen eintragen</a>
+						<div class="detail-col">
+							<!--<a ng-if="entry.update.relations.length>1" href ng-click="createRelations(entry)"><i class="fa fa-arrow-right"></i> Alle Verbindungen anlegen</a>-->
 						</div>
 					</div>
 
@@ -1426,7 +1474,7 @@
 									<span class="caret"></span>
 								</a>
 								<ul class="dropdown-menu" role="menu">
-									<li><a href ng-click="createRelation(rel)">Verbindung eintragen</a></li>
+									<li><a href ng-click="createRelation(rel)">Verbindung anlegen</a></li>
 									<li><a href ng-click="deleteRelation(rel);">Verbindung löschen</a></li>
 								</ul>
 							</div>
@@ -1435,17 +1483,18 @@
 								<span ng-bind="d | fieldvalue"></span>
 							</div>
 						</div>
-						<div class="detail-col alignmiddle" ng-if="rel.matches.length==0">
+						<div class="detail-col" ng-if="rel.matches.length==0">
 							<b ng-bind="rel.entity.matches[0].name"></b><br/>
-							<a href ng-click="createRelation(rel)"><i class="fa fa-arrow-right"></i> Verbindung eintragen</a>
+							<a href ng-click="createRelation(rel)"><i class="fa fa-arrow-right"></i> Verbindung anlegen</a>
 						</div>
-						<div class="detail-col alignmiddle" ng-if="rel.matches.length==1">
+						<div class="detail-col" ng-if="rel.matches.length==1">
 							<b ng-bind="rel.entity.name"></b><br/>
+
 							<div class="detail-field" ng-repeat="d in rel.matches[0].data">
 								<span ng-bind="d | fieldvalue"></span>
 							</div>
 						</div>
-						<div class="detail-col alignmiddle" ng-if="rel.matches.length>1">
+						<div class="detail-col" ng-if="rel.matches.length>1">
 							<div ng-repeat="ent in rel.matches">
 								-> <span ng-bind="rel"></span>
 							</div>

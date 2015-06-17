@@ -602,14 +602,6 @@ app.post("/api/users/update/:id", sessionAdminHandler, function (req, res) {
 	});
 });
 
-// clean db.
-app.get("/api/db/clean", sessionAdminHandler, function (req, res) {
-	debug("clean db command");
-	api.db_clean(function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
 // create whitelist.
 app.post("/api/whitelist/create", sessionUserHandler, function (req, res) {
 	debug("create whitelist entry", req.body.site);
@@ -740,7 +732,7 @@ app.get("/api/update/entity/list", sessionUserHandler, function (req, res) {
 
 app.get("/api/update/entity/get/:id", sessionUserHandler, function (req, res) {
 	debug("get update ", req.params.id);
-	api.update_ent_info(req.params.id, function (err, result) {
+	api.update_entity_info_id(req.params.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -748,6 +740,27 @@ app.get("/api/update/entity/get/:id", sessionUserHandler, function (req, res) {
 app.post("/api/update/entity/delete/:id", sessionUserHandler, function (req, res) {
 	debug("delete update ", req.params.id || req.body.id);
 	api.update_ent_delete(req.params.id || req.body.id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.post("/api/update/entity/apply/:id", sessionUserHandler, function (req, res) {
+	debug("delete update ", req.params.id || req.body.id);
+	api.update_ent_apply(req.params.id || req.body.id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.post("/api/update/entity/choose/:id", sessionUserHandler, function (req, res) {
+	debug("save update entity %s", req.params.id || req.body.id);
+	api.update_ent_choose(req.params.id || req.body.id, req.body.ent, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.post("/api/update/entity/save/:id", sessionUserHandler, function (req, res) {
+	debug("save update entity %s", req.params.id || req.body.id);
+	api.update_ent_update(req.params.id || req.body.id, req.body.ent, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -765,6 +778,7 @@ app.post("/api/update/entity/create/:id", sessionUserHandler, function (req, res
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
+
 app.post("/api/update/relation/create/:id", sessionUserHandler, function (req, res) {
 	debug("create update relation", req.params.id || req.body.id);
 	api.update_rel_create(req.params.id || req.body.id, function (err, result) {

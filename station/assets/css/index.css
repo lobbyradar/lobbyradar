@@ -4,6 +4,10 @@ body {
 .small .btn {
   font-size: 0.8em; }
 
+.modal hr {
+  margin-top: 0;
+  margin-bottom: 4px; }
+
 .form-control-full {
   width: 100% !important; }
 
@@ -190,14 +194,15 @@ body {
   border: solid 1px #ececec; }
   .update .item .info {
     cursor: pointer;
-    border: solid 1px #ececec;
+    border-bottom: solid 1px #ececec;
     padding-left: 4px;
     padding-top: 2px;
     padding-bottom: 2px; }
   .update .item .details {
     padding-left: 14px;
     padding-right: 14px;
-    padding-bottom: 8px; }
+    padding-bottom: 8px;
+    border-bottom: solid 1px #ececec; }
     .update .item .details .details-head {
       margin-top: 4px;
       margin-bottom: 4px;

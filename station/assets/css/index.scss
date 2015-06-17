@@ -8,6 +8,13 @@ body {
   }
 }
 
+.modal {
+  hr {
+	margin-top: 0;
+	margin-bottom: 4px;
+  }
+}
+
 .form-control-full {
   width: 100% !important;
 }
@@ -256,7 +263,7 @@ body {
 
 	.info {
 	  cursor: pointer;
-	  border: solid 1px #ececec;
+	  border-bottom: solid 1px #ececec;
 	  padding-left: 4px;
 	  padding-top: 2px;
 	  padding-bottom: 2px;
@@ -266,6 +273,7 @@ body {
 	  padding-left: 14px;
 	  padding-right: 14px;
 	  padding-bottom: 8px;
+	  border-bottom: solid 1px #ececec;
 
 	  .details-head {
 		margin-top: 4px;
