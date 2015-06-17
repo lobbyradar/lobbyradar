@@ -127,7 +127,7 @@ var convert_lobbyliste = function(data, fn){
 	if (data.hasOwnProperty("description") && (typeof data.description === "string") && data.description !== "") {
 		result.data.push({
 			"key": "description",
-			"desc": "Beschreibungstext",
+			"desc": "Beschreibung",
 			"value": data.description,
 			"format": "string",
 			"auto": true,

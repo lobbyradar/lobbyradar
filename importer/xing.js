@@ -56,7 +56,7 @@ utils.entity_specs = {
 			entity.data.push({
 				"key": "url",
 				"value": val,
-				"desc": "URL",
+				"desc": "Webseite",
 				"format": "url"
 			});
 		}
@@ -65,9 +65,9 @@ utils.entity_specs = {
 		if ((typeof val === "string") && (val !== "")) {
 			if (val.toLowerCase().indexOf('http') !== 0) val = 'http://';
 			entity.data.push({
-				"key": "link",
+				"key": "url",
 				"value": {url: val},
-				"desc": "Link",
+				"desc": "Webseite",
 				"format": "link"
 			});
 		}

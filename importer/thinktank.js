@@ -115,7 +115,7 @@ var convert_thinktank = function(data, fn){
 		result.data.push({
 			"key": "url",
 			"value": data.url,
-			"desc": "URL",
+			"desc": "Webseite",
 			"format": "url",
 			"auto": true,
 			created: (new Date()),
@@ -190,7 +190,7 @@ var convert_thinktank = function(data, fn){
 	if (data.hasOwnProperty("info") && (typeof data.info === "string") && data.info !== "") {
 		result.data.push({
 			"key": "description",
-			"desc": "Beschreibungstext",
+			"desc": "Beschreibung",
 			"value": data.info,
 			"format": "string",
 			"auto": true,

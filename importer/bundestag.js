@@ -221,10 +221,10 @@ var execute = function(finish){
 		// add addresses
 		Object.keys(contacts).forEach(function(k){
 			ent.data.push({
-				key: "photo",
+				key: "address",
 				value: contacts[k],
-				desc: "Foto",
-				format: "photo",
+				desc: "Adresse",
+				format: "address",
 				auto: true,
 				created: (new Date()),
 				updated: (new Date())
@@ -254,7 +254,7 @@ var execute = function(finish){
 			};
 
 			ent.data.push({
-				key: "link",
+				key: "url",
 				value: {
 					url: web.url,
 					remark: remark

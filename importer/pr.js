@@ -67,7 +67,7 @@ var execute = function(finish){
 				},{
 					key: "url",
 					value: set.homepage,
-					desc: "URL",
+					desc: "Webseite",
 					format: "url",
 					auto: true,
 					created: (new Date()),

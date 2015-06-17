@@ -70,12 +70,12 @@ var execute = function(finish){
 				created: (new Date()),
 				updated: (new Date())
 			},{
-				key: "link",
+				key: "url",
 				value: {
 					url: set.url,
 					remark: "Webseite"
 				},
-				desc: "Link",
+				desc: "Webseite",
 				format: "link",
 				auto: true,
 				created: (new Date()),

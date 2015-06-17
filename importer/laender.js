@@ -121,18 +121,10 @@ var execute = function(finish){
 										created: (new Date()),
 										updated: (new Date())
 									},{
-										key: "begin",
-										value: rel.start,
-										desc: "Von",
-										format: "date",
-										auto: true,
-										created: (new Date()),
-										updated: (new Date())
-									},{
-										key: "end",
-										value: rel.end,
-										desc: "Bis",
-										format: "date",
+										key: "range",
+										value: {start:rel.start,end:rel.end,fmt:'dd.MM.yyyy'},
+										desc: "Zeitraum",
+										format: "range",
 										auto: true,
 										created: (new Date()),
 										updated: (new Date())

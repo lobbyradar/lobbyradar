@@ -1394,6 +1394,34 @@
 </script>
 
 <script type="text/ng-template" id="partials/update.html">
+	<div class="row">
+		<div class="col-md-4 headline">
+			<h1>Updates</h1>
+
+			<p>Anzahl <span ng-bind="updates.length"></span></p>
+
+		</div>
+		<div class="col-md-5">
+			<div class="pull-right">
+				<label>Aktionen</label>
+
+				<div>
+					<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>
+					<div class="btn-group">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+							Daten anzeigen <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div ng-include="'partials/filter.html'"></div>
+		</div>
+	</div>
 
 	<div class="update">
 		<div class="item" ng-repeat="entry in updates | pagination: curPage * pageSize | limitTo: pageSize">

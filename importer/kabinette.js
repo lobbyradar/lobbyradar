@@ -41,16 +41,10 @@ var kabinette = [{
 	"tags": ["kabinett","merkel"],
 	"aliases": ["Kabinett Merkel 2"],
 	"data": [{ 
-		"key": "begin",
-		"value": moment("2009-10-28","YYYY-MM-DD").toDate(),
+		"key": "range",
+		"value": {start:moment("2009-10-28","YYYY-MM-DD").toDate(),end:moment("2013-12-17","YYYY-MM-DD").toDate(),fmt:"dd.MM.yyyy"},
 		"desc": "Von",
-		"format": "date",
-		"auto": true
-	},{
-		"key": "end",
-		"value": moment("2013-12-17","YYYY-MM-DD").toDate(),
-		"desc": "Bis",
-		"format": "date",
+		"format": "range",
 		"auto": true
 	}],
 	"search": ["kabinett","merkel","kabinett merkel","merkel 2","2","ii","merkel ii"]
@@ -61,17 +55,11 @@ var kabinette = [{
 	"type": "entity",
 	"tags": ["kabinett","merkel"],
 	"aliases": ["Kabinett Merkel 1"],
-	"data": [{ 
-		"key": "begin",
-		"value": moment("2005-11-22","YYYY-MM-DD").toDate(),
+	"data": [{
+		"key": "range",
+		"value": {start:moment("2005-11-22","YYYY-MM-DD").toDate(),end:moment("2009-10-28","YYYY-MM-DD").toDate(),fmt:"dd.MM.yyyy"},
 		"desc": "Von",
-		"format": "date",
-		"auto": true
-	},{
-		"key": "end",
-		"value": moment("2009-10-28","YYYY-MM-DD").toDate(),
-		"desc": "Bis",
-		"format": "date",
+		"format": "range",
 		"auto": true
 	}],
 	"search": ["kabinett","merkel","kabinett merkel","merkel 2","2","ii","merkel ii"]
@@ -82,17 +70,11 @@ var kabinette = [{
 	"type": "entity",
 	"tags": ["kabinett","schröder"],
 	"aliases": ["Kabinett Schröder 2"],
-	"data": [{ 
-		"key": "begin",
-		"value": moment("2002-10-22","YYYY-MM-DD").toDate(),
+	"data": [{
+		"key": "range",
+		"value": {start:moment("2002-10-22","YYYY-MM-DD").toDate(),end:moment("2005-10-18","YYYY-MM-DD").toDate(),fmt:"dd.MM.yyyy"},
 		"desc": "Von",
-		"format": "date",
-		"auto": true
-	},{
-		"key": "end",
-		"value": moment("2005-10-18","YYYY-MM-DD").toDate(),
-		"desc": "Bis",
-		"format": "date",
+		"format": "range",
 		"auto": true
 	}],
 	"search": ["kabinett","schroeder","schröder","kabinett schröder","kabinett schroeder","schröder 2","schroeder 2","2","ii","schroeder ii","schröder ii"]
@@ -103,17 +85,11 @@ var kabinette = [{
 	"type": "entity",
 	"tags": ["kabinett","schröder"],
 	"aliases": ["Kabinett Schröder 1"],
-	"data": [{ 
-		"key": "begin",
-		"value": moment("1998-10-27","YYYY-MM-DD").toDate(),
+	"data": [{
+		"key": "range",
+		"value": {start:moment("1998-10-27","YYYY-MM-DD").toDate(),end:moment("2002-10-22","YYYY-MM-DD").toDate(),fmt:"dd.MM.yyyy"},
 		"desc": "Von",
-		"format": "date",
-		"auto": true
-	},{
-		"key": "end",
-		"value": moment("2002-10-22","YYYY-MM-DD").toDate(),
-		"desc": "Bis",
-		"format": "date",
+		"format": "range",
 		"auto": true
 	}],
 	"search": ["kabinett","schroeder","schröder","kabinett schröder","kabinett schroeder","schröder 1","schroeder 1","1","i","schroeder i","schröder i"]
@@ -264,18 +240,10 @@ var execute = function(finish){
 											created: (new Date()),
 											updated: (new Date())
 										},{
-											key: "begin",
-											value: rel.start,
-											desc: "Von",
-											format: "date",
-											auto: true,
-											created: (new Date()),
-											updated: (new Date())
-										},{
-											key: "end",
-											value: rel.end,
-											desc: "Bis",
-											format: "date",
+											key: "range",
+											value: {start:rel.start,end:rel.end,fmt:'dd.MM.yyyy'},
+											desc: "Zeitraum",
+											format: "range",
 											auto: true,
 											created: (new Date()),
 											updated: (new Date())
