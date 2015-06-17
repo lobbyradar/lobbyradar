@@ -229,12 +229,12 @@
 			<th ng-if="checks.enabled"></th>
 			<th ng-repeat="f in state.fields"
 				class="sortable" ng-class="{
-                    'sort-asc': tableParams.isSortBy(f.key, 'asc'),
-                    'sort-desc': tableParams.isSortBy(f.key, 'desc')
+                    'sort-asc': tableParams.isSortBy(f._id, 'asc'),
+                    'sort-desc': tableParams.isSortBy(f._id, 'desc')
                   }"
-				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+				ng-click="tableParams.sorting(f._id, tableParams.isSortBy(f._id, 'asc') ? 'desc' : 'asc')">
 				<span ng-bind="f.name"></span>
-				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f.key, 'asc'),'fa-sort-desc':tableParams.isSortBy(f.key, 'desc')}" class="fa"></span>
+				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f._id, 'asc'),'fa-sort-desc':tableParams.isSortBy(f._id, 'desc')}" class="fa"></span>
 			</th>
 
 			<th class="text-right">Aktionen</th>
@@ -345,12 +345,12 @@
 			<th ng-if="checks.enabled"></th>
 			<th ng-repeat="f in state.fields"
 				class="sortable" ng-class="{
-                    'sort-asc': tableParams.isSortBy(f.key, 'asc'),
-                    'sort-desc': tableParams.isSortBy(f.key, 'desc')
+                    'sort-asc': tableParams.isSortBy(f._id, 'asc'),
+                    'sort-desc': tableParams.isSortBy(f._id, 'desc')
                   }"
-				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+				ng-click="tableParams.sorting(f._id, tableParams.isSortBy(f._id, 'asc') ? 'desc' : 'asc')">
 				<span ng-bind="f.name"></span>
-				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f.key, 'asc'),'fa-sort-desc':tableParams.isSortBy(f.key, 'desc')}" class="fa"></span>
+				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f._id, 'asc'),'fa-sort-desc':tableParams.isSortBy(f._id, 'desc')}" class="fa"></span>
 			</th>
 			<th class="text-right">Aktionen</th>
 		</tr>
@@ -418,12 +418,12 @@
 		<tr>
 			<th ng-repeat="f in state.fields"
 				class="sortable" ng-class="{
-                    'sort-asc': tableParams.isSortBy(f.key, 'asc'),
-                    'sort-desc': tableParams.isSortBy(f.key, 'desc')
+                    'sort-asc': tableParams.isSortBy(f._id, 'asc'),
+                    'sort-desc': tableParams.isSortBy(f._id, 'desc')
                   }"
-				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+				ng-click="tableParams.sorting(f._id, tableParams.isSortBy(f._id, 'asc') ? 'desc' : 'asc')">
 				<span ng-bind="f.name"></span>
-				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f.key, 'asc'),'fa-sort-desc':tableParams.isSortBy(f.key, 'desc')}" class="fa"></span>
+				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f._id, 'asc'),'fa-sort-desc':tableParams.isSortBy(f._id, 'desc')}" class="fa"></span>
 			</th>
 			<th class="text-right">Aktionen</th>
 		</tr>
@@ -510,12 +510,12 @@
 			<th ng-if="checks.enabled"></th>
 			<th ng-repeat="f in state.fields"
 				class="sortable" ng-class="{
-                    'sort-asc': tableParams.isSortBy(f.key, 'asc'),
-                    'sort-desc': tableParams.isSortBy(f.key, 'desc')
+                    'sort-asc': tableParams.isSortBy(f._id, 'asc'),
+                    'sort-desc': tableParams.isSortBy(f._id, 'desc')
                   }"
-				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+				ng-click="tableParams.sorting(f._id, tableParams.isSortBy(f._id, 'asc') ? 'desc' : 'asc')">
 				<span ng-bind="f.name"></span>
-				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f.key, 'asc'),'fa-sort-desc':tableParams.isSortBy(f.key, 'desc')}" class="fa"></span>
+				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f._id, 'asc'),'fa-sort-desc':tableParams.isSortBy(f._id, 'desc')}" class="fa"></span>
 			</th>
 			<th class="text-right">Aktionen</th>
 		</tr>
@@ -1470,11 +1470,11 @@
 						<a ng-if="entry.update.entity.data.length>0" href ng-click="applyEntityData(entry)"><i class="fa fa-arrow-right"></i> Daten übernehmen</a><br/>
 
 						<!--<div ng-if="(entry.update.entity.data.length>0)">-->
-							<!--<div ng-repeat="d in entry.update.matches[0].data">-->
-								<!--<span class="detail-label" ng-bind="d.desc"></span>-->
-								<!--<span ng-bind="d | fieldvalue"></span>-->
-								<!--&lt;!&ndash;<i class="fa fa-remove"></i>&ndash;&gt;-->
-							<!--</div>-->
+						<!--<div ng-repeat="d in entry.update.matches[0].data">-->
+						<!--<span class="detail-label" ng-bind="d.desc"></span>-->
+						<!--<span ng-bind="d | fieldvalue"></span>-->
+						<!--&lt;!&ndash;<i class="fa fa-remove"></i>&ndash;&gt;-->
+						<!--</div>-->
 						<!--</div>-->
 					</div>
 					<div class="detail-col" ng-if="entry.update.matches.length>1">

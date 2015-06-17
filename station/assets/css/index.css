@@ -62,17 +62,14 @@ body {
 
 .btn-left {
   cursor: pointer;
-  border: solid 1px #ededed;
   border-radius: 2px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  padding-left: 8px;
-  padding-right: 6px;
   margin-left: 3px;
   margin-top: 0;
-  margin-bottom: 0; }
+  margin-bottom: 0;
+  color: #aaaaaa; }
   .btn-left:hover {
-    border-color: #c3c3c3; }
+    border-color: #919191;
+    color: #000; }
 
 .btn-label-right {
   cursor: pointer;

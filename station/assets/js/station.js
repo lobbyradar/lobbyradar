@@ -542,7 +542,7 @@ var getDispayValues = function (field, entity, dateFilter) {
 	} else {
 		if (entity.data && entity.data.length)
 			entity.data.forEach(function (d) {
-				if (field.key == d.key) {
+				if ((field.key == d.key) && (field.format == d.format) && (field.name == d.desc)) {
 					result.push(d);
 				}
 			})
@@ -709,9 +709,39 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 			});
 		}
 
-		orderedData = params.sorting() ?
-			$filter('orderBy')(orderedData, params.orderBy()) :
-			orderedData;
+		var sorting = params.sorting();
+
+		if (sorting) {
+			var s = Object.keys(sorting)[0];
+			var f = $scope.state.fields.filter(function (f) {
+				return f._id == s;
+			})[0];
+			if (!f) console.log('invalid sort id', s);
+			else {
+				//console.log('sort by', f);
+				var dir = sorting[s] == 'asc' ? 1 : -1;
+				orderedData = orderedData.sort(function (a, b) {
+					var sa = $scope.getDispayValues(f, a);
+					var sb = $scope.getDispayValues(f, b);
+					if (sa.length == 0) return 1;
+					if (sb.length == 0) return -1;
+					if (sa < sb) return -1 * dir;
+					if (sa > sb) return 1 * dir;
+					return 0;
+				});
+			}
+
+			//data.result.forEach(function (f) {
+			//});
+
+			//if ((sorting.name)
+			//	|| (sorting.aliases)
+			//	|| (sorting.tags)) {
+			//	orderedData = $filter('orderBy')(orderedData, params.orderBy())
+			//} else {
+			//	console.log(sorting);
+			//}
+		}
 
 		params.total(orderedData.length);
 		var current = orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count());
@@ -876,12 +906,12 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 	};
 
 	var fixedfields = [
-		{name: 'Name', key: 'name', format: 'string', _type: 'fields'},
-		{name: 'Aliase', key: 'aliases', format: 'tags', _type: 'fields'},
-		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'},
-		{name: 'Anzahl Verbindungen', key: 'connections', format: 'number', _type: 'extras'}
+		{_id: 'name', name: 'Name', key: 'name', format: 'string', _type: 'fields'},
+		{_id: 'aliases', name: 'Aliase', key: 'aliases', format: 'tags', _type: 'fields'},
+		{_id: 'tags', name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'},
+		{_id: 'connections', name: 'Anzahl Verbindungen', key: 'connections', format: 'number', _type: 'extras'}
 	];
-	if (mode == 'all') fixedfields.push({name: 'Art', key: 'type', format: 'string', _type: 'fields'});
+	if (mode == 'all') fixedfields.push({_id: 'type', name: 'Art', key: 'type', format: 'string', _type: 'fields'});
 
 	if (state.fields.length == 0) {
 		state.fields.push(fixedfields[0]);
@@ -1142,9 +1172,9 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 	state.fields = state.fields || [];
 
 	var fixedfields = [
-		{name: 'Name', key: 'name', format: 'string', _type: 'extras'},
-		{name: 'Art', key: 'type', format: 'string', _type: 'fields'},
-		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'}
+		{_id: 'name', name: 'Name', key: 'name', format: 'string', _type: 'extras'},
+		{_id: 'type', name: 'Art', key: 'type', format: 'string', _type: 'fields'},
+		{_id: 'tags', name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'}
 	];
 
 	$scope.isFieldActive = function (field) {
@@ -1421,18 +1451,18 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 app.controller('FieldsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, fields) {
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, fields, 'fields', 200);
 	$scope.fields = [
-		{name: 'Name', key: 'name', format: 'string', _type: 'fields'},
-		{name: 'Schlüssel', key: 'key', format: 'string', _type: 'fields'},
-		{name: 'Format', key: 'format', format: 'string', _type: 'fields'},
-		{name: 'Typ', key: 'mode', format: 'string', _type: 'fields'},
-		{name: 'Standard', key: 'default', format: 'bool', _type: 'fields'}
+		{_id: 'name', name: 'Name', key: 'name', format: 'string', _type: 'fields'},
+		{_id: 'key', name: 'Schlüssel', key: 'key', format: 'string', _type: 'fields'},
+		{_id: 'format', name: 'Format', key: 'format', format: 'string', _type: 'fields'},
+		{_id: 'mode', name: 'Typ', key: 'mode', format: 'string', _type: 'fields'},
+		{_id: 'default', name: 'Standard', key: 'default', format: 'bool', _type: 'fields'}
 	];
 	$scope.state.fields = $scope.fields;
 });
 
 app.controller('UsersCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, users) {
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, users, 'users', 200);
-	$scope.fields = [{name: 'Name', key: 'name', format: 'string', _type: 'fields'}];
+	$scope.fields = [{_id: 'name', name: 'Name', key: 'name', format: 'string', _type: 'fields'}];
 	$scope.state.fields = $scope.fields;
 });
 
@@ -2123,7 +2153,7 @@ app.controller('WhitelistCtrl', function ($scope, $resource, $filter, $modal, ng
 		}
 	}, 'whitelist', 5000);
 
-	$scope.fields = [{name: 'URL', key: 'name', format: 'string', _type: 'fields'}];
+	$scope.fields = [{_id: 'name', name: 'URL', key: 'name', format: 'string', _type: 'fields'}];
 	$scope.state.fields = $scope.fields;
 
 	$scope.newEntry = function () {
@@ -2368,7 +2398,8 @@ app.controller('UpdateCtrl', function ($scope, $modal, update) {
 				}
 			},
 			'partials/search-modal.html'
-			, function (data) {});
+			, function (data) {
+			});
 	};
 
 	$scope.editEntity = function (entry) {
