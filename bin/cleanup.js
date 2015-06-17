@@ -350,23 +350,25 @@ var fixFields = function (cb) {
 					rel.data.forEach(logRelationFieldType);
 				});
 				var fields_in_use = toList(fieldtypes);
-				fields_in_use.forEach(function (t) {
+				var new_fields = fields_in_use.filter(function (t) {
+					//console.log(JSON.stringify(t));
 					var flist = fields.filter(function (f) {
 						return ((f.key == t.key) && (f.mode == t.mode) && (f.format == t.format) && (f.name == t.name));
 					});
-					if (flist.length > 0) {
-						//console.log('found', JSON.stringify(t));
-					} else {
-						//console.log('not found',JSON.stringify(t));
-					}
-					console.log(JSON.stringify(t));
+					return (flist.length == 0);
 				});
-
-				cb();
+				if (!new_fields.length) return cb();
+				console.log(new_fields.length, 'new fields');
+				async.forEachSeries(new_fields, function (t, next) {
+						console.log('create field', JSON.stringify(t));
+						api.field_create(t, next);
+					}, cb
+				);
 			});
 		});
 	});
 };
+
 
 fixEntities(function (entities) {
 	fixRelations(entities, function () {
