@@ -48,7 +48,7 @@
 						<li class="active" ui-sref-active="active"><a href ui-sref="start">Start</a></li>
 						<li ui-sref-active="active"><a href ui-sref="whitelist">Whitelist</a></li>
 						<li ui-sref-active="active"><a href ui-sref="update">Updates</a></li>
-						<li ui-sref-active="active" ng-if="loggedInUser.admin"><a href ui-sref="fields">Datenfelder</a></li>
+						<li ui-sref-active="active"><a href ui-sref="fields">Datenfelder</a></li>
 						<li ui-sref-active="active" ng-if="loggedInUser.admin"><a href ui-sref="users">Benutzerinnen</a></li>
 						<li role="presentation" class="divider"></li>
 						<li><a href ng-click="logout()">Abmelden</a></li>
@@ -136,13 +136,17 @@
 
 			<p><a href ui-sref="whitelist">Liste der Seiten auf denen das Lobbyradar-Plugin aktiv ist </a></p>
 
+			<h4><a href ui-sref="update">Updates</a></h4>
+
+			<p><a href ui-sref="update">Daten Updates von den Scrapern</a></p>
+
 			<h4><a href ui-sref="fields">Datenfelder</a></h4>
 
 			<p><a href ui-sref="fields">Definition der Ablage von Informationen</a></p>
 
-			<h4><a href ui-sref="users">Benutzerinnenverwaltung</a></h4>
+			<h4 ng-if="loggedInUser.admin"><a href ui-sref="users">Benutzerinnenverwaltung</a></h4>
 
-			<p><a href ui-sref="users">Zugänge zur Lobbyradarstation</a></p>
+			<p ng-if="loggedInUser.admin"><a href ui-sref="users">Zugänge zur Lobbyradarstation</a></p>
 		</div>
 	</div>
 </script>
