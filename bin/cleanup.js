@@ -585,7 +585,6 @@ var fixTitles = function (field, change_list) {
 	};
 
 	var find = function (val) {
-		console.log(getAcademia('Univ.-Prof. Dr'));
 		var title = getAcademia(val);
 		if (title) return title;
 		title = approved_titles[val];
