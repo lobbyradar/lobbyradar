@@ -1451,7 +1451,6 @@
 							<a href class="dropdown-toggle" dropdown-toggle>
 								<i class="fa" ng-class="{'fa-user':entry.update.entity.type=='person','fa-building-o':entry.update.entity.type=='entity'}"></i>
 								<span ng-bind="entry.update.entity.name"></span>
-								<span ng-repeat="a in entry.update.entity.aliases">, {{a}}</span>
 								<span class="caret"></span>
 							</a>
 
@@ -1467,6 +1466,7 @@
 						<a class="btn-right" href ng-click="editEntity(entry)" title="Eintrag bearbeiten"><i class="fa fa-edit"></i></a>
 						<a class="btn-right" href ng-click="createEntity(entry)" title="Eintrag anlegen"><i class="fa fa-arrow-right"></i></a>
 						<div>
+							<span class="detail-label">Aliase:</span> <span ng-bind="entry.update.entity.aliases"></span><br/>
 							<span class="detail-label">Importer:</span> <span ng-bind="entry.update.entity.importer"></span><br/>
 						</div>
 						<div ng-repeat="d in entry.update.entity.data">
@@ -1480,6 +1480,7 @@
 					</div>
 					<div class="detail-col" ng-if="(entry.update.matches.length==1)">
 						<span ng-bind="entry.update.matches[0].name"></span><br/>
+						<span class="detail-label">Aliase:</span> <span ng-bind="entry.update.matches[0].aliases"></span><br/>
 						<span class="detail-label">Importer:</span> <span ng-bind="entry.update.matches[0].importer"></span><br/>
 						<a class="action" ng-if="entry.update.entity.data.length>0" href ng-click="applyEntityData(entry)"><i class="fa fa-arrow-right"></i> Daten übernehmen</a><br/>
 
