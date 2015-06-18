@@ -268,15 +268,20 @@ body {
 	  cursor: pointer;
 	  border-bottom: solid 1px #ececec;
 	  padding-left: 4px;
-	  padding-top: 2px;
-	  padding-bottom: 2px;
+	  padding-top: 6px;
+	  padding-bottom: 6px;
 	}
 
 	.details {
 	  padding-left: 14px;
 	  padding-right: 14px;
 	  padding-bottom: 8px;
+	  padding-top: 4px;
 	  border-bottom: solid 1px #ececec;
+
+	  .dropdown-toggle {
+		color:#000;
+	  }
 
 	  .details-head {
 		margin-top: 4px;
@@ -297,6 +302,19 @@ body {
 		  padding-bottom: 4px;
 		  //border-top: solid 1px #ececec;
 		  width: 50%;
+		  .action {
+
+			span {
+			  font-size: 0.9em;
+			}
+
+			&:hover {
+			  background-color: #f4f4f4;
+			  span {
+				background-color: #f4f4f4;
+			  }
+			}
+		  }
 		  &.alignmiddle {
 			vertical-align: middle;
 		  }
@@ -313,6 +331,9 @@ body {
 	  .relations {
 		padding-left: 14px;
 		padding-right: 14px;
+		.details-head {
+			padding-top: 8px;
+		}
 		//border: solid 1px #ececec;
 	  }
 	}

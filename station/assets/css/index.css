@@ -194,13 +194,16 @@ body {
     cursor: pointer;
     border-bottom: solid 1px #ececec;
     padding-left: 4px;
-    padding-top: 2px;
-    padding-bottom: 2px; }
+    padding-top: 6px;
+    padding-bottom: 6px; }
   .update .item .details {
     padding-left: 14px;
     padding-right: 14px;
     padding-bottom: 8px;
+    padding-top: 4px;
     border-bottom: solid 1px #ececec; }
+    .update .item .details .dropdown-toggle {
+      color: #000; }
     .update .item .details .details-head {
       margin-top: 4px;
       margin-bottom: 4px;
@@ -216,6 +219,12 @@ body {
         padding-top: 4px;
         padding-bottom: 4px;
         width: 50%; }
+        .update .item .details .detail-row .detail-col .action span {
+          font-size: 0.9em; }
+        .update .item .details .detail-row .detail-col .action:hover {
+          background-color: #f4f4f4; }
+          .update .item .details .detail-row .detail-col .action:hover span {
+            background-color: #f4f4f4; }
         .update .item .details .detail-row .detail-col.alignmiddle {
           vertical-align: middle; }
         .update .item .details .detail-row .detail-col .detail-field {
@@ -226,5 +235,7 @@ body {
     .update .item .details .relations {
       padding-left: 14px;
       padding-right: 14px; }
+      .update .item .details .relations .details-head {
+        padding-top: 8px; }
 
 /*# sourceMappingURL=index.css.map */

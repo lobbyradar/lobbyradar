@@ -1449,16 +1449,23 @@
 
 						<div class="btn-group" dropdown is-open="entry.$isopen">
 							<a href class="dropdown-toggle" dropdown-toggle>
+								<i class="fa" ng-class="{'fa-user':entry.update.entity.type=='person','fa-building-o':entry.update.entity.type=='entity'}"></i>
 								<span ng-bind="entry.update.entity.name"></span>
 								<span ng-repeat="a in entry.update.entity.aliases">, {{a}}</span>
 								<span class="caret"></span>
 							</a>
+
 							<ul class="dropdown-menu" role="menu">
+								<li><a href ng-click="createEntity(entry)">Eintrag anlegen</a></li>
 								<li><a href ng-click="editEntity(entry)">Eintrag bearbeiten</a></li>
-								<li><a href ng-click="searchEntity(entry)">Eintrag suchen</a></li>
+								<li><a href ng-click="searchEntity(entry)">Passenden Eintrag suchen</a></li>
 								<li><a href ng-click="deleteEntity(entry);">Eintrag löschen</a></li>
 							</ul>
 						</div>
+						<a class="btn-right" href ng-click="deleteEntity(entry)" title="Eintrag löschen"><i class="fa fa-trash"></i></a>
+						<a class="btn-right" href ng-click="searchEntity(entry)" title="Passenden Eintrag suchen"><i class="fa fa-search"></i></a>
+						<a class="btn-right" href ng-click="editEntity(entry)" title="Eintrag bearbeiten"><i class="fa fa-edit"></i></a>
+						<a class="btn-right" href ng-click="createEntity(entry)" title="Eintrag anlegen"><i class="fa fa-arrow-right"></i></a>
 						<div>
 							<span class="detail-label">Importer:</span> <span ng-bind="entry.update.entity.importer"></span><br/>
 						</div>
@@ -1469,12 +1476,12 @@
 						</div>
 					</div>
 					<div class="detail-col" ng-if="entry.update.matches.length==0">
-						<a href ng-click="createEntity(entry)"><i class="fa fa-arrow-right"></i> Eintrag anlegen</a><br/>
+						<a class="action" href ng-click="createEntity(entry)"><i class="fa fa-arrow-right"></i> Eintrag anlegen</a><br/>
 					</div>
 					<div class="detail-col" ng-if="(entry.update.matches.length==1)">
 						<span ng-bind="entry.update.matches[0].name"></span><br/>
 						<span class="detail-label">Importer:</span> <span ng-bind="entry.update.matches[0].importer"></span><br/>
-						<a ng-if="entry.update.entity.data.length>0" href ng-click="applyEntityData(entry)"><i class="fa fa-arrow-right"></i> Daten übernehmen</a><br/>
+						<a class="action" ng-if="entry.update.entity.data.length>0" href ng-click="applyEntityData(entry)"><i class="fa fa-arrow-right"></i> Daten übernehmen</a><br/>
 
 						<!--<div ng-if="(entry.update.entity.data.length>0)">-->
 						<!--<div ng-repeat="d in entry.update.matches[0].data">-->
@@ -1513,14 +1520,25 @@
 									<li><a href ng-click="deleteRelation(rel);">Verbindung löschen</a></li>
 								</ul>
 							</div>
+							<a class="btn-right" href ng-click="deleteRelation(rel)" title="Verbindung löschen"><i class="fa fa-trash"></i></a>
+							<a class="btn-right" href ng-click="createRelation(rel)" title="Verbindung anlegen"><i class="fa fa-arrow-right"></i></a>
 
 							<div class="detail-field" ng-repeat="d in rel.data">
 								<span title="{{d.desc}}" ng-bind="d | fieldvalue"></span>
 							</div>
 						</div>
 						<div class="detail-col" ng-if="(rel.matches.length==0) && (!rel.same || rel.same.length==0)">
-							<b ng-bind="rel.entity.matches[0].name"></b><br/>
-							<a href ng-click="createRelation(rel)"><i class="fa fa-arrow-right"></i> Verbindung anlegen</a>
+							<div ng-if="rel.entity.matches.length>0"><b ng-bind="rel.entity.matches[0].name"></b></div>
+							<a class="action" href ng-click="createRelation(rel)"><i class="fa fa-arrow-right"></i>
+								Verbindung
+								<br ng-if="entry.update.matches.length==0 || rel.entity.matches.length==0" />
+								<span ng-if="entry.update.matches.length==0">&
+									<span ng-bind="entry.name"></span></br>
+								</span>
+								<span ng-if="rel.entity.matches.length==0"> &
+									<span ng-bind="rel.entity.name"></span></br>
+								</span>
+								anlegen</a>
 						</div>
 						<div class="detail-col" ng-if="rel.matches.length==1">
 							<b ng-bind="rel.entity.name"></b><br/>
@@ -1535,7 +1553,7 @@
 							<div class="detail-field" ng-repeat="d in rel.same[0].data">
 								<span title="{{d.desc}}" ng-bind="d | fieldvalue"></span>
 							</div>
-							<a href ng-click="applyRelationData(rel,entry)"><i class="fa fa-arrow-right"></i> Daten übernehmen</a>
+							<a class="action" href ng-click="applyRelationData(rel,entry)"><i class="fa fa-arrow-right"></i> Daten übernehmen</a>
 
 						</div>
 						<div class="detail-col" ng-if="rel.same.length>1">
@@ -1547,6 +1565,7 @@
 				</div>
 			</div>
 		</div>
+		<hr/>
 		<div class="pagination-div" ng-show="updates.length>pageSize">
 			<button class="btn btn-default btn-sm" type="button" ng-disabled="curPage == 0" ng-click="curPage=curPage-1">Zurück</button>
 			<span class="btn">Seite <span ng-bind="curPage + 1"></span> von <span ng-bind="numberOfPages()"></span></span>
