@@ -502,35 +502,59 @@ var reportConnectionError = function ($scope, err) {
 };
 
 var getDisplayValue = function (v, dateFilter) {
-	if (!v.value) return '';
-	if ((v.format == 'strings') || (v.format == 'tags')) return v.value.join(', ');
-	else if (v.format == 'bool') return v.value ? 'Ja' : 'Nein';
-	else if (v.format == 'link') return v.value.url;
-	else if (v.format == 'url') return v.value;
-	else if (v.format == 'date') return dateFilter(v.value.date, v.value.fmt);
-	else if (v.format == 'range') return (v.value.start ? dateFilter(v.value.start, v.value.fmt) : '') + ' - ' + (v.value.end ? dateFilter(v.value.end, v.value.fmt) : '');
-	else if (v.format == 'number') return v.value;
-	else if (v.format == 'address') {
-		var sl = [];
-		if (v.value) {
-			if (v.value.name) sl.push(v.value.name);
-			if (v.value.addr) sl.push(v.value.addr);
-			if (v.value.street) sl.push(v.value.street);
-			if (v.value.postcode) sl.push(v.value.postcode);
-			if (v.value.city) sl.push(v.value.city);
-			if (v.value.country) sl.push(v.value.country);
-		}
-		return sl.join('; ');
+	if (v.value === null) return '';
+	switch (v.format) {
+		case'strings':
+		case'tags':
+			return v.value.join(', ');
+		case 'bool':
+			return v.value ? 'Ja' : 'Nein';
+		case 'link':
+			return v.value.url;
+		case 'monthyear':
+			return ((v.value.month !== null ? v.value.month : '') + ' ' + (v.value.year !== null ? v.value.year : '')).trim();
+		case 'donation':
+			return ((v.value.year !== null ? v.value.year + ':' : '') + ' ' + (v.value.amount !== null ? v.value.amount : '')).trim();
+		case 'date':
+			return dateFilter(v.value.date, v.value.fmt);
+		case 'range':
+			return (v.value.start ? dateFilter(v.value.start, v.value.fmt) : '') + ' - ' + (v.value.end ? dateFilter(v.value.end, v.value.fmt) : '');
+		case 'address':
+			var sl = [];
+			if (v.value) {
+				if (v.value.name) sl.push(v.value.name);
+				if (v.value.addr) sl.push(v.value.addr);
+				if (v.value.street) sl.push(v.value.street);
+				if (v.value.postcode) sl.push(v.value.postcode);
+				if (v.value.city) sl.push(v.value.city);
+				if (v.value.country) sl.push(v.value.country);
+			}
+			return sl.join('; ');
+		case 'activity':
+			var sl = [];
+			if (v.value) {
+				if (v.value.type) sl.push(v.value.type);
+				if (v.value.year) sl.push(v.value.year);
+				if (v.value.begin) sl.push(v.value.begin);
+				if (v.value.end) sl.push(v.value.end);
+				if (v.value.periodical) sl.push(v.value.periodical);
+				if (v.value.position) sl.push(v.value.position);
+				if (v.value.place) sl.push(v.value.place);
+				if (v.value.activity) sl.push(v.value.activity);
+			}
+			return sl.join('; ');
+		case 'photo':
+			var sl = [];
+			if (v.value) {
+				if (v.value.url) sl.push(v.value.url);
+				if (v.value.copyright) sl.push(v.value.copyright);
+			}
+			return sl.join('; ');
+		case 'number':
+		case 'url':
+		default:
+			return v.value;
 	}
-	else if (v.format == 'photo') {
-		var sl = [];
-		if (v.value) {
-			if (v.value.url) sl.push(v.value.url);
-			if (v.value.copyright) sl.push(v.value.copyright);
-		}
-		return sl.join('; ');
-	}
-	return v.value;
 };
 
 var getDispayValues = function (field, entity, dateFilter) {
