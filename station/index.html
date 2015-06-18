@@ -1409,24 +1409,24 @@
 
 		</div>
 		<!--<div class="col-md-5">-->
-			<!--<div class="pull-right">-->
-				<!--<label>Aktionen</label>-->
-<!---->
-				<!--<div>-->
-					<!--<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>-->
-					<!--<div class="btn-group">-->
-						<!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">-->
-							<!--Daten anzeigen <span class="caret"></span>-->
-						<!--</button>-->
-						<!--<ul class="dropdown-menu" role="menu">-->
-							<!--<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>-->
-						<!--</ul>-->
-					<!--</div>-->
-				<!--</div>-->
-			<!--</div>-->
+		<!--<div class="pull-right">-->
+		<!--<label>Aktionen</label>-->
+		<!---->
+		<!--<div>-->
+		<!--<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>-->
+		<!--<div class="btn-group">-->
+		<!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">-->
+		<!--Daten anzeigen <span class="caret"></span>-->
+		<!--</button>-->
+		<!--<ul class="dropdown-menu" role="menu">-->
+		<!--<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>-->
+		<!--</ul>-->
+		<!--</div>-->
+		<!--</div>-->
+		<!--</div>-->
 		<!--</div>-->
 		<!--<div class="col-md-3">-->
-			<!--<div ng-include="'partials/filter.html'"></div>-->
+		<!--<div ng-include="'partials/filter.html'"></div>-->
 		<!--</div>-->
 	</div>
 
@@ -1515,10 +1515,10 @@
 							</div>
 
 							<div class="detail-field" ng-repeat="d in rel.data">
-								<span ng-bind="d | fieldvalue"></span>
+								<span title="{{d.desc}}" ng-bind="d | fieldvalue"></span>
 							</div>
 						</div>
-						<div class="detail-col" ng-if="rel.matches.length==0">
+						<div class="detail-col" ng-if="(rel.matches.length==0) && (!rel.same || rel.same.length==0)">
 							<b ng-bind="rel.entity.matches[0].name"></b><br/>
 							<a href ng-click="createRelation(rel)"><i class="fa fa-arrow-right"></i> Verbindung anlegen</a>
 						</div>
@@ -1526,12 +1526,21 @@
 							<b ng-bind="rel.entity.name"></b><br/>
 
 							<div class="detail-field" ng-repeat="d in rel.matches[0].data">
-								<span ng-bind="d | fieldvalue"></span>
+								<span title="{{d.desc}}" ng-bind="d | fieldvalue"></span>
 							</div>
 						</div>
-						<div class="detail-col" ng-if="rel.matches.length>1">
-							<div ng-repeat="ent in rel.matches">
-								-> <span ng-bind="rel"></span>
+						<div class="detail-col" ng-if="(rel.matches.length==0) && (rel.same.length==1)">
+							<b ng-bind="rel.entity.name"></b><br/>
+
+							<div class="detail-field" ng-repeat="d in rel.same[0].data">
+								<span title="{{d.desc}}" ng-bind="d | fieldvalue"></span>
+							</div>
+							<a href ng-click="applyRelationData(rel,entry)"><i class="fa fa-arrow-right"></i> Daten übernehmen</a>
+
+						</div>
+						<div class="detail-col" ng-if="rel.same.length>1">
+							<div ng-repeat="ent in rel.same">
+								<span ng-bind="rel"></span>
 							</div>
 						</div>
 					</div>

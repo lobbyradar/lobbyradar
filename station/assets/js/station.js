@@ -350,6 +350,10 @@ app.factory('update', function ($resource) {
 				method: 'POST',
 				params: {cmd: 'apply', mode: 'entity'}
 			},
+			applyRelationData: {
+				method: 'POST',
+				params: {cmd: 'apply', mode: 'relation'}
+			},
 			deleteRelation: {
 				method: 'POST',
 				params: {cmd: 'delete', mode: 'relation'}
@@ -2433,9 +2437,7 @@ app.controller('UpdateCtrl', function ($scope, $modal, update) {
 			},
 			'partials/update-entity-modal.html'
 			, function (data) {
-				if (data.update.deleted) return removeUpdate(entry._id);
-				entry.name = data.update.entity.name;
-				replaceUpdate(entry, data.update);
+				applyResult({result: data.update});
 			});
 	};
 
@@ -2450,42 +2452,47 @@ app.controller('UpdateCtrl', function ($scope, $modal, update) {
 	};
 
 	$scope.deleteRelation = function (rel) {
-		update.deleteRelation({id: rel._id}, {id: rel._id}, function (data) {
-			data.result.forEach(function (update) {
-				var entry = getEntryByID(update.entity._id);
-				replaceUpdate(entry, update);
-			});
-		}, function (err) {
+		update.deleteRelation({id: rel._id}, {id: rel._id}, applyResult, function (err) {
 			console.log(err);
 		});
 	};
 
 	$scope.createEntity = function (entry) {
-		update.createEntity({id: entry._id}, {id: entry._id}, function (data) {
-			if (data.result.deleted) return removeUpdate(entry._id);
-			replaceUpdate(entry, data.result);
-		}, function (err) {
+		update.createEntity({id: entry._id}, {id: entry._id}, applyResult, function (err) {
 			console.log(err);
 		});
 	};
 
 	$scope.applyEntityData = function (entry) {
-		update.applyEntityData({id: entry._id}, {id: entry._id}, function (data) {
-			if (data.result.deleted) return removeUpdate(entry._id);
-			replaceUpdate(entry, data.result);
-		}, function (err) {
+		update.applyEntityData({id: entry._id}, {id: entry._id}, applyResult, function (err) {
+			console.log(err);
+		});
+	};
+
+	var applyResult = function (data) {
+		if (data.error) {
+			console.log(data);
+			alert(data.error);
+			return;
+		}
+		data = angular.isArray(data.result) ? data.result : [data.result];
+		data.forEach(function (update) {
+			console.log(update);
+			if (update.deleted) return removeUpdate(update._id);
+			var entry = getEntryByID(update.entity._id);
+			entry.name = update.entity.name;
+			entry.update = update;
+		});
+	};
+
+	$scope.applyRelationData = function (rel) {
+		update.applyRelationData({id: rel._id}, {id: rel._id}, applyResult, function (err) {
 			console.log(err);
 		});
 	};
 
 	$scope.createRelation = function (rel) {
-		update.createRelation({id: rel._id}, {id: rel._id}, function (data) {
-			data.result.forEach(function (update) {
-				if (update.deleted) return removeUpdate(update._id);
-				var entry = getEntryByID(update.entity._id);
-				replaceUpdate(entry, update);
-			});
-		}, function (err) {
+		update.createRelation({id: rel._id}, {id: rel._id}, applyResult, function (err) {
 			console.log(err);
 		});
 	}

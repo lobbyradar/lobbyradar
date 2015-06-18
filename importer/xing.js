@@ -294,7 +294,7 @@ var parseRelations = function (parse_map, row) {
 			collect = null;
 		}
 		if (!spec.type) return; //skip
-		relations[spec.rel || 0] = relations[spec.rel || 0] || {data: [], type: 'job', importer: 'xing'};
+		relations[spec.rel || 0] = relations[spec.rel || 0] || {data: [], type: 'position', importer: 'xing'};
 		var specparse = model.relation_property_specs[spec.type] || model.relation_data_specs[spec.type];
 		if (!specparse) {
 			return console.log('invalid relation spec parse type', spec.type);
