@@ -258,6 +258,7 @@
 				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
 				<span class="btn-right" ng-click='mergeDialog(p)' title="Personen zusammenführen"><i class="fa fa-code-fork fa-rotate-270"></i></span>
 				<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
+				<a class="btn-right" target="_blank" ng-href='/entity/{{p._id}}' title="Person ansehen"><i class="fa fa-eye"></i></a>
 			</td>
 		</tr>
 		</tbody>
@@ -373,6 +374,7 @@
 				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
 				<span class="btn-right" ng-click='mergeDialog(p)' title="Organisationen zusammenführen"><i class="fa fa-code-fork fa-rotate-270"></i></span>
 				<span class="btn-right" ui-sref='organisation({id: p._id})' title="Organisation bearbeiten"><i class="fa fa-edit"></i></span>
+				<a class="btn-right" target="_blank" ng-href='/entity/{{p._id}}' title="Organisation ansehen"><i class="fa fa-eye"></i></a>
 			</td>
 		</tr>
 		</tbody>

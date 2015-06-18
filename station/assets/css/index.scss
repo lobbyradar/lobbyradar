@@ -76,6 +76,7 @@ body {
   margin-left: 3px;
   margin-top: 0;
   margin-bottom: 0;
+  color: #000;
 
   &:hover {
 	border-color: #c3c3c3;
@@ -97,7 +98,7 @@ body {
 
   &:hover {
 	border-color: #919191;
-	color:#000;
+	color: #000;
   }
 }
 
@@ -180,7 +181,7 @@ body {
 }
 
 .col-action-large {
-  width: 150px;
+  width: 180px;
 }
 
 .start h4 a {

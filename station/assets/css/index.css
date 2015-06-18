@@ -56,7 +56,8 @@ body {
   padding-right: 6px;
   margin-left: 3px;
   margin-top: 0;
-  margin-bottom: 0; }
+  margin-bottom: 0;
+  color: #000; }
   .btn-right:hover {
     border-color: #c3c3c3; }
 
@@ -132,7 +133,7 @@ body {
   width: 120px; }
 
 .col-action-large {
-  width: 150px; }
+  width: 180px; }
 
 .start h4 a {
   color: #000; }
