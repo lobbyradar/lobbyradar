@@ -38,12 +38,12 @@ var fixFields = function (cb) {
 	var logEntityFieldType = function (d, ent) {
 		var mode = ent.type == 'person' ? 'persons' : 'organisations';
 		var id = [d.key, d.format, d.desc, mode].join('|');
-		fieldtypes[id] = {mode: mode, format: d.format, key: d.key, name: d.desc}
+		fieldtypes[id] = fieldtypes[id] || {mode: mode, format: d.format, key: d.key, name: d.desc}
 	};
 
 	var logRelationFieldType = function (d) {
 		var id = [d.key, d.format, d.desc, 'relations'].join('|');
-		fieldtypes[id] = {mode: 'relations', format: d.format, key: d.key, name: d.desc}
+		fieldtypes[id] = fieldtypes[id] || {mode: 'relations', format: d.format, key: d.key, name: d.desc}
 	};
 
 	api.field_list(null, function (err, fields) {
@@ -59,6 +59,7 @@ var fixFields = function (cb) {
 				});
 				var fields_in_use = toList(fieldtypes);
 				var new_fields = fields_in_use.filter(function (t) {
+					return true;
 					//console.log(JSON.stringify(t));
 					var flist = fields.filter(function (f) {
 						return ((f.key == t.key) && (f.mode == t.mode) && (f.format == t.format) && (f.name == t.name));
@@ -69,7 +70,8 @@ var fixFields = function (cb) {
 				console.log(new_fields.length, 'new fields');
 				async.forEachSeries(new_fields, function (t, next) {
 						console.log('create field', JSON.stringify(t));
-						api.field_create(t, next);
+						next();
+						//api.field_create(t, next);
 					}, cb
 				);
 			});

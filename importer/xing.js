@@ -6,6 +6,7 @@ var mongojs = require("mongojs");
 var config = require(path.resolve(__dirname, "../config.js"));
 var db = mongojs(config.db, ["entities", "relations", "users", "update", "fields", "dataindex"]);
 var api = require(path.resolve(__dirname, "../lib/api.js"))(config.api, db);
+var model = require(path.resolve(__dirname, "../lib/model.js"));
 
 var xingmap_entities = [
 	{type: 'update_id', entity: 0, entity_type: "person"},
@@ -42,101 +43,6 @@ var xingmap_relation = [
 	{},
 	{}
 ];
-
-utils.entity_specs = {
-	'update_id': function (val, entity) {
-		entity.update_id = val;
-	},
-	'name': function (val, entity) {
-		entity.name = val;
-	},
-	'url': function (val, entity) {
-		if ((typeof val === "string")) {
-			if (val.toLowerCase().indexOf('http') !== 0) val = 'http://' + val;
-			entity.data.push({
-				"key": "url",
-				"value": val,
-				"desc": "Webseite",
-				"format": "url"
-			});
-		}
-	},
-	'link': function (val, entity) {
-		if ((typeof val === "string") && (val !== "")) {
-			if (val.toLowerCase().indexOf('http') !== 0) val = 'http://';
-			entity.data.push({
-				"key": "url",
-				"value": {url: val},
-				"desc": "Webseite",
-				"format": "link"
-			});
-		}
-	},
-	'staff': function (val, entity) {
-		var num = parseInt(val, 10);
-		if ((typeof num === "number") && !isNaN(num)) {
-			entity.data.push({
-				"key": "staff",
-				"value": num,
-				"desc": "Anzahl der Mitarbeiter",
-				"format": "number"
-			});
-		}
-	},
-	'notes': function (val, entity) {
-		if ((typeof val === "string") && (val !== "")) {
-			entity.data.push({
-				"key": "notes",
-				"value": val,
-				"desc": "Notizen",
-				"format": "string"
-			});
-		}
-	}
-};
-
-utils.relation_specs = {
-	'update_id1': function (val, rel) {
-		rel.update_id1 = val;
-	},
-	'update_id2': function (val, rel) {
-		rel.update_id2 = val;
-	},
-	'position': function (val, rel) {
-		if ((typeof val === "string") && (val !== "")) {
-			rel.data.push({
-				"key": "position",
-				"value": val,
-				"desc": "Position",
-				"format": "string"
-			});
-		}
-	},
-	'range': function (val, rel) {
-		if (val && (val.start || val.end)) {
-			rel.data.push({
-				"key": "range",
-				"value": {
-					start: val.start ? val.start.valueOf() : null,
-					end: val.end ? val.end.valueOf() : null,
-					fmt: val.format ? val.format : 'yyyy'
-				},
-				"desc": "Zeitraum",
-				"format": "range"
-			});
-		}
-	},
-	'notes': function (val, entity) {
-		if ((typeof val === "string") && (val !== "")) {
-			entity.data.push({
-				"key": "notes",
-				"value": val,
-				"desc": "Notizen",
-				"format": "string"
-			});
-		}
-	}
-};
 
 var loadFile = function (parse_map, parse, cb) {
 	var result = [];
@@ -326,6 +232,7 @@ var skipOrgs = [
 ];
 
 var bla = [];
+
 var skipRow = function (row) {
 	var val = (row[2] || '').toLowerCase().trim();
 	if (val.indexOf('praktikum') >= 0) return true;
@@ -363,12 +270,12 @@ var parseEntities = function (parse_map, row) {
 	parse_map.forEach(function (spec, i) {
 		if (!spec.type) return; //skip
 		entities[spec.entity || 0] = entities[spec.entity || 0] || {data: [], type: spec.entity_type, importer: 'xing'};
-		var specparse = utils.entity_specs[spec.type];
+		var specparse = model.entity_property_specs[spec.type] || model.entity_data_specs[spec.type];
 		if (!specparse) {
 			return console.log('invalid entity spec parse type', spec.type);
 		}
 		var val = validateString(row[i]);
-		specparse(val, entities[spec.entity || 0])
+		specparse.fill(val, entities[spec.entity || 0])
 	});
 	return entities;
 };
@@ -388,11 +295,11 @@ var parseRelations = function (parse_map, row) {
 		}
 		if (!spec.type) return; //skip
 		relations[spec.rel || 0] = relations[spec.rel || 0] || {data: [], type: 'job', importer: 'xing'};
-		var specparse = utils.relation_specs[spec.type];
+		var specparse = model.relation_property_specs[spec.type] || model.relation_data_specs[spec.type];
 		if (!specparse) {
 			return console.log('invalid relation spec parse type', spec.type);
 		}
-		specparse(val, relations[spec.entity || 0])
+		specparse.fill(val, relations[spec.entity || 0])
 	});
 	return relations;
 };

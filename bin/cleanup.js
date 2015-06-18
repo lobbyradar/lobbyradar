@@ -4,6 +4,7 @@ var async = require("async");
 var path = require("path");
 var fs = require("fs");
 var utils = require("../lib/utils.js");
+var model = require(path.resolve(__dirname, "../lib/model.js"));
 
 /*
 
@@ -24,109 +25,69 @@ var db = mongojs(config.db, ["entities", "relations", "dataindex"]);
 // local modules
 var api = require(path.resolve(__dirname, "../lib/api.js"))(config.api, db);
 
-var list = [];
-
-var emptyOrNull = function (s) {
-	return s == null || (s.length == 0);
-};
+var report = [];
 
 var titles = [];
 
+var settings = {
+	fixTitles: false,
+	filterDupFields: true,
+	unifyText: true,
+	combineRange: true,
+	checkFields: true,
+	removeInvalidRelations: true
+};
+
 var checkFieldsByFormat = function (data, remove_list, change_list) {
 	data.forEach(function (d) {
-		if (d.format == 'string') {
-			if (emptyOrNull(d.value)) {
-				remove_list.push(d);
-			} else {
-				if (d.desc == 'Beschreibungstext') {
-					change_list.push(clone(d));
-					d.desc = 'Beschreibung';
-				}
-			}
-		} else if (d.format == 'link') {
-			if (!d.value || emptyOrNull(d.value.url)) {
-				remove_list.push(d);
-			} else {
-				if (d.key == 'www' || d.key == 'link') {
-					change_list.push(clone(d));
-					d.key = 'url';
-				}
-				if (d.desc == 'URL' || d.desc == 'Link') {
-					change_list.push(clone(d));
-					d.desc = 'Webseite';
-				}
-				if (d.value && d.value.desc == 'Fraktion undefined') {
-					change_list.push(clone(d));
-					d.value.remark = 'Fraktion';
-				}
-			}
-		} else if (d.format == 'range') {
-			if ((!d.value) || (
-					emptyOrNull(d.value.start) &&
-					emptyOrNull(d.value.end)
-				))
-				remove_list.push(d);
-		} else if (d.format == 'donation') {
-			if ((!d.value) || (
-					emptyOrNull(d.value.year) &&
-					emptyOrNull(d.value.amount)
-				))
-				remove_list.push(d);
-		} else if (d.format == 'monthyear') {
-			if ((!d.value) || (
-					emptyOrNull(d.value.year) &&
-					emptyOrNull(d.value.month)
-				))
-				remove_list.push(d);
-		} else if (d.format == 'address') {
-			if ((!d.value) || (
-					emptyOrNull(d.value.country) &&
-					emptyOrNull(d.value.postcode) &&
-					emptyOrNull(d.value.city) &&
-					emptyOrNull(d.value.www) &&
-					emptyOrNull(d.value.name) &&
-					emptyOrNull(d.value.email) &&
-					emptyOrNull(d.value.addr)
-				))
-				remove_list.push(d);
-		} else if (d.format == 'activity') {
-			if ((!d.value) || (
-					emptyOrNull(d.value.type) &&
-					emptyOrNull(d.value.year) &&
-					emptyOrNull(d.value.begin) &&
-					emptyOrNull(d.value.end) &&
-					emptyOrNull(d.value.periodical) &&
-					emptyOrNull(d.value.position) &&
-					emptyOrNull(d.value.place) &&
-					emptyOrNull(d.value.activity)
-				))
-				remove_list.push(d);
-		} else if (d.format == 'photo') {
+		if (d.format == 'photo') {
 			if (d.value.addr || d.value.email) {
-				change_list.push(clone(d));
+				change_list.push({reason: 'fix wrong field type', data: clone(d)});
 				d.format = 'address';
 				d.desc = 'Adresse';
 				d.key = 'address';
-			} else if (
-				emptyOrNull(d.value.url) &&
-				emptyOrNull(d.value.copyright)
-			)
-				remove_list.push(d);
-		} else if (d.format == 'number') {
-			if (d.value === null) remove_list.push(d);
-		} else if (d.format == 'url') {
-			if (d.value === null) remove_list.push(d);
-		} else if (d.format == 'date') {
-			if (d.value === null) remove_list.push(d);
-		} else if (d.format == 'integer') {
-			if (d.value === null) remove_list.push(d);
-			else {
-				change_list.push(clone(d));
-				d.format = 'number';
 			}
-		} else if (d.format == 'bool') {
+		}
+		if (d.value === null) {
+			return remove_list.push({reason: 'invalid value', data: d});
+		}
+		if ((typeof d.value === 'string') && (d.value.length == 0)) {
+			return remove_list.push({reason: 'invalid value', data: d});
+		}
+		var formatscpec = model.format_spec[d.format];
+		if (formatscpec) {
+			if (!formatscpec.validate(d.value)) {
+				remove_list.push({reason: 'invalid value', data: d});
+			}
 		} else {
-			console.log('TODO cleanup format validate:', d.format, d.value);
+			console.log('unknown format', d.format);
+		}
+	});
+};
+
+var unifyTexts = function (data, remove_list, change_list) {
+	data.forEach(function (d) {
+		if (d.format == 'string') {
+			if (d.desc == 'Beschreibungstext') {
+				change_list.push({reason: 'unify texts', data: clone(d)});
+				d.desc = 'Beschreibung';
+			}
+		} else if (d.format == 'link') {
+			if (d.key == 'www' || d.key == 'url') {
+				change_list.push({reason: 'unify link key', data: clone(d)});
+				d.key = 'link';
+			}
+			if (d.desc == 'URL' || d.desc == 'Link') {
+				change_list.push({reason: 'unify texts', data: clone(d)});
+				d.desc = 'Webseite';
+			}
+		} else if (d.format == 'integer') {
+			change_list.push({reason: 'unify number format key', data: clone(d)});
+			d.format = 'number';
+		}
+		if (d.value && d.value.desc == 'Fraktion undefined') {
+			change_list.push({reason: 'fix text', data: clone(d)});
+			d.value.desc = 'Fraktion';
 		}
 	});
 };
@@ -141,7 +102,7 @@ var combineStartEndFields = function (data, remove_list, change_list) {
 	}
 	if (starts.length == 1 && ends.length == 1) {
 		var d = starts[0];
-		change_list.push(clone(d));
+		change_list.push({reason: 'combine start/end fields to range field', data: clone(d)});
 		d.key = 'range';
 		d.format = 'range';
 		d.desc = 'Zeitraum';
@@ -150,11 +111,11 @@ var combineStartEndFields = function (data, remove_list, change_list) {
 			end: ends[0].value.date ? ends[0].value.date : ends[0].value,
 			fmt: d.fmt ? d.fmt : 'dd.MM.yyyy'
 		};
-		remove_list.push(ends[0]);
+		remove_list.push({reason: 'merged value', data: ends[0]});
 	}
 	else if (starts.length > 0 || ends.length > 0) {
 		starts.forEach(function (d) {
-			change_list.push(clone(d));
+			change_list.push({reason: 'convert start/end fields to range field', data: clone(d)});
 			d.key = 'range';
 			d.format = 'range';
 			d.desc = 'Zeitraum';
@@ -170,9 +131,9 @@ var combineStartEndFields = function (data, remove_list, change_list) {
 			});
 			if (st.length == 1) {
 				st[0].value.end = d.value.date ? d.value.date : d.value;
-				remove_list.push(d);
+				remove_list.push({reason: 'merged value', data: d});
 			} else {
-				change_list.push(clone(d));
+				change_list.push({reason: 'convert start/end fields to range field', data: clone(d)});
 				d.key = 'range';
 				d.format = 'range';
 				d.desc = 'Zeitraum';
@@ -192,32 +153,13 @@ var filterDupFields = function (data, remove_list) {
 		for (var j = i + 1; j < data.length; j++) {
 			var d2 = data[j];
 			if (utils.fields_equal(d, d2)) {
-				d2.removal = 'Duplicate';
-				remove_list.push(d2);
+				remove_list.push({reason: 'duplicate value', data: d2});
 			}
 		}
 	}
 };
 
-var fixTitles = function (field, change_list) {
-	//return;
-	var d = field;
-	if (['titles', 'title'].indexOf(d.key) < 0) return;
-
-	var fixs = d.value.replace(/(S|s)?tändige/g, 'ständige');
-	if (fixs == d.value) fixs = d.value.replace(/(S|s)?tellvertretend/g, 'stellvertretend');
-	if (fixs == d.value) fixs = d.value.replace(/stellv\./g, 'stellvertretend');
-	if (fixs == d.value) fixs = d.value.replace(/stell\./g, 'stellvertretend');
-	if (fixs == d.value) fixs = d.value.replace(/Vors\. der Komm\./g, 'Vorsitz der Kommission');
-	if (fixs == d.value) fixs = d.value.replace(/Vors\. der/g, 'Vorsitz der');
-	if (fixs == d.value) fixs = d.value.replace(/gleichzeitig/g, '');
-	if (fixs == d.value) fixs = d.value.replace(/zugleich/g, '');
-	if (fixs == d.value) fixs = d.value.replace(/  /g, ' ');
-
-	if (fixs !== d.value) {
-		change_list.push(clone(d));
-		d.value = fixs;
-	}
+var fixTitles = function (fields, change_list) {
 
 	var approved_titles = {
 		'Oberstudiendirektor': true,
@@ -652,41 +594,60 @@ var fixTitles = function (field, change_list) {
 		return result;
 	};
 
+	fields.forEach(function (d) {
 
-	var val = d.value;
-	var title = find(val);
-	if (title) {
+		if (['titles', 'title'].indexOf(d.key) < 0) return;
+
+		var fixs = d.value.replace(/(S|s)?tändige/g, 'ständige');
+		if (fixs == d.value) fixs = d.value.replace(/(S|s)?tellvertretend/g, 'stellvertretend');
+		if (fixs == d.value) fixs = d.value.replace(/stellv\./g, 'stellvertretend');
+		if (fixs == d.value) fixs = d.value.replace(/stell\./g, 'stellvertretend');
+		if (fixs == d.value) fixs = d.value.replace(/Vors\. der Komm\./g, 'Vorsitz der Kommission');
+		if (fixs == d.value) fixs = d.value.replace(/Vors\. der/g, 'Vorsitz der');
+		if (fixs == d.value) fixs = d.value.replace(/gleichzeitig/g, '');
+		if (fixs == d.value) fixs = d.value.replace(/zugleich/g, '');
+		if (fixs == d.value) fixs = d.value.replace(/  /g, ' ');
+
+		if (fixs !== d.value) {
+			change_list.push({reason: 'fix title', data: clone(d)});
+			d.value = fixs;
+		}
+
+		var val = d.value;
+		var title = find(val);
+		if (title) {
+			if (title !== val) {
+				change_list.push({reason: 'fix title', data: clone(d)});
+				d.value = title;
+			}
+			return;
+		}
+		var sl = val.split(' , ');
+		var splits = [];
+		var found = 0;
+		sl.forEach(function (s) {
+			s = s.trim();
+			title = find(s);
+			if (title) {
+				found++;
+				splits.push(title);
+			} else {
+				var deepsl = splitTitle(s);
+				if (deepsl.length == 0) {
+					splits.push(s);
+					if (titles.indexOf(s) < 0)titles.push(s);
+				} else {
+					found += deepsl.length;
+					splits = splits.concat(deepsl);
+				}
+			}
+		});
+		title = splits.join(' , ').trim().replace(/  /g, ' ');
 		if (title !== val) {
-			change_list.push(clone(d));
+			change_list.push({reason: 'fix title', data: clone(d)});
 			d.value = title;
 		}
-		return;
-	}
-	var sl = val.split(' , ');
-	var splits = [];
-	var found = 0;
-	sl.forEach(function (s) {
-		s = s.trim();
-		title = find(s);
-		if (title) {
-			found++;
-			splits.push(title);
-		} else {
-			var deepsl = splitTitle(s);
-			if (deepsl.length == 0) {
-				splits.push(s);
-				if (titles.indexOf(s) < 0)titles.push(s);
-			} else {
-				found += deepsl.length;
-				splits = splits.concat(deepsl);
-			}
-		}
 	});
-	title = splits.join(' , ');
-	if (title !== val) {
-		change_list.push(clone(d));
-		d.value = title;
-	}
 };
 
 var fixEntities = function (cb) {
@@ -697,17 +658,22 @@ var fixEntities = function (cb) {
 			var remove_list = [];
 			var change_list = [];
 
-			ent.data.forEach(function (d) {
-				fixTitles(d, change_list);
-			});
-
-			checkFieldsByFormat(ent.data, remove_list, change_list);
-			filterDupFields(ent.data, remove_list);
-			combineStartEndFields(ent.data, remove_list, change_list);
+			if (settings.unifyText)
+				unifyTexts(ent.data, remove_list, change_list);
+			if (settings.fixTitles)
+				fixTitles(ent.data, change_list);
+			if (settings.checkFields)
+				checkFieldsByFormat(ent.data, remove_list, change_list);
+			if (settings.filterDupFields)
+				filterDupFields(ent.data, remove_list);
+			if (settings.combineRange)
+				combineStartEndFields(ent.data, remove_list, change_list);
 
 			if (remove_list.length > 0) {
 				ent.data = ent.data.filter(function (d) {
-					return remove_list.indexOf(d) < 0;
+					return remove_list.filter(function (r) {
+							return r.data.id == d.id;
+						}).length == 0;
 				});
 			}
 
@@ -719,7 +685,7 @@ var fixEntities = function (cb) {
 						removed: remove_list,
 						changed: change_list
 					};
-					list.push(info);
+					report.push(info);
 					next();
 				});
 			} else {
@@ -740,40 +706,50 @@ var fixRelations = function (entities, cb) {
 	api.rels_full({full: true}, function (err, rels) {
 		if (err) return fn(err);
 		async.forEachSeries(rels, function (rel, next) {
-			if (rel.entities.length !== 2) {
-				console.log('relation with invalid entity count, removing relation');
-				return api.rel_delete(rel._id, function (err) {
-					list.push({
-						removed_rel: rel,
-						"invalid": "entity_ids.length"
-					});
-					if (err) return console.log(err);
-					return next();
-				});
-			}
 
-			if (!entity_ids[rel.entities[0].toString()] || !entity_ids[rel.entities[1].toString()]) {
-				console.log('relation with invalid entity ids, removing relation');
-				return api.rel_delete(rel._id, function (err) {
-					list.push({
-						removed_rel: rel,
-						"invalid": "entity_ids"
+			if (settings.removeInvalidRelations) {
+				if (rel.entities.length !== 2) {
+					console.log('relation with invalid entity count, removing relation');
+					return api.rel_delete(rel._id, function (err) {
+						report.push({
+							removed_rel: rel,
+							"invalid": "entity_ids.length"
+						});
+						if (err) return console.log(err);
+						return next();
 					});
-					if (err) return console.log(err);
-					return next();
-				});
+				}
+
+				if (!entity_ids[rel.entities[0].toString()] || !entity_ids[rel.entities[1].toString()]) {
+					console.log('relation with invalid entity ids, removing relation');
+					return api.rel_delete(rel._id, function (err) {
+						report.push({
+							removed_rel: rel,
+							"invalid": "entity_ids"
+						});
+						if (err) return console.log(err);
+						return next();
+					});
+				}
 			}
 
 			var remove_list = [];
 			var change_list = [];
 
-			checkFieldsByFormat(rel.data, remove_list, change_list);
-			filterDupFields(rel.data, remove_list);
-			combineStartEndFields(rel.data, remove_list, change_list);
+			if (settings.unifyText)
+				unifyTexts(rel.data, remove_list, change_list);
+			if (settings.checkFields)
+				checkFieldsByFormat(rel.data, remove_list, change_list);
+			if (settings.filterDupFields)
+				filterDupFields(rel.data, remove_list);
+			if (settings.combineRange)
+				combineStartEndFields(rel.data, remove_list, change_list);
 
 			if (remove_list.length > 0) {
 				rel.data = rel.data.filter(function (d) {
-					return remove_list.indexOf(d) < 0;
+					return remove_list.filter(function (r) {
+							return r.data.id == d.id;
+						}).length == 0;
 				});
 			}
 
@@ -785,7 +761,7 @@ var fixRelations = function (entities, cb) {
 						removed: remove_list,
 						changed: change_list
 					};
-					list.push(info);
+					report.push(info);
 					next();
 				});
 			} else {
@@ -803,10 +779,10 @@ var clone = function (obj) {
 
 fixEntities(function (entities) {
 	fixRelations(entities, function () {
-		if (list.length > 0) {
-			console.log(list.length, 'changes');
+		if (report.length > 0) {
+			console.log(report.length, 'changes');
 			var filename = './cleanup-log-' + (new Date()).valueOf() + '.json';
-			fs.writeFileSync(path.resolve(__dirname, filename), JSON.stringify(list, null, '\t'));
+			fs.writeFileSync(path.resolve(__dirname, filename), JSON.stringify(report, null, '\t'));
 		}
 		//titles.sort(function (a, b) {
 		//	if (a < b)return -1;
