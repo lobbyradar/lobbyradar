@@ -190,6 +190,40 @@ body {
 
 .update {
   border: solid 1px #ececec; }
+  .update .update-head {
+    margin-top: 0;
+    padding-bottom: 6px;
+    font-size: 1.2em;
+    text-align: center;
+    border-bottom: solid 1px #ececec; }
+  .update .details-head {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    border-top: solid 1px #ececec;
+    font-size: 1.2em; }
+  .update .detail-row {
+    display: table;
+    width: 100%; }
+    .update .detail-row .detail-col {
+      display: table-cell;
+      padding-left: 14px;
+      padding-right: 14px;
+      padding-top: 4px;
+      padding-bottom: 4px;
+      width: 50%; }
+      .update .detail-row .detail-col .action span {
+        font-size: 0.9em; }
+      .update .detail-row .detail-col .action:hover {
+        background-color: #f4f4f4; }
+        .update .detail-row .detail-col .action:hover span {
+          background-color: #f4f4f4; }
+      .update .detail-row .detail-col.alignmiddle {
+        vertical-align: middle; }
+      .update .detail-row .detail-col .detail-field {
+        font-size: 0.8em; }
+      .update .detail-row .detail-col .detail-label {
+        font-size: 0.75em;
+        min-width: 60px; }
   .update .item .info {
     cursor: pointer;
     border-bottom: solid 1px #ececec;
@@ -204,34 +238,6 @@ body {
     border-bottom: solid 1px #ececec; }
     .update .item .details .dropdown-toggle {
       color: #000; }
-    .update .item .details .details-head {
-      margin-top: 4px;
-      margin-bottom: 4px;
-      border-top: solid 1px #ececec;
-      font-size: 1.2em; }
-    .update .item .details .detail-row {
-      display: table;
-      width: 100%; }
-      .update .item .details .detail-row .detail-col {
-        display: table-cell;
-        padding-left: 14px;
-        padding-right: 14px;
-        padding-top: 4px;
-        padding-bottom: 4px;
-        width: 50%; }
-        .update .item .details .detail-row .detail-col .action span {
-          font-size: 0.9em; }
-        .update .item .details .detail-row .detail-col .action:hover {
-          background-color: #f4f4f4; }
-          .update .item .details .detail-row .detail-col .action:hover span {
-            background-color: #f4f4f4; }
-        .update .item .details .detail-row .detail-col.alignmiddle {
-          vertical-align: middle; }
-        .update .item .details .detail-row .detail-col .detail-field {
-          font-size: 0.8em; }
-        .update .item .details .detail-row .detail-col .detail-label {
-          font-size: 0.75em;
-          min-width: 60px; }
     .update .item .details .relations {
       padding-left: 14px;
       padding-right: 14px; }

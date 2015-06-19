@@ -262,6 +262,59 @@ body {
 .update {
   border: solid 1px #ececec;
 
+  .update-head {
+	margin-top: 0;
+	padding-bottom: 6px;
+	font-size: 1.2em;
+	text-align: center;
+	border-bottom: solid 1px #ececec;
+  }
+
+  .details-head {
+	margin-top: 4px;
+	margin-bottom: 4px;
+	border-top: solid 1px #ececec;
+	font-size: 1.2em;
+  }
+
+  .detail-row {
+	//margin-top: 4px;
+	display: table;
+	width: 100%;
+	.detail-col {
+	  display: table-cell;
+	  padding-left: 14px;
+	  padding-right: 14px;
+	  padding-top: 4px;
+	  padding-bottom: 4px;
+	  //border-top: solid 1px #ececec;
+	  width: 50%;
+	  .action {
+
+		span {
+		  font-size: 0.9em;
+		}
+
+		&:hover {
+		  background-color: #f4f4f4;
+		  span {
+			background-color: #f4f4f4;
+		  }
+		}
+	  }
+	  &.alignmiddle {
+		vertical-align: middle;
+	  }
+	  .detail-field {
+		font-size: 0.8em;
+	  }
+	  .detail-label {
+		font-size: 0.75em;
+		min-width: 60px;
+	  }
+	}
+  }
+
   .item {
 
 	.info {
@@ -281,51 +334,6 @@ body {
 
 	  .dropdown-toggle {
 		color:#000;
-	  }
-
-	  .details-head {
-		margin-top: 4px;
-		margin-bottom: 4px;
-		border-top: solid 1px #ececec;
-		font-size: 1.2em;
-	  }
-
-	  .detail-row {
-		//margin-top: 4px;
-		display: table;
-		width: 100%;
-		.detail-col {
-		  display: table-cell;
-		  padding-left: 14px;
-		  padding-right: 14px;
-		  padding-top: 4px;
-		  padding-bottom: 4px;
-		  //border-top: solid 1px #ececec;
-		  width: 50%;
-		  .action {
-
-			span {
-			  font-size: 0.9em;
-			}
-
-			&:hover {
-			  background-color: #f4f4f4;
-			  span {
-				background-color: #f4f4f4;
-			  }
-			}
-		  }
-		  &.alignmiddle {
-			vertical-align: middle;
-		  }
-		  .detail-field {
-			font-size: 0.8em;
-		  }
-		  .detail-label {
-			font-size: 0.75em;
-			min-width: 60px;
-		  }
-		}
 	  }
 
 	  .relations {

@@ -2392,31 +2392,61 @@ app.controller('UpdateCtrl', function ($scope, $modal, update) {
 		$scope.updates = $scope.updates.filter(function (entry) {
 			return (entry._id !== id);
 		});
+		$scope.updates.forEach(function (entry) {
+			if (entry.update) {
+				var hasEntryToRemove = false;
+				entry.update.relations.forEach(function (rel_info) {
+					if (rel_info.entity._id == id) {
+						hasEntryToRemove = true;
+					}
+				});
+				if (hasEntryToRemove) {
+					entry.update.relations = entry.update.relations.filter(function (rel_info) {
+						return (rel_info.entry._id !== id);
+					});
+				}
+			}
+		});
+
 	};
 
-	var getEntryByID = function (id) {
-		return $scope.updates.filter(function (entry) {
-			return (entry._id == id);
-		})[0];
+	var applyResult = function (data) {
+		if (data.error) {
+			alert(data.error);
+			return reportServerError($scope, data.error);
+		}
+		data = angular.isArray(data.result) ? data.result : [data.result];
+		data.forEach(function (update) {
+			//console.log(update);
+			if (update.deleted) return removeUpdate(update._id);
+			var id = update.entity._id;
+			$scope.updates.forEach(function (entry) {
+				if (entry._id == id) {
+					entry.name = update.entity.name;
+					entry.update = update;
+				} else if (entry.update) {
+					entry.update.relations.forEach(function (rel_info) {
+						if (rel_info.entity._id == id) {
+							rel_info.entity = update.entity;
+						}
+					});
+				}
+			});
+		});
 	};
 
-	var replaceUpdate = function (entry, update) {
-		var i = $scope.updates.indexOf(entry);
-		if (i >= 0) $scope.updates[i].update = update;
-	};
 
-	$scope.searchEntity = function (entry) {
+	$scope.searchEntity = function (entity) {
 		editModalDialog($modal,
 			{
-				mode: entry.update.entity.type == 'person' ? 'persons' : 'entities',
-				item: entry.update.entity,
+				mode: entity.type == 'person' ? 'persons' : 'entities',
+				modename: entity.type == 'person' ? 'Person' : 'Organisation',
+				item: entity,
 				validate: function (data, cb) {
 					if (!data.edit._id) return;
 					update.chooseEntity({id: entry._id}, {id: entry._id, ent: data.edit._id},
 						function (data) {
-							if (data.error) return reportServerError($scope, data.error);
-							if (data.result.deleted) return removeUpdate(entry._id);
-							replaceUpdate(entry, data.result);
+							applyResult(data);
 							cb(true);
 						},
 						function (err) {
@@ -2430,10 +2460,10 @@ app.controller('UpdateCtrl', function ($scope, $modal, update) {
 			});
 	};
 
-	$scope.editEntity = function (entry) {
+	$scope.editEntity = function (entity) {
 		editModalDialog($modal,
 			{
-				item: entry.update.entity
+				item: entity
 			},
 			'partials/update-entity-modal.html'
 			, function (data) {
@@ -2442,11 +2472,7 @@ app.controller('UpdateCtrl', function ($scope, $modal, update) {
 	};
 
 	$scope.deleteEntity = function (entry) {
-		update.deleteUpdate({id: entry._id}, {id: entry._id}, function (data) {
-			$scope.updates = $scope.updates.filter(function (ent) {
-				return entry !== ent;
-			})
-		}, function (err) {
+		update.deleteUpdate({id: entry._id}, {id: entry._id}, applyResult, function (err) {
 			console.log(err);
 		});
 	};
@@ -2466,22 +2492,6 @@ app.controller('UpdateCtrl', function ($scope, $modal, update) {
 	$scope.applyEntityData = function (entry) {
 		update.applyEntityData({id: entry._id}, {id: entry._id}, applyResult, function (err) {
 			console.log(err);
-		});
-	};
-
-	var applyResult = function (data) {
-		if (data.error) {
-			console.log(data);
-			alert(data.error);
-			return;
-		}
-		data = angular.isArray(data.result) ? data.result : [data.result];
-		data.forEach(function (update) {
-			console.log(update);
-			if (update.deleted) return removeUpdate(update._id);
-			var entry = getEntryByID(update.entity._id);
-			entry.name = update.entity.name;
-			entry.update = update;
 		});
 	};
 
