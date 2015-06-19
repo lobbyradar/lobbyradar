@@ -713,19 +713,28 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		var orderedData = $scope.list;
 
 		if ($scope.filter.text.length > 0) {
+
+			var lowercase = true;
+
+			var searchtext = lowercase ? $scope.filter.text.toLowerCase() : $scope.filter.text;
+
+			var find = function (text) {
+				if (lowercase) text = text.toLowerCase();
+				return (text.indexOf(searchtext) >= 0);
+			};
+
 			var allFilter = function (o) {
 				var found = false;
 				state.fields.forEach(function (f) {
 					if (!found) {
-						var s = $scope.getDispayValues(f, o);
-						found = (s.indexOf($scope.filter.text) >= 0);
+						found = find($scope.getDispayValues(f, o));
 					}
 				});
 				return found;
 			};
 			var singleFilter = function (o) {
 				var s = $scope.getDispayValues($scope.filter.mode, o) || '';
-				return (s.indexOf($scope.filter.text) >= 0);
+				return find(s);
 			};
 			orderedData = orderedData.filter($scope.filter.mode ? singleFilter : allFilter);
 		}
@@ -758,17 +767,6 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 					return 0;
 				});
 			}
-
-			//data.result.forEach(function (f) {
-			//});
-
-			//if ((sorting.name)
-			//	|| (sorting.aliases)
-			//	|| (sorting.tags)) {
-			//	orderedData = $filter('orderBy')(orderedData, params.orderBy())
-			//} else {
-			//	console.log(sorting);
-			//}
 		}
 
 		params.total(orderedData.length);
