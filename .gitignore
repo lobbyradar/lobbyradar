@@ -9,7 +9,7 @@ scripts
 config.codekit
 sessions.json
 lobbynetwork/positions.json
-
+local/
 lobbynetwork/links.json
 
 lobbynetwork/nodes.json

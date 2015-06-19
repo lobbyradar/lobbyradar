@@ -2360,11 +2360,23 @@ app.controller('UpdateCtrl', function ($scope, $modal, update) {
 		console.log(err);
 	});
 
+
 	$scope.curPage = 0;
 	$scope.pageSize = 25;
 
-	$scope.numberOfPages = function () {
-		return Math.ceil($scope.updates.length / $scope.pageSize);
+	$scope.params = {
+		total: function () {
+			return $scope.updates.length;
+		},
+		page: function (nr) {
+			if (!isNaN(nr)) $scope.curPage = nr - 1;
+			return $scope.curPage + 1;
+
+		},
+		count: function (nr) {
+			if (!isNaN(nr)) $scope.pageSize = nr;
+			return $scope.pageSize;
+		}
 	};
 
 	$scope.show = function (entry) {

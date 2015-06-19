@@ -70,7 +70,7 @@
 	<div class="row" ng-controller="PagerCtrl">
 		<div class="col-md-3">
 			<div class="btn btn-default" ng-class="{disabled:params.page()==1}" ng-click="params.page(1)" href="">&laquo; Erste</div>
-			<div class="btn btn-default" ng-class="{disabled:params.page()==1}" ng-click="params.page(params.page()-1)" href="">&laquo; Letzte</div>
+			<div class="btn btn-default" ng-class="{disabled:params.page()==1}" ng-click="params.page(params.page()-1)" href="">&laquo; Vorherige</div>
 		</div>
 		<div class="col-md-6">
 			<table class="table">
@@ -1430,7 +1430,7 @@
 		<!--</div>-->
 	</div>
 
-	<div class="update">
+	<div class="update" ng-if="updates.length>0">
 		<div class="detail-row">
 			<div class="detail-col">
 				<div class="update-head">Update Daten</div>
@@ -1547,13 +1547,11 @@
 				</div>
 			</div>
 		</div>
-		<hr/>
-		<div class="pagination-div" ng-show="updates.length>pageSize">
-			<button class="btn btn-default btn-sm" type="button" ng-disabled="curPage == 0" ng-click="curPage=curPage-1">Zurück</button>
-			<span class="btn">Seite <span ng-bind="curPage + 1"></span> von <span ng-bind="numberOfPages()"></span></span>
-			<button class="btn btn-default btn-sm" type="button" ng-disabled="curPage >= images.length/pageSize - 1" ng-click="curPage = curPage+1">Nächste</button>
-		</div>
 	</div>
+
+	<br/>
+
+	<div ng-if="updates.length>0" ng-include="'partials/pager.html'"></div>
 
 </script>
 
