@@ -781,8 +781,10 @@ fixEntities(function (entities) {
 	fixRelations(entities, function () {
 		if (report.length > 0) {
 			console.log(report.length, 'changes');
-			var filename = './cleanup-log-' + (new Date()).valueOf() + '.json';
-			fs.writeFileSync(path.resolve(__dirname, filename), JSON.stringify(report, null, '\t'));
+			var dir = path.resolve(__dirname, 'log');
+			if (!fs.existsSync(dir)) fs.mkdirSync(dir, 777);
+			var filename = path.resolve(dir, 'cleanup-log-' + (new Date()).valueOf() + '.json');
+			fs.writeFileSync(filename, JSON.stringify(report, null, '\t'));
 		}
 		//titles.sort(function (a, b) {
 		//	if (a < b)return -1;
