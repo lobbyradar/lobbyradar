@@ -31,11 +31,11 @@ var titles = [];
 
 var settings = {
 	fixTitles: false,
-	filterDupFields: true,
-	unifyText: true,
+	filterDupFields: false,
+	unifyText: false,
 	combineRange: true,
-	checkFields: true,
-	removeInvalidRelations: true
+	checkFields: false,
+	removeInvalidRelations: false
 };
 
 var checkFieldsByFormat = function (data, remove_list, change_list) {
@@ -92,28 +92,67 @@ var unifyTexts = function (data, remove_list, change_list) {
 	});
 };
 
-var combineStartEndFields = function (data, remove_list, change_list) {
+var combineRangeFields = function (data, remove_list, change_list) {
 	var starts = [];
 	var ends = [];
+	var positions = [];
 	for (var i = 0; i < data.length; i++) {
 		var d = data[i];
 		if (d.key == 'start' || (d.key == 'begin')) starts.push(d);
 		else if (d.key == 'end') ends.push(d);
+		else if (d.key == 'position') positions.push(d);
 	}
-	if (starts.length == 1 && ends.length == 1) {
-		var d = starts[0];
-		change_list.push({reason: 'combine start/end fields to range field', data: clone(d)});
+
+	if (starts.length == 0 && ends.length == 0)  return;
+
+	console.log('-----');
+	console.log(starts);
+	console.log(ends);
+	console.log(positions);
+	console.log('-----');
+
+	var getsplitdate = function (d) {
+		if (d.type == 'monthyear') return d.value;
+		if (d.type == 'date') {
+			var date = new Date(d.value.date);
+			if (d.value.fmt == 'yyyy') {
+				return {year: date.getFullYear()}
+			}
+			if (d.value.fmt == 'MM.yyyy') {
+				console.log();
+				return {month: date.getMonth(), year: date.getFullYear()}
+			}
+		}
+		return null;
+	};
+
+	if (starts.length == 1 && ends.length == 1 && positions.length == 1) {
+		var d1 = starts[0];
+		var d2 = ends[0];
+		//change_list.push({reason: 'combine start/end fields to range field', data: clone(d)});
+		var splitdate1 = getsplitdate(d1);
+		var splitdate2 = getsplitdate(d2);
+
 		d.key = 'range';
 		d.format = 'range';
-		d.desc = 'Zeitraum';
-		d.value = {
-			start: d.value.date ? d.value.date : d.value,
-			end: ends[0].value.date ? ends[0].value.date : ends[0].value,
-			fmt: d.fmt ? d.fmt : 'dd.MM.yyyy'
-		};
-		remove_list.push({reason: 'merged value', data: ends[0]});
+		d.desc = 'Position';
+		d.value = {};
+		if (splitdate1) {
+			d.value.start_day = splitdate1.day;
+			d.value.start_month = splitdate1.month;
+			d.value.start_year = splitdate1.year;
+		}
+		if (splitdate2) {
+			d.value.end_day = splitdate2.day;
+			d.value.end_month = splitdate2.month;
+			d.value.end_year = splitdate2.year;
+		}
+
+		//remove_list.push({reason: 'merged value', data: ends[0]});
 	}
-	else if (starts.length > 0 || ends.length > 0) {
+
+	return;
+	if (starts.length > 0 || ends.length > 0) {
 		starts.forEach(function (d) {
 			change_list.push({reason: 'convert start/end fields to range field', data: clone(d)});
 			d.key = 'range';
@@ -666,8 +705,6 @@ var fixEntities = function (cb) {
 				checkFieldsByFormat(ent.data, remove_list, change_list);
 			if (settings.filterDupFields)
 				filterDupFields(ent.data, remove_list);
-			if (settings.combineRange)
-				combineStartEndFields(ent.data, remove_list, change_list);
 
 			if (remove_list.length > 0) {
 				ent.data = ent.data.filter(function (d) {
@@ -743,7 +780,7 @@ var fixRelations = function (entities, cb) {
 			if (settings.filterDupFields)
 				filterDupFields(rel.data, remove_list);
 			if (settings.combineRange)
-				combineStartEndFields(rel.data, remove_list, change_list);
+				combineRangeFields(rel.data, remove_list, change_list);
 
 			if (remove_list.length > 0) {
 				rel.data = rel.data.filter(function (d) {

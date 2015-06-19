@@ -1121,33 +1121,37 @@
 
 		<div ng-switch-when="range" class="row">
 			<form class="form" ng-controller="DatepickerCtrl" ng-init="dtp_range_value=d.value;">
-				<div class="form-group col-md-6">
-					<label>Start</label>
-
+				<div class="form-group col-md-3">
+					<label>Start: Monat</label>
 					<p class="input-group">
-						<input type="text" class="form-control" datepicker-options="dtp_dateOptions" datepicker-popup="{{d.value.fmt}}" ng-model="d.value.start" is-open="dtp_opened" ng-required="true" close-text="Schließen"/>
-						<span class="input-group-btn">
-							<button type="button" class="btn btn-default" ng-click="dtp_open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
-						</span>
+						<input type="integer" class="form-control" ng-model="d.value.start_month">
 					</p>
 				</div>
-				<div class="form-group col-md-6">
-					<label>Ende</label>
-
+				<div class="form-group col-md-3">
+					<label>Start: Jahr</label>
 					<p class="input-group">
-						<input type="text" class="form-control" datepicker-options="dtp_dateOptions" datepicker-popup="{{d.value.fmt}}" ng-model="d.value.end" is-open="dtp_opened" ng-required="true" close-text="Schließen"/>
-						<span class="input-group-btn">
-							<button type="button" class="btn btn-default" ng-click="dtp_open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
-						</span>
+						<input type="integer" class="form-control" ng-model="d.value.start_year">
 					</p>
 				</div>
-				<div class="form-group col-md-6">
-					<label>Format</label>
-					<select class="form-control" ng-model="d.value.fmt" ng-options="f.fmt as f.name for f in dtp_formats"></select>
+				<div class="form-group col-md-3">
+					<label>Ende: Monat</label>
+					<p class="input-group">
+						<input type="integer" class="form-control" ng-model="d.value.start_month">
+					</p>
+				</div>
+				<div class="form-group col-md-3">
+					<label>Ende: Jahr</label>
+					<p class="input-group">
+						<input type="integer" class="form-control" ng-model="d.value.start_year">
+					</p>
 				</div>
 				<div class="form-group col-md-12">
 					<label>Beschreibung</label>
 					<input type="text" class="form-control" placeholder="Text" ng-model="d.value.desc">
+				</div>
+				<div class="form-group col-md-12">
+					<label>Quelle</label>
+					<input type="text" class="form-control" placeholder="Text" ng-model="d.value.source">
 				</div>
 			</form>
 		</div>

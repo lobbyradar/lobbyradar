@@ -59,8 +59,7 @@ var fixFields = function (cb) {
 				});
 				var fields_in_use = toList(fieldtypes);
 				var new_fields = fields_in_use.filter(function (t) {
-					return true;
-					//console.log(JSON.stringify(t));
+					console.log(JSON.stringify(t));
 					var flist = fields.filter(function (f) {
 						return ((f.key == t.key) && (f.mode == t.mode) && (f.format == t.format) && (f.name == t.name));
 					});
@@ -69,7 +68,7 @@ var fixFields = function (cb) {
 				if (!new_fields.length) return cb();
 				console.log(new_fields.length, 'new fields');
 				async.forEachSeries(new_fields, function (t, next) {
-						console.log('create field', JSON.stringify(t));
+						//console.log('create field', JSON.stringify(t));
 						next();
 						//api.field_create(t, next);
 					}, cb

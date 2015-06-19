@@ -228,13 +228,20 @@ var parseEntities = function (row) {
 	if (skipRow(row)) return [];
 	var entities = [];
 	var entity = {data: [], type: 'person', importer: 'xing'};
-	model.entity_property_specs['update_id'].fill(row[0], entity);
-	model.entity_property_specs['name'].fill(validateString(row[1]), entity);
+	entity.update_id = row[0];
+	entity.name = validateString(row[1]);
 	entities.push(entity);
 	entity = {data: [], type: 'entity', importer: 'xing'};
-	model.entity_property_specs['update_id'].fill(row[9], entity);
-	model.entity_property_specs['name'].fill(validateString(row[10]), entity);
-	model.entity_data_specs['url'].fill(row[11], entity);
+	entity.update_id = row[9];
+	entity.name = validateString(row[10]);
+	var val = row[11];
+	if (val.toLowerCase().indexOf('http') !== 0) val = 'http://' + val;
+	entity.data.push({
+		"key": "url",
+		"value": val,
+		"desc": "Webseite",
+		"format": "url"
+	});
 	entities.push(entity);
 	return entities;
 };
@@ -242,14 +249,23 @@ var parseEntities = function (row) {
 var parseRelations = function (row) {
 	if (skipRow(row)) return [];
 	var rel = {data: [], type: 'position', importer: 'xing'};
-	model.relation_property_specs['update_id1'].fill(row[0], rel);
-	model.relation_property_specs['update_id2'].fill(row[9], rel);
-	model.relation_data_specs['range'].fill({
-		start: (!row[4]) ? null : ( new Date(row[4], row[3] - 1, 1)),
-		end: (!row[6]) ? null : ( new Date(row[6], row[5] - 1, 1)),
-		fmt: (row[3] && row[5]) ? 'MM.yyyy' : 'yyyy',
-		desc: validateString(row[2])
-	}, rel);
+	rel.update_id1 = row[0];
+	rel.update_id2 = row[9];
+	rel.data.push(
+		{
+			key: "range",
+			format: "range",
+			desc: "Position",
+			source: "Xing-Profil",
+			value: {
+				start_month: row[3],
+				start_year: row[4],
+				end_month: row[5],
+				end_year: row[6],
+				desc: validateString(row[2])
+			}
+		}
+	);
 	return [rel];
 };
 
