@@ -522,7 +522,7 @@ var getDisplayValue = function (v, dateFilter) {
 		case 'date':
 			return dateFilter(v.value.date, v.value.fmt);
 		case 'range':
-			return (v.value.start ? dateFilter(v.value.start, v.value.fmt) : '') + ' - ' + (v.value.end ? dateFilter(v.value.end, v.value.fmt) : '');
+			return (v.value.desc ? v.value.desc + ': ' : '') + (v.value.start ? dateFilter(v.value.start, v.value.fmt) : '') + ' - ' + (v.value.end ? dateFilter(v.value.end, v.value.fmt) : '');
 		case 'address':
 			var sl = [];
 			if (v.value) {

@@ -8,50 +8,14 @@ var db = mongojs(config.db, ["entities", "relations", "users", "update", "fields
 var api = require(path.resolve(__dirname, "../lib/api.js"))(config.api, db);
 var model = require(path.resolve(__dirname, "../lib/model.js"));
 
-var xingmap_entities = [
-	{type: 'update_id', entity: 0, entity_type: "person"},
-	{type: 'name', entity: 0},
-	{}, {}, {}, {}, {}, {}, {},  //ignore relation
-	{type: 'update_id', entity: 1, entity_type: "entity"},
-	{type: 'name', entity: 1},
-	{type: 'url', entity: 1},
-	{}
-];
-var xingmap_relation = [
-	{type: 'update_id1', rel: 0},
-	{},
-	{type: 'position'},
-	{type: 'range', rel: 0, collect: 'start_month'},
-	{type: 'range', rel: 0, collect: 'start_year'},
-	{type: 'range', rel: 0, collect: 'end_month'},
-	{
-		type: 'range', rel: 0, collect: 'end_year', collect_end: function (collect) {
-		var result = {};
-		result.start = new Date(collect.start_year, collect.start_month - 1, 1);
-		if (!collect.start_year) result.start = null;
-		result.end = new Date(collect.end_year, collect.end_month - 1, 1);
-		if (!collect.end_year) result.end = null;
-		result.format = 'yyyy';
-		if (collect.start_month && collect.end_month)
-			result.format = 'MM.yyyy';
-		return result;
-	}
-	},
-	{}, {},
-	{type: 'update_id2', rel: 0},
-	{},
-	{},
-	{}
-];
-
-var loadFile = function (parse_map, parse, cb) {
+var loadFile = function (parse, cb) {
 	var result = [];
 	new XLSX().extract('./data/xing-miz.xlsx', {ignore_header: 1, sheet_nr: 1}) // or sheet_name or sheet_nr
 		.on('sheet', function (sheet) {
 			console.log('sheet', sheet);  //sheet is array [sheetname, sheetid, sheetnr]
 		})
 		.on('row', function (row) {
-			result = result.concat(parse(parse_map, row));
+			result = result.concat(parse(row));
 		})
 		//.on('cell', function (cell) {
 		//	console.log('cell', cell); //cell is a value or null
@@ -231,8 +195,6 @@ var skipOrgs = [
 	'.', '--', '-', '&', '::'
 ];
 
-var bla = [];
-
 var skipRow = function (row) {
 	var val = (row[2] || '').toLowerCase().trim();
 	if (val.indexOf('praktikum') >= 0) return true;
@@ -247,7 +209,6 @@ var skipRow = function (row) {
 	if (skipPositions.indexOf(val) >= 0) return true;
 	var val = (row[10] || '').toLowerCase().trim();
 	if (skipOrgs.indexOf(val) >= 0) return true;
-	if (bla.indexOf(val) < 0) bla.push(val);
 	return false;
 };
 
@@ -263,45 +224,33 @@ var validateString = function (val) {
 	return val;
 };
 
-var parseEntities = function (parse_map, row) {
+var parseEntities = function (row) {
 	if (skipRow(row)) return [];
 	var entities = [];
-	//console.log(row[2]);
-	parse_map.forEach(function (spec, i) {
-		if (!spec.type) return; //skip
-		entities[spec.entity || 0] = entities[spec.entity || 0] || {data: [], type: spec.entity_type, importer: 'xing'};
-		var specparse = model.entity_property_specs[spec.type] || model.entity_data_specs[spec.type];
-		if (!specparse) {
-			return console.log('invalid entity spec parse type', spec.type);
-		}
-		var val = validateString(row[i]);
-		specparse.fill(val, entities[spec.entity || 0])
-	});
+	var entity = {data: [], type: 'person', importer: 'xing'};
+	model.entity_property_specs['update_id'].fill(row[0], entity);
+	model.entity_property_specs['name'].fill(validateString(row[1]), entity);
+	entities.push(entity);
+	entity = {data: [], type: 'entity', importer: 'xing'};
+	model.entity_property_specs['update_id'].fill(row[9], entity);
+	model.entity_property_specs['name'].fill(validateString(row[10]), entity);
+	model.entity_data_specs['url'].fill(row[11], entity);
+	entities.push(entity);
 	return entities;
 };
 
-var parseRelations = function (parse_map, row) {
+var parseRelations = function (row) {
 	if (skipRow(row)) return [];
-	var relations = [];
-	var collect = null;
-	parse_map.forEach(function (spec, i) {
-		var val = validateString(row[i]);
-		if (spec.collect) {
-			collect = collect || {};
-			collect[spec.collect] = val;
-			if (!spec.collect_end) return;
-			val = spec.collect_end(collect);
-			collect = null;
-		}
-		if (!spec.type) return; //skip
-		relations[spec.rel || 0] = relations[spec.rel || 0] || {data: [], type: 'position', importer: 'xing'};
-		var specparse = model.relation_property_specs[spec.type] || model.relation_data_specs[spec.type];
-		if (!specparse) {
-			return console.log('invalid relation spec parse type', spec.type);
-		}
-		specparse.fill(val, relations[spec.entity || 0])
-	});
-	return relations;
+	var rel = {data: [], type: 'position', importer: 'xing'};
+	model.relation_property_specs['update_id1'].fill(row[0], rel);
+	model.relation_property_specs['update_id2'].fill(row[9], rel);
+	model.relation_data_specs['range'].fill({
+		start: (!row[4]) ? null : ( new Date(row[4], row[3] - 1, 1)),
+		end: (!row[6]) ? null : ( new Date(row[6], row[5] - 1, 1)),
+		fmt: (row[3] && row[5]) ? 'MM.yyyy' : 'yyyy',
+		desc: validateString(row[2])
+	}, rel);
+	return [rel];
 };
 
 var validate = function (entities, relations) {
@@ -393,14 +342,8 @@ var validate = function (entities, relations) {
 	};
 };
 
-loadFile(xingmap_entities, parseEntities, function (err, entities_raw) {
-	//bla.sort(function (a, b) {
-	//	if (a < b) return 1;
-	//	if (a > b) return -1;
-	//	return 0;
-	//});
-	//console.log(bla);
-	loadFile(xingmap_relation, parseRelations, function (err, relations_raw) {
+loadFile(parseEntities, function (err, entities_raw) {
+	loadFile(parseRelations, function (err, relations_raw) {
 		var intermed = validate(entities_raw, relations_raw);
 		intermed.entities.sort(function (a, b) {
 			if (a.name < b.name) return -1;
