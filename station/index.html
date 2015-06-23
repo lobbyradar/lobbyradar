@@ -1120,29 +1120,33 @@
 		</div>
 
 		<div ng-switch-when="range" class="row">
-			<form class="form" ng-controller="DatepickerCtrl" ng-init="dtp_range_value=d.value;">
+			<form class="form">
 				<div class="form-group col-md-3">
 					<label>Start: Monat</label>
+
 					<p class="input-group">
-						<input type="integer" class="form-control" ng-model="d.value.start_month">
+						<input type="integer" class="form-control" ng-model="d.value.start.month">
 					</p>
 				</div>
 				<div class="form-group col-md-3">
 					<label>Start: Jahr</label>
+
 					<p class="input-group">
-						<input type="integer" class="form-control" ng-model="d.value.start_year">
+						<input type="integer" class="form-control" ng-model="d.value.start.year">
 					</p>
 				</div>
 				<div class="form-group col-md-3">
 					<label>Ende: Monat</label>
+
 					<p class="input-group">
-						<input type="integer" class="form-control" ng-model="d.value.start_month">
+						<input type="integer" class="form-control" ng-model="d.value.start.month">
 					</p>
 				</div>
 				<div class="form-group col-md-3">
 					<label>Ende: Jahr</label>
+
 					<p class="input-group">
-						<input type="integer" class="form-control" ng-model="d.value.start_year">
+						<input type="integer" class="form-control" ng-model="d.value.start.year">
 					</p>
 				</div>
 				<div class="form-group col-md-12">
@@ -1152,6 +1156,43 @@
 				<div class="form-group col-md-12">
 					<label>Quelle</label>
 					<input type="text" class="form-control" placeholder="Text" ng-model="d.value.source">
+				</div>
+			</form>
+		</div>
+
+		<div ng-switch-when="activity" class="row">
+			<form class="form">
+				<div class="form-group col-md-12">
+					<label>Typ</label>
+					<input type="text" class="form-control" ng-model="d.value.type">
+				</div>
+				<div class="form-group col-md-12">
+					<label>Position</label>
+					<input type="text" class="form-control" ng-model="d.value.position">
+				</div>
+				<div class="form-group col-md-3">
+					<label>Periodical</label>
+					<input type="text" class="form-control" ng-model="d.value.periodical">
+				</div>
+				<div class="form-group col-md-3">
+					<label>Start</label>
+					<input type="text" class="form-control" ng-model="d.value.begin">
+				</div>
+				<div class="form-group col-md-3">
+					<label>Ende</label>
+					<input type="integer" class="form-control" ng-model="d.value.end">
+				</div>
+				<div class="form-group col-md-3">
+					<label>Jahr</label>
+					<input type="text" class="form-control" ng-model="d.value.year">
+				</div>
+				<div class="form-group col-md-3">
+					<label>Aktivität</label>
+					<input type="text" class="form-control" ng-model="d.value.activity">
+				</div>
+				<div class="form-group col-md-3">
+					<label>Ort</label>
+					<input type="text" class="form-control" ng-model="d.value.place">
 				</div>
 			</form>
 		</div>

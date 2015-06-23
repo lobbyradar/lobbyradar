@@ -1,204 +1,10 @@
-var mongojs = require("mongojs");
-var debug = require("debug")("cleanup");
-var async = require("async");
-var path = require("path");
-var fs = require("fs");
-var utils = require("../lib/utils.js");
-var model = require(path.resolve(__dirname, "../lib/model.js"));
+var db = require("./db.js");
 
-/*
-
- cleanup entities & relations in mongo db
-
- -duplicate data fields
- -empty data fields
- -known importer errors
-
- */
-
-// load config
-var config = require(path.resolve(__dirname, "../config.js"));
-
-// load mongojs
-var db = mongojs(config.db, ["entities", "relations", "dataindex"]);
-
-// local modules
-var api = require(path.resolve(__dirname, "../lib/api.js"))(config.api, db);
-
-var report = [];
+/* unify position fields */
 
 var titles = [];
 
-var settings = {
-	fixTitles: false,
-	filterDupFields: false,
-	unifyText: false,
-	combineRange: true,
-	checkFields: false,
-	removeInvalidRelations: false
-};
-
-var checkFieldsByFormat = function (data, remove_list, change_list) {
-	data.forEach(function (d) {
-		if (d.format == 'photo') {
-			if (d.value.addr || d.value.email) {
-				change_list.push({reason: 'fix wrong field type', data: clone(d)});
-				d.format = 'address';
-				d.desc = 'Adresse';
-				d.key = 'address';
-			}
-		}
-		if (d.value === null) {
-			return remove_list.push({reason: 'invalid value', data: d});
-		}
-		if ((typeof d.value === 'string') && (d.value.length == 0)) {
-			return remove_list.push({reason: 'invalid value', data: d});
-		}
-		var formatscpec = model.format_spec[d.format];
-		if (formatscpec) {
-			if (!formatscpec.validate(d.value)) {
-				remove_list.push({reason: 'invalid value', data: d});
-			}
-		} else {
-			console.log('unknown format', d.format);
-		}
-	});
-};
-
-var unifyTexts = function (data, remove_list, change_list) {
-	data.forEach(function (d) {
-		if (d.format == 'string') {
-			if (d.desc == 'Beschreibungstext') {
-				change_list.push({reason: 'unify texts', data: clone(d)});
-				d.desc = 'Beschreibung';
-			}
-		} else if (d.format == 'link') {
-			if (d.key == 'www' || d.key == 'url') {
-				change_list.push({reason: 'unify link key', data: clone(d)});
-				d.key = 'link';
-			}
-			if (d.desc == 'URL' || d.desc == 'Link') {
-				change_list.push({reason: 'unify texts', data: clone(d)});
-				d.desc = 'Webseite';
-			}
-		} else if (d.format == 'integer') {
-			change_list.push({reason: 'unify number format key', data: clone(d)});
-			d.format = 'number';
-		}
-		if (d.value && d.value.desc == 'Fraktion undefined') {
-			change_list.push({reason: 'fix text', data: clone(d)});
-			d.value.desc = 'Fraktion';
-		}
-	});
-};
-
-var combineRangeFields = function (data, remove_list, change_list) {
-	var starts = [];
-	var ends = [];
-	var positions = [];
-	for (var i = 0; i < data.length; i++) {
-		var d = data[i];
-		if (d.key == 'start' || (d.key == 'begin')) starts.push(d);
-		else if (d.key == 'end') ends.push(d);
-		else if (d.key == 'position') positions.push(d);
-	}
-
-	if (starts.length == 0 && ends.length == 0)  return;
-
-	console.log('-----');
-	console.log(starts);
-	console.log(ends);
-	console.log(positions);
-	console.log('-----');
-
-	var getsplitdate = function (d) {
-		if (d.type == 'monthyear') return d.value;
-		if (d.type == 'date') {
-			var date = new Date(d.value.date);
-			if (d.value.fmt == 'yyyy') {
-				return {year: date.getFullYear()}
-			}
-			if (d.value.fmt == 'MM.yyyy') {
-				console.log();
-				return {month: date.getMonth(), year: date.getFullYear()}
-			}
-		}
-		return null;
-	};
-
-	if (starts.length == 1 && ends.length == 1 && positions.length == 1) {
-		var d1 = starts[0];
-		var d2 = ends[0];
-		//change_list.push({reason: 'combine start/end fields to range field', data: clone(d)});
-		var splitdate1 = getsplitdate(d1);
-		var splitdate2 = getsplitdate(d2);
-
-		d.key = 'range';
-		d.format = 'range';
-		d.desc = 'Position';
-		d.value = {};
-		if (splitdate1) {
-			d.value.start_day = splitdate1.day;
-			d.value.start_month = splitdate1.month;
-			d.value.start_year = splitdate1.year;
-		}
-		if (splitdate2) {
-			d.value.end_day = splitdate2.day;
-			d.value.end_month = splitdate2.month;
-			d.value.end_year = splitdate2.year;
-		}
-
-		//remove_list.push({reason: 'merged value', data: ends[0]});
-	}
-
-	return;
-	if (starts.length > 0 || ends.length > 0) {
-		starts.forEach(function (d) {
-			change_list.push({reason: 'convert start/end fields to range field', data: clone(d)});
-			d.key = 'range';
-			d.format = 'range';
-			d.desc = 'Zeitraum';
-			d.value = {
-				start: d.value.date ? d.value.date : d.value,
-				end: null,
-				fmt: d.fmt ? d.fmt : 'dd.MM.yyyy'
-			};
-		});
-		ends.forEach(function (d) {
-			var st = starts.filter(function (sd) {
-				return (sd.value.start < d.value);
-			});
-			if (st.length == 1) {
-				st[0].value.end = d.value.date ? d.value.date : d.value;
-				remove_list.push({reason: 'merged value', data: d});
-			} else {
-				change_list.push({reason: 'convert start/end fields to range field', data: clone(d)});
-				d.key = 'range';
-				d.format = 'range';
-				d.desc = 'Zeitraum';
-				d.value = {
-					start: null,
-					end: d.value.date ? d.value.date : d.value,
-					fmt: d.fmt ? d.fmt : 'dd.MM.yyyy'
-				};
-			}
-		});
-	}
-};
-
-var filterDupFields = function (data, remove_list) {
-	for (var i = 0; i < data.length; i++) {
-		var d = data[i];
-		for (var j = i + 1; j < data.length; j++) {
-			var d2 = data[j];
-			if (utils.fields_equal(d, d2)) {
-				remove_list.push({reason: 'duplicate value', data: d2});
-			}
-		}
-	}
-};
-
-var fixTitles = function (fields, change_list) {
+var fixTitles = function (fields, state) {
 
 	var approved_titles = {
 		'Oberstudiendirektor': true,
@@ -648,7 +454,7 @@ var fixTitles = function (fields, change_list) {
 		if (fixs == d.value) fixs = d.value.replace(/  /g, ' ');
 
 		if (fixs !== d.value) {
-			change_list.push({reason: 'fix title', data: clone(d)});
+			state.changed('fix title', d);
 			d.value = fixs;
 		}
 
@@ -656,7 +462,7 @@ var fixTitles = function (fields, change_list) {
 		var title = find(val);
 		if (title) {
 			if (title !== val) {
-				change_list.push({reason: 'fix title', data: clone(d)});
+				state.changed('fix title', d);
 				d.value = title;
 			}
 			return;
@@ -683,153 +489,25 @@ var fixTitles = function (fields, change_list) {
 		});
 		title = splits.join(' , ').trim().replace(/  /g, ' ');
 		if (title !== val) {
-			change_list.push({reason: 'fix title', data: clone(d)});
+			state.changed('fix title', d);
 			d.value = title;
 		}
 	});
 };
 
-var fixEntities = function (cb) {
-	console.log('Fixing Entities');
-	api.ents(function (err, ents) {
-		if (err) return fn(err);
-		async.forEachSeries(ents, function (ent, next) {
-			var remove_list = [];
-			var change_list = [];
-
-			if (settings.unifyText)
-				unifyTexts(ent.data, remove_list, change_list);
-			if (settings.fixTitles)
-				fixTitles(ent.data, change_list);
-			if (settings.checkFields)
-				checkFieldsByFormat(ent.data, remove_list, change_list);
-			if (settings.filterDupFields)
-				filterDupFields(ent.data, remove_list);
-
-			if (remove_list.length > 0) {
-				ent.data = ent.data.filter(function (d) {
-					return remove_list.filter(function (r) {
-							return r.data.id == d.id;
-						}).length == 0;
-				});
-			}
-
-			if (remove_list.length + change_list.length > 0) {
-				api.ent_store(ent, function (err) {
-					if (err) console.log(err);
-					var info = {
-						ent: ent,
-						removed: remove_list,
-						changed: change_list
-					};
-					report.push(info);
-					next();
-				});
-			} else {
-				setImmediate(next); //nothing to do
-			}
-		}, function () {
-			cb(ents);
-		});
-	});
+var fixTitlesEntity = function (ent, state) {
+	fixTitles(ent.data, state);
 };
 
-var fixRelations = function (entities, cb) {
-	console.log('Fixing Relations');
-	var entity_ids = {};
-	entities.forEach(function (ent) {
-		entity_ids[ent._id.toString()] = true;
-	});
-	api.rels_full({full: true}, function (err, rels) {
-		if (err) return fn(err);
-		async.forEachSeries(rels, function (rel, next) {
-
-			if (settings.removeInvalidRelations) {
-				if (rel.entities.length !== 2) {
-					console.log('relation with invalid entity count, removing relation');
-					return api.rel_delete(rel._id, function (err) {
-						report.push({
-							removed_rel: rel,
-							"invalid": "entity_ids.length"
-						});
-						if (err) return console.log(err);
-						return next();
-					});
-				}
-
-				if (!entity_ids[rel.entities[0].toString()] || !entity_ids[rel.entities[1].toString()]) {
-					console.log('relation with invalid entity ids, removing relation');
-					return api.rel_delete(rel._id, function (err) {
-						report.push({
-							removed_rel: rel,
-							"invalid": "entity_ids"
-						});
-						if (err) return console.log(err);
-						return next();
-					});
-				}
-			}
-
-			var remove_list = [];
-			var change_list = [];
-
-			if (settings.unifyText)
-				unifyTexts(rel.data, remove_list, change_list);
-			if (settings.checkFields)
-				checkFieldsByFormat(rel.data, remove_list, change_list);
-			if (settings.filterDupFields)
-				filterDupFields(rel.data, remove_list);
-			if (settings.combineRange)
-				combineRangeFields(rel.data, remove_list, change_list);
-
-			if (remove_list.length > 0) {
-				rel.data = rel.data.filter(function (d) {
-					return remove_list.filter(function (r) {
-							return r.data.id == d.id;
-						}).length == 0;
-				});
-			}
-
-			if (remove_list.length + change_list.length > 0) {
-				api.rel_store(rel, function (err) {
-					if (err) console.log(err);
-					var info = {
-						rel: rel,
-						removed: remove_list,
-						changed: change_list
-					};
-					report.push(info);
-					next();
-				});
-			} else {
-				setImmediate(next); //nothing to do
-			}
-		}, function () {
-			cb();
-		});
-	});
+var fixTitlesRel = function (rel, state) {
+	fixTitles(rel.data, state);
 };
 
-var clone = function (obj) {
-	return JSON.parse(JSON.stringify(obj));
-};
-
-fixEntities(function (entities) {
-	fixRelations(entities, function () {
-		if (report.length > 0) {
-			console.log(report.length, 'changes');
-			var dir = path.resolve(__dirname, 'log');
-			if (!fs.existsSync(dir)) fs.mkdirSync(dir, 777);
-			var filename = path.resolve(dir, 'cleanup-log-' + (new Date()).valueOf() + '.json');
-			fs.writeFileSync(filename, JSON.stringify(report, null, '\t'));
-		}
-		//titles.sort(function (a, b) {
-		//	if (a < b)return -1;
-		//	if (a > b)return 1;
-		//	return 0;
-		//});
-		//console.log(titles);
-		console.log('done');
-		process.exit();
+db.run([fixTitlesEntity], [fixTitlesRel], function () {
+	titles.sort(function (a, b) {
+		if (a < b)return -1;
+		if (a > b)return 1;
+		return 0;
 	});
+	console.log(titles);
 });
