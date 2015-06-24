@@ -137,7 +137,7 @@ module.exports.run = function (entity_checks, relations_checks, fn) {
 		if (err) return console.log(err);
 		fixRelations(entities, function () {
 			if (report.length > 0) {
-				console.log(report.length, 'changes');
+				console.log(report.length + ' changes');
 				var dir = path.resolve(__dirname, 'log');
 				if (!fs.existsSync(dir)) fs.mkdirSync(dir, 777);
 				var filename = path.resolve(dir, 'cleanup-log-' + (new Date()).valueOf() + '.json');

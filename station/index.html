@@ -1197,6 +1197,32 @@
 			</form>
 		</div>
 
+		<div ng-switch-when="monthyear" class="row">
+			<form class="form">
+				<div class="form-group col-md-6">
+					<label>Monat</label>
+					<input type="text" class="form-control" ng-model="d.value.month">
+				</div>
+				<div class="form-group col-md-6">
+					<label>Jahr</label>
+					<input type="text" class="form-control" ng-model="d.value.year">
+				</div>
+			</form>
+		</div>
+
+		<div ng-switch-when="donation" class="row">
+			<form class="form">
+				<div class="form-group col-md-6">
+					<label>€</label>
+					<input type="text" class="form-control" ng-model="d.value.amount">
+				</div>
+				<div class="form-group col-md-6">
+					<label>Jahr</label>
+					<input type="text" class="form-control" ng-model="d.value.year">
+				</div>
+			</form>
+		</div>
+
 		<div ng-switch-when="number" class="row">
 			<form class="form">
 				<div class="form-group col-md-4">

@@ -21,6 +21,15 @@ var checkFieldsByFormat = function (data, state) {
 		if ((typeof d.value === 'string') && (d.value.length == 0)) {
 			return state.removed('invalid value', d);
 		}
+		if (d.format === 'date') {
+			if (!d.value.date) {
+				d.value = {
+					date: d.value,
+					fmt: 'dd.MM.yyyy'
+				};
+				state.changed('unify date format', d);
+			};
+		}
 		var formatscpec = model.format_spec[d.format];
 		if (formatscpec) {
 			if (!formatscpec.validate(d.value)) {

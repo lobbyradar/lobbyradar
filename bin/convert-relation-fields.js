@@ -24,72 +24,54 @@ var getSplitDateField = function (d) {
 	return null;
 };
 
-var convertFieldsExecutive = function (rel, state) {
-	var fillJob = function (d, job) {
-		switch (d.key) {
-			case 'source':
-				if (d.format !== 'link') console.log('invalid source field', d.format);
-				job.value.source_url = d.value.url;
-				state.remove_data.push({reason: 'merged value', data: d});
-				return true;
-				break;
-			case 'position':
-				if (d.format !== 'string') console.log('invalid position field');
-				job.value.position = d.value;
-				state.remove_data.push({reason: 'merged value', data: d});
-				return true;
-				break;
-			case 'verified':
-				if (d.format !== 'bool') console.log('invalid verfified field');
-				job.value.verified = d.value;
-				state.remove_data.push({reason: 'merged value', data: d});
-				return true;
-				break;
-			case 'begin':
-			case 'start':
-				var split = getSplitDateField(d);
-				if (split) job.value.start = split;
-				state.remove_data.push({reason: 'merged value', data: d});
-				return true;
-				break;
-			case 'end':
-				var split = getSplitDateField(d);
-				if (split) job.value.end = split;
-				state.remove_data.push({reason: 'merged value', data: d});
-				return true;
-				break;
-			case 'activity': //ignore
-			case 'donation': //ignore
-			case 'job': //ignore
-			case 'displayname': //ignore
-				return false;
-				break;
-			default:
-				console.log('unknown job field', rel._id, d.key, d);
-				return false;
-		}
-	};
-	rel.data.sort(function (a, b) {
-		if (a.created < b.created)return -1;
-		if (b.created < a.created)return 1;
-		return 0;
-	});
-	var job = {
-		key: 'job',
-		type: 'job',
-		value: {type: 'executive', position: 'Vorstand'}
-	};
-	var test = {};
-	for (var i = 0; i < rel.data.length; i++) {
-		var d = rel.data[i];
-		if (test[d.key]) {
-			return console.log('resolve dup', rel._id, test[d.key], d);
-		}
-		test[d.key] = d;
-		fillJob(d, job);
+var buildGeneric = function (rel, obj, state) {
+
+	function getData(key, pos) {
+		return rel.data.filter(function (d) {
+			return d.key == key;
+		})[pos || 0];
 	}
-	rel.data.push(job);
-	state.added_data.push(job);
+
+	var d = getData('verified');
+	if (d) {
+		obj.value.verified = d.value;
+		state.removed('merged value', d);
+	}
+	var d = getData('issued');
+	if (d) {
+		obj.value.issued = d.value;
+		state.removed('merged value', d);
+	}
+	d = getData('source');
+	if (d) {
+		obj.value.source_url = d.value.url;
+		if (d.value.remark) obj.value.importer = d.value.remark;
+		state.removed('merged value', d);
+	}
+	d = getData('position');
+	if (d) {
+		obj.value.position = d.value;
+		state.removed('merged value', d);
+	}
+	d = getData('end');
+	if (d) {
+		var split = getSplitDateField(d);
+		if (split) obj.value.end = split;
+		state.removed('merged value', d);
+	}
+	d = getData('start');
+	if (d) {
+		var split = getSplitDateField(d);
+		if (split) obj.value.start = split;
+		state.removed('merged value', d);
+	}
+	d = getData('begin');
+	if (d) {
+		var split = getSplitDateField(d);
+		if (split) obj.value.start = split;
+		state.removed('merged value', d);
+	}
+	return obj;
 };
 
 var convertFieldsMember = function (rel, state) {
@@ -97,7 +79,7 @@ var convertFieldsMember = function (rel, state) {
 	function buildJob() {
 		var job = {
 			key: 'job',
-			type: 'job',
+			format: 'job',
 			value: {type: 'member', position: 'Mitglied'}
 		};
 		return job;
@@ -129,6 +111,7 @@ var convertFieldsMember = function (rel, state) {
 		case 'position':
 		case 'start':
 		case 'end':
+		case 'source - start':
 		case 'end - start':
 		case 'end - source - start':
 		case 'end - position - source - start':
@@ -141,7 +124,7 @@ var convertFieldsMember = function (rel, state) {
 		case 'end - position - source':
 		case 'end - source':
 		case 'begin - end - position - source':
-			adddata(buildSimpleJob(rel, buildJob(), state));
+			adddata(buildGeneric(rel, buildJob(), state));
 			break;
 		case 'position - position - position':
 		case 'position - position':
@@ -216,12 +199,22 @@ var convertFieldsMember = function (rel, state) {
 			adddata(job);
 			break;
 		default:
-			console.log('unknown fingerprint', rel._id, idd);
+			console.log('member - unknown fingerprint', rel._id, idd);
 	}
 
 };
 
-function buildSimpleJob(rel, job, state) {
+var convertFieldsPosition = function (rel, state, def_position) {
+
+	function buildJob() {
+		var job = {
+			key: 'job',
+			format: 'job',
+			value: {type: 'job'}
+		};
+		if (def_position) job.position = def_position;
+		return job;
+	}
 
 	function getData(key, pos) {
 		return rel.data.filter(function (d) {
@@ -229,42 +222,69 @@ function buildSimpleJob(rel, job, state) {
 		})[pos || 0];
 	}
 
-	var d = getData('verified');
-	if (d) {
-		job.value.verified = d.value;
-		state.removed('merged value', d);
+	function adddata(d) {
+		rel.data.push(d);
+		state.added('merged value', d);
 	}
-	d = getData('source');
-	if (d) {
-		job.value.source_url = d.value.url;
-		if (d.value.remark) job.value.importer = d.value.remark;
-		state.removed('merged value', d);
+
+	var idd = dataFingerPrint(rel.data);
+	switch (idd) {
+		case '':
+		case 'position':
+		case 'begin - source':
+		case 'source':
+		case 'end - position - start - verified':
+		case 'begin - end - position - source':
+		case 'end - position':
+		case 'end - source':
+		case 'position - source - start - verified':
+		case 'begin - end - source':
+		case 'begin - position - source':
+		case 'begin - end - position':
+		case 'begin - position':
+		case 'position - start':
+		case 'position - source':
+		case 'position - source - start':
+		case 'end - source - start':
+		case 'end - position - source':
+		case 'end - position - start':
+		case 'end - position - source - start':
+			adddata(buildGeneric(rel, buildJob(), state));
+			return;
+			break;
+		case 'position - position - position':
+		case 'position - position':
+			for (var i = 0; i < rel.data.length; i++) {
+				var d = getData('position', i);
+				if (d) {
+					var job = buildJob();
+					job.value.position = d.value;
+					adddata(job);
+					state.removed('merged value', d);
+				}
+			}
+			break;
+		case 'begin - begin - position - position - source':
+			for (var i = 0; i < 2; i++) {
+				var job = buildJob();
+				var d = getData('position', i);
+				var begin = getData('begin', i);
+				var source = getData('source');
+				var splitdate = getSplitDateField(begin);
+				if (splitdate) job.value.start = splitdate;
+				job.value.importer = source.remark;
+				job.value.source_url = source.url;
+				state.removed('merged value', d);
+				state.removed('merged value', begin);
+				state.removed('merged value', source);
+				adddata(job);
+			}
+			break;
+		default:
+			console.log('position - unknown fingerprint', rel._id, idd);
 	}
-	d = getData('position');
-	if (d) {
-		job.value.position = d.value;
-		state.removed('merged value', d);
-	}
-	d = getData('end');
-	if (d) {
-		var split = getSplitDateField(d);
-		if (split) job.value.end = split;
-		state.removed('merged value', d);
-	}
-	d = getData('start');
-	if (d) {
-		var split = getSplitDateField(d);
-		if (split) job.value.start = split;
-		state.removed('merged value', d);
-	}
-	d = getData('begin');
-	if (d) {
-		var split = getSplitDateField(d);
-		if (split) job.value.start = split;
-		state.removed('merged value', d);
-	}
-	return job;
-}
+
+};
 
 var convertFieldsActivity = function (rel, state) {
 
@@ -277,7 +297,7 @@ var convertFieldsActivity = function (rel, state) {
 	function buildJob() {
 		var job = {
 			key: 'job',
-			type: 'job',
+			format: 'job',
 			value: {type: 'job', position: ''}
 		};
 		return job;
@@ -301,7 +321,7 @@ var convertFieldsActivity = function (rel, state) {
 		case 'end - position':
 		case 'position - start':
 		case 'end - position - source - start':
-			adddata(buildSimpleJob(rel, buildJob(), state));
+			adddata(buildGeneric(rel, buildJob(), state));
 			return;
 			break;
 		default:
@@ -315,14 +335,486 @@ var convertFieldsActivity = function (rel, state) {
 		case 'activity - end':
 		case 'activity - source':
 		case 'activity - end - start':
-		 	var job = getData('activity');
-			buildSimpleJob(rel, job, state);
+			var job = getData('activity');
+			buildGeneric(rel, job, state);
+			return;
+			break;
+		case 'start':
+		case 'source':
+			adddata(buildGeneric(rel, {
+				key: 'job',
+				format: 'job',
+				value: {type: 'member', position: 'Mitglied'}
+			}, state));
 			return;
 			break;
 		default:
-			console.log('unknown fingerprint', rel._id, idd, rel.importer);
+			console.log('activity - unknown fingerprint', rel._id, idd, rel.importer);
 	}
 
+};
+
+var convertFieldsSubsidiary = function (rel, state) {
+
+	function buildSub() {
+		var job = {
+			key: 'business',
+			format: 'business',
+			value: {desc: 'Tochterfirma'}
+		};
+		return job;
+	}
+
+	function adddata(d) {
+		rel.data.push(d);
+		state.added('merged value', d);
+	}
+
+	var idd = dataFingerPrint(rel.data);
+	switch (idd) {
+		case '':
+			adddata(buildSub());
+			break;
+		case 'source':
+		case 'position':
+		case 'verified':
+		case 'source - verified':
+		case 'position - source - start - verified':
+		case 'position - source':
+			adddata(buildGeneric(rel, buildSub(), state));
+			break;
+		default:
+			console.log('subsidiary - unknown fingerprint', rel._id, idd, rel.importer);
+	}
+
+};
+
+var convertFieldsBusiness = function (rel, state) {
+
+	function getData(key, pos) {
+		return rel.data.filter(function (d) {
+			return d.key == key;
+		})[pos || 0];
+	}
+
+	function buildSub() {
+		var job = {
+			key: 'business',
+			format: 'business',
+			value: {desc: 'Geschäftsverbindung'}
+		};
+		return job;
+	}
+
+	function adddata(d) {
+		rel.data.push(d);
+		state.added('merged value', d);
+	}
+
+	var idd = dataFingerPrint(rel.data);
+	switch (idd) {
+		case '':
+			adddata(buildSub());
+			break;
+		case 'source':
+		case 'position':
+		case 'position - source - verified':
+		case 'source - start':
+		case 'source - verified':
+		case 'position - source':
+			adddata(buildGeneric(rel, buildSub(), state));
+			break;
+		default:
+			console.log('business - unknown fingerprint', rel._id, idd, rel.importer);
+	}
+
+};
+
+var convertFieldsConsulting = function (rel, state) {
+
+	function buildAssociation() {
+		var job = {
+			key: 'association',
+			format: 'association',
+			value: {type: 'participant', position: 'Teilnehmer'}
+		};
+		return job;
+	}
+
+	function buildJob() {
+		var job = {
+			key: 'job',
+			format: 'job',
+			value: {type: 'job', position: 'Berater'}
+		};
+		return job;
+	}
+
+	function adddata(d) {
+		rel.data.push(d);
+		state.added('merged value', d);
+	}
+
+	var idd = dataFingerPrint(rel.data);
+	if (rel.entities.map(function (s) {
+			return s.toString();
+		}).indexOf('555c8fedfcca23362548636a') >= 0) {
+
+		switch (idd) {
+			case 'position - source':
+			case 'position - verified':
+			case 'position - source - verified':
+				adddata(buildGeneric(rel, buildAssociation(), state));
+				break;
+			default:
+				console.log('consulting - unknown fingerprint', rel._id, idd, rel.importer);
+				break;
+		}
+		return;
+	}
+
+	switch (idd) {
+		case 'source':
+		case 'source - verified':
+			adddata(buildGeneric(rel, buildAssociation(), state));
+			break;
+		case 'end - position - source - start':
+		case 'start':
+		case 'position':
+		case 'position - source':
+			adddata(buildGeneric(rel, buildJob(), state));
+			break;
+		default:
+			console.log('consulting - unknown fingerprint', rel._id, idd, rel.importer);
+	}
+
+};
+
+var convertFieldsHausausweise = function (rel, state) {
+
+	function buildAssociation() {
+		var job = {
+			key: 'association',
+			format: 'association',
+			value: {type: 'pass', position: 'Hausausweise'}
+		};
+		return job;
+	}
+
+	function adddata(d) {
+		rel.data.push(d);
+		state.added('merged value', d);
+	}
+
+	var idd = dataFingerPrint(rel.data);
+	switch (idd) {
+		case '':
+			adddata(buildAssociation());
+			break;
+		case 'issued':
+			adddata(buildGeneric(rel, buildAssociation(), state));
+			break;
+		default:
+			console.log('hausausweise - unknown fingerprint', rel._id, idd, rel.importer);
+	}
+
+};
+
+var convertFieldsSponsoring = function (rel, state) {
+
+	function buildAssociation() {
+		var job = {
+			key: 'association',
+			format: 'association',
+			value: {type: 'sponsoring', position: 'Sponsor'}
+		};
+		return job;
+	}
+
+	function adddata(d) {
+		rel.data.push(d);
+		state.added('merged value', d);
+	}
+
+	var idd = dataFingerPrint(rel.data);
+	switch (idd) {
+		case 'source':
+		case 'position - source':
+			adddata(buildGeneric(rel, buildAssociation(), state));
+			break;
+		default:
+			console.log('sponsoring - unknown fingerprint', rel._id, idd, rel.importer);
+	}
+
+};
+
+var convertFieldsAssociation = function (rel, state) {
+
+	function buildAssociation() {
+		var job = {
+			key: 'association',
+			format: 'association',
+			value: {type: '', position: 'Assoziiert'}
+		};
+		return job;
+	}
+
+	function adddata(d) {
+		rel.data.push(d);
+		state.added('merged value', d);
+	}
+
+	var idd = dataFingerPrint(rel.data);
+	switch (idd) {
+		case '':
+			adddata(buildAssociation());
+			break;
+		case 'source':
+		case 'position':
+		case 'position - source':
+			adddata(buildGeneric(rel, buildAssociation(), state));
+			break;
+		default:
+			console.log('association - unknown fingerprint', rel._id, idd, rel.importer);
+	}
+
+};
+
+var convertFieldsGovernment = function (rel, state) {
+
+	function getData(key, pos) {
+		return rel.data.filter(function (d) {
+			return d.key == key;
+		})[pos || 0];
+	}
+
+	function getDataList(key) {
+		return rel.data.filter(function (d) {
+			return d.key == key;
+		});
+	}
+
+	function buildJob() {
+		var job = {
+			key: 'job',
+			format: 'job',
+			value: {type: 'job', position: 'Politische Position'}
+		};
+		return job;
+	}
+
+	function adddata(d) {
+		rel.data.push(d);
+		state.added('merged value', d);
+	}
+
+	var idd = dataFingerPrint(rel.data);
+	switch (idd) {
+		case 'job':
+		case 'job - job':
+		case 'job - job - job':
+			break;
+		case 'position':
+		case 'end - position - source - start':
+		case 'position - source - verified':
+		case 'position - start':
+		case 'position - source - start':
+		case 'position - source':
+		case 'end - position - start':
+		case 'begin - end - position':
+		case 'begin - position':
+			adddata(buildGeneric(rel, buildJob(), state));
+			return;
+			break;
+		case 'position - position - position':
+		case 'position - position':
+			for (var i = 0; i < rel.data.length; i++) {
+				var d = getData('position', i);
+				if (d) {
+					var job = buildJob();
+					job.value.position = d.value;
+					adddata(job);
+					state.removed('merged value', d);
+				}
+			}
+			break;
+		case 'begin - begin - begin - end - end - end - position':
+		case 'begin - begin - end - position':
+		case 'begin - begin - end - end - position':
+		case 'begin - begin - begin - end - end - position':
+			var begin = getDataList('begin');
+			if (begin.length == 0) begin = getDataList('start');
+			var end = getDataList('end');
+			var position = getData('position');
+			begin.sort(function (a, b) {
+				if (a.value.date > b.value.date) return -1;
+				if (a.value.date < b.value.date) return 1;
+				return 0;
+			});
+			end.sort(function (a, b) {
+				if (a.value.date > b.value.date) return -1;
+				if (a.value.date < b.value.date) return 1;
+				return 0;
+			});
+			var matched = {};
+			begin.forEach(function (b) {
+				var matching = end.filter(function (e) {
+					return (!matched[e.id]) && (e.value.date > b.value.date);
+				});
+				if (matching.length == 1) {
+					var e = matching[0];
+					matched[e.id] = true;
+					matched[b.id] = true;
+					var job = buildJob();
+					job.value.position = position.value;
+					var splitdate = getSplitDateField(b);
+					if (splitdate) job.value.start = splitdate;
+					splitdate = getSplitDateField(e);
+					if (splitdate) job.value.end = splitdate;
+					state.removed('merged value', b);
+					state.removed('merged value', e);
+					state.removed('merged value', position);
+					adddata(job);
+				}
+			});
+			begin = begin.filter(function (b) {
+				return (!matched[b.id])
+			});
+			end = end.filter(function (b) {
+				return (!matched[b.id])
+			});
+			if (begin.length == 1 && end.length == 1) {
+				var job = buildJob();
+				job.value.position = position.value;
+				var splitdate = getSplitDateField(begin[0]);
+				if (splitdate) job.value.start = splitdate;
+				splitdate = getSplitDateField(end[0]);
+				if (splitdate) job.value.end = splitdate;
+				state.removed('merged value', begin[0]);
+				state.removed('merged value', end[0]);
+				state.removed('merged value', position);
+				adddata(job);
+				return;
+			}
+			if (begin.length == 1 && end.length == 0) {
+				var job = buildJob();
+				job.value.position = position.value;
+				var splitdate = getSplitDateField(begin[0]);
+				if (splitdate) job.value.start = splitdate;
+				state.removed('merged value', begin[0]);
+				state.removed('merged value', position);
+				adddata(job);
+				return;
+			}
+			if (begin.length == 0 && end.length == 1) {
+				var job = buildJob();
+				job.value.position = position.value;
+				var splitdate = getSplitDateField(end[0]);
+				if (splitdate) job.value.end = splitdate;
+				state.removed('merged value', end[0]);
+				state.removed('merged value', position);
+				adddata(job);
+				return;
+			}
+			if (begin.length + end.length !== 0) {
+				console.log('gov - date mismatch', idd, begin.length, end.length);
+				return;
+			}
+			break;
+		default:
+			console.log('government - unknown fingerprint', rel._id, idd, rel.importer);
+			break;
+	}
+
+};
+
+var convertFieldsExecutive = function (rel, state) {
+
+	var buildJob = function () {
+		var job = {
+			key: 'job',
+			format: 'job',
+			value: {type: 'executive', position: 'Vorstand'}
+		};
+		return job;
+	};
+
+	function adddata(d) {
+		rel.data.push(d);
+		state.added('merged value', d);
+	}
+
+	var idd = dataFingerPrint(rel.data);
+	switch (idd) {
+		case '':
+		case 'source':
+		case 'position':
+		case 'end - position - source - verified':
+		case 'position - source - start - verified':
+		case 'end - position - source - start - verified':
+		case 'begin - end - position - source':
+		case 'end - position - source':
+		case 'end - position - source - start':
+		case 'end - position - start':
+		case 'end - start':
+		case 'position - source - start':
+		case 'position - start':
+		case 'source - verified':
+		case 'position - source - verified':
+		case 'end - source - start':
+		case 'end - source':
+		case 'begin - position - source':
+		case 'position - source':
+		case 'source - start':
+		case 'activity - source':
+			adddata(buildGeneric(rel, buildJob(), state));
+			break;
+		default:
+			console.log('executive - unknown fingerprint', rel._id, idd, rel.importer);
+	}
+};
+
+var convertFieldsDonation = function (rel, state) {
+
+	//var buildJob = function () {
+	//	var job = {
+	//		key: 'job',
+	//		format: 'job',
+	//		value: {type: 'executive', position: 'Vorstand'}
+	//	};
+	//	return job;
+	//};
+	function getDataList(key) {
+		return rel.data.filter(function (d) {
+			return d.key == key;
+		});
+	}
+
+	var donations = getDataList('donation');
+	var sources = getDataList('source');
+	if (sources.length == 0) {
+		return;
+	}
+	if (sources.length == 1) {
+		donations.forEach(function (donation) {
+			buildGeneric(rel, donation, state);
+		});
+		return;
+	}
+	sources.forEach(function (source) {
+		state.removed('merged value', source);
+	});
+	donations.forEach(function (donation) {
+		if (donation.value.year == '2013') {
+			state.changed('merged value', donation);
+			donation.source_url = 'https://docs.google.com/spreadsheets/d/1caESI467tBJ8uwv0RqjI-3AJYYcrdceJhfRPAtm2yXw/edit?usp=sharing';
+			donation.importer = 'Bundestag Spenden von Personen und Beiträge von Mandatsträgern';
+		} else {
+			state.changed('merged value', donation);
+			donation.source_url = 'http://apps.opendatacity.de/parteispenden-recherche/assets/data/parteispenden.json';
+			donation.importer = 'Parteispenden';
+		}
+	});
 };
 
 var dataFingerPrint = function (data, exclude) {
@@ -338,30 +830,55 @@ var dataFingerPrint = function (data, exclude) {
 	}).join(' - ');
 	return idd;
 };
-//var vals = {};
 
 var convertRelationFields = function (rel, state) {
-	//rel.data.forEach(function(d){
-	//	if (d.key=='activity') vals[d.value.activity] = true;
-	//})
+	rel.data.sort(function (a, b) {
+		if (a.created < b.created)return -1;
+		if (b.created < a.created)return 1;
+		return 0;
+	});
+	var validfingerprints = ['job', 'activity', 'donation', 'business', 'association'];
 
+	var checkDone = function () {
+		var data = rel.data.filter(function (d) {
+			return state.remove_data.filter(function (r) {
+					return r.data.id == d.id;
+				}).length == 0;
+		});
+		var idd = dataFingerPrint(data, validfingerprints);
+		if (idd == '') {
+			state.changed_rel = 'converted type ' + rel.type + ' -> general';
+			rel.type = 'general';
+		}
+	};
 
-	if (rel.type == 'executive') {
-		convertFieldsExecutive(rel, state);
-		state.changed_rel = 'converted type ' + rel.type + ' -> general';
-		rel.type = 'general';
-	} else if (rel.type == 'member') {
-		convertFieldsMember(rel, state);
-		state.changed_rel = 'converted type ' + rel.type + ' -> general';
-		rel.type = 'general';
-	} else if (rel.type == 'Mitglied') {
-		convertFieldsMember(rel, state);
-		state.changed_rel = 'converted type ' + rel.type + ' -> general';
-		rel.type = 'general';
+	if ((rel.type == 'executive') || (rel.type == 'ececutive') || (rel.type == 'Vorsitzender')) {
+		checkDone(convertFieldsExecutive(rel, state));
+	} else if ((rel.type == 'Mitglied') || (rel.type == 'mitglied') || (rel.type == 'member') || (rel.type == 'committee')) {
+		checkDone(convertFieldsMember(rel, state));
 	} else if (rel.type == 'activity') {
-		convertFieldsActivity(rel, state);
-		state.changed_rel = 'converted type ' + rel.type + ' -> general';
-		rel.type = 'z-activity';
+		checkDone(convertFieldsActivity(rel, state));
+	} else if ((rel.type == 'Position') || (rel.type == 'position')) {
+		checkDone(convertFieldsPosition(rel, state));
+	} else if (rel.type == 'lobbyist') {
+		checkDone(convertFieldsPosition(rel, state, 'Lobbyist'));
+	} else if ((rel.type == 'subsidiary') || (rel.type == 'subisdiary') || (rel.type == 'Tochterfirma')) {
+		checkDone(convertFieldsSubsidiary(rel, state));
+	} else if (rel.type == 'business') {
+		checkDone(convertFieldsBusiness(rel, state));
+	} else if (rel.type == 'consulting') {
+		checkDone(convertFieldsConsulting(rel, state));
+	} else if (rel.type == 'government') {
+		checkDone(convertFieldsGovernment(rel, state));
+	} else if (rel.type == 'association') {
+		checkDone(convertFieldsAssociation(rel, state));
+	} else if (rel.type == 'Hausausweise') {
+		checkDone(convertFieldsHausausweise(rel, state));
+	}
+	else if (rel.type == 'sponsoring') {
+		checkDone(convertFieldsSponsoring(rel, state));
+	} else if (rel.type == 'donation') {
+		checkDone(convertFieldsDonation(rel, state));
 	}
 
 	var data = rel.data.filter(function (d) {
