@@ -1,4 +1,6 @@
 var db = require("./db.js");
+var util = require("util");
+
 var dataFingerPrint = function (data, exclude) {
 	exclude = exclude || [];
 	var idd = data.filter(function (d) {
@@ -13,16 +15,24 @@ var dataFingerPrint = function (data, exclude) {
 	return idd;
 };
 
-var formatFingerPrint = function (d) {
-	var type = (typeof d);
+var valueformat = function (val) {
+	if (val === null)
+		return 'null';
+	if (util.isDate(val))
+		return 'date';
+	return typeof val;
+};
+
+var formatFingerPrint = function (val) {
+	var type = valueformat(val);
 	var list = [];
 	if (type == 'object') {
-		list = Object.keys(d).sort(function (a, b) {
+		list = Object.keys(val).sort(function (a, b) {
 			if (a < b) return -1;
 			if (a > b) return 1;
 			return 0;
 		}).map(function (key) {
-			return key + ':' + typeof d[key];
+			return key + ':' + valueformat(val[key]);
 		});
 	} else list.push(type);
 	return list.join(' - ');

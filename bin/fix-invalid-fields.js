@@ -1,3 +1,4 @@
+var util = require('util');
 var path = require('path');
 var db = require("./db.js");
 var utils = require("../lib/utils.js");
@@ -22,17 +23,39 @@ var checkFieldsByFormat = function (data, state) {
 			return state.removed('invalid value', d);
 		}
 		if (d.format === 'date') {
-			if (!d.value.date) {
+			if (util.isDate(d.value)) {
+				state.changed('unify date format', d);
 				d.value = {
 					date: d.value,
 					fmt: 'dd.MM.yyyy'
 				};
+			} else if (util.isString(d.value)) {
 				state.changed('unify date format', d);
-			};
+				d.value = {
+					date: d.value,
+					fmt: 'dd.MM.yyyy'
+				};
+			}
+			var date = new Date(d.value.date).toDateString();
+			if (date == 'Invalid Date') {
+				state.removed('invalid date', d);
+			} else {
+				if (d.value.date !== date) {
+					state.changed('unify date format', d);
+					d.value.date = date;
+				}
+			}
+		} else if (d.format === 'monthyear') {
+			if (d.value.month === null) {
+				state.changed('unify date format', d);
+				delete d.value.month;
+			}
 		}
+
 		var formatscpec = model.format_spec[d.format];
 		if (formatscpec) {
 			if (!formatscpec.validate(d.value)) {
+				//console.log('invalid field value',d);
 				state.removed('invalid value', d);
 			}
 		} else {
