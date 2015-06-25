@@ -503,11 +503,12 @@ var fixTitlesRel = function (rel, state) {
 	fixTitles(rel.data, state);
 };
 
-db.run([fixTitlesEntity], [fixTitlesRel], function () {
+db.run('Fix Titles', [fixTitlesEntity], [fixTitlesRel], function () {
 	titles.sort(function (a, b) {
 		if (a < b)return -1;
 		if (a > b)return 1;
 		return 0;
 	});
 	console.log(titles);
+	process.exit();
 });

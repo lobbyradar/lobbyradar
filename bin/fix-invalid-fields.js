@@ -36,22 +36,16 @@ var checkFieldsByFormat = function (data, state) {
 					fmt: 'dd.MM.yyyy'
 				};
 			}
-			var date = new Date(d.value.date).toDateString();
-			if (date == 'Invalid Date') {
+			var date = new Date(d.value.date);
+			if (date.toDateString() == 'Invalid Date') {
 				state.removed('invalid date', d);
 			} else {
-				if (d.value.date !== date) {
+				if (d.value.date.valueOf() !== date.valueOf()) {
 					state.changed('unify date format', d);
 					d.value.date = date;
 				}
 			}
-		} else if (d.format === 'monthyear') {
-			if (d.value.month === null) {
-				state.changed('unify date format', d);
-				delete d.value.month;
-			}
 		}
-
 		var formatscpec = model.format_spec[d.format];
 		if (formatscpec) {
 			if (!formatscpec.validate(d.value)) {
@@ -72,5 +66,5 @@ var checkFieldsByFormatRel = function (rel, state) {
 	checkFieldsByFormat(rel.data, state);
 };
 
-db.run([checkFieldsByFormatEntity], [checkFieldsByFormatRel]);
+db.run('Fix Invalid Fields', [checkFieldsByFormatEntity], [checkFieldsByFormatRel]);
 

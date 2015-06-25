@@ -1,26 +1,30 @@
 var util = require('util');
 var db = require("./db.js");
 
-var fields_overview = {};
+var getSplitDate = function (date) {
+	var date = new Date(date);
+	//TODO: real month or date month here??
+	return {day: date.getDay(), month: date.getMonth(), year: date.getFullYear()}
+};
 
 var getSplitDateField = function (d) {
-	if (d.type == 'monthyear') return d.value;
-	if (d.type == 'date') {
+	if (d.format == 'monthyear') return d.value;
+	if (d.format == 'date') {
 		if (util.isDate(d.value)) {
-			var date = new Date(d.value);
-			//TODO: real month or date month here??
-			return {day: date.getDay(), month: date.getMonth(), year: date.getFullYear()}
+			return getSplitDate(d.value);
 		} else {
-			var date = new Date(d.value.date);
+			var date = getSplitDate(d.value);
 			if (d.value.fmt == 'yyyy') {
-				return {year: date.getFullYear()}
+				delete date.month;
+				delete date.day;
 			}
 			if (d.value.fmt == 'MM.yyyy') {
-				//TODO: real month or date month here??
-				return {month: date.getMonth(), year: date.getFullYear()}
+				delete date.day;
 			}
+			return date;
 		}
 	}
+	console.log('invalid date value', d);
 	return null;
 };
 
@@ -42,10 +46,18 @@ var buildGeneric = function (rel, obj, state) {
 		obj.value.issued = d.value;
 		state.removed('merged value', d);
 	}
-	d = getData('source');
+	d = getData('source', 0);
 	if (d) {
-		obj.value.source_url = d.value.url;
-		if (d.value.remark) obj.value.importer = d.value.remark;
+		obj.value.sources = obj.value.sources || [];
+		obj.value.sources.push(d.value.url);
+		if (d.value.remark) obj.importer = d.value.remark;
+		state.removed('merged value', d);
+	}
+	d = getData('source', 1); //check multiple sources
+	if (d) {
+		obj.value.sources = obj.value.sources || [];
+		obj.value.sources.push(d.value.url);
+		if (d.value.remark) obj.importer = d.value.remark;
 		state.removed('merged value', d);
 	}
 	d = getData('position');
@@ -74,12 +86,61 @@ var buildGeneric = function (rel, obj, state) {
 	return obj;
 };
 
+var convertAllActivities = function (rel, state) {
+	rel.data.forEach(function (d) {
+		if (d.format == 'activity') {
+			var changes = {};
+			if (d.value.begin) {
+				changes.start = getSplitDate(d.value.begin);
+				changes.changed = true;
+			} else if (d.value.begin === null) {
+				changes.changed = true;
+			}
+			if (d.value.end) {
+				if (util.isDate(d.value.end) || util.isString(d.value.end)) {
+					changes.end = getSplitDate(d.value.end);
+					changes.changed = true;
+				}
+			}
+			if (d.value.year) {
+				if (!changes.end) {
+					changes.end = {year: d.value.year};
+					changes.changed = true;
+				}
+				if (!changes.start) {
+					changes.start = {year: d.value.year};
+					changes.changed = true;
+				}
+			} else if (d.value.year === null) {
+				changes.changed = true;
+			}
+			if (d.value.type) {
+				changes.desc = d.value.type;
+				changes.changed = true;
+			} else if (d.value.type === null) {
+				changes.changed = true;
+			}
+			if (changes.changed) {
+				state.changed('activity dates format change', d);
+				d.value.start = changes.start;
+				d.value.end = changes.end;
+				d.value.desc = changes.desc;
+				delete d.value.type;
+				delete d.value.begin;
+				delete d.value.year;
+			}
+		}
+	});
+};
+
 var convertFieldsMember = function (rel, state) {
 
 	function buildJob() {
 		var job = {
 			key: 'job',
 			format: 'job',
+			desc: 'Mitgliedschaft',
+			importer: rel.importer,
 			value: {type: 'member', position: 'Mitglied'}
 		};
 		return job;
@@ -162,11 +223,11 @@ var convertFieldsMember = function (rel, state) {
 		case 'donation - source':
 		case 'activity - activity - donation - source':
 			var job = buildJob();
-			var donation = getData('donation').value;
+			var donation = getData('donation');
 			var source = getData('source');
 			if (source.value.remark.indexOf('Bundestag Spenden') == 0) {
-				donation.source_url = source.value.url;
-				donation.desc = source.value.remark;
+				donation.value.sources = [source.value.url];
+				donation.value.desc = source.value.remark;
 			} else {
 				console.log('activity - activity - donation - source', 'fail');
 			}
@@ -181,7 +242,7 @@ var convertFieldsMember = function (rel, state) {
 			var source = source1;
 			if (source1.value.remark.indexOf('Bundestag Spenden') !== 0) source = source2;
 			if (source.value.remark.indexOf('Bundestag Spenden') == 0) {
-				donation.source_url = source.value.url;
+				donation.sources = [source.value.url];
 				donation.desc = source.value.remark;
 			} else {
 				console.log('donation - source - source', 'fail');
@@ -189,8 +250,8 @@ var convertFieldsMember = function (rel, state) {
 			source = source1;
 			if (source.value.remark.indexOf('created by seitenwechsler importer') !== 0) source = source2;
 			if (source.value.remark.indexOf('created by seitenwechsler importer') == 0) {
-				job.value.source_url = source.value.url;
-				job.value.importer = source.value.remark;
+				job.value.sources = [source.value.url];
+				job.importer = source.value.remark;
 			} else {
 				console.log('donation - source - source', 'fail');
 			}
@@ -210,6 +271,8 @@ var convertFieldsPosition = function (rel, state, def_position) {
 		var job = {
 			key: 'job',
 			format: 'job',
+			desc: 'Arbeitsverhältnis',
+			importer: rel.importer,
 			value: {type: 'job'}
 		};
 		if (def_position) job.position = def_position;
@@ -272,8 +335,8 @@ var convertFieldsPosition = function (rel, state, def_position) {
 				var source = getData('source');
 				var splitdate = getSplitDateField(begin);
 				if (splitdate) job.value.start = splitdate;
-				job.value.importer = source.remark;
-				job.value.source_url = source.url;
+				job.importer = source.remark;
+				job.value.sources = [source.value.url];
 				state.removed('merged value', d);
 				state.removed('merged value', begin);
 				state.removed('merged value', source);
@@ -298,6 +361,8 @@ var convertFieldsActivity = function (rel, state) {
 		var job = {
 			key: 'job',
 			format: 'job',
+			desc: 'Arbeitsverhältnis',
+			importer: rel.importer,
 			value: {type: 'job', position: ''}
 		};
 		return job;
@@ -344,6 +409,8 @@ var convertFieldsActivity = function (rel, state) {
 			adddata(buildGeneric(rel, {
 				key: 'job',
 				format: 'job',
+				desc: 'Mitgliedschaft',
+				importer: rel.importer,
 				value: {type: 'member', position: 'Mitglied'}
 			}, state));
 			return;
@@ -436,6 +503,7 @@ var convertFieldsConsulting = function (rel, state) {
 		var job = {
 			key: 'association',
 			format: 'association',
+			importer: rel.importer,
 			value: {type: 'participant', position: 'Teilnehmer'}
 		};
 		return job;
@@ -445,6 +513,8 @@ var convertFieldsConsulting = function (rel, state) {
 		var job = {
 			key: 'job',
 			format: 'job',
+			desc: 'Arbeitsverhältnis',
+			importer: rel.importer,
 			value: {type: 'job', position: 'Berater'}
 		};
 		return job;
@@ -463,6 +533,7 @@ var convertFieldsConsulting = function (rel, state) {
 		switch (idd) {
 			case 'position - source':
 			case 'position - verified':
+			case 'position - source - source':
 			case 'position - source - verified':
 				adddata(buildGeneric(rel, buildAssociation(), state));
 				break;
@@ -538,6 +609,7 @@ var convertFieldsSponsoring = function (rel, state) {
 
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
+		case '':
 		case 'source':
 		case 'position - source':
 			adddata(buildGeneric(rel, buildAssociation(), state));
@@ -598,6 +670,8 @@ var convertFieldsGovernment = function (rel, state) {
 		var job = {
 			key: 'job',
 			format: 'job',
+			desc: 'Politische Position',
+			importer: rel.importer,
 			value: {type: 'job', position: 'Politische Position'}
 		};
 		return job;
@@ -734,6 +808,8 @@ var convertFieldsExecutive = function (rel, state) {
 		var job = {
 			key: 'job',
 			format: 'job',
+			desc: 'Leitung',
+			importer: rel.importer,
 			value: {type: 'executive', position: 'Vorstand'}
 		};
 		return job;
@@ -807,11 +883,11 @@ var convertFieldsDonation = function (rel, state) {
 	donations.forEach(function (donation) {
 		if (donation.value.year == '2013') {
 			state.changed('merged value', donation);
-			donation.source_url = 'https://docs.google.com/spreadsheets/d/1caESI467tBJ8uwv0RqjI-3AJYYcrdceJhfRPAtm2yXw/edit?usp=sharing';
+			donation.value.sources = ['https://docs.google.com/spreadsheets/d/1caESI467tBJ8uwv0RqjI-3AJYYcrdceJhfRPAtm2yXw/edit?usp=sharing'];
 			donation.importer = 'Bundestag Spenden von Personen und Beiträge von Mandatsträgern';
 		} else {
 			state.changed('merged value', donation);
-			donation.source_url = 'http://apps.opendatacity.de/parteispenden-recherche/assets/data/parteispenden.json';
+			donation.value.sources = ['http://apps.opendatacity.de/parteispenden-recherche/assets/data/parteispenden.json'];
 			donation.importer = 'Parteispenden';
 		}
 	});
@@ -838,6 +914,8 @@ var convertRelationFields = function (rel, state) {
 		return 0;
 	});
 	var validfingerprints = ['job', 'activity', 'donation', 'business', 'association'];
+
+	convertAllActivities(rel, state);
 
 	var checkDone = function () {
 		var data = rel.data.filter(function (d) {
@@ -874,25 +952,11 @@ var convertRelationFields = function (rel, state) {
 		checkDone(convertFieldsAssociation(rel, state));
 	} else if (rel.type == 'Hausausweise') {
 		checkDone(convertFieldsHausausweise(rel, state));
-	}
-	else if (rel.type == 'sponsoring') {
+	} else if (rel.type == 'sponsoring') {
 		checkDone(convertFieldsSponsoring(rel, state));
 	} else if (rel.type == 'donation') {
 		checkDone(convertFieldsDonation(rel, state));
 	}
-
-	var data = rel.data.filter(function (d) {
-		return state.remove_data.filter(function (r) {
-				return r.data.id == d.id;
-			}).length == 0;
-	});
-
-	var idd = dataFingerPrint(data);
-	fields_overview[rel.type] = fields_overview[rel.type] || {};
-	fields_overview[rel.type][idd] = (fields_overview[rel.type][idd] || 0) + 1;
 };
 
-db.run([], [convertRelationFields], function () {
-	console.log(fields_overview);
-	//console.log(vals);
-});
+db.run('Convert Relation Fields', [], [convertRelationFields]);

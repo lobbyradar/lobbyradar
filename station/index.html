@@ -1223,6 +1223,45 @@
 			</form>
 		</div>
 
+		<div ng-switch-when="job" class="row">
+			<form class="form">
+				<div class="form-group col-md-6">
+					<label>Typ</label>
+					<input type="text" class="form-control" ng-model="d.value.type">
+				</div>
+				<div class="form-group col-md-6">
+					<label>Position</label>
+					<input type="text" class="form-control" ng-model="d.value.position">
+				</div>
+				<div class="form-group col-md-6">
+					<label>Verifiziert</label>
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" ng-model="d.value.verified"> <span ng-if="d.value"><b>Ja</b>/Nein</span><span ng-if="!d.value">Ja/<b>Nein</b></span>
+						</label>
+					</div>
+				</div>
+				<div class="form-group col-md-6">
+					<label>Quellen</label>
+					<div>
+						TODO
+					</div>
+				</div>
+				<div class="form-group col-md-6">
+					<label>Von</label>
+					<input type="text" class="form-control" ng-model="d.value.start.day">
+					<input type="text" class="form-control" ng-model="d.value.start.month">
+					<input type="text" class="form-control" ng-model="d.value.start.year">
+				</div>
+				<div class="form-group col-md-6">
+					<label>Bis</label>
+					<input type="text" class="form-control" ng-model="d.value.start.day">
+					<input type="text" class="form-control" ng-model="d.value.start.month">
+					<input type="text" class="form-control" ng-model="d.value.start.year">
+				</div>
+			</form>
+		</div>
+
 		<div ng-switch-when="number" class="row">
 			<form class="form">
 				<div class="form-group col-md-4">

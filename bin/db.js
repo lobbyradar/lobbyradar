@@ -45,12 +45,12 @@ var State = function () {
 	};
 };
 
-module.exports.run = function (entity_checks, relations_checks, fn) {
+module.exports.run = function (name, entity_checks, relations_checks, fn) {
 
 	var report = [];
 
 	var fixEntities = function (cb) {
-		console.log('Iterate Entities');
+		//console.log('Iterate Entities');
 		api.ents(function (err, ents) {
 			if (err) return cb(err);
 			async.forEachSeries(ents, function (ent, next) {
@@ -85,7 +85,7 @@ module.exports.run = function (entity_checks, relations_checks, fn) {
 	};
 
 	var fixRelations = function (entities, cb) {
-		console.log('Iterate Relations');
+		//console.log('Iterate Relations');
 		api.rels_full({full: true}, function (err, rels) {
 			if (err) return fn(err);
 			async.forEachSeries(rels, function (rel, next) {
@@ -133,6 +133,7 @@ module.exports.run = function (entity_checks, relations_checks, fn) {
 		});
 	};
 
+	console.log(name);
 	fixEntities(function (err, entities) {
 		if (err) return console.log(err);
 		fixRelations(entities, function () {
@@ -143,9 +144,11 @@ module.exports.run = function (entity_checks, relations_checks, fn) {
 				var filename = path.resolve(dir, 'cleanup-log-' + (new Date()).valueOf() + '.json');
 				fs.writeFileSync(filename, JSON.stringify(report, null, '\t'));
 			}
-			fn && fn();
-			console.log('done');
-			process.exit();
+			console.log(name + ' - done');
+			if (fn) {
+				return fn();
+			} else
+				process.exit();
 		});
 	});
 

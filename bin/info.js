@@ -20,22 +20,26 @@ var valueformat = function (val) {
 		return 'null';
 	if (util.isDate(val))
 		return 'date';
+	if (util.isArray(val))
+		return 'array';
 	return typeof val;
 };
 
 var formatFingerPrint = function (val) {
 	var type = valueformat(val);
-	var list = [];
 	if (type == 'object') {
-		list = Object.keys(val).sort(function (a, b) {
+		var list = Object.keys(val).sort(function (a, b) {
 			if (a < b) return -1;
 			if (a > b) return 1;
 			return 0;
 		}).map(function (key) {
-			return key + ':' + valueformat(val[key]);
+			var t = valueformat(val[key]);
+			if (t == 'object') t = formatFingerPrint(val[key]);
+			return key + ':' + t;
 		});
-	} else list.push(type);
-	return list.join(' - ');
+		return '{' + list.join(' - ') + '}';
+	}
+	return type;
 };
 
 var ent_fields_overview = {};
@@ -65,7 +69,7 @@ var relInfos = function (rel, state) {
 	rel_fields_overview[rel.type][idd] = (rel_fields_overview[rel.type][idd] || 0) + 1;
 };
 
-db.run([entInfos], [relInfos], function () {
+db.run('Getting DB Infos', [entInfos], [relInfos], function () {
 	console.log('----- ----- ----- ----- ----- -----');
 	console.log('Entities - Fields-Overview', ent_fields_overview);
 	console.log('----- ----- ----- ----- ----- -----');

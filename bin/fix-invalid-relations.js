@@ -22,4 +22,4 @@ var collectIds = function (ent, state) {
 	entity_ids[ent._id.toString()] = true;
 };
 
-db.run([collectIds], [checkRelation]);
+db.run('Fix Invalid Relation', [collectIds], [checkRelation]);

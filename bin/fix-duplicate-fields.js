@@ -24,4 +24,4 @@ var filterDupFieldsRel = function (rel, state) {
 	filterDupFields(rel.data, state);
 };
 
-db.run([filterDupFieldsEntity], [filterDupFieldsRel]);
+db.run('Fix Duplicate Fields',[filterDupFieldsEntity], [filterDupFieldsRel]);

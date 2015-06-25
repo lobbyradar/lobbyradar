@@ -38,4 +38,4 @@ var unifyTextsRel = function (rel, state) {
 	unifyTexts(rel.data, state);
 };
 
-db.run([unifyTextsEntity], [unifyTextsRel]);
+db.run('Unify Texts', [unifyTextsEntity], [unifyTextsRel]);
