@@ -310,162 +310,19 @@ $(document).ready(function () {
 
 				$content += '</div>';
 
+				utils.displayEntityRelations(entity);
 
 				if (entity.relations.length > 0) {
-					// var relations = entity.relations.sort(sort_by('entity[name]', true));
-					var relations = entity.relations;
-					$content += '<h4>'+ entity.relations.length +' Verbindungen</<h4></h4>';
-					$content += '<div class="entity-relations-list">';
-
 					$(entity.relations).each(function (idx, rel) {
-
-						// failsafe check if relation has entity and id
-						if (!(rel.hasOwnProperty("entity"))) return;// console.log("no entity", rel);
-						if (rel.entity.hasOwnProperty("_id") && !(rel.entity.hasOwnProperty("id"))) rel.entity.id = rel.entity._id;
-						if (!(rel.entity.hasOwnProperty("id")) || !rel.entity.id) return;// console.log("no id", rel)
-
+						$(rel.data).each(function(idx,data){
+							if (data.format=='donation') donationArray.push(data);
+						});
 						// check for committee
-						isCommittee = (rel.tags.indexOf('committee') >= 0);
-
-						switch (rel.type.toLowerCase()) {
-							// activities
-							case "activity":
-
-								// is nebentaetigkeit
-								if (rel.tags.indexOf("nebentaetigkeit") >= 0) {
-
-									switch (entity.type) {
-										case "person":
-											hasAddIncome = true;
-											// no entry for persons with activities?
-											break;
-										case "entity":
-											$content += '<div class="entity-relations-item"><a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a></div>';
-											break;
-									}
-
-									// is not nebentaetigkeit
-								} else {
-
-									$content += '<div class="entity-relations-item"><i class="fa fa-suitcase"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>';
-
-									// add activity from data
-									$(rel.data).each(function (idx, data) {
-										if (data.key == 'activity') $content += '<br/>'+data.value.position+', '+data.value.type;
-									});
-
-									$content += '</div>';
-
-								}
-
-								break;
-							// donations
-							case "donation":
-								hasPartyDonation = true;
-								donationArray.push(rel);
-								break;
-							// position or governments, oddly treated the same
-							case "government":
-								$content += '<div class="entity-relations-item"><i class="fa fa-institution"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>';
-
-								// add position from data
-								var dateString = '';
-								var begin = '<br/> seit ';
-								$(rel.data).each(function (idx, data) {
-									if (data.key == 'position') $content += '<br/>'+data.value;
-									if(data.key == 'begin') {
-										var d = new Date(data.value);
-										dateString += (d.getDate() - 1)+ '. ' + getMonthName(d.getMonth())+ ' '+ d.getFullYear();
-									}
-									if(data.key == 'end') {
-										var d = new Date(data.value);
-										begin = '<br/>';
-										dateString += ' bis ' +(d.getDate() - 1)+ '. '+ getMonthName(d.getMonth())+ ' '+ d.getFullYear()+'<br/>';
-									}
-								});
-
-								$content = $content + begin + dateString;
-								$content += '</div>';
-
-								break;
-							// hausausweise
-							case "hausausweise":
-
-								$content += '<div class="entity-relations-item"><i class="fa fa-key"></i>&nbsp;';
-								$content += 'Hausausweis für: ';
-								$content += '<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>';
-
-								$(rel.data).each(function (idx, data) {
-									if (data.key == 'issues') $content += '<br/>Ausgestellt von <em>'+data.value+"</em>";
-								});
-
-								$content += '</div>';
-
-								break;
-							// members of something. could be parties.
-							case "member":
-							// also: mitglied, because we love consistency #FIXME #WTF #DIEINAFIRE
-							case "mitglied":
-								$content += '<div class="entity-relations-item"><i class="fa fa-group"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a><br/>Mitglied</div>';
-								break;
-							// executives
-							case "position":
-								$content += '<div class="entity-relations-item"><i class="fa fa-user"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>';
-								(rel.tags).forEach(function (t) {
-									if(t == 'seitenwechsler'){
-										// add position from data
-										var dateString = '';
-										var begin = '<br/> seit ';
-										$(rel.data).each(function (idx, data) {
-											if (data.key == 'position'){
-												$content += '<br/>'+data.value;
-												begin = '<br/>';
-											}
-											if(data.key == 'begin') {
-												begin = '<br/> seit ';
-												dateString = '' +  getMonthName(data.value.month)+ ' ' + data.value.year;
-											}
-											if(data.key == 'end') {
-												begin = '<br/>';
-												dateString += ' bis ' +  getMonthName(data.value.month)+ ' ' + data.value.year + '<br/>';
-											}
-										});
-
-										$content = $content + begin + dateString;
-									}
-								});
-								$content += '</div>';
-								break;
-							case "executive":
-
-								$content += '<div class="entity-relations-item"><i class="fa fa-user"></i>&nbsp;<a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a>'
-
-								$(rel.data).each(function (idx, data) {
-									if (data.key === 'position') $content += '<br />'+data.value;
-								});
-
-								$content += '</div>';
-
-								break;
-							// business, whatever that may be
-							case "business":
-								$content += '<div class="entity-relations-item"><i class="fa fa-money"></i> <a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a></div>';
-								break;
-							case "association":
-								$content += '<div class="entity-relations-item"><i class="fa fa-code-fork"></i> <a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a></div>';
-								break;
-							// generic display for everything else
-							default:
-								$content += '<div class="entity-relations-item"><i class="fa fa-share-alt" title="'+rel.type.toLowerCase()+'"></i> <a class="ajax-load entity-connections" href="/entity/'+rel.entity.id+'">'+rel.entity.name+'</a></div>';
-								break;
-						};
-
+						isCommittee = isCommittee || (rel.tags.indexOf('committee') >= 0);
 					});
-
-					$content += '</div>';
 				}
 
-				if (hasPartyDonation) {
+				if (donationArray.length>0) {
 					//console.log('Entity has party donation');
 					$content += '<div class="row row-results">';
 					var parteiString = 'Parteispende';
@@ -785,51 +642,6 @@ $(document).ready(function () {
 			$(".result-single").delay(400).slideDown("slow");
 
 		});
-	}
-
-	function getMonthName(month) {
-		switch (month){
-			case 1:
-				return "Januar";
-				break;
-			case 2:
-				return "Februar";
-				break;
-			case 3:
-				return "März";
-				break;
-			case 4:
-				return "April";
-				break;
-			case 5:
-				return "Mai";
-				break;
-			case 6:
-				return "Juni";
-				break;
-			case 7:
-				return "Juli";
-				break;
-			case 8:
-				return "August";
-				break;
-			case 9:
-				return "September";
-				break;
-			case 10:
-				return "Oktober";
-				break;
-			case 11:
-				return "November";
-				break;
-			case 12:
-				return "Dezember";
-				break;
-			default:
-				return "";
-				break;
-		}
-
 	}
 
 	function formatStagesAddIncome(val) {

@@ -80,4 +80,5 @@ db.run('Getting DB Infos', [entInfos], [relInfos], function () {
 	console.log('----- ----- ----- ----- ----- -----');
 	console.log('Relations - Format-Overview', rel_fields_format_overview);
 	console.log('----- ----- ----- ----- ----- -----');
+	process.exit();
 });

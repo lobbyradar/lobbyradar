@@ -2,9 +2,9 @@ var util = require('util');
 var db = require("./db.js");
 
 var getSplitDate = function (date) {
-	var date = new Date(date);
-	//TODO: real month or date month here??
-	return {day: date.getDay(), month: date.getMonth(), year: date.getFullYear()}
+	date = new Date(date);
+	var result = {day: date.getDate(), month: date.getMonth() + 1, year: date.getFullYear()};
+	return result;
 };
 
 var getSplitDateField = function (d) {
@@ -12,8 +12,8 @@ var getSplitDateField = function (d) {
 	if (d.format == 'date') {
 		if (util.isDate(d.value)) {
 			return getSplitDate(d.value);
-		} else {
-			var date = getSplitDate(d.value);
+		} else if (util.isDate(d.value.date)) {
+			var date = getSplitDate(d.value.date);
 			if (d.value.fmt == 'yyyy') {
 				delete date.month;
 				delete date.day;
@@ -22,6 +22,8 @@ var getSplitDateField = function (d) {
 				delete date.day;
 			}
 			return date;
+		} else if (d.value.year) {
+			return d.value;
 		}
 	}
 	console.log('invalid date value', d);
@@ -427,7 +429,7 @@ var convertFieldsSubsidiary = function (rel, state) {
 		var job = {
 			key: 'business',
 			format: 'business',
-			value: {desc: 'Tochterfirma'}
+			value: {type: 'subsidiary', position: 'Tochterfirma'}
 		};
 		return job;
 	}
@@ -468,7 +470,7 @@ var convertFieldsBusiness = function (rel, state) {
 		var job = {
 			key: 'business',
 			format: 'business',
-			value: {desc: 'Geschäftsverbindung'}
+			value: {type: 'relation', desc: 'Geschäftsverbindung'}
 		};
 		return job;
 	}
@@ -567,6 +569,7 @@ var convertFieldsHausausweise = function (rel, state) {
 		var job = {
 			key: 'association',
 			format: 'association',
+			desc: 'Beziehung',
 			value: {type: 'pass', position: 'Hausausweise'}
 		};
 		return job;
@@ -672,7 +675,7 @@ var convertFieldsGovernment = function (rel, state) {
 			format: 'job',
 			desc: 'Politische Position',
 			importer: rel.importer,
-			value: {type: 'job', position: 'Politische Position'}
+			value: {type: 'government', position: 'Politische Position'}
 		};
 		return job;
 	}
