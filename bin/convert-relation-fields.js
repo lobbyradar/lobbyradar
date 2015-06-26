@@ -267,6 +267,37 @@ var convertFieldsMember = function (rel, state) {
 
 };
 
+var convertFieldsCommittee = function (rel, state) {
+
+	function buildAssociation() {
+		return {
+			key: 'association',
+			format: 'association',
+			importer: rel.importer,
+			value: {type: 'commitee'}
+		};
+	}
+
+	function adddata(d) {
+		rel.data.push(d);
+		state.added('merged value', d);
+	}
+
+	var idd = dataFingerPrint(rel.data);
+	switch (idd) {
+		case '':
+			adddata(buildAssociation());
+			break;
+		case 'source':
+		case 'source - start':
+			adddata(buildGeneric(rel, buildAssociation(), state));
+			break;
+		default:
+			console.log('commitee - unknown fingerprint', rel._id, idd);
+	}
+
+};
+
 var convertFieldsPosition = function (rel, state, def_position) {
 
 	function buildJob() {
@@ -935,7 +966,7 @@ var convertRelationFields = function (rel, state) {
 
 	if ((rel.type == 'executive') || (rel.type == 'ececutive') || (rel.type == 'Vorsitzender')) {
 		checkDone(convertFieldsExecutive(rel, state));
-	} else if ((rel.type == 'Mitglied') || (rel.type == 'mitglied') || (rel.type == 'member') || (rel.type == 'committee')) {
+	} else if ((rel.type == 'Mitglied') || (rel.type == 'mitglied') || (rel.type == 'member')) {
 		checkDone(convertFieldsMember(rel, state));
 	} else if (rel.type == 'activity') {
 		checkDone(convertFieldsActivity(rel, state));
@@ -959,6 +990,8 @@ var convertRelationFields = function (rel, state) {
 		checkDone(convertFieldsSponsoring(rel, state));
 	} else if (rel.type == 'donation') {
 		checkDone(convertFieldsDonation(rel, state));
+	} else if (rel.type == 'committee') {
+		checkDone(convertFieldsCommittee(rel, state));
 	}
 };
 

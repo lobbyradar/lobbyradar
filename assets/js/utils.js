@@ -96,10 +96,6 @@ utils.displayHeaderEntity = function (entity) {
 	return result;
 };
 
-utils.displayEntityPhoto = function (entity) {
-	return result;
-};
-
 utils.displayFooterEntity = function (entity) {
 	var result = '<div class="row"><br/>' +
 		'<div class="col-sm-12">' +
@@ -160,29 +156,18 @@ utils.displayEntityLinks = function (entity) {
 	return result;
 };
 
-utils.formatEntityLink = function (entity) {
-	var result = '';
-	if (isExistant(entity) && isExistant(entity._id)) {
-		result = '<a class="ajax-load entity-connections" href="/entity/' + entity._id + '">';
-		if (isExistant(entity.name)) {
-			result += entity.name + '&nbsp;';
-		}
-		result += '</a>';
-	}
-	return result;
-};
-
 utils.displayEntityAddIncome = function (entity) {
 	var result = '';
 	if ((entity.type == 'person') && (entity.relations.length > 0)) {
 
 		var collect = {};
 		$(entity.relations).each(function (idx, rel) {
-			if ((rel.tags.indexOf("nebentaetigkeit") >= 0) && isExistant(rel.data)) {
+			if ((rel.tags.indexOf("nebentaetigkeit") >= 0) && isExistant(rel.data) && isExistant(rel.entity)) {
 				rel.data.forEach(function (d) {
 					if (d.format == 'activity') {
-						collect[d.value.desc] = collect[d.value.desc] || [];
-						collect[d.value.desc].push({rel: rel, d: d});
+						var desc = d.value.desc || 'Nebentätigkeit';
+						collect[desc] = collect[desc] || [];
+						collect[desc].push({rel: rel, d: d});
 					}
 				});
 			}
@@ -205,30 +190,27 @@ utils.displayEntityAddIncome = function (entity) {
 				var rel = o.rel;
 
 				var d = o.d;
-				var zuordnung = '';
-				if (isExistant(rel.entity)) {
-					zuordnung = utils.formatEntityLink(rel.entity) + '<br/>';
-				}
+				result += utils.formatEntityLink(rel.entity);
+				var sl = [];
 				if (d.value.start != null) {
-					zuordnung += d.value.start.year + ' ';
+					sl.push(d.value.start.year);
 				} else if (d.value.end != null) {
-					zuordnung += d.value.end.year + ' ';
+					sl.push(d.value.end.year);
 				}
 				if (d.value.position != null) {
-					zuordnung += d.value.position + ' ';
+					sl.push(d.value.position);
 				}
 				if (d.value.activity != null) {
-					zuordnung += d.value.activity + ' ';
+					sl.push(d.value.activity);
 				}
 				if (d.value.periodical != null) {
-					zuordnung += d.value.periodical + ' ';
+					sl.push(d.value.periodical);
 				}
 				if (d.value.level !== 0) {
-					zuordnung += 'Stufe: ' + utils.formatStagesAddIncome(d.value.level) + ' ';
+					sl.push('Stufe: ' + utils.formatStagesAddIncome(d.value.level));
 				}
-				zuordnung += '<br>';
-
-				result += zuordnung;
+				if (sl.length > 0) result += '<br/>' + sl.join(' ');
+				result += '<br/>';
 			});
 		});
 
@@ -375,24 +357,18 @@ utils.displayEntityRelations = function (entity) {
 				result += '</div>';
 			}
 
-			var hausausweise = associations.filter(function (d) {
-				return d.value && (d.value.type == 'pass') && (d.value.position == 'Hausausweis');
-			});
-			if (hausausweise.length > 0) {
-				$(hausausweise).each(function (idx, data) {
-					result += '<div class="entity-relations-item"><i class="fa fa-key"></i>&nbsp;';
-					result += 'Hausausweis für: ' + utils.formatEntityLink(rel.entity);
-					if (data.value.issued) result += '<br/>Ausgestellt von <em>' + data.value.issued + "</em>";
-					result += '</div>';
-				});
-			}
-
 			var memberships = jobs.filter(function (d) {
 				return d.value && (d.value.type == 'member')
 			});
 			if (memberships.length > 0) {
-				//TODO list memberships
-				result += '<div class="entity-relations-item"><i class="fa fa-group"></i>&nbsp;' + utils.formatEntityLink(rel.entity) + '<br/>Mitglied</div>';
+				result += '<div class="entity-relations-item"><i class="fa fa-group"></i>&nbsp;' + utils.formatEntityLink(rel.entity);
+				$(memberships).each(function (idx, data) {
+					if (data.value.position) result += '<br/>' + data.value.position;
+					else result += '<br/>Mitglied';
+					var dateString = utils.formatSplitDateRange(data.value.start, data.value.end);
+					if (dateString.length > 0) result += '<br/>' + dateString;
+				});
+				result += '</div>';
 			}
 
 			var otherjobs = jobs.filter(function (d) {
@@ -413,8 +389,19 @@ utils.displayEntityRelations = function (entity) {
 				result += '<div class="entity-relations-item"><i class="fa fa-money"></i>&nbsp;' + utils.formatEntityLink(rel.entity) + '</div>';
 			}
 
+			var hausausweise = associations.filter(function (d) {
+				return d.value && (d.value.type == 'pass') && (d.value.position == 'Hausausweise');
+			});
+			if (hausausweise.length > 0) {
+				$(hausausweise).each(function (idx, data) {
+					result += '<div class="entity-relations-item"><i class="fa fa-key"></i>&nbsp;';
+					result += 'Hausausweis für: ' + utils.formatEntityLink(rel.entity);
+					if (data.value.issued) result += '<br/>Ausgestellt von <em>' + data.value.issued + "</em>";
+					result += '</div>';
+				});
+			}
 			var otherassociations = associations.filter(function (d) {
-				return d.value && (d.value.type !== 'pass') && (d.value.position !== 'Hausausweis');
+				return d.value && (hausausweise.indexOf(d) < 0);
 			});
 			if (otherassociations.length > 0) {
 				result += '<div class="entity-relations-item"><i class="fa fa-code-fork"></i>&nbsp;' + utils.formatEntityLink(rel.entity);
@@ -428,13 +415,27 @@ utils.displayEntityRelations = function (entity) {
 				result += '<div class="entity-relations-item"><i class="fa fa-share-alt"></i>&nbsp;' + utils.formatEntityLink(rel.entity) + '</div>';
 				//TODO: list everything else
 				$(everythingelse).each(function (idx, data) {
-					console.log('TODO: display relation data', data);
+					//console.log('TODO: display relation data', data);
 				});
 			}
 
 		});
 
 		result += '</div>';
+	}
+	return result;
+};
+
+//formatters
+
+utils.formatEntityLink = function (entity) {
+	var result = '';
+	if (isExistant(entity) && isExistant(entity._id)) {
+		result = '<a class="ajax-load entity-connections" href="/entity/' + entity._id + '">';
+		if (isExistant(entity.name)) {
+			result += entity.name + '&nbsp;';
+		}
+		result += '</a>';
 	}
 	return result;
 };

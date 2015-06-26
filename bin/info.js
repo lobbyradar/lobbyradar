@@ -71,9 +71,9 @@ var relInfos = function (rel, state) {
 
 db.run('Getting DB Infos', [entInfos], [relInfos], function () {
 	console.log('----- ----- ----- ----- ----- -----');
-	console.log('Entities - Fields-Overview', ent_fields_overview);
-	console.log('----- ----- ----- ----- ----- -----');
-	console.log('Entities - Format-Overview', ent_fields_format_overview);
+	//console.log('Entities - Fields-Overview', ent_fields_overview);
+	//console.log('----- ----- ----- ----- ----- -----');
+	//console.log('Entities - Format-Overview', ent_fields_format_overview);
 	console.log('----- ----- ----- ----- ----- -----');
 	console.log('----- ----- ----- ----- ----- -----');
 	console.log('Relations - Fields-Overview', rel_fields_overview);
