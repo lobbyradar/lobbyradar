@@ -58,11 +58,19 @@ var entInfos = function (ent, state) {
 	ent_fields_overview[ent.type][idd] = (ent_fields_overview[ent.type][idd] || 0) + 1;
 };
 
+var rel_type_values = {};
+
 var relInfos = function (rel, state) {
 	rel.data.forEach(function (d) {
 		var idd = formatFingerPrint(d.value);
 		rel_fields_format_overview[d.format] = rel_fields_format_overview[d.format] || {};
 		rel_fields_format_overview[d.format][idd] = (rel_fields_format_overview[d.format][idd] || 0) + 1;
+
+		if (d.value && d.value.type) {
+			rel_type_values[d.format] = rel_type_values[d.format] || {};
+			rel_type_values[d.format][d.value.type] = (rel_type_values[d.format][d.value.type] || 0) + 1;
+		}
+
 	});
 	var idd = dataFingerPrint(rel.data);
 	rel_fields_overview[rel.type] = rel_fields_overview[rel.type] || {};
@@ -79,6 +87,8 @@ db.run('Getting DB Infos', [entInfos], [relInfos], function () {
 	console.log('Relations - Fields-Overview', rel_fields_overview);
 	console.log('----- ----- ----- ----- ----- -----');
 	console.log('Relations - Format-Overview', rel_fields_format_overview);
+	console.log('----- ----- ----- ----- ----- -----');
+	console.log('Relations - Types', rel_type_values);
 	console.log('----- ----- ----- ----- ----- -----');
 	process.exit();
 });

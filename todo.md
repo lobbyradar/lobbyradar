@@ -21,7 +21,10 @@
 * Fraktionsimporter CDU/CSU macht probleme, eindeutige Zuordnung zur Partei geht flöten
 
 
+##TODO FRONTEND
 
+* viele relations sind performance killer
+* relations sortieren in tabs? 
 
 ##TODO STATION
 
@@ -29,3 +32,7 @@ Update:
 * Suche nicht in modal-dialog sondern inplace (sonst umständlich)
 * Relation-Daten bearbeiten
 * api.update_ent_delete - remove _all_ no longer needed entities
+
+Editor:
+* Sources-Widget
+* Activity.Level-Widget

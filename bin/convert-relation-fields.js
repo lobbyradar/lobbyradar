@@ -45,7 +45,7 @@ var buildGeneric = function (rel, obj, state) {
 	}
 	var d = getData('issued');
 	if (d) {
-		obj.value.issued = d.value;
+		obj.value.desc = d.value;
 		state.removed('merged value', d);
 	}
 	d = getData('source', 0);

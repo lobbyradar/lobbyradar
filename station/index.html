@@ -1018,317 +1018,387 @@
 	</div>
 </script>
 
-<script type="text/ng-template" id="partials/datafields.html">
+<script type="text/ng-template" id="partials/datafield-link.html">
+	<form class="form">
+		<div class="form-group col-md-6">
+			<label>URL</label>
+			<input type="text" class="form-control" placeholder="URL" ng-model="d.value.url">
+		</div>
+		<div class="form-group col-md-6">
+			<label>Bemerkung</label>
+			<input type="text" class="form-control" placeholder="Bemerkung" ng-model="d.value.remark">
+		</div>
+	</form>
+</script>
 
-	<div ng-repeat="d in fields" ng-switch="d.format" ng-controller="FieldListEditCtrl">
-		<p class="field-headline"><span ng-bind="d.desc"></span><i ng-show="!d.fixed" class="glyphicon glyphicon-remove btn-right" title="{{d.desc}} entfernen" ng-click="removeData(d,fields)"></i></p>
+<script type="text/ng-template" id="partials/datafield-url.html">
+	<form class="form">
+		<div class="form-group col-md-12">
+			<label>URL</label>
+			<input type="text" class="form-control" placeholder="URL" ng-model="d.value">
+		</div>
+	</form>
+</script>
 
-		<div ng-switch-when="link" class="row">
-			<form class="form">
-				<div class="form-group col-md-6">
-					<label>URL</label>
-					<input type="text" class="form-control" placeholder="URL" ng-model="d.value.url">
-				</div>
-				<div class="form-group col-md-6">
-					<label>Bemerkung</label>
-					<input type="text" class="form-control" placeholder="Bemerkung" ng-model="d.value.remark">
-				</div>
-			</form>
+<script type="text/ng-template" id="partials/datafield-address.html">
+	<form class="form">
+
+		<div class="form-group col-md-12">
+			<label>Name</label>
+			<input type="text" class="form-control" placeholder="Name" ng-model="d.value.name">
 		</div>
 
-		<div ng-switch-when="url" class="row">
-			<form class="form">
-				<div class="form-group col-md-12">
-					<label>URL</label>
-					<input type="text" class="form-control" placeholder="URL" ng-model="d.value">
-				</div>
-			</form>
+		<div class="form-group col-md-12">
+			<label>Adresszeile</label>
+			<input type="text" class="form-control" placeholder="Adresszeile" ng-model="d.value.addr">
 		</div>
 
-		<div ng-switch-when="address" class="row">
-			<form class="form">
-
-				<div class="form-group col-md-12">
-					<label>Name</label>
-					<input type="text" class="form-control" placeholder="Name" ng-model="d.value.name">
-				</div>
-
-				<div class="form-group col-md-12">
-					<label>Adresszeile</label>
-					<input type="text" class="form-control" placeholder="Adresszeile" ng-model="d.value.addr">
-				</div>
-
-				<div class="form-group col-md-12">
-					<label>Straße</label>
-					<input type="text" class="form-control" placeholder="Straße" ng-model="d.value.street">
-				</div>
-
-				<div class="form-group col-md-4">
-					<label>Postleitzahl</label>
-					<input type="text" class="form-control" placeholder="Postleitzahl" ng-model="d.value.postcode">
-				</div>
-
-				<div class="form-group col-md-4">
-					<label>Stadt</label>
-					<input type="text" class="form-control" placeholder="Stadt" ng-model="d.value.city">
-				</div>
-
-				<div class="form-group col-md-4">
-					<label>Land</label>
-					<input type="text" class="form-control" placeholder="Land" ng-model="d.value.country">
-				</div>
-
-				<div class="form-group col-md-6">
-					<label>Telefon</label>
-					<input type="text" class="form-control" placeholder="Telefon" ng-model="d.value.tel">
-				</div>
-
-				<div class="form-group col-md-6">
-					<label>Fax</label>
-					<input type="text" class="form-control" placeholder="Fax" ng-model="d.value.fax">
-				</div>
-
-				<div class="form-group col-md-6">
-					<label>E-Mail</label>
-					<input type="text" class="form-control" placeholder="E-Mail" ng-model="d.value.email">
-				</div>
-
-				<div class="form-group col-md-6">
-					<label>www</label>
-					<input type="text" class="form-control" placeholder="www" ng-model="d.value.www">
-				</div>
-			</form>
+		<div class="form-group col-md-12">
+			<label>Straße</label>
+			<input type="text" class="form-control" placeholder="Straße" ng-model="d.value.street">
 		</div>
 
-		<div ng-switch-when="date" class="row">
-			<form class="form" ng-controller="DatepickerCtrl" ng-init="dtp_value=d.value;">
-				<div class="form-group col-md-6">
-					<label>Datum</label>
+		<div class="form-group col-md-4">
+			<label>Postleitzahl</label>
+			<input type="text" class="form-control" placeholder="Postleitzahl" ng-model="d.value.postcode">
+		</div>
 
-					<p class="input-group">
-						<input type="text" class="form-control" datepicker-options="dtp_dateOptions" datepicker-popup="{{d.value.fmt}}" ng-model="d.value.date" is-open="dtp_opened" ng-required="true" close-text="Schließen"/>
+		<div class="form-group col-md-4">
+			<label>Stadt</label>
+			<input type="text" class="form-control" placeholder="Stadt" ng-model="d.value.city">
+		</div>
+
+		<div class="form-group col-md-4">
+			<label>Land</label>
+			<input type="text" class="form-control" placeholder="Land" ng-model="d.value.country">
+		</div>
+
+		<div class="form-group col-md-6">
+			<label>Telefon</label>
+			<input type="text" class="form-control" placeholder="Telefon" ng-model="d.value.tel">
+		</div>
+
+		<div class="form-group col-md-6">
+			<label>Fax</label>
+			<input type="text" class="form-control" placeholder="Fax" ng-model="d.value.fax">
+		</div>
+
+		<div class="form-group col-md-6">
+			<label>E-Mail</label>
+			<input type="text" class="form-control" placeholder="E-Mail" ng-model="d.value.email">
+		</div>
+
+		<div class="form-group col-md-6">
+			<label>www</label>
+			<input type="text" class="form-control" placeholder="www" ng-model="d.value.www">
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-date.html">
+	<form class="form" ng-controller="DatepickerCtrl" ng-init="dtp_value=d.value;">
+		<div class="form-group col-md-6">
+			<label>Datum</label>
+
+			<p class="input-group">
+				<input type="text" class="form-control" datepicker-options="dtp_dateOptions" datepicker-popup="{{d.value.fmt}}" ng-model="d.value.date" is-open="dtp_opened" ng-required="true" close-text="Schließen"/>
 						<span class="input-group-btn">
 							<button type="button" class="btn btn-default" ng-click="dtp_open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
 						</span>
-					</p>
-				</div>
-				<div class="form-group col-md-6">
-					<label>Format</label>
-					<select class="form-control" ng-model="d.value.fmt" ng-options="f.fmt as f.name for f in dtp_formats"></select>
-				</div>
-			</form>
+			</p>
 		</div>
-
-		<div ng-switch-when="range" class="row">
-			<form class="form">
-				<div class="form-group col-md-3">
-					<label>Start: Monat</label>
-
-					<p class="input-group">
-						<input type="integer" class="form-control" ng-model="d.value.start.month">
-					</p>
-				</div>
-				<div class="form-group col-md-3">
-					<label>Start: Jahr</label>
-
-					<p class="input-group">
-						<input type="integer" class="form-control" ng-model="d.value.start.year">
-					</p>
-				</div>
-				<div class="form-group col-md-3">
-					<label>Ende: Monat</label>
-
-					<p class="input-group">
-						<input type="integer" class="form-control" ng-model="d.value.start.month">
-					</p>
-				</div>
-				<div class="form-group col-md-3">
-					<label>Ende: Jahr</label>
-
-					<p class="input-group">
-						<input type="integer" class="form-control" ng-model="d.value.start.year">
-					</p>
-				</div>
-				<div class="form-group col-md-12">
-					<label>Beschreibung</label>
-					<input type="text" class="form-control" placeholder="Text" ng-model="d.value.desc">
-				</div>
-				<div class="form-group col-md-12">
-					<label>Quelle</label>
-					<input type="text" class="form-control" placeholder="Text" ng-model="d.value.source">
-				</div>
-			</form>
+		<div class="form-group col-md-6">
+			<label>Format</label>
+			<select class="form-control" ng-model="d.value.fmt" ng-options="f.fmt as f.name for f in dtp_formats"></select>
 		</div>
+	</form>
+</script>
 
-		<div ng-switch-when="activity" class="row">
-			<form class="form">
-				<div class="form-group col-md-12">
-					<label>Typ</label>
-					<input type="text" class="form-control" ng-model="d.value.type">
-				</div>
-				<div class="form-group col-md-12">
-					<label>Position</label>
-					<input type="text" class="form-control" ng-model="d.value.position">
-				</div>
-				<div class="form-group col-md-3">
-					<label>Periodical</label>
-					<input type="text" class="form-control" ng-model="d.value.periodical">
-				</div>
-				<div class="form-group col-md-3">
-					<label>Start</label>
-					<input type="text" class="form-control" ng-model="d.value.begin">
-				</div>
-				<div class="form-group col-md-3">
-					<label>Ende</label>
-					<input type="integer" class="form-control" ng-model="d.value.end">
-				</div>
-				<div class="form-group col-md-3">
-					<label>Jahr</label>
-					<input type="text" class="form-control" ng-model="d.value.year">
-				</div>
-				<div class="form-group col-md-3">
-					<label>Aktivität</label>
-					<input type="text" class="form-control" ng-model="d.value.activity">
-				</div>
-				<div class="form-group col-md-3">
-					<label>Ort</label>
-					<input type="text" class="form-control" ng-model="d.value.place">
-				</div>
-			</form>
+<script type="text/ng-template" id="partials/datafield-range.html">
+	<form class="form">
+		<div class="form-group col-md-3">
+			<label>Start: Monat</label>
+
+			<p class="input-group">
+				<input type="integer" class="form-control" ng-model="d.value.start.month">
+			</p>
 		</div>
+		<div class="form-group col-md-3">
+			<label>Start: Jahr</label>
 
-		<div ng-switch-when="monthyear" class="row">
-			<form class="form">
-				<div class="form-group col-md-6">
-					<label>Monat</label>
-					<input type="text" class="form-control" ng-model="d.value.month">
-				</div>
-				<div class="form-group col-md-6">
-					<label>Jahr</label>
-					<input type="text" class="form-control" ng-model="d.value.year">
-				</div>
-			</form>
+			<p class="input-group">
+				<input type="integer" class="form-control" ng-model="d.value.start.year">
+			</p>
 		</div>
+		<div class="form-group col-md-3">
+			<label>Ende: Monat</label>
 
-		<div ng-switch-when="donation" class="row">
-			<form class="form">
-				<div class="form-group col-md-6">
-					<label>€</label>
-					<input type="text" class="form-control" ng-model="d.value.amount">
-				</div>
-				<div class="form-group col-md-6">
-					<label>Jahr</label>
-					<input type="text" class="form-control" ng-model="d.value.year">
-				</div>
-			</form>
+			<p class="input-group">
+				<input type="integer" class="form-control" ng-model="d.value.start.month">
+			</p>
 		</div>
+		<div class="form-group col-md-3">
+			<label>Ende: Jahr</label>
 
-		<div ng-switch-when="job" class="row">
-			<form class="form">
-				<div class="form-group col-md-6">
-					<label>Typ</label>
-					<input type="text" class="form-control" ng-model="d.value.type">
-				</div>
-				<div class="form-group col-md-6">
-					<label>Position</label>
-					<input type="text" class="form-control" ng-model="d.value.position">
-				</div>
-				<div class="form-group col-md-6">
-					<label>Verifiziert</label>
-					<div class="checkbox">
-						<label>
-							<input type="checkbox" ng-model="d.value.verified"> <span ng-if="d.value"><b>Ja</b>/Nein</span><span ng-if="!d.value">Ja/<b>Nein</b></span>
-						</label>
-					</div>
-				</div>
-				<div class="form-group col-md-6">
-					<label>Quellen</label>
-					<div>
-						TODO
-					</div>
-				</div>
-				<div class="form-group col-md-6">
-					<label>Von</label>
-					<input type="text" class="form-control" ng-model="d.value.start.day">
-					<input type="text" class="form-control" ng-model="d.value.start.month">
-					<input type="text" class="form-control" ng-model="d.value.start.year">
-				</div>
-				<div class="form-group col-md-6">
-					<label>Bis</label>
-					<input type="text" class="form-control" ng-model="d.value.start.day">
-					<input type="text" class="form-control" ng-model="d.value.start.month">
-					<input type="text" class="form-control" ng-model="d.value.start.year">
-				</div>
-			</form>
+			<p class="input-group">
+				<input type="integer" class="form-control" ng-model="d.value.start.year">
+			</p>
 		</div>
-
-		<div ng-switch-when="number" class="row">
-			<form class="form">
-				<div class="form-group col-md-4">
-					<input type="number" class="form-control" placeholder="Zahl" ng-model="d.value">
-				</div>
-			</form>
+		<div class="form-group col-md-12">
+			<label>Beschreibung</label>
+			<input type="text" class="form-control" placeholder="Text" ng-model="d.value.desc">
 		</div>
-
-		<div ng-switch-when="string" class="row">
-			<form class="form">
-				<div class="form-group col-md-12" ng-controller="AutoCompleteCtrl">
-					<input type="text" class="form-control" placeholder="Text" ng-model="d.value" datasets="datasetString" ngtypeahead>
-				</div>
-			</form>
+		<div class="form-group col-md-12">
+			<label>Quelle</label>
+			<input type="text" class="form-control" placeholder="Text" ng-model="d.value.source">
 		</div>
+	</form>
+</script>
 
-		<div ng-switch-when="photo" class="row">
-			<form class="form">
-				<div class="form-group col-md-12">
-					<label>URL</label>
-					<input type="url" class="form-control" placeholder="URL" ng-model="d.value.url">
-				</div>
-				<div class="form-group col-md-12">
-					<label>Copyright</label>
-					<input type="text" class="form-control" placeholder="Copyright" ng-model="d.value.copyright">
-				</div>
-			</form>
+<script type="text/ng-template" id="partials/datafield-monthyear.html">
+	<form class="form">
+		<div class="form-group col-md-6">
+			<label>Monat</label>
+			<input type="text" class="form-control" ng-model="d.value.month">
 		</div>
-
-		<div ng-switch-when="strings" class="row">
-			<form class="form">
-				<div class="form-group col-md-12">
-					<input type="text" class="form-control" placeholder="Text" ng-model="d.value">
-				</div>
-			</form>
+		<div class="form-group col-md-6">
+			<label>Jahr</label>
+			<input type="text" class="form-control" ng-model="d.value.year">
 		</div>
+	</form>
+</script>
 
-		<div ng-switch-when="tags" class="row">
-			<form class="form">
-				<div class="form-group col-md-12" ng-controller="TagEdit">
-					<div class="has-feedback">
-						<input type="text" class="form-control" placeholder="{{d.desc}}" ng-model="edit[d.key]" ng-enter="addTagEntry(d, edit[d.key])" datasets="d.dataset" ngtypeahead>
-						<span ng-show="canAddTagEntry(d, edit[d.key])" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addTagEntry(d, edit[d.key])"></span>
-					</div>
-					<div class="label-list">
-						<div ng-repeat="o in d.value" class="label label-default">
-							<span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Entfernen" ng-click="removeTagEntry(d, o)"></i>
-						</div>
-					</div>
-				</div>
-			</form>
+<script type="text/ng-template" id="partials/datafield-donation.html">
+	<form class="form">
+		<div class="form-group col-md-6">
+			<label>€</label>
+			<input type="text" class="form-control" ng-model="d.value.amount">
 		</div>
-
-		<div ng-switch-when="bool" class="row">
-			<form class="form">
-				<div class="form-group col-md-12">
-					<div class="checkbox">
-						<label>
-							<input type="checkbox" ng-model="d.value"> <span ng-if="d.value"><b>Ja</b>/Nein</span><span ng-if="!d.value">Ja/<b>Nein</b></span>
-						</label>
-					</div>
-				</div>
-			</form>
+		<div class="form-group col-md-6">
+			<label>Jahr</label>
+			<input type="text" class="form-control" ng-model="d.value.year">
 		</div>
+		<div class="form-group col-md-12">
+			<label>Quellen</label>
+			<input type="text" class="form-control" ng-model="d.value.sources">
+		</div>
+		<div class="form-group col-md-6">
+			<label>Verifiziert</label>
 
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" ng-model="d.value.verified"> <span ng-if="d.value.verified"><b>Ja</b>/Nein</span><span ng-if="!d.value.verified">Ja/<b>Nein</b></span>
+				</label>
+			</div>
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-activity.html">
+	<form class="form">
+		<div class="form-group col-md-6">
+			<label>Typ</label>
+			<select class="form-control" ng-model="d.value.type" ng-options="x.id as x.name for x in $root.globals.types[d.format]"></select>
+		</div>
+		<div class="form-group col-md-6">
+			<label>Position</label>
+			<input type="text" class="form-control" ng-model="d.value.position">
+		</div>
+		<div class="form-group col-md-4">
+			<label>Periodical</label>
+			<input type="text" class="form-control" ng-model="d.value.periodical">
+		</div>
+		<div class="form-group col-md-4">
+			<label>Aktivität</label>
+			<input type="text" class="form-control" ng-model="d.value.activity">
+		</div>
+		<div class="form-group col-md-4">
+			<label>Ort</label>
+			<input type="text" class="form-control" ng-model="d.value.place">
+		</div>
+		<div class="form-group col-md-6">
+			<label>Level</label>
+			<input type="number" class="form-control" ng-model="d.value.level">
+		</div>
+		<div class="form-group col-md-6">
+			<label>Unbezahlt</label>
+
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" ng-model="d.value.unsalaried:"> <span ng-if="d.value.unsalaried"><b>Ja</b>/Nein</span><span ng-if="!d.value.unsalaried">Ja/<b>Nein</b></span>
+				</label>
+			</div>
+		</div>
+		<div class="form-group col-md-6" ng-controller="Datepicker2Ctrl" ng-init="dtp_value={val:d.value,name:'start'};">
+			<label>Von</label>
+
+			<p class="input-group">
+				<input type="text" class="form-control" datepickerMode="{{dtp.mode}}" datepicker-mode="{{dtp.mode}}" datepicker-options="dtp.options" datepicker-popup="{{dtp.fmt.fmt}}" ng-model="dtp.date" is-open="dtp.opened" ng-required="true" close-text="Schließen" ng-blur='dtp.validate()'/>
+				<span class="input-group-btn"><button type="button" class="btn btn-default" ng-click="dtp.open($event)"><i class="glyphicon glyphicon-calendar"></i></button></span>
+				<select class="form-control" ng-model="dtp.fmt" ng-options="f.name for f in dtp.formats"></select>
+			</p>
+		</div>
+		<div class="form-group col-md-6" ng-controller="Datepicker2Ctrl" ng-init="dtp_value={val:d.value,name:'end'};">
+			<label>Bis</label>
+
+			<p class="input-group">
+				<input type="text" class="form-control" datepickerMode="{{dtp.mode}}" datepicker-mode="{{dtp.mode}}" datepicker-options="dtp.options" datepicker-popup="{{dtp.fmt.fmt}}" ng-model="dtp.date" is-open="dtp.opened" ng-required="true" close-text="Schließen" ng-blur='dtp.validate()'/>
+				<span class="input-group-btn"><button type="button" class="btn btn-default" ng-click="dtp.open($event)"><i class="glyphicon glyphicon-calendar"></i></button></span>
+				<select class="form-control" ng-model="dtp.fmt" ng-options="f.name for f in dtp.formats"></select>
+			</p>
+		</div>
+		<div class="form-group col-md-12">
+			<label>Quellen</label>
+			<input type="text" class="form-control" ng-model="d.value.sources">
+		</div>
+		<div class="form-group col-md-6">
+			<label>Verifiziert</label>
+
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" ng-model="d.value.verified"> <span ng-if="d.value.verified"><b>Ja</b>/Nein</span><span ng-if="!d.value.verified">Ja/<b>Nein</b></span>
+				</label>
+			</div>
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-generic-relation.html">
+	<form class="form">
+		<div class="form-group col-md-6">
+			<label>Typ</label>
+			<select class="form-control" ng-model="d.value.type" ng-options="x.id as x.name for x in $root.globals.types[d.format]"></select>
+		</div>
+		<div class="form-group col-md-6">
+			<label>Position</label>
+			<input type="text" class="form-control" ng-model="d.value.position">
+		</div>
+		<div class="form-group col-md-6" ng-controller="Datepicker2Ctrl" ng-init="dtp_value={val:d.value,name:'start'};">
+			<label>Von</label>
+
+			<p class="input-group">
+				<input type="text" class="form-control" datepickerMode="{{dtp.mode}}" datepicker-mode="{{dtp.mode}}" datepicker-options="dtp.options" datepicker-popup="{{dtp.fmt.fmt}}" ng-model="dtp.date" is-open="dtp.opened" ng-required="true" close-text="Schließen" ng-blur='dtp.validate()'/>
+				<span class="input-group-btn"><button type="button" class="btn btn-default" ng-click="dtp.open($event)"><i class="glyphicon glyphicon-calendar"></i></button></span>
+				<select class="form-control" ng-model="dtp.fmt" ng-options="f.name for f in dtp.formats"></select>
+			</p>
+		</div>
+		<div class="form-group col-md-6" ng-controller="Datepicker2Ctrl" ng-init="dtp_value={val:d.value,name:'end'};">
+			<label>Bis</label>
+
+			<p class="input-group">
+				<input type="text" class="form-control" datepickerMode="{{dtp.mode}}" datepicker-mode="{{dtp.mode}}" datepicker-options="dtp.options" datepicker-popup="{{dtp.fmt.fmt}}" ng-model="dtp.date" is-open="dtp.opened" ng-required="true" close-text="Schließen" ng-blur='dtp.validate()'/>
+				<span class="input-group-btn"><button type="button" class="btn btn-default" ng-click="dtp.open($event)"><i class="glyphicon glyphicon-calendar"></i></button></span>
+				<select class="form-control" ng-model="dtp.fmt" ng-options="f.name for f in dtp.formats"></select>
+			</p>
+		</div>
+		<div class="form-group col-md-12">
+			<label ng-bind="d.value.type=='pass'?'Ausgestellt durch':'Beschreibung'"></label>
+			<input type="text" class="form-control" ng-model="d.value.desc">
+		</div>
+		<div class="form-group col-md-12">
+			<label>Quellen</label>
+			<input type="text" class="form-control" ng-model="d.value.sources">
+		</div>
+		<div class="form-group col-md-6">
+			<label>Verifiziert</label>
+
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" ng-model="d.value.verified"> <span ng-if="d.value.verified"><b>Ja</b>/Nein</span><span ng-if="!d.value.verified">Ja/<b>Nein</b></span>
+				</label>
+			</div>
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-number.html">
+	<form class="form">
+		<div class="form-group col-md-4">
+			<input type="number" class="form-control" placeholder="Zahl" ng-model="d.value">
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-integer.html">
+	<form class="form">
+		<div class="form-group col-md-4">
+			<input type="number" class="form-control" placeholder="Zahl" ng-model="d.value">
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-string.html">
+	<form class="form">
+		<div class="form-group col-md-12" ng-controller="AutoCompleteCtrl">
+			<input type="text" class="form-control" placeholder="Text" ng-model="d.value" datasets="datasetString" ngtypeahead>
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-photo.html">
+	<form class="form">
+		<div class="form-group col-md-12">
+			<label>URL</label>
+			<input type="url" class="form-control" placeholder="URL" ng-model="d.value.url">
+		</div>
+		<div class="form-group col-md-12">
+			<label>Copyright</label>
+			<input type="text" class="form-control" placeholder="Copyright" ng-model="d.value.copyright">
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-strings.html">
+	<form class="form">
+		<div class="form-group col-md-12">
+			<input type="text" class="form-control" placeholder="Text" ng-model="d.value">
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-tags.html">
+	<form class="form">
+		<div class="form-group col-md-12" ng-controller="TagEdit">
+			<div class="has-feedback">
+				<input type="text" class="form-control" placeholder="{{d.desc}}" ng-model="edit[d.key]" ng-enter="addTagEntry(d, edit[d.key])" datasets="d.dataset" ngtypeahead>
+				<span ng-show="canAddTagEntry(d, edit[d.key])" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addTagEntry(d, edit[d.key])"></span>
+			</div>
+			<div class="label-list">
+				<div ng-repeat="o in d.value" class="label label-default">
+					<span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Entfernen" ng-click="removeTagEntry(d, o)"></i>
+				</div>
+			</div>
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-bool.html">
+	<form class="form">
+		<div class="form-group col-md-12">
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" ng-model="d.value"> <span ng-if="d.value"><b>Ja</b>/Nein</span><span ng-if="!d.value">Ja/<b>Nein</b></span>
+				</label>
+			</div>
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-default.html">
+	<form class="form">
+		<div class="form-group col-md-12">
+			Bearbeiten von Datentyp <span ng-bind="d.format"></span> wird noch nicht unterstützt.
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafields.html">
+
+	<div ng-repeat="d in fields" ng-controller="FieldListEditCtrl">
+		<p class="field-headline"><span ng-bind="d.desc||d.format"></span><i ng-show="!d.fixed" class="glyphicon glyphicon-remove btn-right" title="{{d.desc||d.format}} entfernen" ng-click="removeData(d,fields)"></i></p>
+
+		<div class="row" ng-include="getFieldPartial(d)"></div>
 		<hr ng-if="$index==fields.length"/>
-
 	</div>
 
 </script>

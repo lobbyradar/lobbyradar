@@ -612,7 +612,12 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 			"range": {},
 			"photo": {}
 		},
-		states: {}
+		states: {},
+		types: {
+			job: [{id: 'executive', name: 'Vorstand'}, {id: 'member', name: 'Mitglied'}, {id: 'job', name: 'Arbeitsverhältnis'}, {id: 'government', name: 'Politische Position'}],
+			association: [{id: 'pass', name: 'Ausweis'}, {id: 'sponsoring', name: 'Sponsor'}, {id: 'commitee', name: 'Ausschuss'}, {id: 'participant', name: 'Teilnehmer'}],
+			business: [{id: 'subsidiary', name: 'Tochterfirma'}, {id: 'relation', name: 'Geschäftsverbindung'}]
+		}
 	};
 
 	$scope.getDispayValues = function (field, entity) {
@@ -2281,6 +2286,103 @@ app.controller('DatepickerCtrl', function ($scope) {
 
 });
 
+app.controller('Datepicker2Ctrl', function ($scope, dateFilter) {
+
+	$scope.dtp = {
+		options: {
+			formatYear: 'yyyy',
+			startingDay: 1
+		},
+		date: null,
+		splitdate: null,
+		opened: false,
+		formats: [
+			{name: 'dd.mm.yyyy', fmt: 'dd.MM.yyyy', mode: 'day'},
+			{name: 'mm.yyyy', fmt: 'MM.yyyy', mode: 'month'},
+			{name: 'yyyy', fmt: 'yyyy', mode: 'year'}
+		],
+		open: function ($event) {
+			$event.preventDefault();
+			$event.stopPropagation();
+			$scope.dtp.opened = true;
+		},
+		validate: function(){
+			if (!$scope.dtp.date) {
+				displaySplitValue($scope.dtp.splitdate);
+			}
+		}
+	};
+	$scope.dtp.fmt = $scope.dtp.formats[0];
+
+	$scope.dtp_today = function () {
+		$scope.dtp.date = new Date();
+	};
+
+	$scope.dtp_clear = function () {
+		$scope.dtp.date = null;
+	};
+
+	var apply = function () {
+		if (!$scope.dtp_value) return;
+		if (!$scope.dtp.splitdate) return;
+		if (!$scope.dtp.date) return;
+		var i = $scope.dtp.formats.indexOf($scope.dtp.fmt);
+		if (i == 0) {
+			$scope.dtp.splitdate.year = $scope.dtp.date.getFullYear();
+			$scope.dtp.splitdate.month = $scope.dtp.date.getMonth() + 1;
+			$scope.dtp.splitdate.day = $scope.dtp.date.getDate();
+		} else if (i == 1) {
+			$scope.dtp.splitdate.year = $scope.dtp.date.getFullYear();
+			$scope.dtp.splitdate.month = $scope.dtp.date.getMonth() + 1;
+			delete $scope.dtp.splitdate.day;
+		} else {
+			$scope.dtp.splitdate.year = $scope.dtp.date.getFullYear();
+			delete $scope.dtp.splitdate.month;
+			delete $scope.dtp.splitdate.day;
+		}
+	};
+
+	var displaySplitValue = function (v) {
+		if (v && v.year) {
+			$scope.dtp.date = new Date(v.year, v.month ? v.month - 1 : 0, v.day ? v.day : 1);
+		}
+	};
+
+	$scope.$watch('dtp.date', function (d) {
+		if (d)
+			apply();
+	});
+	$scope.$watch('dtp.fmt', function (d) {
+		if (d) {
+			$scope.dtp.options.datepickerMode = d.mode;
+			apply();
+			displaySplitValue($scope.dtp.splitdate);
+		}
+	});
+	$scope.$watch('dtp_value', function (d) {
+		if (d) {
+			var v = (d.val[d.name]);
+			if (!v) {
+				d.val[d.name] = {};
+				v = d.val[d.name];
+			}
+			$scope.dtp.splitdate = v;
+			var format = 0;
+			if (v) {
+				if (v.day) format = 0;
+				else if (v.month) format = 1;
+				else if (v.year) format = 2;
+				//displaySplitValue(v);
+				//if (v.year) {
+				//	$scope.dtp.date = new Date(v.year, v.month ? v.month - 1 : 0, v.day ? v.day : 1);
+				//}
+				$scope.dtp.fmt = $scope.dtp.formats[format];
+			}
+		}
+	});
+
+});
+
 app.controller('AutoCompleteCtrl', function ($scope, autocomplete) {
 	var d = $scope.d;
 	if (d && (d.format == 'string')) {
@@ -2311,6 +2413,19 @@ app.controller('AutoCompleteCtrl', function ($scope, autocomplete) {
 });
 
 app.controller('FieldListEditCtrl', function ($scope) {
+
+	var knownFieldTypes = ['link', 'url', 'address', 'date', 'range', 'activity', 'monthyear', 'donation', 'job',
+		'business', 'number', 'integer', 'string', 'photo', 'strings', 'tags', 'bool'];
+
+	$scope.getFieldPartial = function (d) {
+		if (['business', 'job', 'association'].indexOf(d.format) >= 0)
+			return 'partials/datafield-generic-relation.html';
+		else if (knownFieldTypes.indexOf(d.format) >= 0)
+			return 'partials/datafield-' + d.format + '.html';
+		else
+			return 'partials/datafield-default.html';
+	};
+
 	$scope.removeData = function (d, list) {
 		var i = list.indexOf(d);
 		if (i >= 0) {

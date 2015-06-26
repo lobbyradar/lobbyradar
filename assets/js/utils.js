@@ -432,7 +432,7 @@ utils.formatNebeneinkunft = function (data) {
 
 utils.formatHausausweis = function (data) {
 	var result = '';
-	if (data.value.issued) result += '<br/>Ausgestellt von <em>' + data.value.issued + "</em>";
+	if (data.value.desc) result += '<br/>Ausgestellt von <em>' + data.value.desc + "</em>";
 	return result;
 };
 
