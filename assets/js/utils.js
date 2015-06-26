@@ -191,25 +191,8 @@ utils.displayEntityAddIncome = function (entity) {
 
 				var d = o.d;
 				result += utils.formatEntityLink(rel.entity);
-				var sl = [];
-				if (d.value.start != null) {
-					sl.push(d.value.start.year);
-				} else if (d.value.end != null) {
-					sl.push(d.value.end.year);
-				}
-				if (d.value.position != null) {
-					sl.push(d.value.position);
-				}
-				if (d.value.activity != null) {
-					sl.push(d.value.activity);
-				}
-				if (d.value.periodical != null) {
-					sl.push(d.value.periodical);
-				}
-				if (d.value.level !== 0) {
-					sl.push('Stufe: ' + utils.formatStagesAddIncome(d.value.level));
-				}
-				if (sl.length > 0) result += '<br/>' + sl.join(' ');
+				var s = utils.formatNebeneinkunft(d);
+				if (s.length > 0) result += '<br/>' + s;
 				result += '<br/>';
 			});
 		});
@@ -254,12 +237,13 @@ utils.displayEntityDonations = function (entity) {
 				if (isExistant(rel.entity)) {
 					result += utils.formatEntityLink(rel.entity) + '<br/>';
 				}
+				donations.sort(function (a, b) {
+					return b.value.year - a.value.year;
+				});
 				result += '<table class="table-condensed table-bordered table">';
 				$(donations).each(function (idx, data) {
-					if (data.key == 'donation') {
-						result += '<tr><td>' + data.value.year + ' </td>' +
-							'<td>' + numberWithCommas(data.value.amount) + ' € </td></tr>';
-					}
+					result += '<tr><td>' + data.value.year + ' </td>' +
+						'<td>' + numberWithCommas(data.value.amount) + ' € </td></tr>';
 				});
 				result += '</table>';
 			}
@@ -324,99 +308,60 @@ utils.displayEntityRelations = function (entity) {
 							//will be handled separately
 							break;
 						default:
-							result += '<div class="entity-relations-item">' + utils.formatEntityLink(rel.entity) + '</div>';
+							result += utils.formatRelation(rel, activities, utils.formatActivity, 'fa-group');
 							break;
 					}
 				} else {
 					// is not nebentaetigkeit
-					result += '<div class="entity-relations-item"><i class="fa fa-suitcase"></i>&nbsp;' + utils.formatEntityLink(rel.entity);
-					// add activity from data
-					$(activities).each(function (idx, data) {
-						result += '<br/>' + data.value.position + ', ' + data.value.type;
-					});
-					result += '</div>';
+					result += utils.formatRelation(rel, activities, utils.formatActivity, 'fa-suitcase');
 				}
-			}
-
-			if (donations.length > 0) {
-				hasPartyDonation = true;
-				donationArray.push(rel);
 			}
 
 			var governments = jobs.filter(function (d) {
 				return d.value && (d.value.type == 'government')
 			});
 			if (governments.length > 0) {
-				result += '<div class="entity-relations-item"><i class="fa fa-institution"></i>&nbsp;' + utils.formatEntityLink(rel.entity);
-				$(governments).each(function (idx, data) {
-					// add position from data
-					if (data.value.position) result += '<br/>' + data.value.position;
-					var dateString = utils.formatSplitDateRange(data.value.start, data.value.end);
-					if (dateString.length > 0) result += '<br/>' + dateString;
-				});
-				result += '</div>';
+				result += utils.formatRelation(rel, governments, utils.formatJob, 'fa-institution');
 			}
 
 			var memberships = jobs.filter(function (d) {
 				return d.value && (d.value.type == 'member')
 			});
 			if (memberships.length > 0) {
-				result += '<div class="entity-relations-item"><i class="fa fa-group"></i>&nbsp;' + utils.formatEntityLink(rel.entity);
-				$(memberships).each(function (idx, data) {
-					if (data.value.position) result += '<br/>' + data.value.position;
-					else result += '<br/>Mitglied';
-					var dateString = utils.formatSplitDateRange(data.value.start, data.value.end);
-					if (dateString.length > 0) result += '<br/>' + dateString;
-				});
-				result += '</div>';
+				result += utils.formatRelation(rel, memberships, function (data) {
+					return utils.formatJob(data, 'Mitglied');
+				}, 'fa-group');
 			}
 
 			var otherjobs = jobs.filter(function (d) {
-				return d.value && (d.value.type !== 'member') && (d.value.type !== 'government');
+				return d.value && (memberships.indexOf(d) < 0) && (governments.indexOf(d) < 0);
 			});
 			if (otherjobs.length > 0) {
-				result += '<div class="entity-relations-item"><i class="fa fa-group"></i>&nbsp;' + utils.formatEntityLink(rel.entity);
-				$(otherjobs).each(function (idx, data) {
-					if (data.value.position) result += '<br/>' + data.value.position;
-					var dateString = utils.formatSplitDateRange(data.value.start, data.value.end);
-					if (dateString.length > 0) result += '<br/>' + dateString;
-				});
-				result += '</div>';
+				result += utils.formatRelation(rel, otherjobs, utils.formatJob, 'fa-group');
 			}
 
 			if (businesses.length > 0) {
-				//TODO list businesses
-				result += '<div class="entity-relations-item"><i class="fa fa-money"></i>&nbsp;' + utils.formatEntityLink(rel.entity) + '</div>';
+				result += utils.formatRelation(rel, businesses, utils.formatBusiness, 'fa-money');
 			}
 
 			var hausausweise = associations.filter(function (d) {
 				return d.value && (d.value.type == 'pass') && (d.value.position == 'Hausausweise');
 			});
 			if (hausausweise.length > 0) {
-				$(hausausweise).each(function (idx, data) {
-					result += '<div class="entity-relations-item"><i class="fa fa-key"></i>&nbsp;';
-					result += 'Hausausweis für: ' + utils.formatEntityLink(rel.entity);
-					if (data.value.issued) result += '<br/>Ausgestellt von <em>' + data.value.issued + "</em>";
-					result += '</div>';
-				});
+				result += utils.formatRelation(rel, hausausweise, utils.formatHausausweis, 'fa-key', 'Hausausweis für: ');
 			}
 			var otherassociations = associations.filter(function (d) {
 				return d.value && (hausausweise.indexOf(d) < 0);
 			});
 			if (otherassociations.length > 0) {
-				result += '<div class="entity-relations-item"><i class="fa fa-code-fork"></i>&nbsp;' + utils.formatEntityLink(rel.entity);
-				$(otherassociations).each(function (idx, data) {
-					if (data.value.position) result += '<br/>' + data.value.position;
-					result += '</div>';
-				});
+				result += utils.formatRelation(rel, otherassociations, utils.formatAssociation, 'fa-code-fork');
 			}
 
-			if (everythingelse.length > 0) {
-				result += '<div class="entity-relations-item"><i class="fa fa-share-alt"></i>&nbsp;' + utils.formatEntityLink(rel.entity) + '</div>';
-				//TODO: list everything else
-				$(everythingelse).each(function (idx, data) {
-					//console.log('TODO: display relation data', data);
-				});
+			if ((everythingelse.length > 0) || (rel.data.length == 0)) {
+				result += utils.formatRelation(rel, everythingelse, function (data) {
+					//TODO: format everything else
+					return '';
+				}, 'fa-share-alt');
 			}
 
 		});
@@ -427,6 +372,77 @@ utils.displayEntityRelations = function (entity) {
 };
 
 //formatters
+
+utils.formatRelation = function (rel, datalist, formatter, icon, nameprefix) {
+	var result = '<div class="entity-relations-item"><i class="fa ' + icon + '"></i>&nbsp;' + (nameprefix ? nameprefix : '') + utils.formatEntityLink(rel.entity);
+	// add activity from data
+	$(datalist).each(function (idx, data) {
+		result += formatter(data);
+	});
+	result += '</div>';
+	return result;
+};
+
+utils.formatBusiness = function (data) {
+	var result = '';
+	if (data.value.position) result += '<br/>' + data.value.position;
+	var dateString = utils.formatSplitDateRange(data.value.start, data.value.end);
+	if (dateString.length > 0) result += '<br/>' + dateString;
+	return result;
+};
+
+utils.formatJob = function (data, defaultposition) {
+	var result = '';
+	if (data.value.position) result += '<br/>' + data.value.position;
+	else if (defaultposition)result += '<br/>' + defaultposition;
+	var dateString = utils.formatSplitDateRange(data.value.start, data.value.end);
+	if (dateString.length > 0) result += '<br/>' + dateString;
+	return result;
+};
+
+utils.formatActivity = function (data) {
+	var result = '';
+	if (data.value.position) result += '<br/>' + data.value.position;
+	var dateString = utils.formatSplitDateRange(data.value.start, data.value.end);
+	if (dateString.length > 0) result += '<br/>' + dateString;
+	return result;
+};
+
+utils.formatNebeneinkunft = function (data) {
+	var sl = [];
+	if (data.value.start != null) {
+		sl.push(data.value.start.year);
+	} else if (data.value.end != null) {
+		sl.push(data.value.end.year);
+	}
+	if (data.value.position != null) {
+		sl.push(data.value.position);
+	}
+	if (data.value.activity != null) {
+		sl.push(data.value.activity);
+	}
+	if (data.value.periodical != null) {
+		sl.push(data.value.periodical);
+	}
+	if (data.value.level !== 0) {
+		sl.push('Stufe: ' + utils.formatStagesAddIncome(data.value.level));
+	}
+	return sl.join(' ');
+};
+
+utils.formatHausausweis = function (data) {
+	var result = '';
+	if (data.value.issued) result += '<br/>Ausgestellt von <em>' + data.value.issued + "</em>";
+	return result;
+};
+
+utils.formatAssociation = function (data) {
+	var result = '';
+	if (data.value.position) result += '<br/>' + data.value.position;
+	var dateString = utils.formatSplitDateRange(data.value.start, data.value.end);
+	if (dateString.length > 0) result += '<br/>' + dateString;
+	return result;
+};
 
 utils.formatEntityLink = function (entity) {
 	var result = '';
