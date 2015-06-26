@@ -879,7 +879,7 @@
 		<tr ng-repeat="p in $data">
 			<td ng-bind="p.name"></td>
 			<td ng-bind="p.key"></td>
-			<td ng-bind="globals.fieldtypes[p.format]"></td>
+			<td ng-bind="globals.types[p.format].name"></td>
 			<td ng-bind="p.mode"></td>
 			<td><span ng-if="p.default">Ja</span><span ng-if="!p.default">Nein</span></td>
 			<td>
@@ -918,7 +918,7 @@
 					<select class="form-control" ng-model="field.mode">
 						<option value="persons">Personen</option>
 						<option value="organisations">Organisationen</option>
-						<option value="relations">Verknüpfungen</option>
+						<option value="relations">Verbindungen</option>
 					</select>
 				</div>
 				<div class="form-group col-md-12">
@@ -1198,7 +1198,7 @@
 	<form class="form">
 		<div class="form-group col-md-6">
 			<label>Typ</label>
-			<select class="form-control" ng-model="d.value.type" ng-options="x.id as x.name for x in $root.globals.types[d.format]"></select>
+			<select class="form-control" ng-model="d.value.type" ng-options="x.id as x.name for x in $root.globals.types[d.format].types"></select>
 		</div>
 		<div class="form-group col-md-6">
 			<label>Position</label>
@@ -1267,7 +1267,7 @@
 	<form class="form">
 		<div class="form-group col-md-6">
 			<label>Typ</label>
-			<select class="form-control" ng-model="d.value.type" ng-options="x.id as x.name for x in $root.globals.types[d.format]"></select>
+			<select class="form-control" ng-model="d.value.type" ng-options="x.id as x.name for x in $root.globals.types[d.format].types"></select>
 		</div>
 		<div class="form-group col-md-6">
 			<label>Position</label>
@@ -1395,7 +1395,7 @@
 <script type="text/ng-template" id="partials/datafields.html">
 
 	<div ng-repeat="d in fields" ng-controller="FieldListEditCtrl">
-		<p class="field-headline"><span ng-bind="d.desc||d.format"></span><i ng-show="!d.fixed" class="glyphicon glyphicon-remove btn-right" title="{{d.desc||d.format}} entfernen" ng-click="removeData(d,fields)"></i></p>
+		<p class="field-headline"><span ng-bind="d.desc||$root.globals.types[d.format].name"></span><i ng-show="!d.fixed" class="glyphicon glyphicon-remove btn-right" title="{{d.desc||d.format}} entfernen" ng-click="removeData(d,fields)"></i></p>
 
 		<div class="row" ng-include="getFieldPartial(d)"></div>
 		<hr ng-if="$index==fields.length"/>

@@ -20,6 +20,11 @@
 * keine Doppelten Fotos hinzufügen 
 * Fraktionsimporter CDU/CSU macht probleme, eindeutige Zuordnung zur Partei geht flöten
 
+---
+
+##TODO CONVERT
+* neue relation felder in mongo.fields aufnehmen und alte entfernen (bin/checkfields.js)
+* alle importer anpasssen
 
 ##TODO FRONTEND
 
@@ -27,6 +32,9 @@
 * relations sortieren in tabs? 
 
 ##TODO STATION
+
+*Verbindungen-Liste
+* association, business, etc. wird nicht angezeigt
 
 Update:
 * Suche nicht in modal-dialog sondern inplace (sonst umständlich)

@@ -505,123 +505,277 @@ var reportConnectionError = function ($scope, err) {
 	}, 500);
 };
 
-var getDisplayValue = function (v, dateFilter) {
-	if (v.value === null) return '';
-	switch (v.format) {
-		case'strings':
-		case'tags':
-			return v.value.join(', ');
-		case 'bool':
-			return v.value ? 'Ja' : 'Nein';
-		case 'link':
-			return v.value.url;
-		case 'monthyear':
-			return ((v.value.month !== null ? v.value.month : '') + ' ' + (v.value.year !== null ? v.value.year : '')).trim();
-		case 'donation':
-			return ((v.value.year !== null ? v.value.year + ':' : '') + ' ' + (v.value.amount !== null ? v.value.amount : '')).trim();
-		case 'date':
-			return dateFilter(v.value.date, v.value.fmt);
-		case 'range':
-			return (v.value.desc ? v.value.desc + ': ' : '') +
-				((v.value.start_month !== null ? v.value.start_month + '.' : '') + (v.value.start_year !== null ? v.value.start_year : '?'))
-				+ ' - ' +
-				((v.value.end_month !== null ? v.value.end_month + '.' : '') + (v.value.end_year !== null ? v.value.end_year : '?'));
-		case 'address':
-			var sl = [];
-			if (v.value) {
-				if (v.value.name) sl.push(v.value.name);
-				if (v.value.addr) sl.push(v.value.addr);
-				if (v.value.street) sl.push(v.value.street);
-				if (v.value.postcode) sl.push(v.value.postcode);
-				if (v.value.city) sl.push(v.value.city);
-				if (v.value.country) sl.push(v.value.country);
+
+var formatSplitDate = function (date) {
+	var result = '';
+	if (!date) return result;
+	var months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+	if (date.year) {
+		if (date.month) {
+			if (date.day) {
+				result += date.day + '. ';
 			}
-			return sl.join('; ');
-		case 'activity':
-			var sl = [];
-			if (v.value) {
-				if (v.value.type) sl.push(v.value.type);
-				if (v.value.year) sl.push(v.value.year);
-				if (v.value.begin) sl.push(v.value.begin);
-				if (v.value.end) sl.push(v.value.end);
-				if (v.value.periodical) sl.push(v.value.periodical);
-				if (v.value.position) sl.push(v.value.position);
-				if (v.value.place) sl.push(v.value.place);
-				if (v.value.activity) sl.push(v.value.activity);
-			}
-			return sl.join('; ');
-		case 'photo':
-			var sl = [];
-			if (v.value) {
-				if (v.value.url) sl.push(v.value.url);
-				if (v.value.copyright) sl.push(v.value.copyright);
-			}
-			return sl.join('; ');
-		case 'number':
-		case 'url':
-		default:
-			return v.value;
+			result += months[date.month - 1] || '';
+		}
+		result += ' ' + date.year;
 	}
+	return result.trim();
 };
 
-var getDispayValues = function (field, entity, dateFilter) {
-	var result = [];
-	if (['extras', 'fields'].indexOf(field._type) >= 0) {
-		if (entity[field.key] !== undefined) {
-			result.push({format: field.format, value: entity[field.key]});
-		}
-	} else {
-		if (entity.data && entity.data.length)
-			entity.data.forEach(function (d) {
-				if ((field.key == d.key) && (field.format == d.format) && (field.name == d.desc)) {
-					result.push(d);
-				}
-			})
-	}
-	return result.map(function (v) {
-		return getDisplayValue(v, dateFilter);
-	}).join(', ');
+var formatSplitDateRange = function (start, end) {
+	var result = '';
+	var seit = formatSplitDate(start);
+	var bis = formatSplitDate(end);
+	if ((seit.length > 0) || (bis.length > 0)) result += (seit.length > 0 ? seit : '?') + ' - ' + (bis.length > 0 ? bis : '?');
+	return result;
 };
+
 
 // ------------------- controllers -------------------
 
 app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 	'use strict';
 	$rootScope.globals = {
-		fieldtypes: {
-			"string": "Text",
-			"tags": "Text-Liste",
-			"number": "Zahl",
-			"link": "Link",
-			"url": "URL",
-			"bool": "Ja/Nein-Wert",
-			"address": "Adresse",
-			"date": "Datum",
-			"range": "Datumsbereich",
-			"photo": "Foto"
-		},
-		fielddefaults: {
-			"string": "",
-			"tags": [],
-			"number": 0,
-			"link": {},
-			"url": "",
-			"bool": true,
-			"address": {},
-			"date": {},
-			"range": {},
-			"photo": {}
-		},
 		states: {},
 		types: {
-			job: [{id: 'executive', name: 'Vorstand'}, {id: 'member', name: 'Mitglied'}, {id: 'job', name: 'Arbeitsverhältnis'}, {id: 'government', name: 'Politische Position'}],
-			association: [{id: 'pass', name: 'Ausweis'}, {id: 'sponsoring', name: 'Sponsor'}, {id: 'commitee', name: 'Ausschuss'}, {id: 'participant', name: 'Teilnehmer'}],
-			business: [{id: 'subsidiary', name: 'Tochterfirma'}, {id: 'relation', name: 'Geschäftsverbindung'}]
+			string: {
+				"name": "Text",
+				defaults: "",
+				asString: function (v) {
+					return v.value;
+				}
+			},
+			url: {
+				"name": "URL",
+				defaults: "",
+				asString: function (v) {
+					return v.value;
+				}
+			},
+			date: {
+				"name": "Datum",
+				defaults: {},
+				asString: function (v) {
+					if (v.value.fmt)
+						return dateFilter(v.value.date, v.value.fmt);
+					else
+						return dateFilter(v.value, 'dd.MM.yyyy');
+				}
+			},
+			monthyear: {
+				"name": "Datum (Monat/Tag)",
+				defaults: {},
+				asString: function (v) {
+					return ((v.value.month !== null ? v.value.month : '') + ' ' + (v.value.year !== null ? v.value.year : '')).trim();
+				}
+			},
+			range: {
+				"name": "Datumbereich",
+				defaults: {},
+				asString: function (v) {
+					return (v.value.desc ? v.value.desc + ': ' : '') +
+						((v.value.start_month !== null ? v.value.start_month + '.' : '') + (v.value.start_year !== null ? v.value.start_year : '?'))
+						+ ' - ' +
+						((v.value.end_month !== null ? v.value.end_month + '.' : '') + (v.value.end_year !== null ? v.value.end_year : '?'));
+				}
+			},
+			photo: {
+				"name": "Foto",
+				defaults: {},
+				asString: function (v) {
+					var sl = [];
+					if (v.value) {
+						if (v.value.url) sl.push(v.value.url);
+						if (v.value.copyright) sl.push(v.value.copyright);
+					}
+					return sl.join('; ');
+				}
+			},
+			bool: {
+				"name": "Ja/Nein-Wert",
+				defaults: true,
+				asString: function (v) {
+					return v.value ? 'Ja' : 'Nein';
+				}
+			},
+			tags: {
+				"name": "Text-Liste",
+				defaults: [],
+				asString: function (v) {
+					return v.value.join(', ');
+				}
+			},
+			strings: {
+				"name": "Text-Liste",
+				defaults: [],
+				asString: function (v) {
+					return v.value.join(', ');
+				}
+			},
+			number: {
+				"name": "Zahl",
+				defaults: 0,
+				asString: function (v) {
+					return v.value.toString();
+				}
+			},
+			integer: {
+				"name": "Zahl",
+				defaults: 0,
+				asString: function (v) {
+					return v.value.toString();
+				}
+			},
+			address: {
+				"name": "Adresse",
+				defaults: {},
+				asString: function (v) {
+					var sl = [];
+					if (v.value.name) sl.push(v.value.name);
+					if (v.value.addr) sl.push(v.value.addr);
+					if (v.value.street) sl.push(v.value.street);
+					if (v.value.postcode) sl.push(v.value.postcode);
+					if (v.value.city) sl.push(v.value.city);
+					if (v.value.country) sl.push(v.value.country);
+					return sl.join('; ');
+				}
+			},
+			link: {
+				"name": "Link",
+				defaults: {},
+				asString: function (v) {
+					return v.value.url;
+				}
+			},
+			job: {
+				"name": "Arbeitsverhältnis",
+				default: {
+					type: 'job',
+					start: {},
+					end: {},
+					sources: [],
+					verified: true
+				},
+				asString: function (v) {
+					var sl = [];
+					if (v.value.position) sl.push(v.value.position);
+					else if (v.value.type) {
+						$rootScope.globals.types.job.types.forEach(function (t) {
+							if (t.id == v.value.type)
+								sl.push(t.name);
+						});
+					}
+					var s = formatSplitDateRange(v.value.start, v.value.end);
+					if (s.length > 0) sl.push(s)
+					if (v.value.desc) sl.push(v.value.desc);
+					return sl.join(', ');
+				},
+				types: [{id: 'executive', name: 'Vorstand'}, {id: 'member', name: 'Mitglied'}, {id: 'job', name: 'Arbeitsverhältnis'}, {id: 'government', name: 'Politische Position'}]
+			},
+			association: {
+				"name": "Assoziiert",
+				default: {
+					type: 'participant',
+					start: {},
+					end: {},
+					sources: [],
+					verified: true
+				},
+				asString: function (v) {
+					var sl = [];
+					if (v.value.position) sl.push(v.value.position);
+					else if (v.value.type) {
+						$rootScope.globals.types.association.types.forEach(function (t) {
+							if (t.id == v.value.type)
+								sl.push(t.name);
+						});
+					}
+					var s = formatSplitDateRange(v.value.start, v.value.end);
+					if (s.length > 0) sl.push(s)
+					if (v.value.desc) sl.push(v.value.desc);
+					return sl.join(', ');
+				},
+				types: [{id: 'pass', name: 'Ausweis'}, {id: 'sponsoring', name: 'Sponsor'}, {id: 'commitee', name: 'Ausschuss'}, {id: 'participant', name: 'Teilnehmer'}]
+			},
+			business: {
+				"name": "Geschäftsverbindung",
+				default: {
+					type: 'relation',
+					start: {},
+					end: {},
+					sources: [],
+					verified: true
+				},
+				asString: function (v) {
+					var sl = [];
+					if (v.value.position) sl.push(v.value.position);
+					else if (v.value.type) {
+						$rootScope.globals.types.business.types.forEach(function (t) {
+							if (t.id == v.value.type)
+								sl.push(t.name);
+						});
+					}
+					var s = formatSplitDateRange(v.value.start, v.value.end);
+					if (s.length > 0) sl.push(s)
+					if (v.value.desc) sl.push(v.value.desc);
+					return sl.join(', ');
+				},
+				types: [{id: 'subsidiary', name: 'Tochterfirma'}, {id: 'relation', name: 'Geschäftsverbindung'}]
+			},
+			donation: {
+				"name": "Spende",
+				default: {
+					sources: [],
+					verified: true
+				},
+				asString: function (v) {
+					return ((v.value.year !== null ? v.value.year + ':' : '') + ' ' + (v.value.amount !== null ? v.value.amount : '')).trim();
+				}
+			},
+			activity: {
+				"name": "Nebeneinkünfte",
+				default: {
+					verified: true
+				},
+				asString: function (v) {
+					var sl = [];
+					var s = formatSplitDateRange(v.value.start, v.value.end);
+					if (s.length > 0) sl.push(s)
+					if (v.value.periodical) sl.push(v.value.periodical);
+					if (v.value.position) sl.push(v.value.position);
+					if (v.value.place) sl.push(v.value.place);
+					if (v.value.activity) sl.push(v.value.activity);
+					return sl.join('; ');
+				}
+			}
+		},
+		getDisplayValue: function (v) {
+			if (v.value == null) return '';
+			var type = $rootScope.globals.types[v.format];
+			if (type) return type.asString(v);
+			return v.value;
 		}
 	};
 
+	$rootScope.globals.knownFieldTypes = Object.keys($rootScope.globals.types);
+
 	$scope.getDispayValues = function (field, entity) {
-		return getDispayValues(field, entity, dateFilter);
+		var result = [];
+		if (['extras', 'fields'].indexOf(field._type) >= 0) {
+			if (entity[field.key] !== undefined) {
+				result.push({format: field.format, value: entity[field.key]});
+			}
+		} else {
+			if (entity.data && entity.data.length)
+				entity.data.forEach(function (d) {
+					if ((field.key == d.key) && (field.format == d.format) && (field.name == d.desc)) {
+						result.push(d);
+					}
+				})
+		}
+		return result.map(function (v) {
+			return $rootScope.globals.getDisplayValue(v);
+		}).join(', ');
 	};
 
 	$scope.logout = function () {
@@ -1680,7 +1834,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 			format: o.format,
 			key: o.key,
 			desc: o.name,
-			value: angular.copy($scope.globals.fielddefaults[o.format])
+			value: angular.copy($scope.globals.types[o.format].defaults)
 		});
 	};
 
@@ -2028,7 +2182,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 			format: o.format,
 			key: o.key,
 			desc: o.name,
-			value: angular.copy($scope.globals.fielddefaults[o.format])
+			value: angular.copy($scope.globals.types[o.format].defaults)
 		});
 	};
 
@@ -2156,8 +2310,8 @@ app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
 
 app.controller('FieldEditCtrl', function ($scope, $rootScope, $state, $stateParams, fields) {
 	$scope.fieldtypes = [];
-	for (var key in $rootScope.globals.fieldtypes) {
-		$scope.fieldtypes.push({id: key, name: $rootScope.globals.fieldtypes[key]});
+	for (var key in $rootScope.globals.types) {
+		$scope.fieldtypes.push({id: key, name: $rootScope.globals.types[key].name});
 	}
 	$scope.field = {format: 'string'};
 	typedSimpleEditCtrl($scope, $state, $stateParams, fields, 'field', 'fields', 'Feld');
@@ -2306,7 +2460,7 @@ app.controller('Datepicker2Ctrl', function ($scope, dateFilter) {
 			$event.stopPropagation();
 			$scope.dtp.opened = true;
 		},
-		validate: function(){
+		validate: function () {
 			if (!$scope.dtp.date) {
 				displaySplitValue($scope.dtp.splitdate);
 			}
@@ -2412,15 +2566,12 @@ app.controller('AutoCompleteCtrl', function ($scope, autocomplete) {
 	}
 });
 
-app.controller('FieldListEditCtrl', function ($scope) {
-
-	var knownFieldTypes = ['link', 'url', 'address', 'date', 'range', 'activity', 'monthyear', 'donation', 'job',
-		'business', 'number', 'integer', 'string', 'photo', 'strings', 'tags', 'bool'];
+app.controller('FieldListEditCtrl', function ($scope, $rootScope) {
 
 	$scope.getFieldPartial = function (d) {
 		if (['business', 'job', 'association'].indexOf(d.format) >= 0)
 			return 'partials/datafield-generic-relation.html';
-		else if (knownFieldTypes.indexOf(d.format) >= 0)
+		else if ($rootScope.globals.knownFieldTypes.indexOf(d.format) >= 0)
 			return 'partials/datafield-' + d.format + '.html';
 		else
 			return 'partials/datafield-default.html';
@@ -2645,11 +2796,11 @@ app.filter('pagination', function () {
 	};
 });
 
-app.filter('fieldvalue', function (dateFilter) {
+app.filter('fieldvalue', function ($rootScope) {
 	'use strict';
 	return function (input) {
 		if (input == null) return "";
-		return getDisplayValue(input, dateFilter);
+		return $rootScope.globals.getDisplayValue(input);
 	};
 });
 
