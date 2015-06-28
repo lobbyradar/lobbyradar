@@ -141,7 +141,6 @@ var convertFieldsMember = function (rel, state) {
 		var job = {
 			key: 'job',
 			format: 'job',
-			desc: 'Mitgliedschaft',
 			importer: rel.importer,
 			value: {type: 'member', position: 'Mitglied'}
 		};
@@ -304,9 +303,8 @@ var convertFieldsPosition = function (rel, state, def_position) {
 		var job = {
 			key: 'job',
 			format: 'job',
-			desc: 'Arbeitsverhältnis',
 			importer: rel.importer,
-			value: {type: 'job'}
+			value: {type: 'job', position: 'Arbeitsverhältnis'}
 		};
 		if (def_position) job.position = def_position;
 		return job;
@@ -394,9 +392,8 @@ var convertFieldsActivity = function (rel, state) {
 		var job = {
 			key: 'job',
 			format: 'job',
-			desc: 'Arbeitsverhältnis',
 			importer: rel.importer,
-			value: {type: 'job', position: ''}
+			value: {type: 'job', position: 'Arbeitsverhältnis'}
 		};
 		return job;
 	}
@@ -442,7 +439,6 @@ var convertFieldsActivity = function (rel, state) {
 			adddata(buildGeneric(rel, {
 				key: 'job',
 				format: 'job',
-				desc: 'Mitgliedschaft',
 				importer: rel.importer,
 				value: {type: 'member', position: 'Mitglied'}
 			}, state));
@@ -460,6 +456,7 @@ var convertFieldsSubsidiary = function (rel, state) {
 		var job = {
 			key: 'business',
 			format: 'business',
+			importer: rel.importer,
 			value: {type: 'subsidiary', position: 'Tochterfirma'}
 		};
 		return job;
@@ -501,6 +498,7 @@ var convertFieldsBusiness = function (rel, state) {
 		var job = {
 			key: 'business',
 			format: 'business',
+			importer: rel.importer,
 			value: {type: 'relation', desc: 'Geschäftsverbindung'}
 		};
 		return job;
@@ -546,7 +544,6 @@ var convertFieldsConsulting = function (rel, state) {
 		var job = {
 			key: 'job',
 			format: 'job',
-			desc: 'Arbeitsverhältnis',
 			importer: rel.importer,
 			value: {type: 'job', position: 'Berater'}
 		};
@@ -600,7 +597,7 @@ var convertFieldsHausausweise = function (rel, state) {
 		var job = {
 			key: 'association',
 			format: 'association',
-			desc: 'Beziehung',
+			importer: rel.importer,
 			value: {type: 'pass', position: 'Hausausweise'}
 		};
 		return job;
@@ -631,6 +628,7 @@ var convertFieldsSponsoring = function (rel, state) {
 		var job = {
 			key: 'association',
 			format: 'association',
+			importer: rel.importer,
 			value: {type: 'sponsoring', position: 'Sponsor'}
 		};
 		return job;
@@ -660,6 +658,7 @@ var convertFieldsAssociation = function (rel, state) {
 		var job = {
 			key: 'association',
 			format: 'association',
+			importer: rel.importer,
 			value: {type: '', position: 'Assoziiert'}
 		};
 		return job;
@@ -704,7 +703,6 @@ var convertFieldsGovernment = function (rel, state) {
 		var job = {
 			key: 'job',
 			format: 'job',
-			desc: 'Politische Position',
 			importer: rel.importer,
 			value: {type: 'government', position: 'Politische Position'}
 		};
@@ -842,7 +840,6 @@ var convertFieldsExecutive = function (rel, state) {
 		var job = {
 			key: 'job',
 			format: 'job',
-			desc: 'Leitung',
 			importer: rel.importer,
 			value: {type: 'executive', position: 'Vorstand'}
 		};

@@ -235,37 +235,33 @@ var parseEntities = function (row) {
 	entity.update_id = row[9];
 	entity.name = validateString(row[10]);
 	var val = row[11];
-	if (val.toLowerCase().indexOf('http') !== 0) val = 'http://' + val;
-	entity.data.push({
-		"key": "url",
-		"value": val,
-		"desc": "Webseite",
-		"format": "url"
-	});
+	if (val) {
+		if (val.toLowerCase().indexOf('http') !== 0) val = 'http://' + val;
+		entity.data.push({
+			"key": "url",
+			"value": val,
+			"desc": "Webseite",
+			"format": "url"
+		});
+	}
 	entities.push(entity);
 	return entities;
 };
 
 var parseRelations = function (row) {
 	if (skipRow(row)) return [];
-	var rel = {data: [], type: 'position', importer: 'xing'};
+	var rel = {data: [], type: 'general'};
 	rel.update_id1 = row[0];
 	rel.update_id2 = row[9];
-	rel.data.push(
-		{
-			key: "range",
-			format: "range",
-			desc: "Position",
-			source: "Xing-Profil",
-			value: {
-				start_month: row[3],
-				start_year: row[4],
-				end_month: row[5],
-				end_year: row[6],
-				desc: validateString(row[2])
-			}
-		}
-	);
+	var d = {
+		key: 'job',
+		format: 'job',
+		importer: 'xing',
+		start: {month: row[3], year: row[4]},
+		end: {month: row[5], year: row[6]},
+		value: {type: 'job', position: validateString(row[2] || '')}
+	};
+	rel.data.push(d);
 	return [rel];
 };
 

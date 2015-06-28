@@ -746,7 +746,7 @@ app.post("/api/update/entity/delete/:id", sessionUserHandler, function (req, res
 
 app.post("/api/update/entity/apply/:id", sessionUserHandler, function (req, res) {
 	debug("apply entity update ", req.params.id || req.body.id);
-	api.update_ent_apply(req.params.id || req.body.id, function (err, result) {
+	api.update_ent_apply(req.params.id || req.body.id, req.params.data_id || req.body.data_id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -774,7 +774,7 @@ app.post("/api/update/relation/delete/:id", sessionUserHandler, function (req, r
 
 app.post("/api/update/relation/apply/:id", sessionUserHandler, function (req, res) {
 	debug("apply relation data update ", req.params.id || req.body.id);
-	api.update_rel_apply(req.params.id || req.body.id, function (err, result) {
+	api.update_rel_apply(req.params.id || req.body.id, req.params.data_id || req.body.data_id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });

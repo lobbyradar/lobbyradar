@@ -1644,15 +1644,15 @@
 						<a class="btn-right" href ng-click="deleteEntity(entry)" title="Eintrag löschen"><i class="fa fa-trash"></i></a>
 						<a class="btn-right" href ng-click="searchEntity(entry.update.entity)" title="Passenden Eintrag suchen"><i class="fa fa-search"></i></a>
 						<a class="btn-right" href ng-click="editEntity(entry.update.entity)" title="Eintrag bearbeiten"><i class="fa fa-edit"></i></a>
-						<a class="btn-right" href ng-click="createEntity(entry)" title="Eintrag anlegen"><i class="fa fa-arrow-right"></i></a>
+						<a ng-if="(entry.update.matches.length==0)" class="btn-right" href ng-click="createEntity(entry)" title="Eintrag anlegen"><i class="fa fa-arrow-right"></i></a>
 
 						<div>
 							<span class="detail-label">Aliase:</span> <span ng-bind="entry.update.entity.aliases"></span><br/>
 							<span class="detail-label">Importer:</span> <span ng-bind="entry.update.entity.importer"></span><br/>
 						</div>
-						<div ng-repeat="d in entry.update.entity.data">
-							<span class="detail-label" ng-bind="d.desc"></span>
-							<span ng-bind="d | fieldvalue"></span>
+						<div class="detail-field" ng-repeat="d in entry.update.data_matches">
+							<span class="detail-label" ng-bind="d.data.desc"></span>
+							<span ng-bind="d.data | fieldvalue"></span>
 						</div>
 					</div>
 					<div class="detail-col" ng-if="entry.update.matches.length==0">
@@ -1662,7 +1662,13 @@
 						<span ng-bind="entry.update.matches[0].name"></span><br/>
 						<span class="detail-label">Aliase:</span> <span ng-bind="entry.update.matches[0].aliases"></span><br/>
 						<span class="detail-label">Importer:</span> <span ng-bind="entry.update.matches[0].importer"></span><br/>
-						<a class="action" ng-if="entry.update.entity.data.length>0" href ng-click="applyEntityData(entry)"><i class="fa fa-arrow-right"></i> Daten übernehmen</a><br/>
+
+						<div class="detail-field" ng-repeat="d in entry.update.data_matches">
+							<div ng-if="d.match" title="{{d.match.format}}" ng-bind="d.match | fieldvalue"></div>
+							<div ng-if="!d.match">
+								<a class="action" href ng-click="applyEntityData(d.data, entry.update.entity)"><i class="fa fa-arrow-right"></i> Daten übernehmen</a>
+							</div>
+						</div>
 					</div>
 					<div class="detail-col" ng-if="entry.update.matches.length>1">
 						<div ng-repeat="ent in entry.update.matches">
@@ -1687,44 +1693,20 @@
 							<a class="btn-right" href ng-click="deleteRelation(rel_info.rel)" title="Verbindung löschen"><i class="fa fa-trash"></i></a>
 							<a class="btn-right" href ng-click="searchEntity(rel_info.entity)" title="Passenden Eintrag suchen"><i class="fa fa-search"></i></a>
 							<a class="btn-right" href ng-click="editEntity(rel_info.entity)" title="Eintrag bearbeiten"><i class="fa fa-edit"></i></a>
-							<a class="btn-right" href ng-click="createRelation(rel_info.rel)" title="Verbindung anlegen"><i class="fa fa-arrow-right"></i></a>
+							<a ng-if="(rel_info.matches.length==0)" class="btn-right" href ng-click="createRelation(rel_info.rel)" title="Verbindung anlegen"><i class="fa fa-arrow-right"></i></a>
 
-							<div class="detail-field" ng-repeat="d in rel_info.rel.data">
-								<span title="{{d.desc}}" ng-bind="d | fieldvalue"></span>
+							<div class="detail-field" ng-repeat="d in rel_info.data_matches">
+								<div title="{{d.data.format}}" ng-bind="d.data | fieldvalue"></div>
 							</div>
 						</div>
-						<div class="detail-col" ng-if="(rel_info.matches.length==0) && (!rel_info.same || rel_info.same.length==0)">
-							<div ng-if="rel_info.entity_matches.length>0"><b ng-bind="rel_info.entity_matches[0].name"></b></div>
-							<a class="action" href ng-click="createRelation(rel_info.rel)"><i class="fa fa-arrow-right"></i>
-								Verbindung
-								<br ng-if="entry.update.matches.length==0 || rel_info.entity_matches.length==0"/>
-								<span ng-if="entry.update.matches.length==0">&
-									<span ng-bind="entry.name"></span></br>
-								</span>
-								<span ng-if="rel_info.entity_matches.length==0"> &
-									<span ng-bind="rel_info.entity.name"></span></br>
-								</span>
-								anlegen</a>
-						</div>
-						<div class="detail-col" ng-if="rel_info.matches.length==1">
-							<b ng-bind="rel_info.entity.name"></b><br/>
-
-							<div class="detail-field" ng-repeat="d in rel_info.matches[0].data">
-								<span title="{{d.desc}}" ng-bind="d | fieldvalue"></span>
-							</div>
-						</div>
-						<div class="detail-col" ng-if="(rel_info.matches.length==0) && (rel_info.same.length==1)">
-							<b ng-bind="rel_info.entity.name"></b><br/>
-
-							<div class="detail-field" ng-repeat="d in rel_info.same[0].data">
-								<span title="{{d.desc}}" ng-bind="d | fieldvalue"></span>
-							</div>
-							<a class="action" href ng-click="applyRelationData(rel_info.rel)"><i class="fa fa-arrow-right"></i> Daten übernehmen</a>
-
-						</div>
-						<div class="detail-col" ng-if="rel_info.same.length>1">
-							<div ng-repeat="rel in rel_info.same">
-								<span ng-bind="rel"></span>
+						<div class="detail-col">
+							<div  ng-if="(rel_info.entity_matches.length!==0)"><b ng-bind="rel_info.entity_matches[0].name"></b></div>
+							<div  ng-if="(rel_info.matches.length==0)" ><a class="action" href ng-click="createRelation(rel_info.rel)"><i class="fa fa-arrow-right"></i> Verbindung anlegen</a></div>
+							<div class="detail-field" ng-repeat="d in rel_info.data_matches">
+								<div ng-if="d.match" title="{{d.match.format}}" ng-bind="d.match | fieldvalue"></div>
+								<div ng-if="!d.match && (rel_info.entity_matches.length!==0) && (rel_info.matches.length!==0)">
+									<a class="action" href ng-click="applyRelationData(d.data, rel_info.rel)"><i class="fa fa-arrow-right"></i> Daten übernehmen</a>
+								</div>
 							</div>
 						</div>
 					</div>

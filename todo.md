@@ -12,30 +12,26 @@
 * Backup! (SV)
 * alle die Tag 'mdb' haben sollen eine Verb. zum Bundestag haben -> Karte soll danach auf Bundestag zentriert werden (MK)
 
-## Datenbank
-* Editfeld für Bilder
-* Mehrfachverbindungen zB Mutti hat eine Verb zur CDU aufgrund einer Parteispende, aber sie muss auch eine Verb. als Mitglied haben
-
 ## Importer
 * keine Doppelten Fotos hinzufügen 
 * Fraktionsimporter CDU/CSU macht probleme, eindeutige Zuordnung zur Partei geht flöten
 
 ---
+##TODO FRONTEND
+
 
 ##TODO CONVERT
 * neue relation felder in mongo.fields aufnehmen und alte entfernen (bin/checkfields.js)
 * alle importer anpasssen
 
 ##TODO FRONTEND
-
 * viele relations sind performance killer
 * relations sortieren in tabs? 
 
 ##TODO STATION
-
 Update:
 * Suche nicht in modal-dialog sondern inplace (sonst umständlich)
-* Relation-Daten bearbeiten
+* Relation-Daten bearbeiten (vor allem den typ!)
 * api.update_ent_delete - remove _all_ no longer needed entities
 
 Editor:

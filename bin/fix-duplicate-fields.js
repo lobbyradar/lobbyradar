@@ -9,7 +9,7 @@ var filterDupFields = function (data, state) {
 		var d = data[i];
 		for (var j = i + 1; j < length; j++) {
 			var d2 = data[j];
-			if (utils.fields_equal(d, d2)) {
+			if (utils.field_in_field(d, d2)) {
 				state.removed('duplicate value', d2);
 			}
 		}

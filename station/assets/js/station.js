@@ -915,7 +915,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 			var f = $scope.state.fields.filter(function (f) {
 				return f._id == s;
 			})[0];
-				if (!f) console.log('invalid sort id', s);
+			if (!f) console.log('invalid sort id', s);
 			else {
 				//console.log('sort by', f);
 				var dir = sorting[s] == 'asc' ? 1 : -1;
@@ -2722,7 +2722,7 @@ app.controller('UpdateCtrl', function ($scope, $modal, update) {
 				item: entity,
 				validate: function (data, cb) {
 					if (!data.edit._id) return;
-					update.chooseEntity({id: entry._id}, {id: entry._id, ent: data.edit._id},
+					update.chooseEntity({id: entity._id}, {ent: data.edit._id},
 						function (data) {
 							applyResult(data);
 							cb(true);
@@ -2767,14 +2767,14 @@ app.controller('UpdateCtrl', function ($scope, $modal, update) {
 		});
 	};
 
-	$scope.applyEntityData = function (entry) {
-		update.applyEntityData({id: entry._id}, {id: entry._id}, applyResult, function (err) {
+	$scope.applyEntityData = function (data, entry) {
+		update.applyEntityData({id: entry._id}, {data_id: data.id}, applyResult, function (err) {
 			console.log(err);
 		});
 	};
 
-	$scope.applyRelationData = function (rel) {
-		update.applyRelationData({id: rel._id}, {id: rel._id}, applyResult, function (err) {
+	$scope.applyRelationData = function (data, rel) {
+		update.applyRelationData({id: rel._id}, {data_id: data.id}, applyResult, function (err) {
 			console.log(err);
 		});
 	};
