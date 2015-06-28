@@ -768,7 +768,7 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 		} else {
 			if (entity.data && entity.data.length)
 				entity.data.forEach(function (d) {
-					if ((field.key == d.key) && (field.format == d.format) && (field.name == d.desc)) {
+					if ((field.key == d.key) && (field.format == d.format)) {
 						result.push(d);
 					}
 				})
@@ -915,7 +915,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 			var f = $scope.state.fields.filter(function (f) {
 				return f._id == s;
 			})[0];
-			if (!f) console.log('invalid sort id', s);
+				if (!f) console.log('invalid sort id', s);
 			else {
 				//console.log('sort by', f);
 				var dir = sorting[s] == 'asc' ? 1 : -1;
@@ -2696,7 +2696,6 @@ app.controller('UpdateCtrl', function ($scope, $modal, update) {
 		}
 		data = angular.isArray(data.result) ? data.result : [data.result];
 		data.forEach(function (update) {
-			//console.log(update);
 			if (update.deleted) return removeUpdate(update._id);
 			var id = update.entity._id;
 			$scope.updates.forEach(function (entry) {

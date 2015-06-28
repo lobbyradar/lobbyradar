@@ -33,9 +33,6 @@
 
 ##TODO STATION
 
-*Verbindungen-Liste
-* association, business, etc. wird nicht angezeigt
-
 Update:
 * Suche nicht in modal-dialog sondern inplace (sonst umständlich)
 * Relation-Daten bearbeiten
