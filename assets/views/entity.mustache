@@ -1,69 +1,64 @@
-{{! {{>header}} 
-{{!{{>nav-grey}} 
-
-{{!{{>nav-blue}} 
-
 <div id="main">
+	{{#err}}
+		<h1>Fehler</h1>
 
-				{{#err}}
-					<h1>Fehler</h1>
-					<p>{{.}}</p>
-				{{/err}}
-				{{#entity}}
-					<h1>{{name}}</h1>
-					{{#has_tags}}
-					<div class="entity-aliases">
-						<h3>Tags</h3>
-						{{#tags}}<a class="btn btn-default btn-xs" href="/tag/{{.}}">{{.}}</a> {{/tags}}
-					</div>
-					{{/has_tags}}
-					{{#has_aliases}}
-					<div class="entity-aliases">
-						<h3>Alternative Schreibweisen</h3>
-						<ul>
-							{{#aliases}}<li>{{.}}</li>{{/aliases}}
-						</ul>
-					</div>
-					{{/has_aliases}}
-					<h2>Verknüpfungen</h2>
-					<ul>
-						{{#relations}}
-						<li><a href="/entity/{{entity._id}}">{{entity.name}}</a></li>
-						{{/relations}}
-					</ul>
-					
+		<p>{{.}}</p>
+	{{/err}}
+	{{#entity}}
+		<h1>{{name}}</h1>
+		{{#has_tags}}
+			<div class="entity-aliases">
+				<h3>Tags</h3>
+				{{#tags}}<a class="btn btn-default btn-xs" href="/tag/{{.}}">{{.}}</a> {{/tags}}
+			</div>
+		{{/has_tags}}
+		{{#has_aliases}}
+			<div class="entity-aliases">
+				<h3>Alternative Schreibweisen</h3>
+				<ul>
+					{{#aliases}}
+						<li>{{.}}</li>{{/aliases}}
+				</ul>
+			</div>
+		{{/has_aliases}}
+		<h2>Verknüpfungen</h2>
+		<ul>
+			{{#relations}}
+				<li><a href="/entity/{{entity._id}}">{{entity.name}}</a></li>
+			{{/relations}}
+		</ul>
 
-					<ul class="list-group">
-						<li class="list-group-item list-group-item-info">Erstellt am {{created}}</li>
-						<li class="list-group-item list-group-item-info">Aktualisiert am {{updated}}</li>
-						{{#has_addresses}}
-						<li class="list-group-item list-group-item-info">
-							<h4>Addressen</h4>
-							{{#addresses}}
-							<p>
-								{{#name}}{{.}}<br />{{/name}}
-								{{#addr}}{{.}}<br />{{/addr}}
-								{{#street}}{{.}}<br />{{/street}}
-								{{#city}}{{postcode}} {{.}}{{/city}}
-								{{#country}}<br />{{.}}{{/country}}
-							</p>
-							{{/addresses}}
-						</li>
-						{{/has_addresses}}
-						{{#has_sources}}
-						<li class="list-group-item list-group-item-info">
-							<h4>Quellen</h4>
-							{{#sources}}<p><a href="{{{url}}}">{{url}}</a></p>{{/sources}}
-						</li>
-						{{/has_sources}}
-						{{#data}}
-						<li class="list-group-item list-group-item-info">
-							<h4>{{desc}}</h4>
-							<p>{{value}}</p>
-						</li>
-						{{/data}}
-					</ul>
-				{{/entity}}
 
+		<ul class="list-group">
+			<li class="list-group-item list-group-item-info">Erstellt am {{created}}</li>
+			<li class="list-group-item list-group-item-info">Aktualisiert am {{updated}}</li>
+			{{#has_addresses}}
+				<li class="list-group-item list-group-item-info">
+					<h4>Addressen</h4>
+					{{#addresses}}
+						<p>
+							{{#name}}{{.}}<br/>{{/name}}
+							{{#addr}}{{.}}<br/>{{/addr}}
+							{{#street}}{{.}}<br/>{{/street}}
+							{{#city}}{{postcode}} {{.}}{{/city}}
+							{{#country}}<br/>{{.}}{{/country}}
+						</p>
+					{{/addresses}}
+				</li>
+			{{/has_addresses}}
+			{{#has_sources}}
+				<li class="list-group-item list-group-item-info">
+					<h4>Quellen</h4>
+					{{#sources}}<p><a href="{{{url}}}">{{url}}</a></p>{{/sources}}
+				</li>
+			{{/has_sources}}
+			{{#data}}
+				<li class="list-group-item list-group-item-info">
+					<h4>{{desc}}</h4>
+
+					<p>{{value}}</p>
+				</li>
+			{{/data}}
+		</ul>
+	{{/entity}}
 </div>
-{{!{{>footer}} 

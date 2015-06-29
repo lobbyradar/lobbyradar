@@ -237,6 +237,7 @@ $(document).ready(function () {
 		});
 	}
 
+
 	$('body').on('click', 'button.close', function (e) {
 		$(".result-single").slideUp("slow");
 		$(".result-list").slideUp("slow");

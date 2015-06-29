@@ -25,6 +25,7 @@
 ##TODO FRONTEND
 * viele relations sind performance killer
 * relations sortieren in tabs? 
+* relation-viz wieder in die mitte wenn info feld geschlossen wird
 
 ##TODO STATION
 Update:

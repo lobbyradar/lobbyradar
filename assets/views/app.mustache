@@ -1,57 +1,44 @@
 {{>header}}
 {{>nav-grey}}
 {{>nav-blue}}
-
 <div class="fullscreen">
-
 	<div class="container" id="main">
-		
 		<div class="row">
-			
 			<div class="col-sm-6 viewport-info col-sm-push-6">
 				<form class="search-form" role="form">
 					<div class="input-group">
 						<input type="text" placeholder="Suchen Sie nach Politikern und Firmen" class="lobbysearch form-control">
 						<span class="input-group-btn">
 							<button class="btn-lobbysearch btn btn-primary" type="button"><i class="fa fa-search"></i></button>
-						</span> 
+						</span>
 					</div>
 				</form>
 				{{>vizinfo}}
 			</div>
-
 			<div class="col-sm-6 col-sm-pull-6 viewport-visual">
 				<form class="theme-switch" name="form">
-				<div class="theme-switch-label">Ansicht:</div>
+					<div class="theme-switch-label">Ansicht:</div>
 					<label>
 						<select name="link" SIZE="1" onChange="window.location.href = document.form.link.options[document.form.link.selectedIndex].value;">
-							<option selected value="/verbindungssuche"> Gesamtansicht </option>
-							<option value="/relation/pharma"> Pharma </option>
-							<option value="/relation/bank"> Bank </option>
-							<option value="/relation/ruestung"> Rüstung </option>
-							<option value="/relation/verkehr"> Verkehr </option>
-							<option value="/relation/seitenwechsler"> Seitenwechsler </option>
+							<option selected value="/verbindungssuche"> Gesamtansicht</option>
+							<option value="/relation/pharma"> Pharma</option>
+							<option value="/relation/bank"> Bank</option>
+							<option value="/relation/ruestung"> Rüstung</option>
+							<option value="/relation/verkehr"> Verkehr</option>
+							<option value="/relation/seitenwechsler"> Seitenwechsler</option>
 						</select>
 					</label>
 				</form>
-
-
 			</div>
-
 		</div>
-
 	</div>
-	{{! The Visualisation }}
-	<div style="display:block" id="networkviz-wrapper">
+	<div id="networkviz-wrapper">
 		<div id="networkviz"></div>
 	</div>
-	
-</div> {{! end .fullscreen }}
-
+</div>
+<script type="text/javascript" src="https://www.lobbyradar.de/lobbynetwork/graph.js"></script>
+<script type="text/javascript" src="/assets/js/leaflet.js"></script>
 <script type="text/javascript" src="/assets/js/utils.js"></script>
 <script type="text/javascript" src="/assets/js/visualisation.js"></script>
-<script type="text/javascript" src="/assets/js/leaflet.js"></script>
-<script type="text/javascript" src="https://www.lobbyradar.de/lobbynetwork/graph.js"></script>
 <script type="text/javascript" src="/assets/js/networkviz.js"></script>
-
 {{>footer}}

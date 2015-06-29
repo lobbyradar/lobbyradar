@@ -1,0 +1,23 @@
+{
+  "name": "lobbyradar",
+  "version": "0.0.0",
+  "authors": [
+    "-"
+  ],
+  "license": "-",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4",
+    "moment": "~2.10.3",
+    "html5shiv": "~3.7.2",
+    "bootstrap": "~3.3.5",
+    "d3": "~3.5.5",
+    "fontawesome": "~4.3.0"
+  }
+}
