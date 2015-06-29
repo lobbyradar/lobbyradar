@@ -172,16 +172,7 @@ utils.displayEntityAddIncome = function (entity) {
 				});
 			}
 		});
-		//TODO: reimplement sorting keys like before
-		/*
-		 a ["Berufliche Tätigkeit vor der Mitgliedschaft im Deutschen Bundestag",
-		 b "Funktionen in Vereinen, Verbänden und Stiftungen" ,
-		 c "Funktionen in Unternehmen" ,
-		 d "Funktionen in Körperschaften und Anstalten des öffentlichen Rechts" ,
-		 e "Entgeltliche Tätigkeiten neben dem Mandat" ,
-		 f "Beteiligungen an Kapital- oder Personengesellschaften" ,
-		 g "Vereinbarungen über künftige Tätigkeiten oder Vermögensvorteile"]
-		 */
+
 		Object.keys(collect).forEach(function (key) {
 			var activities = collect[key];
 			result += '<br /><h5>' + key + '</h5>';

@@ -17,8 +17,6 @@
 * Fraktionsimporter CDU/CSU macht probleme, eindeutige Zuordnung zur Partei geht flöten
 
 ---
-##TODO FRONTEND
-
 
 ##TODO CONVERT
 * neue relation felder in mongo.fields aufnehmen und alte entfernen (bin/checkfields.js)
