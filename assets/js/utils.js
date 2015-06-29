@@ -1,34 +1,84 @@
 var utils = {};
 
+utils.displayEntityTabs = function (entity, tabs) {
+	if (tabs.length==0) return '';
+	if (tabs.length==1) return tabs[0].content;
+
+	var result = '<ul class="nav nav-tabs nav-tabs-relation" role="tablist">';
+	tabs.forEach(function (tab, i) {
+		result += '<li role="presentation" class="' + (i == 0 ? 'active' : '') + '"><a href="#' + tab.id + '" aria-controls="' + tab.id + '" role="tab" data-toggle="tab">' + tab.name + '</a></li>';
+	});
+	result += '</ul>';
+	result += '<div class="tab-content">';
+	tabs.forEach(function (tab, i) {
+		result += '<div role="tabpanel" class="tab-pane' + (i == 0 ? ' active' : '') + '" id="' + tab.id + '">' + tab.content + '</div>';
+	});
+	result += '</div>';
+	return result;
+};
+
+utils.getEntityTabs = function (entity) {
+	var tabs = [];
+	var tab = {
+		id: 'relations',
+		name: 'Verbindungen',
+		content: utils.displayEntityRelations(entity)
+	};
+	if (tab.content.length > 0) tabs.push(tab);
+	tab = {
+		id: 'donations',
+		name: 'Parteispenden',
+		content: utils.displayEntityDonations(entity)
+	};
+	if (tab.content.length > 0) tabs.push(tab);
+
+	tab = {
+		id: 'comittees',
+		name: 'Ausschüsse',
+		content: utils.displayEntityCommittees(entity)
+	};
+	if (tab.content.length > 0) tabs.push(tab);
+
+	tab = {
+		id: 'addincome',
+		name: 'Nebeneinkünfte',
+		content: utils.displayEntityAddIncome(entity)
+	};
+	if (tab.content.length > 0) tabs.push(tab);
+
+	tab = {
+		id: 'links',
+		name: 'Links',
+		content: utils.displayEntityLinks(entity)
+	};
+	if (tab.content.length > 0) tabs.push(tab);
+
+	tab = {
+		id: 'source',
+		name: 'Quellen',
+		content: utils.displayEntitySources(entity)
+	};
+	if (tab.content.length > 0) tabs.push(tab);
+	return tabs;
+};
+
 utils.displayEntity = function (entity) {
 	var result = '<div class="entity">';
+	if (!entity)  return result + '</div';
 
-	if (entity) {
+	result += utils.displayHeaderEntity(entity);
 
-		result += utils.displayHeaderEntity(entity);
+	result += utils.displayEntityTabs(entity, utils.getEntityTabs(entity));
 
-		result += utils.displayEntityRelations(entity);
+	result += utils.displayReportEntity(entity);
 
-		result += utils.displayEntityDonations(entity);
-
-		result += utils.displayEntityCommittees(entity);
-
-		result += utils.displayEntityAddIncome(entity);
-
-		result += utils.displayEntityLinks(entity);
-
-		result += utils.displayEntitySources(entity);
-
-		result += utils.displayReportEntity(entity);
-
-		result += utils.displayFooterEntity(entity);
-
-	}
+	result += utils.displayFooterEntity(entity);
 
 	result += '</div>';
 
 	return result;
-};
+}
+;
 
 utils.displayHeaderEntity = function (entity) {
 

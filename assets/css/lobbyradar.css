@@ -678,28 +678,28 @@ select.input-group-sm > .input-group-btn > .btn {
 	margin: 10px 0;
 }
 
-.nav-tabs > li > a {
+.navbar .nav-tabs > li > a {
 	border-radius: 1px 1px 0 0;
 }
 
-.nav-tabs > li.active > a,
-.nav-tabs > li.active > a:hover,
-.nav-tabs > li.active > a:focus {
+.navbar .nav-tabs > li.active > a,
+.navbar .nav-tabs > li.active > a:hover,
+.navbar .nav-tabs > li.active > a:focus {
 	background-color: #062b3e;
 }
 
-.nav-tabs.nav-justified > li > a {
+.navbar .nav-tabs.nav-justified > li > a {
 	border-radius: 1px;
 }
 
 @media (min-width: 768px) {
-	.nav-tabs.nav-justified > li > a {
+	.navbar .nav-tabs.nav-justified > li > a {
 		border-radius: 1px 1px 0 0;
 	}
 
-	.nav-tabs.nav-justified > .active > a,
-	.nav-tabs.nav-justified > .active > a:hover,
-	.nav-tabs.nav-justified > .active > a:focus {
+	.navbar .nav-tabs.nav-justified > .active > a,
+	.navbar .nav-tabs.nav-justified > .active > a:hover,
+	.navbar .nav-tabs.nav-justified > .active > a:focus {
 		border-bottom-color: #062b3e;
 	}
 }
@@ -708,18 +708,18 @@ select.input-group-sm > .input-group-btn > .btn {
 	border-radius: 1px;
 }
 
-.nav-tabs-justified > li > a {
+.navbar .nav-tabs-justified > li > a {
 	border-radius: 1px;
 }
 
 @media (min-width: 768px) {
-	.nav-tabs-justified > li > a {
+	.navbar .nav-tabs-justified > li > a {
 		border-radius: 1px 1px 0 0;
 	}
 
-	.nav-tabs-justified > .active > a,
-	.nav-tabs-justified > .active > a:hover,
-	.nav-tabs-justified > .active > a:focus {
+	.navbar .nav-tabs-justified > .active > a,
+	.navbar .nav-tabs-justified > .active > a:hover,
+	.navbar .nav-tabs-justified > .active > a:focus {
 		border-bottom-color: #062b3e;
 	}
 }
@@ -2024,7 +2024,7 @@ p.first-p {
 }
 
 .row-results {
-	border-bottom: 1px solid #CCC;
+	/*border-bottom: 1px solid #CCC;*/
 	padding-bottom: 20px;
 	margin-left: -20px;
 	margin-right: -20px;
@@ -2501,6 +2501,13 @@ p.first-p {
 	display: block;
 	height: 100%;
 	margin-top: 130px;
+}
+
+.nav-tabs-relation > li > a {
+	font-size: 14px;
+	padding-left: 8px;
+	padding-right: 8px;
+	outline: 0;
 }
 
 h1.fourofour {
