@@ -1,8 +1,11 @@
 var utils = {};
 
 utils.displayEntityTabs = function (entity, tabs) {
-	if (tabs.length==0) return '';
-	if (tabs.length==1) return tabs[0].content;
+	tabs = tabs.filter(function (tab) {
+		return tab.content.length > 0;
+	});
+	if (tabs.length == 0) return '';
+	if (tabs.length == 1) return tabs[0].content;
 
 	var result = '<ul class="nav nav-tabs nav-tabs-relation" role="tablist">';
 	tabs.forEach(function (tab, i) {
@@ -17,58 +20,13 @@ utils.displayEntityTabs = function (entity, tabs) {
 	return result;
 };
 
-utils.getEntityTabs = function (entity) {
-	var tabs = [];
-	var tab = {
-		id: 'relations',
-		name: 'Verbindungen',
-		content: utils.displayEntityRelations(entity)
-	};
-	if (tab.content.length > 0) tabs.push(tab);
-	tab = {
-		id: 'donations',
-		name: 'Parteispenden',
-		content: utils.displayEntityDonations(entity)
-	};
-	if (tab.content.length > 0) tabs.push(tab);
-
-	tab = {
-		id: 'comittees',
-		name: 'Ausschüsse',
-		content: utils.displayEntityCommittees(entity)
-	};
-	if (tab.content.length > 0) tabs.push(tab);
-
-	tab = {
-		id: 'addincome',
-		name: 'Nebeneinkünfte',
-		content: utils.displayEntityAddIncome(entity)
-	};
-	if (tab.content.length > 0) tabs.push(tab);
-
-	tab = {
-		id: 'links',
-		name: 'Links',
-		content: utils.displayEntityLinks(entity)
-	};
-	if (tab.content.length > 0) tabs.push(tab);
-
-	tab = {
-		id: 'source',
-		name: 'Quellen',
-		content: utils.displayEntitySources(entity)
-	};
-	if (tab.content.length > 0) tabs.push(tab);
-	return tabs;
-};
-
 utils.displayEntity = function (entity) {
 	var result = '<div class="entity">';
 	if (!entity)  return result + '</div';
 
 	result += utils.displayHeaderEntity(entity);
 
-	result += utils.displayEntityTabs(entity, utils.getEntityTabs(entity));
+	result += utils.displayEntityRelations(entity);
 
 	result += utils.displayReportEntity(entity);
 
@@ -77,32 +35,181 @@ utils.displayEntity = function (entity) {
 	result += '</div>';
 
 	return result;
-}
-;
+};
+
+utils.displayEntityRelations = function (entity) {
+	if (entity.relations.length == 0) return '';
+
+	var result = '';
+
+	var collect = {
+		governments: {id: 'governments', name: 'Politische Positionen', list: [], format: utils.displayGeneric},
+		memberships: {id: 'memberships', name: 'Mitgliedschaften', list: [], format: utils.displayGeneric},
+		otherjobs: {id: 'otherjobs', name: 'Arbeitsverhältnisse', list: [], format: utils.displayGeneric},
+		hausausweise: {id: 'hausausweise', name: 'Hausausweise', list: [], format: utils.displayGeneric},
+		businesses: {id: 'businesses', name: 'Geschäftsverbindungen', list: [], format: utils.displayGeneric},
+		activities: {id: 'activities', name: 'Arbeitgeberschaft', list: [], format: utils.displayGeneric},
+		otherassociations: {id: 'otherassociations', name: 'Verbindungen', list: [], format: utils.displayGeneric},
+		everythingelse: {id: 'everythingelse', name: 'Verbindungen', list: [], format: utils.displayGeneric},
+		nebentaetigkeiten: {id: 'nebentaetigkeiten', name: 'Nebeneinkünfte', list: [], format: utils.displayAddIncomes},
+		donations: {id: 'donations', name: 'Parteispenden', list: [], format: utils.displayDonations},
+		committees: {id: 'committees', name: 'Ausschüsse', list: [], format: utils.displayCommittees},
+		links: {id: 'links', name: 'Links', list: [], format: utils.displayEntityLinks},
+		source: {id: 'source', name: 'Quellen', list: [], format: utils.displayEntitySources}
+	};
+
+	entity.relations.forEach(function (rel) {
+
+		// failsafe check if relation has entity and id
+		if (!(rel.hasOwnProperty("entity"))) return;// console.log("no entity", rel);
+		if (rel.entity.hasOwnProperty("_id") && !(rel.entity.hasOwnProperty("id"))) rel.entity.id = rel.entity._id;
+		if (!(rel.entity.hasOwnProperty("id")) || !rel.entity.id) return;// console.log("no id", rel)
+
+		var activities = []; //nebeneinkünfte
+		var jobs = []; // tätigkeiten (goverment, anstellungen, exeutive, memberships ...)
+		var associations = []; // andere verbindungen (hausausweise, geschäftsverbindungen ...)
+		var businesses = []; // besitzverhätnisse (tochterfirmen, anteile, ...)
+		var donations = []; // parteispenden
+		var everythingelse = []; //alles andere
+
+		if (rel.data && rel.data.length > 0) {
+			rel.data.forEach(function (d) {
+				if (d.format == 'job') jobs.push(d);
+				else if (d.format == 'activity') activities.push(d);
+				else if (d.format == 'association') associations.push(d);
+				else if (d.format == 'business') businesses.push(d);
+				else if (d.format == 'donation') donations.push(d);
+				else everythingelse.push(d);
+			});
+		}
+
+		if ((activities.length > 0) && isExistant(rel.entity)) {
+			if (rel.tags.indexOf("nebentaetigkeit") >= 0) {
+				// is nebentaetigkeit
+				switch (entity.type) {
+					case "person":
+						collect.nebentaetigkeiten.push({rel: rel, list: activities});
+						break;
+					default:
+						collect.activities.list.push({rel: rel, list: activities, format: utils.formatActivity, icon: 'fa-group'});
+						break;
+				}
+			} else {
+				// is not nebentaetigkeit
+				collect.activities.list.push({rel: rel, list: activities, format: utils.formatActivity, icon: 'fa-suitcase'});
+			}
+		}
+
+		var governments = jobs.filter(function (d) {
+			return d.value && (d.value.type == 'government')
+		});
+		if (governments.length > 0) {
+			collect.governments.list.push({rel: rel, list: governments, format: utils.formatJob, icon: 'fa-institution'});
+		}
+
+		var memberships = jobs.filter(function (d) {
+			return d.value && (d.value.type == 'member')
+		});
+		if (memberships.length > 0) {
+			collect.memberships.list.push({
+				rel: rel, list: memberships, format: function (data) {
+					return utils.formatJob(data, 'Mitglied');
+				}, icon: 'fa-group'
+			});
+		}
+
+		var otherjobs = jobs.filter(function (d) {
+			return d.value && (memberships.indexOf(d) < 0) && (governments.indexOf(d) < 0);
+		});
+		if (otherjobs.length > 0) {
+			collect.otherjobs.list.push({rel: rel, list: otherjobs, format: utils.formatJob, icon: 'fa-group'});
+		}
+
+		if (businesses.length > 0) {
+			collect.businesses.list.push({rel: rel, list: businesses, format: utils.formatBusiness, icon: 'fa-money'});
+		}
+
+		if (donations.length > 0) {
+			collect.donations.list.push({rel: rel, list: donations});
+		}
+
+		var hausausweise = associations.filter(function (d) {
+			return d.value && (d.value.type == 'pass') && (d.value.position == 'Hausausweise');
+		});
+		if (hausausweise.length > 0) {
+			collect.hausausweise.list.push({rel: rel, list: hausausweise, format: utils.formatHausausweis, icon: 'fa-key', prefix: 'Hausausweis für: '});
+		}
+
+		var commitees = associations.filter(function (d) {
+			return d.value && (d.type == 'commitee');
+		});
+		if ((rel.tags.indexOf('committee') >= 0) || commitees.length > 0) {
+			collect.commitees.list.push({rel: rel, list: commitees});
+		}
+
+		var otherassociations = associations.filter(function (d) {
+			return d.value && (hausausweise.indexOf(d) < 0);
+		});
+		if (otherassociations.length > 0) {
+			collect.otherassociations.list.push({rel: rel, list: otherassociations, format: utils.formatAssociation, icon: 'fa-code-fork'});
+		}
+
+		if ((everythingelse.length > 0) || (rel.data.length == 0)) {
+			collect.everythingelse.list.push({
+				rel: rel, list: everythingelse, format: function (data) {
+					//TODO: format everything else
+					return '';
+				}, icon: 'fa-share-alt'
+			});
+		}
+	});
+
+	var tabs = Object.keys(collect).map(function (key) {
+		var tab = collect[key];
+		tab.content = tab.format(entity, tab);
+		return tab;
+	});
+
+	result += utils.displayEntityTabs(entity, tabs);
+
+	return result;
+};
+
+utils.displayGeneric = function (entity, tab) {
+	var result = '';
+	var list = tab.list.sort(function (a, b) {
+		if (a.rel.entity.name < b.rel.entity.name) return -1;
+		if (a.rel.entity.name > b.rel.entity.name) return 1;
+		return 0;
+	});
+	list.forEach(function (r) {
+		result += utils.formatRelation(r.rel, r.list, r.format, r.icon, r.prefix);
+	});
+	if (result.length > 0) {
+		result = '<h4>' + tab.name + ': ' + tab.list.length + '</h4>' +
+			'<div class="entity-relations-list">' + result + '</div>';
+	}
+	return result;
+};
 
 utils.displayHeaderEntity = function (entity) {
 
 	var result = '<div class="row row-results">';
 
-	var hasPhotos = false;
-	$(entity.data).each(function (idx, data) {
-		if (data.format == 'photo' && data.key == 'photo' && data.desc == 'Foto') {
-			if (isExistant(data.value.url)) {
-				result += '<div class="col-md-3"><div class="entity-img" style="background-image:url(' + data.value.url + ')" /></div>';
-				hasPhotos = true;
-				return false;
-			}
-		}
+	var photos = entity.data.filter(function (d) {
+		return (d.format == 'photo' && d.key == 'photo' && d.desc == 'Foto' && isExistant(d.value.url));
 	});
-
-	result += '<div class="col-md-' + (hasPhotos ? '9' : '12') + '">' +
+	if (photos.length > 0) {
+		result += '<div class="col-md-3"><div class="entity-img" style="background-image:url(' + photos[0].value.url + ')" /></div>';
+	}
+	result += '<div class="col-md-' + (photos.length > 0 ? '9' : '12') + '">' +
 		'<h1 class="name">';
 	if (entity.type == 'person') {
 		result += '<i class="fa fa-user"></i>&nbsp;'; // PERSON
 	}
 	var icon = '';
 	var verified = false;
-	$(entity.data).each(function (idx, d) {
+	entity.data.forEach(function (d) {
 		if (entity.type == 'entity' && d.key == 'partei') {
 			icon = '<i class="fa fa-pie-chart"></i>&nbsp;'; // PARTEI
 		} else if (entity.type == 'entity' && d.key == 'legalform') {
@@ -115,13 +222,8 @@ utils.displayHeaderEntity = function (entity) {
 		result += '<i id="certified" class="fa fa-check-square-o"></i>';
 	}
 	result += '</h1>';
-	// Bundesland herausgenommen
-	//$(entity.data).each(function (idx, data) {
-	//  if (data.key == 'bundesland') {
-	//    result += '<p>' + data.value + '</p>'; // PARTEI
-	//  }
-	//});
-	$(entity.tags).each(function (idx, tag) {
+
+	entity.tags.forEach(function (tag) {
 		if (tag == 'mdb') {
 			result += '<p>Mitglied des Bundestages</p>';
 		} else if (tag == 'lobbyist') {
@@ -172,11 +274,11 @@ utils.displayReportEntity = function (entity) {
 
 utils.displayEntitySources = function (entity) {
 	var result = '';
-	$(entity.data).each(function (idx, data) {
-		if ((data.desc == 'Quelle') && (data.value.url !== undefined)) {
+	entity.data.forEach(function (d) {
+		if ((d.desc == 'Quelle') && (d.value.url)) {
 			result += '<div class="col-md-12">' +
 				'<div class="entity-source">' +
-				'<i class="fa fa-bookmark"></i> <a title="' + data.value.url + '" target="_blank" href="' + data.value.url + '">' + data.value.url + '</a>' +
+				'<i class="fa fa-bookmark"></i> <a title="' + d.value.url + '" target="_blank" href="' + d.value.url + '">' + d.value.url + '</a>' +
 				'</div></div>';
 		}
 	});
@@ -190,10 +292,10 @@ utils.displayEntitySources = function (entity) {
 
 utils.displayEntityLinks = function (entity) {
 	var result = '';
-	$(entity.data).each(function (idx, data) {
-		if (data.key == 'link') {
+	entity.data.forEach(function (d) {
+		if (d.key == 'link') {
 			result += '<div class="col-md-12">' +
-				'<div class="entity-link"><i class="fa fa-external-link"></i> <a title="' + data.value.url + '" target="_blank" href="' + data.value.url + '">' + data.value.url + '</a></div>' +
+				'<div class="entity-link"><i class="fa fa-external-link"></i> <a title="' + d.value.url + '" target="_blank" href="' + d.value.url + '">' + d.value.url + '</a></div>' +
 				'</div>';
 		}
 	});
@@ -206,208 +308,74 @@ utils.displayEntityLinks = function (entity) {
 	return result;
 };
 
-utils.displayEntityAddIncome = function (entity) {
+utils.displayDonations = function (entity, donations) {
 	var result = '';
-	if ((entity.type == 'person') && (entity.relations.length > 0)) {
-
-		var collect = {};
-		$(entity.relations).each(function (idx, rel) {
-			if ((rel.tags.indexOf("nebentaetigkeit") >= 0) && isExistant(rel.data) && isExistant(rel.entity)) {
-				rel.data.forEach(function (d) {
-					if (d.format == 'activity') {
-						var desc = d.value.desc || 'Nebentätigkeit';
-						collect[desc] = collect[desc] || [];
-						collect[desc].push({rel: rel, d: d});
-					}
-				});
-			}
+	donations.list.forEach(function (r) {
+		result += utils.formatEntityLink(r.rel.entity) + '<br/>';
+		r.list.sort(function (a, b) {
+			return b.value.year - a.value.year;
 		});
-
-		Object.keys(collect).forEach(function (key) {
-			var activities = collect[key];
-			result += '<br /><h5>' + key + '</h5>';
-
-			activities.forEach(function (o) {
-				var rel = o.rel;
-
-				var d = o.d;
-				result += utils.formatEntityLink(rel.entity);
-				var s = utils.formatNebeneinkunft(d);
-				if (s.length > 0) result += '<br/>' + s;
-				result += '<br/>';
-			});
+		result += '<table class="table-condensed table-bordered table">';
+		r.list.forEach(function (data) {
+			result += '<tr><td>' + data.value.year + ' </td>' +
+				'<td>' + numberWithCommas(data.value.amount) + ' € </td></tr>';
 		});
-
-		if (result.length > 0) {
-			result = '<div class="row row-results">' +
-				'<div class="col-md-12"><h4><i class="fa fa-suitcase"></i>&nbsp;Tätigkeit neben dem Bundestagsmandat</h4></div>' +
-				'<div class="entity-relations-item">' + result + '</div></div>';
+		result += '</table>';
+	});
+	if (result.length > 0) {
+		var start = '<div class="row row-results">';
+		var parteiString = 'Parteispende';
+		if (entity.type == 'person') {
+			parteiString += ' an ';
+		} else if (entity.type == 'entity') {
+			parteiString += (entity.tags.indexOf('partei') >= 0) ? ' von ' : ' an ';
 		}
+		start += '<div class="col-md-12"><h4><i class="fa fa-euro"></i>&nbsp;' + parteiString + '</h4></div>' +
+			'<div class="entity-relations-item">';
+		result = start + result + '</div></div>';
+	}
+	return result;
+};
+
+utils.displayAddIncomes = function (entity, nebentaetigkeiten) {
+	var result = '';
+	//nebeneinkünfte sortiert nach beschreibung
+	var nebeneinkunft_collect = {};
+	nebentaetigkeiten.list.forEach(function (r) {
+		r.list.forEach(function (d) {
+			var desc = d.value.desc || 'Nebentätigkeit';
+			nebeneinkunft_collect[desc] = nebeneinkunft_collect[desc] || [];
+			nebeneinkunft_collect[desc].push({rel: r.rel, d: d});
+		});
+	});
+	var nebeneinkunft_result = '';
+	Object.keys(nebeneinkunft_collect).forEach(function (key) {
+		result += '<br /><h5>' + key + '</h5>';
+		nebeneinkunft_collect[key].forEach(function (r) {
+			nebeneinkunft_result += utils.formatEntityLink(r.rel.entity);
+			var s = utils.formatNebeneinkunft(r.d);
+			if (s.length > 0) result += '<br/>' + s;
+			nebeneinkunft_result += '<br/>';
+		});
+	});
+	if (nebeneinkunft_result.length > 0) {
+		result = '<div class="row row-results">' +
+			'<div class="col-md-12"><h4><i class="fa fa-suitcase"></i>&nbsp;Tätigkeit neben dem Bundestagsmandat</h4></div>' +
+			'<div class="entity-relations-item">' + nebeneinkunft_result + '</div></div>';
 	}
 
 	return result;
 };
 
-utils.displayEntityCommittees = function (entity) {
+utils.displayCommittees = function (entity, committees) {
 	var result = '';
-	if (entity.relations.length > 0) {
-		$(entity.relations).each(function (idx, rel) {
-			// check for committee
-			if ((rel.tags.indexOf('committee') >= 0) && isExistant(rel.entity)) {
-				result += utils.formatEntityLink(rel.entity) + '<br/>';
-			}
-		});
-	}
+	committees.list.forEach(function (r) {
+		result += utils.formatEntityLink(r.rel.entity) + '<br/>';
+	});
 	if (result.length > 0) {
 		result = '<div class="row row-results">' +
 			'<div class="col-md-12"><h4><i class="fa fa-group"></i>&nbsp;Ausschüsse des Bundestags</h4></div>' +
 			'<div class="entity-relations-item">' + result + '</div></div>';
-	}
-	return result;
-};
-
-utils.displayEntityDonations = function (entity) {
-	var result = '';
-
-	if (entity.relations.length > 0) {
-		$(entity.relations).each(function (idx, rel) {
-			var donations = rel.data.filter(function (data) {
-				return (data.format == 'donation');
-			});
-			if (donations.length > 0) {
-				if (isExistant(rel.entity)) {
-					result += utils.formatEntityLink(rel.entity) + '<br/>';
-				}
-				donations.sort(function (a, b) {
-					return b.value.year - a.value.year;
-				});
-				result += '<table class="table-condensed table-bordered table">';
-				$(donations).each(function (idx, data) {
-					result += '<tr><td>' + data.value.year + ' </td>' +
-						'<td>' + numberWithCommas(data.value.amount) + ' € </td></tr>';
-				});
-				result += '</table>';
-			}
-		});
-		if (result.length > 0) {
-			var start = '<div class="row row-results">';
-			var parteiString = 'Parteispende';
-			if (entity.type == 'person') {
-				parteiString += ' an ';
-			} else if (entity.type == 'entity') {
-				var s = ' an ';
-				entity.tags.forEach(function (t) {
-					if (t == 'partei') s = ' von ';
-				});
-				parteiString += s;
-			}
-			start += '<div class="col-md-12"><h4><i class="fa fa-euro"></i>&nbsp;' + parteiString + '</h4></div>' +
-				'<div class="entity-relations-item">';
-			result = start + result + '</div></div>';
-		}
-	}
-	return result;
-};
-
-utils.displayEntityRelations = function (entity) {
-	var result = '';
-	if (entity.relations.length > 0) {
-		var relations = entity.relations;
-		result += '<h4>' + entity.relations.length + ' Verbindungen</<h4></h4>';
-		result += '<div class="entity-relations-list">';
-		$(entity.relations).each(function (idx, rel) {
-
-			// failsafe check if relation has entity and id
-			if (!(rel.hasOwnProperty("entity"))) return;// console.log("no entity", rel);
-			if (rel.entity.hasOwnProperty("_id") && !(rel.entity.hasOwnProperty("id"))) rel.entity.id = rel.entity._id;
-			if (!(rel.entity.hasOwnProperty("id")) || !rel.entity.id) return;// console.log("no id", rel)
-
-			var activities = []; //nebeneinkünfte
-			var donations = []; //spenden
-			var jobs = []; // tätigkeiten (goverment, anstellungen, exeutive, memberships ...)
-			var associations = []; // andere verbindungen (hausausweise, geschäftsverbindungen ...)
-			var businesses = []; // besitzverhätnisse (tochterfirmen, anteile, ...)
-			var everythingelse = []; //alles andere
-
-			if (rel.data && rel.data.length > 0) {
-
-				$(rel.data).each(function (idx, data) {
-					if (data.format == 'job') jobs.push(data);
-					else if (data.format == 'donation') donations.push(data);
-					else if (data.format == 'activity') activities.push(data);
-					else if (data.format == 'association') associations.push(data);
-					else if (data.format == 'business') businesses.push(data);
-					else everythingelse.push(data);
-				});
-			}
-
-			if ((activities.length > 0) && isExistant(rel.entity)) {
-				if (rel.tags.indexOf("nebentaetigkeit") >= 0) {
-					// is nebentaetigkeit
-					switch (entity.type) {
-						case "person":
-							//will be handled separately
-							break;
-						default:
-							result += utils.formatRelation(rel, activities, utils.formatActivity, 'fa-group');
-							break;
-					}
-				} else {
-					// is not nebentaetigkeit
-					result += utils.formatRelation(rel, activities, utils.formatActivity, 'fa-suitcase');
-				}
-			}
-
-			var governments = jobs.filter(function (d) {
-				return d.value && (d.value.type == 'government')
-			});
-			if (governments.length > 0) {
-				result += utils.formatRelation(rel, governments, utils.formatJob, 'fa-institution');
-			}
-
-			var memberships = jobs.filter(function (d) {
-				return d.value && (d.value.type == 'member')
-			});
-			if (memberships.length > 0) {
-				result += utils.formatRelation(rel, memberships, function (data) {
-					return utils.formatJob(data, 'Mitglied');
-				}, 'fa-group');
-			}
-
-			var otherjobs = jobs.filter(function (d) {
-				return d.value && (memberships.indexOf(d) < 0) && (governments.indexOf(d) < 0);
-			});
-			if (otherjobs.length > 0) {
-				result += utils.formatRelation(rel, otherjobs, utils.formatJob, 'fa-group');
-			}
-
-			if (businesses.length > 0) {
-				result += utils.formatRelation(rel, businesses, utils.formatBusiness, 'fa-money');
-			}
-
-			var hausausweise = associations.filter(function (d) {
-				return d.value && (d.value.type == 'pass') && (d.value.position == 'Hausausweise');
-			});
-			if (hausausweise.length > 0) {
-				result += utils.formatRelation(rel, hausausweise, utils.formatHausausweis, 'fa-key', 'Hausausweis für: ');
-			}
-			var otherassociations = associations.filter(function (d) {
-				return d.value && (hausausweise.indexOf(d) < 0);
-			});
-			if (otherassociations.length > 0) {
-				result += utils.formatRelation(rel, otherassociations, utils.formatAssociation, 'fa-code-fork');
-			}
-
-			if ((everythingelse.length > 0) || (rel.data.length == 0)) {
-				result += utils.formatRelation(rel, everythingelse, function (data) {
-					//TODO: format everything else
-					return '';
-				}, 'fa-share-alt');
-			}
-
-		});
-
-		result += '</div>';
 	}
 	return result;
 };
@@ -417,7 +385,7 @@ utils.displayEntityRelations = function (entity) {
 utils.formatRelation = function (rel, datalist, formatter, icon, nameprefix) {
 	var result = '<div class="entity-relations-item"><i class="fa ' + icon + '"></i>&nbsp;' + (nameprefix ? nameprefix : '') + utils.formatEntityLink(rel.entity);
 	// add activity from data
-	$(datalist).each(function (idx, data) {
+	datalist.forEach(function (data) {
 		result += formatter(data);
 	});
 	result += '</div>';
