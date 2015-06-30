@@ -411,7 +411,15 @@ EntityDisplay.displayCommittees = function (entity, committees) {
 EntityDisplay.formatRelation = function (rel, datalist, formatter, icon, nameprefix) {
 	var result = '<div class="entity-relations-item"><i class="fa ' + icon + '"></i>&nbsp;' + (nameprefix ? nameprefix : '') + EntityDisplay.formatEntityLink(rel.entity);
 	// add activity from data
-	datalist.forEach(function (data) {
+	datalist.sort(function (a, b) {
+		var year_a = 0;
+		if (a.value && a.value.start && a.value.start.year) year_a = a.value.start.year;
+		var year_b = 0;
+		if (b.value && b.value.start && b.value.start.year) year_b = b.value.start.year;
+		if (year_a < year_b) return 1;
+		if (year_a > year_b) return -1;
+		return 0;
+	}).forEach(function (data) {
 		result += formatter(data);
 	});
 	result += '</div>';
