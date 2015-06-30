@@ -695,7 +695,7 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 					if (v.value.desc) sl.push(v.value.desc);
 					return sl.join(', ');
 				},
-				types: [{id: 'pass', name: 'Ausweis'}, {id: 'sponsoring', name: 'Sponsor'}, {id: 'commitee', name: 'Ausschuss'}, {id: 'participant', name: 'Teilnehmer'}]
+				types: [{id: 'pass', name: 'Ausweis'}, {id: 'sponsoring', name: 'Sponsor'}, {id: 'committee', name: 'Ausschuss'}, {id: 'participant', name: 'Teilnehmer'}]
 			},
 			business: {
 				"name": "Geschäftsverbindung",

@@ -273,7 +273,7 @@ var convertFieldsCommittee = function (rel, state) {
 			key: 'association',
 			format: 'association',
 			importer: rel.importer,
-			value: {type: 'commitee'}
+			value: {type: 'committee'}
 		};
 	}
 
@@ -292,7 +292,7 @@ var convertFieldsCommittee = function (rel, state) {
 			adddata(buildGeneric(rel, buildAssociation(), state));
 			break;
 		default:
-			console.log('commitee - unknown fingerprint', rel._id, idd);
+			console.log('committee - unknown fingerprint', rel._id, idd);
 	}
 
 };

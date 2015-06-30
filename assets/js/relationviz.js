@@ -227,13 +227,12 @@ $(document).ready(function () {
 
 		req = $.getJSON("/api/entity/get/" + id, {relations: true}, function (data) {
 			req = null;
-			var $content = utils.displayEntity(data.result);
+			var content = EntityDisplay.displayEntity(data.result);
 			// clear current view
 			$(".result-single .content .entity", "#main").remove();
-			$(".result-single .content ", "#main").append($content);
+			$(".result-single .content ", "#main").append(content);
 			$(document).trigger('load_entity_complete');
 			$(".result-single").delay(400).slideDown("slow");
-
 		});
 	}
 

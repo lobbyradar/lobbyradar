@@ -3,6 +3,21 @@ function loadList(id) {
 
 	$(".result-single").slideUp("slow");
 
+	var sort_by = function (field, reverse, primer) {
+		var key = primer ?
+			function (x) {
+				return primer(x[field]);
+			} :
+			function (x) {
+				return x[field];
+			};
+		reverse = [-1, 1][+!!reverse];
+
+		return function (a, b) {
+			return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+		};
+	};
+
 	var req = null;
 	var $resultName = id;
 
@@ -72,13 +87,12 @@ function loadEntity(id) {
 
 	vis_req = $.getJSON("/api/entity/get/" + id, {relations: true}, function (data) {
 		vis_req = null;
-		var $content = utils.displayEntity(data.result);
+		var content = EntityDisplay.displayEntity(data.result);
 		// clear current view
 		$(".result-single .content .entity", "#main").remove();
-		$(".result-single .content ", "#main").append($content);
+		$(".result-single .content ", "#main").append(content);
 		$(document).trigger('load_entity_complete');
 		$(".result-single").delay(400).slideDown("slow");
-
 	});
 }
 

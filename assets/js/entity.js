@@ -1,6 +1,28 @@
-var utils = {};
+var EntityDisplay = {};
 
-utils.displayEntityTabs = function (entity, tabs) {
+// tools
+
+EntityDisplay.isExistant = function (el) {
+	return !( (el == undefined) || (el == null) || (el === '') );
+};
+
+EntityDisplay.numberWithCommas = function (x) {
+	var s = x.toString();
+	s = s.split('.');
+	if (s[1] == undefined) s[1] = '00';
+	if (s[1].length == 1 && s[1] != undefined) s[1] += '0';
+	if (s[1].length > 2) s[1] = s[1].slice(0, 2);
+	var pre = EntityDisplay.numberThousandSep(s[0]);
+	return pre + ',' + s[1];
+};
+
+EntityDisplay.numberThousandSep = function (x) {
+	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
+
+// entity display
+
+EntityDisplay.displayEntityTabs = function (entity, tabs) {
 	tabs = tabs.filter(function (tab) {
 		return tab.content.length > 0;
 	});
@@ -12,6 +34,8 @@ utils.displayEntityTabs = function (entity, tabs) {
 		result += '<li role="presentation" class="' + (i == 0 ? 'active' : '') + '"><a href="#' + tab.id + '" aria-controls="' + tab.id + '" role="tab" data-toggle="tab">' + tab.name + '</a></li>';
 	});
 	result += '</ul>';
+
+
 	result += '<div class="tab-content">';
 	tabs.forEach(function (tab, i) {
 		result += '<div role="tabpanel" class="tab-pane' + (i == 0 ? ' active' : '') + '" id="' + tab.id + '">' + tab.content + '</div>';
@@ -20,42 +44,42 @@ utils.displayEntityTabs = function (entity, tabs) {
 	return result;
 };
 
-utils.displayEntity = function (entity) {
+EntityDisplay.displayEntity = function (entity) {
 	var result = '<div class="entity">';
 	if (!entity)  return result + '</div';
 
-	result += utils.displayHeaderEntity(entity);
+	result += EntityDisplay.displayHeaderEntity(entity);
 
-	result += utils.displayEntityRelations(entity);
+	result += EntityDisplay.displayEntityRelations(entity);
 
-	result += utils.displayReportEntity(entity);
+	result += EntityDisplay.displayReportEntity(entity);
 
-	result += utils.displayFooterEntity(entity);
+	result += EntityDisplay.displayFooterEntity(entity);
 
 	result += '</div>';
 
 	return result;
 };
 
-utils.displayEntityRelations = function (entity) {
+EntityDisplay.displayEntityRelations = function (entity) {
 	if (entity.relations.length == 0) return '';
 
 	var result = '';
 
 	var collect = {
-		governments: {id: 'governments', name: 'Politische Positionen', list: [], format: utils.displayGeneric},
-		memberships: {id: 'memberships', name: 'Mitgliedschaften', list: [], format: utils.displayGeneric},
-		otherjobs: {id: 'otherjobs', name: 'Arbeitsverhältnisse', list: [], format: utils.displayGeneric},
-		hausausweise: {id: 'hausausweise', name: 'Hausausweise', list: [], format: utils.displayGeneric},
-		businesses: {id: 'businesses', name: 'Geschäftsverbindungen', list: [], format: utils.displayGeneric},
-		activities: {id: 'activities', name: 'Arbeitgeberschaft', list: [], format: utils.displayGeneric},
-		otherassociations: {id: 'otherassociations', name: 'Verbindungen', list: [], format: utils.displayGeneric},
-		everythingelse: {id: 'everythingelse', name: 'Verbindungen', list: [], format: utils.displayGeneric},
-		nebentaetigkeiten: {id: 'nebentaetigkeiten', name: 'Nebeneinkünfte', list: [], format: utils.displayAddIncomes},
-		donations: {id: 'donations', name: 'Parteispenden', list: [], format: utils.displayDonations},
-		committees: {id: 'committees', name: 'Ausschüsse', list: [], format: utils.displayCommittees},
-		links: {id: 'links', name: 'Links', list: [], format: utils.displayEntityLinks},
-		source: {id: 'source', name: 'Quellen', list: [], format: utils.displayEntitySources}
+		governments: {id: 'governments', name: 'Politische Positionen', list: [], format: EntityDisplay.displayGeneric},
+		memberships: {id: 'memberships', name: 'Mitgliedschaften', list: [], format: EntityDisplay.displayGeneric},
+		otherjobs: {id: 'otherjobs', name: 'Beschäftigungen', list: [], format: EntityDisplay.displayGeneric},
+		hausausweise: {id: 'hausausweise', name: 'Hausausweise', list: [], format: EntityDisplay.displayGeneric},
+		businesses: {id: 'businesses', name: 'Geschäftsverbindungen', list: [], format: EntityDisplay.displayGeneric},
+		activities: {id: 'activities', name: 'Arbeitgeberschaft', list: [], format: EntityDisplay.displayGeneric},
+		otherassociations: {id: 'otherassociations', name: 'Verbindungen', list: [], format: EntityDisplay.displayGeneric},
+		everythingelse: {id: 'everythingelse', name: 'Verbindungen', list: [], format: EntityDisplay.displayGeneric},
+		nebentaetigkeiten: {id: 'nebentaetigkeiten', name: 'Nebeneinkünfte', list: [], format: EntityDisplay.displayAddIncomes},
+		donations: {id: 'donations', name: 'Parteispenden', list: [], format: EntityDisplay.displayDonations},
+		committees: {id: 'committees', name: 'Ausschüsse', list: [], format: EntityDisplay.displayCommittees},
+		links: {id: 'links', name: 'Links', list: [], format: EntityDisplay.displayEntityLinks},
+		source: {id: 'source', name: 'Quellen', list: [], format: EntityDisplay.displayEntitySources}
 	};
 
 	entity.relations.forEach(function (rel) {
@@ -83,20 +107,20 @@ utils.displayEntityRelations = function (entity) {
 			});
 		}
 
-		if ((activities.length > 0) && isExistant(rel.entity)) {
+		if ((activities.length > 0) && EntityDisplay.isExistant(rel.entity)) {
 			if (rel.tags.indexOf("nebentaetigkeit") >= 0) {
 				// is nebentaetigkeit
 				switch (entity.type) {
 					case "person":
-						collect.nebentaetigkeiten.push({rel: rel, list: activities});
+						collect.nebentaetigkeiten.list.push({rel: rel, list: activities});
 						break;
 					default:
-						collect.activities.list.push({rel: rel, list: activities, format: utils.formatActivity, icon: 'fa-group'});
+						collect.activities.list.push({rel: rel, list: activities, format: EntityDisplay.formatActivity, icon: 'fa-group'});
 						break;
 				}
 			} else {
 				// is not nebentaetigkeit
-				collect.activities.list.push({rel: rel, list: activities, format: utils.formatActivity, icon: 'fa-suitcase'});
+				collect.activities.list.push({rel: rel, list: activities, format: EntityDisplay.formatActivity, icon: 'fa-suitcase'});
 			}
 		}
 
@@ -104,7 +128,7 @@ utils.displayEntityRelations = function (entity) {
 			return d.value && (d.value.type == 'government')
 		});
 		if (governments.length > 0) {
-			collect.governments.list.push({rel: rel, list: governments, format: utils.formatJob, icon: 'fa-institution'});
+			collect.governments.list.push({rel: rel, list: governments, format: EntityDisplay.formatJob, icon: 'fa-institution'});
 		}
 
 		var memberships = jobs.filter(function (d) {
@@ -113,7 +137,7 @@ utils.displayEntityRelations = function (entity) {
 		if (memberships.length > 0) {
 			collect.memberships.list.push({
 				rel: rel, list: memberships, format: function (data) {
-					return utils.formatJob(data, 'Mitglied');
+					return EntityDisplay.formatJob(data, 'Mitglied');
 				}, icon: 'fa-group'
 			});
 		}
@@ -122,11 +146,11 @@ utils.displayEntityRelations = function (entity) {
 			return d.value && (memberships.indexOf(d) < 0) && (governments.indexOf(d) < 0);
 		});
 		if (otherjobs.length > 0) {
-			collect.otherjobs.list.push({rel: rel, list: otherjobs, format: utils.formatJob, icon: 'fa-group'});
+			collect.otherjobs.list.push({rel: rel, list: otherjobs, format: EntityDisplay.formatJob, icon: 'fa-group'});
 		}
 
 		if (businesses.length > 0) {
-			collect.businesses.list.push({rel: rel, list: businesses, format: utils.formatBusiness, icon: 'fa-money'});
+			collect.businesses.list.push({rel: rel, list: businesses, format: EntityDisplay.formatBusiness, icon: 'fa-money'});
 		}
 
 		if (donations.length > 0) {
@@ -137,21 +161,21 @@ utils.displayEntityRelations = function (entity) {
 			return d.value && (d.value.type == 'pass') && (d.value.position == 'Hausausweise');
 		});
 		if (hausausweise.length > 0) {
-			collect.hausausweise.list.push({rel: rel, list: hausausweise, format: utils.formatHausausweis, icon: 'fa-key', prefix: 'Hausausweis für: '});
+			collect.hausausweise.list.push({rel: rel, list: hausausweise, format: EntityDisplay.formatHausausweis, icon: 'fa-key', prefix: 'Hausausweis für: '});
 		}
 
-		var commitees = associations.filter(function (d) {
-			return d.value && (d.type == 'commitee');
+		var committees = associations.filter(function (d) {
+			return d.value && (d.type == 'committee');
 		});
-		if ((rel.tags.indexOf('committee') >= 0) || commitees.length > 0) {
-			collect.commitees.list.push({rel: rel, list: commitees});
+		if ((rel.tags.indexOf('committee') >= 0) || committees.length > 0) {
+			collect.committees.list.push({rel: rel, list: committees});
 		}
 
 		var otherassociations = associations.filter(function (d) {
 			return d.value && (hausausweise.indexOf(d) < 0);
 		});
 		if (otherassociations.length > 0) {
-			collect.otherassociations.list.push({rel: rel, list: otherassociations, format: utils.formatAssociation, icon: 'fa-code-fork'});
+			collect.otherassociations.list.push({rel: rel, list: otherassociations, format: EntityDisplay.formatAssociation, icon: 'fa-code-fork'});
 		}
 
 		if ((everythingelse.length > 0) || (rel.data.length == 0)) {
@@ -170,12 +194,12 @@ utils.displayEntityRelations = function (entity) {
 		return tab;
 	});
 
-	result += utils.displayEntityTabs(entity, tabs);
+	result += EntityDisplay.displayEntityTabs(entity, tabs);
 
 	return result;
 };
 
-utils.displayGeneric = function (entity, tab) {
+EntityDisplay.displayGeneric = function (entity, tab) {
 	var result = '';
 	var list = tab.list.sort(function (a, b) {
 		if (a.rel.entity.name < b.rel.entity.name) return -1;
@@ -183,21 +207,21 @@ utils.displayGeneric = function (entity, tab) {
 		return 0;
 	});
 	list.forEach(function (r) {
-		result += utils.formatRelation(r.rel, r.list, r.format, r.icon, r.prefix);
+		result += EntityDisplay.formatRelation(r.rel, r.list, r.format, r.icon, r.prefix);
 	});
 	if (result.length > 0) {
-		result = '<h4>' + tab.name + ': ' + tab.list.length + '</h4>' +
+		result = '<div class="row-results-title">' + tab.name + ': ' + (tab.list.length > 1 ? tab.list.length : '') + '</div>' +
 			'<div class="entity-relations-list">' + result + '</div>';
 	}
 	return result;
 };
 
-utils.displayHeaderEntity = function (entity) {
+EntityDisplay.displayHeaderEntity = function (entity) {
 
 	var result = '<div class="row row-results">';
 
 	var photos = entity.data.filter(function (d) {
-		return (d.format == 'photo' && d.key == 'photo' && d.desc == 'Foto' && isExistant(d.value.url));
+		return (d.format == 'photo' && d.key == 'photo' && d.desc == 'Foto' && EntityDisplay.isExistant(d.value.url));
 	});
 	if (photos.length > 0) {
 		result += '<div class="col-md-3"><div class="entity-img" style="background-image:url(' + photos[0].value.url + ')" /></div>';
@@ -248,7 +272,7 @@ utils.displayHeaderEntity = function (entity) {
 	return result;
 };
 
-utils.displayFooterEntity = function (entity) {
+EntityDisplay.displayFooterEntity = function (entity) {
 	var result = '<div class="row"><br/>' +
 		'<div class="col-sm-12">' +
 		'<p class="meta">' +
@@ -259,7 +283,7 @@ utils.displayFooterEntity = function (entity) {
 	return result;
 };
 
-utils.displayReportEntity = function (entity) {
+EntityDisplay.displayReportEntity = function (entity) {
 	var result =
 		'<div class="row"><br/>' +
 		'<div class="col-sm-6">' +
@@ -272,72 +296,62 @@ utils.displayReportEntity = function (entity) {
 	return result;
 };
 
-utils.displayEntitySources = function (entity) {
+EntityDisplay.displayEntitySources = function (entity) {
 	var result = '';
 	entity.data.forEach(function (d) {
 		if ((d.desc == 'Quelle') && (d.value.url)) {
-			result += '<div class="col-md-12">' +
-				'<div class="entity-source">' +
-				'<i class="fa fa-bookmark"></i> <a title="' + d.value.url + '" target="_blank" href="' + d.value.url + '">' + d.value.url + '</a>' +
-				'</div></div>';
+			result += '<div class="entity-source"><i class="fa fa-bookmark"></i> <a title="' + d.value.url + '" target="_blank" href="' + d.value.url + '">' + d.value.url + '</a></div>';
 		}
 	});
 	if (result.length > 0) {
-		result = '<div class="row row-results">' +
-			'<div class="col-md-12"><h4>Quellen</h4></div>' + result +
-			'</div>';
+		result = '<div class="row-results-title">Quellen</div>' + result;
 	}
 	return result;
 };
 
-utils.displayEntityLinks = function (entity) {
+EntityDisplay.displayEntityLinks = function (entity) {
 	var result = '';
 	entity.data.forEach(function (d) {
 		if (d.key == 'link') {
-			result += '<div class="col-md-12">' +
-				'<div class="entity-link"><i class="fa fa-external-link"></i> <a title="' + d.value.url + '" target="_blank" href="' + d.value.url + '">' + d.value.url + '</a></div>' +
-				'</div>';
+			result +=
+				'<div class="entity-link"><i class="fa fa-external-link"></i> <a title="' + d.value.url + '" target="_blank" href="' + d.value.url + '">' + d.value.url + '</a></div>';
 		}
 	});
 	if (result.length > 0) {
 		//console.log('Entity has Links');
-		result = '<div class="row row-results">' +
-			'<div class="col-md-12"><h4>Links</h4></div>' + result +
-			'</div>';
+		result = '<div class="row-results-title">Links</div>' + result;
 	}
 	return result;
 };
 
-utils.displayDonations = function (entity, donations) {
+EntityDisplay.displayDonations = function (entity, donations) {
 	var result = '';
 	donations.list.forEach(function (r) {
-		result += utils.formatEntityLink(r.rel.entity) + '<br/>';
+		result += EntityDisplay.formatEntityLink(r.rel.entity) + '<br/>';
 		r.list.sort(function (a, b) {
 			return b.value.year - a.value.year;
 		});
 		result += '<table class="table-condensed table-bordered table">';
 		r.list.forEach(function (data) {
 			result += '<tr><td>' + data.value.year + ' </td>' +
-				'<td>' + numberWithCommas(data.value.amount) + ' € </td></tr>';
+				'<td>' + EntityDisplay.numberWithCommas(data.value.amount) + ' € </td></tr>';
 		});
 		result += '</table>';
 	});
 	if (result.length > 0) {
-		var start = '<div class="row row-results">';
 		var parteiString = 'Parteispende';
 		if (entity.type == 'person') {
 			parteiString += ' an ';
 		} else if (entity.type == 'entity') {
 			parteiString += (entity.tags.indexOf('partei') >= 0) ? ' von ' : ' an ';
 		}
-		start += '<div class="col-md-12"><h4><i class="fa fa-euro"></i>&nbsp;' + parteiString + '</h4></div>' +
-			'<div class="entity-relations-item">';
-		result = start + result + '</div></div>';
+		result = '<div class="row-results-title"><i class="fa fa-euro"></i>&nbsp;' + parteiString + '</div>' +
+			'<div class="entity-relations-item">' + result + '</div>';
 	}
 	return result;
 };
 
-utils.displayAddIncomes = function (entity, nebentaetigkeiten) {
+EntityDisplay.displayAddIncomes = function (entity, nebentaetigkeiten) {
 	var result = '';
 	//nebeneinkünfte sortiert nach beschreibung
 	var nebeneinkunft_collect = {};
@@ -348,42 +362,54 @@ utils.displayAddIncomes = function (entity, nebentaetigkeiten) {
 			nebeneinkunft_collect[desc].push({rel: r.rel, d: d});
 		});
 	});
-	var nebeneinkunft_result = '';
 	Object.keys(nebeneinkunft_collect).forEach(function (key) {
 		result += '<br /><h5>' + key + '</h5>';
-		nebeneinkunft_collect[key].forEach(function (r) {
-			nebeneinkunft_result += utils.formatEntityLink(r.rel.entity);
-			var s = utils.formatNebeneinkunft(r.d);
+		nebeneinkunft_collect[key].sort(function (a, b) {
+			var year_a = 0;
+			if (a.d.value && a.d.value.start && a.d.value.start.year) year_a = a.d.value.start.year;
+			var year_b = 0;
+			if (b.d.value && b.d.value.start && b.d.value.start.year) year_b = b.d.value.start.year;
+			if (year_a < year_b) return 1;
+			if (year_a > year_b) return -1;
+			if (a.rel.entity.name < b.rel.entity.name) return -1;
+			if (a.rel.entity.name > b.rel.entity.name) return 1;
+			var level_a = 0;
+			if (a.d.value && a.d.value.level) level_a = a.d.value.level;
+			var level_b = 0;
+			if (b.d.value && b.d.value.level) level_b = b.d.value.level;
+			if (level_a < level_b) return 1;
+			if (level_a > level_b) return -1;
+			return 0;
+		}).forEach(function (r) {
+			result += EntityDisplay.formatEntityLink(r.rel.entity);
+			var s = EntityDisplay.formatNebeneinkunft(r.d);
 			if (s.length > 0) result += '<br/>' + s;
-			nebeneinkunft_result += '<br/>';
+			result += '<br/>';
 		});
 	});
-	if (nebeneinkunft_result.length > 0) {
-		result = '<div class="row row-results">' +
-			'<div class="col-md-12"><h4><i class="fa fa-suitcase"></i>&nbsp;Tätigkeit neben dem Bundestagsmandat</h4></div>' +
-			'<div class="entity-relations-item">' + nebeneinkunft_result + '</div></div>';
+	if (result.length > 0) {
+		result = '<div class="row-results-title"><i class="fa fa-suitcase"></i>&nbsp;Tätigkeit neben dem Bundestagsmandat</div>' +
+			'<div class="entity-relations-item">' + result + '</div>';
 	}
-
 	return result;
 };
 
-utils.displayCommittees = function (entity, committees) {
+EntityDisplay.displayCommittees = function (entity, committees) {
 	var result = '';
 	committees.list.forEach(function (r) {
-		result += utils.formatEntityLink(r.rel.entity) + '<br/>';
+		result += EntityDisplay.formatEntityLink(r.rel.entity) + '<br/>';
 	});
 	if (result.length > 0) {
-		result = '<div class="row row-results">' +
-			'<div class="col-md-12"><h4><i class="fa fa-group"></i>&nbsp;Ausschüsse des Bundestags</h4></div>' +
-			'<div class="entity-relations-item">' + result + '</div></div>';
+		result = '<div class="row-results-title"><i class="fa fa-group"></i>&nbsp;Ausschüsse des Bundestags</div>' +
+			'<div class="entity-relations-item">' + result + '</div>';
 	}
 	return result;
 };
 
 //formatters
 
-utils.formatRelation = function (rel, datalist, formatter, icon, nameprefix) {
-	var result = '<div class="entity-relations-item"><i class="fa ' + icon + '"></i>&nbsp;' + (nameprefix ? nameprefix : '') + utils.formatEntityLink(rel.entity);
+EntityDisplay.formatRelation = function (rel, datalist, formatter, icon, nameprefix) {
+	var result = '<div class="entity-relations-item"><i class="fa ' + icon + '"></i>&nbsp;' + (nameprefix ? nameprefix : '') + EntityDisplay.formatEntityLink(rel.entity);
 	// add activity from data
 	datalist.forEach(function (data) {
 		result += formatter(data);
@@ -392,32 +418,32 @@ utils.formatRelation = function (rel, datalist, formatter, icon, nameprefix) {
 	return result;
 };
 
-utils.formatBusiness = function (data) {
+EntityDisplay.formatBusiness = function (data) {
 	var result = '';
 	if (data.value.position) result += '<br/>' + data.value.position;
-	var dateString = utils.formatSplitDateRange(data.value.start, data.value.end);
+	var dateString = EntityDisplay.formatSplitDateRange(data.value.start, data.value.end);
 	if (dateString.length > 0) result += '<br/>' + dateString;
 	return result;
 };
 
-utils.formatJob = function (data, defaultposition) {
+EntityDisplay.formatJob = function (data, defaultposition) {
 	var result = '';
 	if (data.value.position) result += '<br/>' + data.value.position;
 	else if (defaultposition)result += '<br/>' + defaultposition;
-	var dateString = utils.formatSplitDateRange(data.value.start, data.value.end);
+	var dateString = EntityDisplay.formatSplitDateRange(data.value.start, data.value.end);
 	if (dateString.length > 0) result += '<br/>' + dateString;
 	return result;
 };
 
-utils.formatActivity = function (data) {
+EntityDisplay.formatActivity = function (data) {
 	var result = '';
 	if (data.value.position) result += '<br/>' + data.value.position;
-	var dateString = utils.formatSplitDateRange(data.value.start, data.value.end);
+	var dateString = EntityDisplay.formatSplitDateRange(data.value.start, data.value.end);
 	if (dateString.length > 0) result += '<br/>' + dateString;
 	return result;
 };
 
-utils.formatNebeneinkunft = function (data) {
+EntityDisplay.formatNebeneinkunft = function (data) {
 	var sl = [];
 	if (data.value.start != null) {
 		sl.push(data.value.start.year);
@@ -430,34 +456,34 @@ utils.formatNebeneinkunft = function (data) {
 	if (data.value.activity != null) {
 		sl.push(data.value.activity);
 	}
-	if (data.value.periodical != null) {
-		sl.push(data.value.periodical);
-	}
 	if (data.value.level !== 0) {
-		sl.push('Stufe: ' + utils.formatStagesAddIncome(data.value.level));
+		if (data.value.periodical != null) {
+			sl.push(data.value.periodical);
+		}
+		sl.push('Stufe: ' + EntityDisplay.formatStagesAddIncome(data.value.level));
 	}
 	return sl.join(' ');
 };
 
-utils.formatHausausweis = function (data) {
+EntityDisplay.formatHausausweis = function (data) {
 	var result = '';
 	if (data.value.desc) result += '<br/>Ausgestellt von <em>' + data.value.desc + "</em>";
 	return result;
 };
 
-utils.formatAssociation = function (data) {
+EntityDisplay.formatAssociation = function (data) {
 	var result = '';
 	if (data.value.position) result += '<br/>' + data.value.position;
-	var dateString = utils.formatSplitDateRange(data.value.start, data.value.end);
+	var dateString = EntityDisplay.formatSplitDateRange(data.value.start, data.value.end);
 	if (dateString.length > 0) result += '<br/>' + dateString;
 	return result;
 };
 
-utils.formatEntityLink = function (entity) {
+EntityDisplay.formatEntityLink = function (entity) {
 	var result = '';
-	if (isExistant(entity) && isExistant(entity._id)) {
+	if (EntityDisplay.isExistant(entity) && EntityDisplay.isExistant(entity._id)) {
 		result = '<a class="ajax-load entity-connections" href="/entity/' + entity._id + '">';
-		if (isExistant(entity.name)) {
+		if (EntityDisplay.isExistant(entity.name)) {
 			result += entity.name + '&nbsp;';
 		}
 		result += '</a>';
@@ -465,7 +491,7 @@ utils.formatEntityLink = function (entity) {
 	return result;
 };
 
-utils.formatSplitDate = function (date) {
+EntityDisplay.formatSplitDate = function (date) {
 	var result = '';
 	if (!date) return result;
 	var months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
@@ -481,16 +507,16 @@ utils.formatSplitDate = function (date) {
 	return result.trim();
 };
 
-utils.formatSplitDateRange = function (start, end) {
+EntityDisplay.formatSplitDateRange = function (start, end) {
 	var result = '';
-	var seit = utils.formatSplitDate(start);
-	var bis = utils.formatSplitDate(end);
+	var seit = EntityDisplay.formatSplitDate(start);
+	var bis = EntityDisplay.formatSplitDate(end);
 	if (seit.length > 0) result += 'seit ' + seit;
 	if (bis.length > 0) result += ' bis ' + bis;
 	return result;
 };
 
-utils.formatStagesAddIncome = function (val) {
+EntityDisplay.formatStagesAddIncome = function (val) {
 	switch (val) {
 		case 1:
 			return " 1 (über 1.000€)";
