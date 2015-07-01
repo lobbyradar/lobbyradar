@@ -1,5 +1,4 @@
 ##TODO CONVERT
-* neue relation felder in mongo.fields aufnehmen und alte entfernen (bin/checkfields.js)
 * alle importer anpasssen
 * enitity data aufräumen (www aus adresse nehmen, etc)
 

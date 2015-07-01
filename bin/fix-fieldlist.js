@@ -15,7 +15,7 @@ var db = mongojs(config.db, ["entities", "relations", "dataindex"]);
 var api = require(path.resolve(__dirname, "../lib/api.js"))(config.api, db);
 
 var fixFields = function (cb) {
-	console.log('Fixing Fields');
+	console.log('Fixing Fieldlist');
 
 	var fieldtypes = {};
 
@@ -46,33 +46,43 @@ var fixFields = function (cb) {
 		fieldtypes[id] = fieldtypes[id] || {mode: 'relations', format: d.format, key: d.key, name: d.desc}
 	};
 
+	var removeOldRelationFields = function (fields, cb) {
+		async.forEachSeries(fields, function (t, next) {
+				if (t.mode == 'relations' && (['activity', 'association', 'donation'].indexOf(t.format) < 0)) {
+					console.log('removing old field', JSON.stringify(t));
+					api.field_delete(t._id, next);
+				} else
+					next();
+			}, cb
+		);
+	};
+
 	api.field_list(null, function (err, fields) {
-		api.ents(function (err, ents) {
-			ents.forEach(function (ent) {
-				ent.data.forEach(function (d) {
-					logEntityFieldType(d, ent);
-				});
-			});
-			api.rels_full({full: true}, function (err, rels) {
-				rels.forEach(function (rel) {
-					rel.data.forEach(logRelationFieldType);
-				});
-				var fields_in_use = toList(fieldtypes);
-				var new_fields = fields_in_use.filter(function (t) {
-					console.log(JSON.stringify(t));
-					var flist = fields.filter(function (f) {
-						return ((f.key == t.key) && (f.mode == t.mode) && (f.format == t.format) && (f.name == t.name));
+		removeOldRelationFields(fields, function () {
+			api.ents(function (err, ents) {
+				ents.forEach(function (ent) {
+					ent.data.forEach(function (d) {
+						logEntityFieldType(d, ent);
 					});
-					return (flist.length == 0);
 				});
-				if (!new_fields.length) return cb();
-				console.log(new_fields.length, 'new fields');
-				async.forEachSeries(new_fields, function (t, next) {
-						//console.log('create field', JSON.stringify(t));
-						next();
-						//api.field_create(t, next);
-					}, cb
-				);
+				api.rels_full({full: true}, function (err, rels) {
+					rels.forEach(function (rel) {
+						rel.data.forEach(logRelationFieldType);
+					});
+					var fields_in_use = toList(fieldtypes);
+					var new_fields = fields_in_use.filter(function (t) {
+						var flist = fields.filter(function (f) {
+							return ((f.key == t.key) && (f.mode == t.mode) && (f.format == t.format) && (f.name == t.name));
+						});
+						return (flist.length == 0);
+					});
+					if (!new_fields.length) return cb();
+					console.log(new_fields.length, 'new fields');
+					async.forEachSeries(new_fields, function (t, next) {
+							api.field_create(t, next);
+						}, cb
+					);
+				});
 			});
 		});
 	});

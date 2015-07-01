@@ -895,7 +895,7 @@
 <script type="text/ng-template" id="partials/field.html">
 
 	<div class="row">
-		<div class="col-md-6 col-md-offset-3">
+		<div class="col-md-8 col-md-offset-2">
 			<h1>Feld <span ng-if="isNew">anlegen</span><span ng-if="!isNew">bearbeiten</span></h1>
 
 			<form class="form">
@@ -1473,16 +1473,16 @@
 				<span ng-show="edit.two._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
 			</div>
 		</div>
-		<div class="form-group">
-			<label>Art</label>
-			<span class="dropdown dropdown-btn-right">
-				<a role="button" data-toggle="dropdown" class="dropdown-toggle" href><span class="caret"></span>&nbsp;</a>
-				<ul role="menu" class="dropdown-menu">
-					<li ng-repeat="t in types"><a href ng-click="relation.type=t" ng-bind="t"></a></li>
-				</ul>
-			</span>
-			<input type="text" class="form-control" placeholder="Art" ng-model="relation.type" datasets="datasetTypes" ngtypeahead>
-		</div>
+		<!--<div class="form-group">-->
+			<!--<label>Art</label>-->
+			<!--<span class="dropdown dropdown-btn-right">-->
+				<!--<a role="button" data-toggle="dropdown" class="dropdown-toggle" href><span class="caret"></span>&nbsp;</a>-->
+				<!--<ul role="menu" class="dropdown-menu">-->
+					<!--<li ng-repeat="t in types"><a href ng-click="relation.type=t" ng-bind="t"></a></li>-->
+				<!--</ul>-->
+			<!--</span>-->
+			<!--<input type="text" class="form-control" placeholder="Art" ng-model="relation.type" datasets="datasetTypes" ngtypeahead>-->
+		<!--</div>-->
 		<div class="form-group">
 			<label>Schlagworte</label>
 			<span class="dropdown dropdown-btn-right">
@@ -1516,7 +1516,7 @@
 
 <script type="text/ng-template" id="partials/relation.html">
 	<div class="row" ng-controller="RelationEditCtrl">
-		<div class="col-md-6 col-md-offset-3">
+		<div class="col-md-8 col-md-offset-2">
 			<h1>Verbindung <span ng-if="isNew">anlegen</span><span ng-if="!isNew">bearbeiten</span></h1>
 
 			<div ng-include="'partials/relation-edits.html'"></div>

@@ -649,7 +649,7 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 			},
 			association: {
 				"name": "Verbindung",
-				default: {
+				defaults: {
 					type: 'job',
 					start: {},
 					end: {},
@@ -674,7 +674,7 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 			},
 			donation: {
 				"name": "Spende",
-				default: {
+				defaults: {
 					sources: [],
 					verified: true
 				},
@@ -684,7 +684,7 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 			},
 			activity: {
 				"name": "Nebeneinkünfte",
-				default: {
+				defaults: {
 					verified: true
 				},
 				asString: function (v) {
@@ -1966,7 +1966,8 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 	$scope.relation = $scope.relation || {
 			tags: [],
 			entities: ['', ''],
-			data: []
+			data: [],
+			type: 'general'
 		};
 
 	$scope.modename = 'Verbindung';

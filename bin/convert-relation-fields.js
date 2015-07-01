@@ -141,6 +141,7 @@ var convertFieldsMember = function (rel, state) {
 		return {
 			key: 'association',
 			format: 'association',
+			desc: 'Verbindung',
 			importer: rel.importer,
 			value: {type: 'member', position: 'Mitglied'}
 		};
@@ -261,10 +262,11 @@ var convertFieldsMember = function (rel, state) {
 
 var convertFieldsCommittee = function (rel, state) {
 
-	function buildAssociation() {
+	function build() {
 		return {
 			key: 'association',
 			format: 'association',
+			desc: 'Verbindung',
 			importer: rel.importer,
 			value: {type: 'committee'}
 		};
@@ -278,12 +280,12 @@ var convertFieldsCommittee = function (rel, state) {
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
 		case '':
-			adddata(buildAssociation());
+			adddata(build());
 			break;
 		case 'source':
 		case 'source - start':
 		case 'position - source':
-			adddata(buildGeneric(rel, buildAssociation(), state));
+			adddata(buildGeneric(rel, build(), state));
 			break;
 		default:
 			console.log('committee - unknown fingerprint', rel._id, idd);
@@ -294,14 +296,15 @@ var convertFieldsCommittee = function (rel, state) {
 var convertFieldsPosition = function (rel, state, def_position) {
 
 	function build() {
-		var job = {
+		var result = {
 			key: 'association',
 			format: 'association',
+			desc: 'Verbindung',
 			importer: rel.importer,
 			value: {type: 'job', position: 'Arbeitsverhältnis'}
 		};
-		if (def_position) job.position = def_position;
-		return job;
+		if (def_position) result.position = def_position;
+		return result;
 	}
 
 	function getData(key, pos) {
@@ -382,13 +385,13 @@ var convertFieldsActivity = function (rel, state) {
 	}
 
 	function build() {
-		var job = {
+		return {
 			key: 'association',
 			format: 'association',
+			desc: 'Verbindung',
 			importer: rel.importer,
 			value: {type: 'job', position: 'Arbeitsverhältnis'}
 		};
-		return job;
 	}
 
 	function adddata(d) {
@@ -432,6 +435,7 @@ var convertFieldsActivity = function (rel, state) {
 			adddata(buildGeneric(rel, {
 				key: 'association',
 				format: 'association',
+				desc: 'Verbindung',
 				importer: rel.importer,
 				value: {type: 'member', position: 'Mitglied'}
 			}, state));
@@ -445,14 +449,14 @@ var convertFieldsActivity = function (rel, state) {
 
 var convertFieldsSubsidiary = function (rel, state) {
 
-	function buildSub() {
-		var job = {
+	function build() {
+		return {
 			key: 'association',
 			format: 'association',
+			desc: 'Verbindung',
 			importer: rel.importer,
 			value: {type: 'subsidiary', position: ''}
 		};
-		return job;
 	}
 
 	function adddata(d) {
@@ -463,7 +467,7 @@ var convertFieldsSubsidiary = function (rel, state) {
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
 		case '':
-			adddata(buildSub());
+			adddata(build());
 			break;
 		case 'source':
 		case 'position':
@@ -471,7 +475,7 @@ var convertFieldsSubsidiary = function (rel, state) {
 		case 'source - verified':
 		case 'position - source - start - verified':
 		case 'position - source':
-			adddata(buildGeneric(rel, buildSub(), state));
+			adddata(buildGeneric(rel, build(), state));
 			break;
 		default:
 			console.log('subsidiary - unknown fingerprint', rel._id, idd, rel.importer);
@@ -481,20 +485,14 @@ var convertFieldsSubsidiary = function (rel, state) {
 
 var convertFieldsBusiness = function (rel, state) {
 
-	function getData(key, pos) {
-		return rel.data.filter(function (d) {
-			return d.key == key;
-		})[pos || 0];
-	}
-
-	function buildSub() {
-		var job = {
+	function build() {
+		return {
 			key: 'association',
 			format: 'association',
+			desc: 'Verbindung',
 			importer: rel.importer,
 			value: {type: 'business', desc: 'Geschäftsverbindung'}
 		};
-		return job;
 	}
 
 	function adddata(d) {
@@ -505,7 +503,7 @@ var convertFieldsBusiness = function (rel, state) {
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
 		case '':
-			adddata(buildSub());
+			adddata(build());
 			break;
 		case 'source':
 		case 'position':
@@ -513,7 +511,7 @@ var convertFieldsBusiness = function (rel, state) {
 		case 'source - start':
 		case 'source - verified':
 		case 'position - source':
-			adddata(buildGeneric(rel, buildSub(), state));
+			adddata(buildGeneric(rel, build(), state));
 			break;
 		default:
 			console.log('business - unknown fingerprint', rel._id, idd, rel.importer);
@@ -524,23 +522,23 @@ var convertFieldsBusiness = function (rel, state) {
 var convertFieldsConsulting = function (rel, state) {
 
 	function buildAssociation() {
-		var job = {
+		return {
 			key: 'association',
 			format: 'association',
+			desc: 'Verbindung',
 			importer: rel.importer,
 			value: {type: 'participant', position: 'Teilnehmer'}
 		};
-		return job;
 	}
 
 	function build() {
-		var job = {
+		return {
 			key: 'association',
 			format: 'association',
+			desc: 'Verbindung',
 			importer: rel.importer,
 			value: {type: 'job', position: 'Berater'}
 		};
-		return job;
 	}
 
 	function adddata(d) {
@@ -586,14 +584,14 @@ var convertFieldsConsulting = function (rel, state) {
 
 var convertFieldsHausausweise = function (rel, state) {
 
-	function buildAssociation() {
-		var job = {
+	function build() {
+		return {
 			key: 'association',
 			format: 'association',
+			desc: 'Verbindung',
 			importer: rel.importer,
 			value: {type: 'pass', position: 'Hausausweise'}
 		};
-		return job;
 	}
 
 	function adddata(d) {
@@ -604,10 +602,10 @@ var convertFieldsHausausweise = function (rel, state) {
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
 		case '':
-			adddata(buildAssociation());
+			adddata(build());
 			break;
 		case 'issued':
-			adddata(buildGeneric(rel, buildAssociation(), state));
+			adddata(buildGeneric(rel, build(), state));
 			break;
 		default:
 			console.log('hausausweise - unknown fingerprint', rel._id, idd, rel.importer);
@@ -617,14 +615,14 @@ var convertFieldsHausausweise = function (rel, state) {
 
 var convertFieldsSponsoring = function (rel, state) {
 
-	function buildAssociation() {
-		var job = {
+	function build() {
+		return {
 			key: 'association',
 			format: 'association',
+			desc: 'Verbindung',
 			importer: rel.importer,
 			value: {type: 'sponsoring', position: 'Sponsor'}
 		};
-		return job;
 	}
 
 	function adddata(d) {
@@ -637,7 +635,7 @@ var convertFieldsSponsoring = function (rel, state) {
 		case '':
 		case 'source':
 		case 'position - source':
-			adddata(buildGeneric(rel, buildAssociation(), state));
+			adddata(buildGeneric(rel, build(), state));
 			break;
 		default:
 			console.log('sponsoring - unknown fingerprint', rel._id, idd, rel.importer);
@@ -647,14 +645,14 @@ var convertFieldsSponsoring = function (rel, state) {
 
 var convertFieldsAssociation = function (rel, state) {
 
-	function buildAssociation() {
-		var job = {
+	function build() {
+		return {
 			key: 'association',
 			format: 'association',
+			desc: 'Verbindung',
 			importer: rel.importer,
 			value: {type: '', position: 'Assoziiert'}
 		};
-		return job;
 	}
 
 	function adddata(d) {
@@ -665,12 +663,12 @@ var convertFieldsAssociation = function (rel, state) {
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
 		case '':
-			adddata(buildAssociation());
+			adddata(build());
 			break;
 		case 'source':
 		case 'position':
 		case 'position - source':
-			adddata(buildGeneric(rel, buildAssociation(), state));
+			adddata(buildGeneric(rel, build(), state));
 			break;
 		default:
 			console.log('association - unknown fingerprint', rel._id, idd, rel.importer);
@@ -693,13 +691,13 @@ var convertFieldsGovernment = function (rel, state) {
 	}
 
 	function build() {
-		var job = {
+		return {
 			key: 'association',
 			format: 'association',
+			desc: 'Verbindung',
 			importer: rel.importer,
 			value: {type: 'government', position: 'Politische Position'}
 		};
-		return job;
 	}
 
 	function adddata(d) {
@@ -826,13 +824,13 @@ var convertFieldsGovernment = function (rel, state) {
 var convertFieldsExecutive = function (rel, state) {
 
 	var build = function () {
-		var job = {
+		return {
 			key: 'association',
 			format: 'association',
+			desc: 'Verbindung',
 			importer: rel.importer,
 			value: {type: 'executive', position: 'Vorstand'}
 		};
-		return job;
 	};
 
 	function adddata(d) {
@@ -971,6 +969,8 @@ var convertRelationFields = function (rel, state) {
 	} else if (rel.type == 'committee') {
 		checkDone(convertFieldsCommittee(rel, state));
 	}
+
+
 };
 
 db.run('Convert Relation Fields', [], [convertRelationFields]);
