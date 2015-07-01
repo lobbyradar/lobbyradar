@@ -14,5 +14,4 @@ Update:
 * Relation-Daten bearbeiten (vor allem den typ!)
 * api.update_ent_delete - remove _all_ no longer needed entities
 Editor:
-* Sources-Widget
 * Activity.Level-Widget

@@ -1627,6 +1627,32 @@ app.controller('TagEdit', function ($scope) {
 	};
 });
 
+app.controller('StringsEdit', function ($scope) {
+
+	$scope.currentedit = '';
+
+	$scope.addEntry = function (field, name, a) {
+		if ($scope.canAddEntry(field, name, a)) {
+			field[name] = field[name] || [];
+			field[name].push(a);
+			$scope.currentedit = '';
+		}
+	};
+
+	$scope.canAddEntry = function (field, name, a) {
+		console.log(field,name,a);
+		return (a && (a.length > 0) && ((!field[name]) || (field[name].indexOf(a) < 0)));
+	};
+
+	$scope.removeEntry = function (field, name, a) {
+		field[name] = field[name] || [];
+		var i = field[name].indexOf(a);
+		if (i >= 0) {
+			field[name].splice(i, 1);
+		}
+	};
+});
+
 app.controller('SearchEntitiesCtrl', function ($scope, entities) {
 	var mode = $scope.data.mode;
 	$scope.data.org = {};

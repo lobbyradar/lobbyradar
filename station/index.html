@@ -1180,7 +1180,17 @@
 		</div>
 		<div class="form-group col-md-12">
 			<label>Quellen</label>
-			<input type="text" class="form-control" ng-model="d.value.sources">
+			<div class="form-group" ng-controller="StringsEdit">
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="Quelle" ng-model="currentedit" ng-enter="addEntry(d.value, 'sources', currentedit)">
+					<span ng-show="canAddEntry(d.value, 'sources', currentedit)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry(d.value, 'sources', currentedit)"></span>
+				</div>
+				<div class="label-list">
+					<div ng-repeat="o in d.value.sources" class="label label-default">
+						<span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Entfernen" ng-click="removeEntry(d.value, 'sources', o)"></i>
+					</div>
+				</div>
+			</div>
 		</div>
 		<div class="form-group col-md-6">
 			<label>Verifiziert</label>
@@ -1249,7 +1259,17 @@
 		</div>
 		<div class="form-group col-md-12">
 			<label>Quellen</label>
-			<input type="text" class="form-control" ng-model="d.value.sources">
+			<div class="form-group" ng-controller="StringsEdit">
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="Quelle" ng-model="currentedit" ng-enter="addEntry(d.value, 'sources', currentedit)">
+					<span ng-show="canAddEntry(d.value, 'sources', currentedit)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry(d.value, 'sources', currentedit)"></span>
+				</div>
+				<div class="label-list">
+					<div ng-repeat="o in d.value.sources" class="label label-default">
+						<span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Entfernen" ng-click="removeEntry(d.value, 'sources', o)"></i>
+					</div>
+				</div>
+			</div>
 		</div>
 		<div class="form-group col-md-6">
 			<label>Verifiziert</label>
@@ -1297,7 +1317,17 @@
 		</div>
 		<div class="form-group col-md-12">
 			<label>Quellen</label>
-			<input type="text" class="form-control" ng-model="d.value.sources">
+			<div class="form-group" ng-controller="StringsEdit">
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="Quelle" ng-model="currentedit" ng-enter="addEntry(d.value, 'sources', currentedit)">
+					<span ng-show="canAddEntry(d.value, 'sources', currentedit)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry(d.value, 'sources', currentedit)"></span>
+				</div>
+				<div class="label-list">
+					<div ng-repeat="o in d.value.sources" class="label label-default">
+						<span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Entfernen" ng-click="removeEntry(d.value, 'sources', o)"></i>
+					</div>
+				</div>
+			</div>
 		</div>
 		<div class="form-group col-md-6">
 			<label>Verifiziert</label>
@@ -1700,8 +1730,8 @@
 							</div>
 						</div>
 						<div class="detail-col">
-							<div  ng-if="(rel_info.entity_matches.length!==0)"><b ng-bind="rel_info.entity_matches[0].name"></b></div>
-							<div  ng-if="(rel_info.matches.length==0)" ><a class="action" href ng-click="createRelation(rel_info.rel)"><i class="fa fa-arrow-right"></i> Verbindung anlegen</a></div>
+							<div ng-if="(rel_info.entity_matches.length!==0)"><b ng-bind="rel_info.entity_matches[0].name"></b></div>
+							<div ng-if="(rel_info.matches.length==0)"><a class="action" href ng-click="createRelation(rel_info.rel)"><i class="fa fa-arrow-right"></i> Verbindung anlegen</a></div>
 							<div class="detail-field" ng-repeat="d in rel_info.data_matches">
 								<div ng-if="d.match" title="{{d.match.format}}" ng-bind="d.match | fieldvalue"></div>
 								<div ng-if="!d.match && (rel_info.entity_matches.length!==0) && (rel_info.matches.length!==0)">
