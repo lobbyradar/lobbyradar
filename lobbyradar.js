@@ -71,7 +71,7 @@ var app = express();
 
 // use mustache
 var _mustache = mustache();
-_mustache.cache = false;
+//_mustache.cache = false;
 app.engine("mustache", _mustache);
 app.set("view engine", "mustache");
 app.set("views", path.resolve(__dirname, "assets/views"));
@@ -139,7 +139,6 @@ var nice_error = function (err) {
 	return err.toString();
 };
 
-
 // index page
 app.all("/", function (req, res) {
 	res.render("index", {});
@@ -192,7 +191,7 @@ app.all("/entity/:id", function (req, res) {
 
 // Relation Viz
 app.get("/relation/:tag", function (req, res) {
-	res.render("relation", {tag: req.params.tag});
+	res.render("relation", {});
 });
 
 // default api method.
