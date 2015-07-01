@@ -432,8 +432,8 @@ EntityDisplay.formatRelation = function (rel, datalist, formatter, icon, namepre
 
 EntityDisplay.formatAssociation = function (data, defaultposition) {
 	var result = '';
-	if (data.value.sources && data.value.sources.length > 0) result += EntityDisplay.formatSource(data);
 	if (data.value.position) result += '<br/>' + data.value.position;
+	if (data.value.sources && data.value.sources.length > 0) result += EntityDisplay.formatSource(data);
 	else if (defaultposition)result += '<br/>' + defaultposition;
 	var dateString = EntityDisplay.formatSplitDateRange(data.value.start, data.value.end);
 	if (dateString.length > 0) result += '<br/>' + dateString;
@@ -442,8 +442,8 @@ EntityDisplay.formatAssociation = function (data, defaultposition) {
 
 EntityDisplay.formatActivity = function (data) {
 	var result = '';
-	if (data.value.sources && data.value.sources.length > 0) result += EntityDisplay.formatSource(data);
 	if (data.value.position) result += '<br/>' + data.value.position;
+	if (data.value.sources && data.value.sources.length > 0) result += EntityDisplay.formatSource(data);
 	var dateString = EntityDisplay.formatSplitDateRange(data.value.start, data.value.end);
 	if (dateString.length > 0) result += '<br/>' + dateString;
 	return result;
@@ -473,8 +473,8 @@ EntityDisplay.formatNebeneinkunft = function (data) {
 
 EntityDisplay.formatHausausweis = function (data) {
 	var result = '';
-	if (data.value.sources && data.value.sources.length > 0) result += EntityDisplay.formatSource(data);
 	if (data.value.desc) result += '<br/>Ausgestellt von <em>' + data.value.desc + "</em>";
+	if (data.value.sources && data.value.sources.length > 0) result += EntityDisplay.formatSource(data);
 	var dateString = EntityDisplay.formatSplitDateRange(data.value.start, data.value.end);
 	if (dateString.length > 0) result += '<br/>' + dateString;
 	return result;
