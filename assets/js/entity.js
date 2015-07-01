@@ -127,7 +127,7 @@ EntityDisplay.displayEntityRelations = function (entity) {
 			return d.value && (d.value.type == 'government')
 		});
 		if (governments.length > 0) {
-			collect.governments.list.push({rel: rel, list: governments, format: EntityDisplay.formatJob, icon: 'fa-institution'});
+			collect.governments.list.push({rel: rel, list: governments, format: EntityDisplay.formatAssociation, icon: 'fa-institution'});
 		}
 
 		var memberships = associations.filter(function (d) {
@@ -136,7 +136,7 @@ EntityDisplay.displayEntityRelations = function (entity) {
 		if (memberships.length > 0) {
 			collect.memberships.list.push({
 				rel: rel, list: memberships, format: function (data) {
-					return EntityDisplay.formatJob(data, 'Mitglied');
+					return EntityDisplay.formatAssociation(data, 'Mitglied');
 				}, icon: 'fa-group'
 			});
 		}
@@ -145,7 +145,7 @@ EntityDisplay.displayEntityRelations = function (entity) {
 			return d.value && (d.value.type == 'job');
 		});
 		if (otherjobs.length > 0) {
-			collect.otherjobs.list.push({rel: rel, list: otherjobs, format: EntityDisplay.formatJob, icon: 'fa-group'});
+			collect.otherjobs.list.push({rel: rel, list: otherjobs, format: EntityDisplay.formatAssociation, icon: 'fa-group'});
 		}
 
 		var hausausweise = associations.filter(function (d) {
@@ -162,11 +162,19 @@ EntityDisplay.displayEntityRelations = function (entity) {
 			collect.committees.list.push({rel: rel, list: committees});
 		}
 
+		var businesses = associations.filter(function (d) {
+			return d.value && (d.value.type == 'business');
+		});
+		if (businesses.length > 0) {
+			collect.otherassociations.list.push({rel: rel, list: otherjobs, format: EntityDisplay.formatAssociation, icon: 'fa-money'});
+		}
+
 		var otherassociations = associations.filter(function (d) {
 			return d.value
 				&& (governments.indexOf(d) < 0)
 				&& (memberships.indexOf(d) < 0)
 				&& (otherjobs.indexOf(d) < 0)
+				&& (businesses.indexOf(d) < 0)
 				&& (committees.indexOf(d) < 0)
 				&& (hausausweise.indexOf(d) < 0);
 		});
@@ -272,8 +280,7 @@ EntityDisplay.displayFooterEntity = function (entity) {
 	var result = '<div class="row"><br/>' +
 		'<div class="col-sm-12">' +
 		'<p class="meta">' +
-		'<span>Erstellt: ' + moment(entity.created).format("DD.MM.YYYY hh:mm") + '</span><br/>' +
-		'<span>Aktualisiert: ' + moment(entity.created).format("DD.MM.YYYY hh:mm") + '</span>' +
+		'<span>Stand der Daten: ' + moment(entity.created).format("DD.MM.YYYY hh:mm") + '</span>' +
 		'</p>' +
 		'</div></div>';
 	return result;
@@ -423,7 +430,7 @@ EntityDisplay.formatRelation = function (rel, datalist, formatter, icon, namepre
 	return result;
 };
 
-EntityDisplay.formatJob = function (data, defaultposition) {
+EntityDisplay.formatAssociation = function (data, defaultposition) {
 	var result = '';
 	if (data.value.sources && data.value.sources.length > 0) result += EntityDisplay.formatSource(data);
 	if (data.value.position) result += '<br/>' + data.value.position;
@@ -468,13 +475,6 @@ EntityDisplay.formatHausausweis = function (data) {
 	var result = '';
 	if (data.value.sources && data.value.sources.length > 0) result += EntityDisplay.formatSource(data);
 	if (data.value.desc) result += '<br/>Ausgestellt von <em>' + data.value.desc + "</em>";
-	return result;
-};
-
-EntityDisplay.formatAssociation = function (data) {
-	var result = '';
-	if (data.value.sources && data.value.sources.length > 0) result += EntityDisplay.formatSource(data);
-	if (data.value.position) result += '<br/>' + data.value.position;
 	var dateString = EntityDisplay.formatSplitDateRange(data.value.start, data.value.end);
 	if (dateString.length > 0) result += '<br/>' + dateString;
 	return result;
