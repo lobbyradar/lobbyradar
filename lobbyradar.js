@@ -139,6 +139,75 @@ var nice_error = function (err) {
 	return err.toString();
 };
 
+
+// index page
+app.all("/", function (req, res) {
+	res.render("index", {});
+});
+
+// FAQ Page (static)
+app.get("/oft-gestellte-fragen", function (req, res) {
+	res.render("faq", {});
+});
+
+// FAQ Page (static)
+app.get("/artikel", function (req, res) {
+	res.render("articles", {});
+});
+
+// Abspann Page (static)
+app.get("/abspann", function (req, res) {
+	res.render("abspann", {});
+});
+
+// Intro Page (static)
+app.get("/um-was-geht-es", function (req, res) {
+	res.render("intro", {});
+});
+
+// Abspann Page (static)
+app.get("/download-plugin", function (req, res) {
+	res.render("extension", {});
+});
+
+// Abspann Page (static)
+app.get("/ueber-uns", function (req, res) {
+	res.render("about", {});
+});
+
+// Abspann Page (static)
+app.get("/verbindungssuche", function (req, res) {
+	res.render("app", {});
+});
+
+// Search Page (static)
+app.get("/search/:id", function (req, res) {
+	res.render("app", {});
+});
+
+// Entity page (static)
+app.all("/entity/:id", function (req, res) {
+	res.render("app", {});
+});
+
+// Relation Viz
+app.get("/relation/:tag", function (req, res) {
+	res.render("relation", {tag: req.params.tag});
+});
+
+// default api method.
+app.all("/api", function (req, res) {
+	res.type("json").status("200").json({error: null});
+});
+
+// autocomplete
+app.get("/api/autocomplete", function (req, res) {
+	if (!req.query.hasOwnProperty("q") || req.query.q === null || req.query.q === "") return res.status(200).json([]);
+	api.autocomplete(req.query.q, function (err, result) {
+		res.status(200).json(result);
+	});
+});
+
 // search api, get
 app.get("/api/search-fields", function (req, res) {
 	api.search_fields(function (err, result) {
@@ -214,7 +283,7 @@ app.all("/api/plugin/export", function (req, res) {
 });
 
 // whitelist
-app.get("/api/plugin/whitelist2", function (req, res) {
+app.get("/api/plugin/whitelist-live", function (req, res) {
 	debug("get plugin whitelist");
 	api.whitelist_get(function (err, result) {
 		res.type("json").status("200").json({err: ((err) ? err.message : null), result: result});
@@ -222,7 +291,7 @@ app.get("/api/plugin/whitelist2", function (req, res) {
 });
 
 // export.
-app.all("/api/plugin/export2", function (req, res) {
+app.all("/api/plugin/export-live", function (req, res) {
 	debug("export");
 	api.ent_export(function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
@@ -339,14 +408,6 @@ app.get("/api/fields/list", function (req, res) {
 	});
 });
 
-// delete field.
-app.all("/api/fields/delete/:id", function (req, res) {
-	debug("delete field %s", req.params.id || req.body.id);
-	api.field_delete(req.params.id || req.body.id, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
 // get autocomplete for fields.
 app.all("/api/field/autocomplete", function (req, res) {
 	debug("get field autocomplete %s", req.query.q);
@@ -378,152 +439,6 @@ app.all("/api/tags/list", function (req, res) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
-
-// default api method.
-app.all("/api", function (req, res) {
-	res.type("json").status("200").json({error: null});
-});
-
-// entity page
-app.all("/entity/:id", function (req, res) {
-	api.ent_get(req.params.id, function (err, ent) {
-		if (err) return res.render("entity", {"err": err});
-		if (ent === null || !ent.hasOwnProperty("_id")) return res.status(404).render("404", {"err": "Diese Entität existiert nicht"});
-		api.ent_rels(ent._id, function (err, rels) {
-			ent.relations = rels;
-			// rework data
-			ent.data = ent.data.filter(function (d) {
-				switch (d.key) {
-					case "source":
-						if (!ent.hasOwnProperty("sources")) ent.sources = [];
-						ent.sources.push(d.value);
-						break;
-					case "address":
-						if (!ent.hasOwnProperty("addresses")) ent.addresses = [];
-						ent.addresses.push(d.value);
-						break;
-					// other stuff here
-					default:
-						return true;
-						break;
-				}
-				return false;
-			});
-
-			// dates
-			ent.created = moment(ent.created).format("DD.MM.YYYY hh:mm");
-			ent.updated = moment(ent.updated).format("DD.MM.YYYY hh:mm");
-
-			// aliases and tags
-			if (ent.aliases.length > 0) ent.has_aliases = true;
-			if (ent.tags.length > 0) ent.has_tags = true;
-			if (ent.sources && ent.sources.length > 0) ent.has_sources = true;
-			if (ent.addresses && ent.addresses.length > 0) ent.has_addresses = true;
-			
-			res.render("app", { // we render index instead and load entity via ajax from FE
-				"err": err,
-				"entity": ent
-			});
-		});
-	});
-});
-
-// listing page
-app.all("/list/:type/:letter?", function (req, res) {
-	var cond = {};
-
-	if (req.params.hasOwnProperty("letter") && /^[a-z0-9]$/i.test(req.params.letter)) cond.letter = req.params.letter;
-	if (req.params.hasOwnProperty("type") && ["person", "organisation", "entity"].indexOf(req.params.type) >= 0) cond.type = req.params.type;
-
-	api.ent_list(cond, function (err, list) {
-		list = list.map(function (item) {
-			switch (item.type) {
-				case "person":
-					item.icon = "user";
-					break;
-				case "organisation":
-					item.icon = "building";
-					break;
-				case "entity":
-					item.icon = "building";
-					break;
-			}
-			return item;
-		});
-		var tmpl = {"list": {"type": (cond.type || "all"), "err": err, "item": list}};
-		if (cond.letter) tmpl["letter_" + cond.letter] = true;
-		if (cond.type) {
-			tmpl["nav_" + cond.type] = true;
-			tmpl["hl_" + cond.type] = true;
-		} else {
-			tmpl["hl_all"] = true;
-		}
-		res.render("app", tmpl);
-	});
-});
-
-// autocomplete
-app.get("/api/autocomplete", function (req, res) {
-	if (!req.query.hasOwnProperty("q") || req.query.q === null || req.query.q === "") return res.status(200).json([]);
-	api.autocomplete(req.query.q, function (err, result) {
-		res.status(200).json(result);
-	});
-});
-
-// index page
-app.all("/", function (req, res) {
-	res.render("index", {});
-});
-
-// FAQ Page (static)
-app.get("/oft-gestellte-fragen", function (req, res) {
-	res.render("faq", {});
-});
-
-// FAQ Page (static)
-app.get("/artikel", function (req, res) {
-	res.render("articles", {});
-});
-
-// Abspann Page (static)
-app.get("/abspann", function (req, res) {
-	res.render("abspann", {});
-});
-
-// Intro Page (static)
-app.get("/um-was-geht-es", function (req, res) {
-	res.render("intro", {});
-});
-
-// Abspann Page (static)
-app.get("/download-plugin", function (req, res) {
-	res.render("extension", {});
-});
-
-// Abspann Page (static)
-app.get("/ueber-uns", function (req, res) {
-	res.render("about", {});
-});
-
-// Abspann Page (static)
-app.get("/verbindungssuche", function (req, res) {
-	res.render("app", {});
-});
-
-// Relation Viz
-app.get("/relation/:tag", function (req, res) {
-	res.render("relation", {tag: req.params.tag});
-});
-
-// Search Page (static)
-app.get("/search/:id", function (req, res) {
-	res.render("app", {});
-});
-
-
-/*
- * backend api
- */
 
 // current user.
 app.get("/user", sessionUserHandler, function (req, res) {
@@ -561,6 +476,14 @@ app.get("/api/users/list", sessionAdminHandler, function (req, res) {
 				admin: u.admin
 			}
 		});
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+// delete field.
+app.all("/api/fields/delete/:id", sessionUserHandler, function (req, res) {
+	debug("delete field %s", req.params.id || req.body.id);
+	api.field_delete(req.params.id || req.body.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
