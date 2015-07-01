@@ -16,6 +16,7 @@ var path = require("path");
 var unq = require("unq");
 var nsa = require("nsa");
 var fs = require("fs");
+var favicon = require('serve-favicon');
 
 // config
 var config = require("./config.js");
@@ -74,6 +75,8 @@ _mustache.cache = false;
 app.engine("mustache", _mustache);
 app.set("view engine", "mustache");
 app.set("views", path.resolve(__dirname, "assets/views"));
+
+app.use(favicon(__dirname + '/assets/images/favicon.ico'));
 
 // static assets
 app.use("/assets", express.static(path.resolve(__dirname, "assets")));
