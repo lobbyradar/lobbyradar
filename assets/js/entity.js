@@ -71,7 +71,6 @@ EntityDisplay.displayEntityRelations = function (entity) {
 		memberships: {id: 'memberships', name: 'Mitgliedschaften', list: [], format: EntityDisplay.displayGeneric},
 		otherjobs: {id: 'otherjobs', name: 'Beschäftigungen', list: [], format: EntityDisplay.displayGeneric},
 		hausausweise: {id: 'hausausweise', name: 'Hausausweise', list: [], format: EntityDisplay.displayGeneric},
-		businesses: {id: 'businesses', name: 'Geschäftsverbindungen', list: [], format: EntityDisplay.displayGeneric},
 		activities: {id: 'activities', name: 'Arbeitgeberschaft', list: [], format: EntityDisplay.displayGeneric},
 		otherassociations: {id: 'otherassociations', name: 'Verbindungen', list: [], format: EntityDisplay.displayGeneric},
 		everythingelse: {id: 'everythingelse', name: 'Verbindungen', list: [], format: EntityDisplay.displayGeneric},
@@ -92,7 +91,6 @@ EntityDisplay.displayEntityRelations = function (entity) {
 		var activities = []; //nebeneinkünfte
 		var jobs = []; // tätigkeiten (goverment, anstellungen, exeutive, memberships ...)
 		var associations = []; // andere verbindungen (hausausweise, geschäftsverbindungen ...)
-		var businesses = []; // besitzverhätnisse (tochterfirmen, anteile, ...)
 		var donations = []; // parteispenden
 		var everythingelse = []; //alles andere
 
@@ -101,7 +99,6 @@ EntityDisplay.displayEntityRelations = function (entity) {
 				if (d.format == 'job') jobs.push(d);
 				else if (d.format == 'activity') activities.push(d);
 				else if (d.format == 'association') associations.push(d);
-				else if (d.format == 'business') businesses.push(d);
 				else if (d.format == 'donation') donations.push(d);
 				else everythingelse.push(d);
 			});
@@ -147,10 +144,6 @@ EntityDisplay.displayEntityRelations = function (entity) {
 		});
 		if (otherjobs.length > 0) {
 			collect.otherjobs.list.push({rel: rel, list: otherjobs, format: EntityDisplay.formatJob, icon: 'fa-group'});
-		}
-
-		if (businesses.length > 0) {
-			collect.businesses.list.push({rel: rel, list: businesses, format: EntityDisplay.formatBusiness, icon: 'fa-money'});
 		}
 
 		if (donations.length > 0) {
@@ -243,7 +236,7 @@ EntityDisplay.displayHeaderEntity = function (entity) {
 	});
 	result += icon + entity.name + '&nbsp;';
 	if (verified) {
-		result += '<i id="certified" class="fa fa-check-square-o"></i>';
+		result += '<i title="Redaktionell geprüft" id="certified" class="fa fa-check-square-o"></i>';
 	}
 	result += '</h1>';
 
@@ -363,7 +356,8 @@ EntityDisplay.displayAddIncomes = function (entity, nebentaetigkeiten) {
 		});
 	});
 	Object.keys(nebeneinkunft_collect).forEach(function (key) {
-		result += '<br /><h5>' + key + '</h5>';
+		if (result.length) result += '<br />';
+		result += '<h5>' + key + '</h5>';
 		nebeneinkunft_collect[key].sort(function (a, b) {
 			var year_a = 0;
 			if (a.d.value && a.d.value.start && a.d.value.start.year) year_a = a.d.value.start.year;
@@ -426,16 +420,9 @@ EntityDisplay.formatRelation = function (rel, datalist, formatter, icon, namepre
 	return result;
 };
 
-EntityDisplay.formatBusiness = function (data) {
-	var result = '';
-	if (data.value.position) result += '<br/>' + data.value.position;
-	var dateString = EntityDisplay.formatSplitDateRange(data.value.start, data.value.end);
-	if (dateString.length > 0) result += '<br/>' + dateString;
-	return result;
-};
-
 EntityDisplay.formatJob = function (data, defaultposition) {
 	var result = '';
+	if (data.value.sources && data.value.sources.length > 0) result += EntityDisplay.formatSource(data);
 	if (data.value.position) result += '<br/>' + data.value.position;
 	else if (defaultposition)result += '<br/>' + defaultposition;
 	var dateString = EntityDisplay.formatSplitDateRange(data.value.start, data.value.end);
@@ -445,6 +432,7 @@ EntityDisplay.formatJob = function (data, defaultposition) {
 
 EntityDisplay.formatActivity = function (data) {
 	var result = '';
+	if (data.value.sources && data.value.sources.length > 0) result += EntityDisplay.formatSource(data);
 	if (data.value.position) result += '<br/>' + data.value.position;
 	var dateString = EntityDisplay.formatSplitDateRange(data.value.start, data.value.end);
 	if (dateString.length > 0) result += '<br/>' + dateString;
@@ -475,16 +463,23 @@ EntityDisplay.formatNebeneinkunft = function (data) {
 
 EntityDisplay.formatHausausweis = function (data) {
 	var result = '';
+	if (data.value.sources && data.value.sources.length > 0) result += EntityDisplay.formatSource(data);
 	if (data.value.desc) result += '<br/>Ausgestellt von <em>' + data.value.desc + "</em>";
 	return result;
 };
 
 EntityDisplay.formatAssociation = function (data) {
 	var result = '';
+	if (data.value.sources && data.value.sources.length > 0) result += EntityDisplay.formatSource(data);
 	if (data.value.position) result += '<br/>' + data.value.position;
 	var dateString = EntityDisplay.formatSplitDateRange(data.value.start, data.value.end);
 	if (dateString.length > 0) result += '<br/>' + dateString;
 	return result;
+};
+
+EntityDisplay.formatSource = function (data) {
+	if (data.value.sources && data.value.sources.length > 0) return '<a class="rel-data-source pull-right" target="_blank" title="' + data.value.sources[0] + '" href="' + data.value.sources[0] + '">Quelle</a>';
+	return '';
 };
 
 EntityDisplay.formatEntityLink = function (entity) {

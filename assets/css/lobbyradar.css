@@ -2513,10 +2513,19 @@ p.first-p {
 	margin-top: 130px;
 }
 
+#nebentaetigkeiten .entity-relations-item {
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
 .row-results-title {
 	font-size: 16px;
 	font-weight: 800;
 	margin-top: 12px;
+}
+
+.rel-data-source {
+	font-size: 12px;
 }
 
 .nav-tabs-relation > li > a {

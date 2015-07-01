@@ -289,6 +289,7 @@ var convertFieldsCommittee = function (rel, state) {
 			break;
 		case 'source':
 		case 'source - start':
+		case 'position - source':
 			adddata(buildGeneric(rel, buildAssociation(), state));
 			break;
 		default:
@@ -454,10 +455,10 @@ var convertFieldsSubsidiary = function (rel, state) {
 
 	function buildSub() {
 		var job = {
-			key: 'business',
-			format: 'business',
+			key: 'association',
+			format: 'association',
 			importer: rel.importer,
-			value: {type: 'subsidiary', position: 'Tochterfirma'}
+			value: {type: 'subsidiary', position: ''}
 		};
 		return job;
 	}
@@ -485,7 +486,7 @@ var convertFieldsSubsidiary = function (rel, state) {
 	}
 
 };
-
+//subsidiary
 var convertFieldsBusiness = function (rel, state) {
 
 	function getData(key, pos) {
@@ -496,10 +497,10 @@ var convertFieldsBusiness = function (rel, state) {
 
 	function buildSub() {
 		var job = {
-			key: 'business',
-			format: 'business',
+			key: 'association',
+			format: 'association',
 			importer: rel.importer,
-			value: {type: 'relation', desc: 'Geschäftsverbindung'}
+			value: {type: 'business', desc: 'Geschäftsverbindung'}
 		};
 		return job;
 	}
@@ -944,7 +945,7 @@ var convertRelationFields = function (rel, state) {
 		if (b.created < a.created)return 1;
 		return 0;
 	});
-	var validfingerprints = ['job', 'activity', 'donation', 'business', 'association'];
+	var validfingerprints = ['job', 'activity', 'donation', 'association'];
 
 	convertAllActivities(rel, state);
 
