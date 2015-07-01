@@ -666,8 +666,8 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 						});
 					}
 					var s = formatSplitDateRange(v.value.start, v.value.end);
-					if (s.length > 0) sl.push(s)
-					if (v.value.desc) sl.push(v.value.desc);
+					if (s.length > 0) sl.push(s);
+					if (v.value.desc && v.value.desc != sl[0]) sl.push(v.value.desc);
 					return sl.join(', ');
 				},
 				types: [{id: 'executive', name: 'Vorstand'}, {id: 'member', name: 'Mitglied'}, {id: 'job', name: 'Arbeitsverhältnis'}, {id: 'government', name: 'Politische Position'}, {id: 'pass', name: 'Ausweis'}, {id: 'business', name: 'Geschäftsverbindung'}, {id: 'subsidiary', name: 'Tochterunternehmen/-gliederung'}, {id: 'sponsoring', name: 'Sponsor'}, {id: 'committee', name: 'Ausschuss'}, {id: 'participant', name: 'Teilnehmer'}]
@@ -1311,7 +1311,6 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 
 	var fixedfields = [
 		{_id: 'name', name: 'Name', key: 'name', format: 'string', _type: 'extras'},
-		{_id: 'type', name: 'Art', key: 'type', format: 'string', _type: 'fields'},
 		{_id: 'tags', name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'}
 	];
 
@@ -1324,7 +1323,6 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 	if (state.fields.length == 0) {
 		state.fields.push(fixedfields[0]);
 		state.fields.push(fixedfields[1]);
-		state.fields.push(fixedfields[2]);
 	}
 
 	fields.list({mode: 'relations'}, function (data) {
