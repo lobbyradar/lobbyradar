@@ -1,6 +1,8 @@
 var util = require('util');
 var db = require("./db.js");
 
+var entities = {};
+
 var getSplitDate = function (date) {
 	date = new Date(date);
 	var result = {day: date.getDate(), month: date.getMonth() + 1, year: date.getFullYear()};
@@ -135,6 +137,42 @@ var convertAllActivities = function (rel, state) {
 	});
 };
 
+var addData = function (d, rel, state) {
+	if (!d.value.sources) {
+		var e1 = entities[rel.entities[0]];
+		var e2 = entities[rel.entities[1]];
+		var sources = [];
+		if (e1 && e1.type == 'person') e1.data.forEach(function (d1) {
+			if (d1.key == 'source') sources.push(d1);
+		});
+		if (e2 && e2.type == 'person') e2.data.forEach(function (d2) {
+			if (d2.key == 'source') sources.push(d2);
+		});
+		var done = false;
+		sources.forEach(function (sd) {
+			if (done) return;
+			if (sd.value.remark == 'created by bundestag importer') {
+				if ((['government', 'member'].indexOf(d.value.type) >= 0) && (sd.value.url.indexOf('http://www.bundestag.de') >= 0)) {
+					d.value.sources = d.value.sources || [];
+					d.value.sources.push(sd.value.url);
+					done = true;
+				}
+				//else
+				//		console.log(d.value.type, e1.name, e2.name, sd.value.url);
+			}
+			else if (sd.value.remark == 'created by parteispenden importer') {
+				//console.log(d.value.type, e1.name, e2.name, sd.value.url);
+			}
+			//else
+			//	console.log(sd.value.remark, e1.name, e2.name, sd.value.url);
+		});
+
+		//console.log(sources);
+	}
+	rel.data.push(d);
+	state.added('merged value', d);
+};
+
 var convertFieldsMember = function (rel, state) {
 
 	function build() {
@@ -151,11 +189,6 @@ var convertFieldsMember = function (rel, state) {
 		return rel.data.filter(function (d) {
 			return d.key == key;
 		})[pos || 0];
-	}
-
-	function adddata(d) {
-		rel.data.push(d);
-		state.added('merged value', d);
 	}
 
 	var idd = dataFingerPrint(rel.data);
@@ -180,7 +213,7 @@ var convertFieldsMember = function (rel, state) {
 		case 'end - position - source':
 		case 'end - source':
 		case 'begin - end - position - source':
-			adddata(buildGeneric(rel, build(), state));
+			addData(buildGeneric(rel, build(), state), rel, state);
 			break;
 		case 'position - position - position':
 		case 'position - position':
@@ -189,7 +222,7 @@ var convertFieldsMember = function (rel, state) {
 				if (d) {
 					var job = build();
 					job.value.position = d.value;
-					adddata(job);
+					addData(job, rel, state);
 					state.removed('merged value', d);
 				}
 			}
@@ -212,7 +245,7 @@ var convertFieldsMember = function (rel, state) {
 					if (split) job.value.end = split;
 					state.removed('merged value', d);
 				}
-				adddata(job);
+				addData(job, rel, state);
 			});
 			break;
 		case 'donation - source':
@@ -226,7 +259,7 @@ var convertFieldsMember = function (rel, state) {
 			} else {
 				console.log('activity - activity - donation - source', 'fail');
 			}
-			adddata(job);
+			addData(job, rel, state);
 			state.removed('merged value', source);
 			break;
 		case 'donation - source - source':
@@ -252,7 +285,7 @@ var convertFieldsMember = function (rel, state) {
 			}
 			state.removed('merged value', source1);
 			state.removed('merged value', source2);
-			adddata(job);
+			addData(job, rel, state);
 			break;
 		default:
 			console.log('member - unknown fingerprint', rel._id, idd);
@@ -272,20 +305,15 @@ var convertFieldsCommittee = function (rel, state) {
 		};
 	}
 
-	function adddata(d) {
-		rel.data.push(d);
-		state.added('merged value', d);
-	}
-
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
 		case '':
-			adddata(build());
+			addData(build(), rel, state);
 			break;
 		case 'source':
 		case 'source - start':
 		case 'position - source':
-			adddata(buildGeneric(rel, build(), state));
+			addData(buildGeneric(rel, build(), state), rel, state);
 			break;
 		default:
 			console.log('committee - unknown fingerprint', rel._id, idd);
@@ -313,11 +341,6 @@ var convertFieldsPosition = function (rel, state, def_position) {
 		})[pos || 0];
 	}
 
-	function adddata(d) {
-		rel.data.push(d);
-		state.added('merged value', d);
-	}
-
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
 		case '':
@@ -340,7 +363,7 @@ var convertFieldsPosition = function (rel, state, def_position) {
 		case 'end - position - source':
 		case 'end - position - start':
 		case 'end - position - source - start':
-			adddata(buildGeneric(rel, build(), state));
+			addData(buildGeneric(rel, build(), state), rel, state);
 			return;
 			break;
 		case 'position - position - position':
@@ -350,7 +373,7 @@ var convertFieldsPosition = function (rel, state, def_position) {
 				if (d) {
 					var job = build();
 					job.value.position = d.value;
-					adddata(job);
+					addData(job, rel, state);
 					state.removed('merged value', d);
 				}
 			}
@@ -368,7 +391,7 @@ var convertFieldsPosition = function (rel, state, def_position) {
 				state.removed('merged value', d);
 				state.removed('merged value', begin);
 				state.removed('merged value', source);
-				adddata(job);
+				addData(job, rel, state);
 			}
 			break;
 		default:
@@ -394,11 +417,6 @@ var convertFieldsActivity = function (rel, state) {
 		};
 	}
 
-	function adddata(d) {
-		rel.data.push(d);
-		state.added('merged value', d);
-	}
-
 	var idd = dataFingerPrint(rel.data, ['activity']);
 	switch (idd) {
 		case '': //everything is fine, go ahead
@@ -412,7 +430,7 @@ var convertFieldsActivity = function (rel, state) {
 		case 'end - position':
 		case 'position - start':
 		case 'end - position - source - start':
-			adddata(buildGeneric(rel, build(), state));
+			addData(buildGeneric(rel, build(), state), rel, state);
 			return;
 			break;
 		default:
@@ -432,13 +450,13 @@ var convertFieldsActivity = function (rel, state) {
 			break;
 		case 'start':
 		case 'source':
-			adddata(buildGeneric(rel, {
+			addData(buildGeneric(rel, {
 				key: 'association',
 				format: 'association',
 				desc: 'Verbindung',
 				importer: rel.importer,
 				value: {type: 'member', position: 'Mitglied'}
-			}, state));
+			}, state), rel, state);
 			return;
 			break;
 		default:
@@ -459,15 +477,10 @@ var convertFieldsSubsidiary = function (rel, state) {
 		};
 	}
 
-	function adddata(d) {
-		rel.data.push(d);
-		state.added('merged value', d);
-	}
-
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
 		case '':
-			adddata(build());
+			addData(build(), rel, state);
 			break;
 		case 'source':
 		case 'position':
@@ -475,7 +488,7 @@ var convertFieldsSubsidiary = function (rel, state) {
 		case 'source - verified':
 		case 'position - source - start - verified':
 		case 'position - source':
-			adddata(buildGeneric(rel, build(), state));
+			addData(buildGeneric(rel, build(), state), rel, state);
 			break;
 		default:
 			console.log('subsidiary - unknown fingerprint', rel._id, idd, rel.importer);
@@ -495,15 +508,10 @@ var convertFieldsBusiness = function (rel, state) {
 		};
 	}
 
-	function adddata(d) {
-		rel.data.push(d);
-		state.added('merged value', d);
-	}
-
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
 		case '':
-			adddata(build());
+			addData(build(), rel, state);
 			break;
 		case 'source':
 		case 'position':
@@ -511,7 +519,7 @@ var convertFieldsBusiness = function (rel, state) {
 		case 'source - start':
 		case 'source - verified':
 		case 'position - source':
-			adddata(buildGeneric(rel, build(), state));
+			addData(buildGeneric(rel, build(), state), rel, state);
 			break;
 		default:
 			console.log('business - unknown fingerprint', rel._id, idd, rel.importer);
@@ -541,11 +549,6 @@ var convertFieldsConsulting = function (rel, state) {
 		};
 	}
 
-	function adddata(d) {
-		rel.data.push(d);
-		state.added('merged value', d);
-	}
-
 	var idd = dataFingerPrint(rel.data);
 	if (rel.entities.map(function (s) {
 			return s.toString();
@@ -556,7 +559,7 @@ var convertFieldsConsulting = function (rel, state) {
 			case 'position - verified':
 			case 'position - source - source':
 			case 'position - source - verified':
-				adddata(buildGeneric(rel, buildAssociation(), state));
+				addData(buildGeneric(rel, buildAssociation(), state), rel, state);
 				break;
 			default:
 				console.log('consulting - unknown fingerprint', rel._id, idd, rel.importer);
@@ -568,13 +571,13 @@ var convertFieldsConsulting = function (rel, state) {
 	switch (idd) {
 		case 'source':
 		case 'source - verified':
-			adddata(buildGeneric(rel, buildAssociation(), state));
+			addData(buildGeneric(rel, buildAssociation(), state), rel, state);
 			break;
 		case 'end - position - source - start':
 		case 'start':
 		case 'position':
 		case 'position - source':
-			adddata(buildGeneric(rel, build(), state));
+			addData(buildGeneric(rel, build(), state), rel, state);
 			break;
 		default:
 			console.log('consulting - unknown fingerprint', rel._id, idd, rel.importer);
@@ -594,18 +597,13 @@ var convertFieldsHausausweise = function (rel, state) {
 		};
 	}
 
-	function adddata(d) {
-		rel.data.push(d);
-		state.added('merged value', d);
-	}
-
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
 		case '':
-			adddata(build());
+			addData(build(), rel, state);
 			break;
 		case 'issued':
-			adddata(buildGeneric(rel, build(), state));
+			addData(buildGeneric(rel, build(), state), rel, state);
 			break;
 		default:
 			console.log('hausausweise - unknown fingerprint', rel._id, idd, rel.importer);
@@ -625,17 +623,12 @@ var convertFieldsSponsoring = function (rel, state) {
 		};
 	}
 
-	function adddata(d) {
-		rel.data.push(d);
-		state.added('merged value', d);
-	}
-
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
 		case '':
 		case 'source':
 		case 'position - source':
-			adddata(buildGeneric(rel, build(), state));
+			addData(buildGeneric(rel, build(), state), rel, state);
 			break;
 		default:
 			console.log('sponsoring - unknown fingerprint', rel._id, idd, rel.importer);
@@ -655,20 +648,15 @@ var convertFieldsAssociation = function (rel, state) {
 		};
 	}
 
-	function adddata(d) {
-		rel.data.push(d);
-		state.added('merged value', d);
-	}
-
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
 		case '':
-			adddata(build());
+			addData(build(), rel, state);
 			break;
 		case 'source':
 		case 'position':
 		case 'position - source':
-			adddata(buildGeneric(rel, build(), state));
+			addData(buildGeneric(rel, build(), state), rel, state);
 			break;
 		default:
 			console.log('association - unknown fingerprint', rel._id, idd, rel.importer);
@@ -700,11 +688,6 @@ var convertFieldsGovernment = function (rel, state) {
 		};
 	}
 
-	function adddata(d) {
-		rel.data.push(d);
-		state.added('merged value', d);
-	}
-
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
 		case 'position':
@@ -716,7 +699,7 @@ var convertFieldsGovernment = function (rel, state) {
 		case 'end - position - start':
 		case 'begin - end - position':
 		case 'begin - position':
-			adddata(buildGeneric(rel, build(), state));
+			addData(buildGeneric(rel, build(), state), rel, state);
 			return;
 			break;
 		case 'position - position - position':
@@ -726,7 +709,7 @@ var convertFieldsGovernment = function (rel, state) {
 				if (d) {
 					var job = build();
 					job.value.position = d.value;
-					adddata(job);
+					addData(job, rel, state);
 					state.removed('merged value', d);
 				}
 			}
@@ -767,7 +750,7 @@ var convertFieldsGovernment = function (rel, state) {
 					state.removed('merged value', b);
 					state.removed('merged value', e);
 					state.removed('merged value', position);
-					adddata(job);
+					addData(job, rel, state);
 				}
 			});
 			begin = begin.filter(function (b) {
@@ -786,7 +769,7 @@ var convertFieldsGovernment = function (rel, state) {
 				state.removed('merged value', begin[0]);
 				state.removed('merged value', end[0]);
 				state.removed('merged value', position);
-				adddata(job);
+				addData(job, rel, state);
 				return;
 			}
 			if (begin.length == 1 && end.length == 0) {
@@ -796,7 +779,7 @@ var convertFieldsGovernment = function (rel, state) {
 				if (splitdate) job.value.start = splitdate;
 				state.removed('merged value', begin[0]);
 				state.removed('merged value', position);
-				adddata(job);
+				addData(job, rel, state);
 				return;
 			}
 			if (begin.length == 0 && end.length == 1) {
@@ -806,7 +789,7 @@ var convertFieldsGovernment = function (rel, state) {
 				if (splitdate) job.value.end = splitdate;
 				state.removed('merged value', end[0]);
 				state.removed('merged value', position);
-				adddata(job);
+				addData(job, rel, state);
 				return;
 			}
 			if (begin.length + end.length !== 0) {
@@ -833,11 +816,6 @@ var convertFieldsExecutive = function (rel, state) {
 		};
 	};
 
-	function adddata(d) {
-		rel.data.push(d);
-		state.added('merged value', d);
-	}
-
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
 		case '':
@@ -861,7 +839,7 @@ var convertFieldsExecutive = function (rel, state) {
 		case 'position - source':
 		case 'source - start':
 		case 'activity - source':
-			adddata(buildGeneric(rel, build(), state));
+			addData(buildGeneric(rel, build(), state), rel, state);
 			break;
 		default:
 			console.log('executive - unknown fingerprint', rel._id, idd, rel.importer);
@@ -973,4 +951,8 @@ var convertRelationFields = function (rel, state) {
 
 };
 
-db.run('Convert Relation Fields', [], [convertRelationFields]);
+var collectEntities = function (ent, state) {
+	entities[ent._id.toString()] = ent;
+};
+
+db.run('Convert Relation Fields', [collectEntities], [convertRelationFields]);
