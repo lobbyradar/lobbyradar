@@ -1640,7 +1640,6 @@ app.controller('StringsEdit', function ($scope) {
 	};
 
 	$scope.canAddEntry = function (field, name, a) {
-		console.log(field,name,a);
 		return (a && (a.length > 0) && ((!field[name]) || (field[name].indexOf(a) < 0)));
 	};
 
