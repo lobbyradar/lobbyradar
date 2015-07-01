@@ -647,35 +647,10 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 					return v.value.url;
 				}
 			},
-			job: {
-				"name": "Arbeitsverhältnis",
+			association: {
+				"name": "Verbindung",
 				default: {
 					type: 'job',
-					start: {},
-					end: {},
-					sources: [],
-					verified: true
-				},
-				asString: function (v) {
-					var sl = [];
-					if (v.value.position) sl.push(v.value.position);
-					else if (v.value.type) {
-						$rootScope.globals.types.job.types.forEach(function (t) {
-							if (t.id == v.value.type)
-								sl.push(t.name);
-						});
-					}
-					var s = formatSplitDateRange(v.value.start, v.value.end);
-					if (s.length > 0) sl.push(s)
-					if (v.value.desc) sl.push(v.value.desc);
-					return sl.join(', ');
-				},
-				types: [{id: 'executive', name: 'Vorstand'}, {id: 'member', name: 'Mitglied'}, {id: 'job', name: 'Arbeitsverhältnis'}, {id: 'government', name: 'Politische Position'}]
-			},
-			association: {
-				"name": "Assoziiert",
-				default: {
-					type: 'participant',
 					start: {},
 					end: {},
 					sources: [],
@@ -695,7 +670,7 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 					if (v.value.desc) sl.push(v.value.desc);
 					return sl.join(', ');
 				},
-				types: [{id: 'pass', name: 'Ausweis'}, {id: 'business', name: 'Geschäftsverbindung'}, {id: 'subsidiary', name: 'Tochterunternehmen/-gliederung'}, {id: 'sponsoring', name: 'Sponsor'}, {id: 'committee', name: 'Ausschuss'}, {id: 'participant', name: 'Teilnehmer'}]
+				types: [{id: 'executive', name: 'Vorstand'}, {id: 'member', name: 'Mitglied'}, {id: 'job', name: 'Arbeitsverhältnis'}, {id: 'government', name: 'Politische Position'}, {id: 'pass', name: 'Ausweis'}, {id: 'business', name: 'Geschäftsverbindung'}, {id: 'subsidiary', name: 'Tochterunternehmen/-gliederung'}, {id: 'sponsoring', name: 'Sponsor'}, {id: 'committee', name: 'Ausschuss'}, {id: 'participant', name: 'Teilnehmer'}]
 			},
 			donation: {
 				"name": "Spende",
@@ -2544,9 +2519,7 @@ app.controller('AutoCompleteCtrl', function ($scope, autocomplete) {
 app.controller('FieldListEditCtrl', function ($scope, $rootScope) {
 
 	$scope.getFieldPartial = function (d) {
-		if (['job', 'association'].indexOf(d.format) >= 0)
-			return 'partials/datafield-generic-relation.html';
-		else if ($rootScope.globals.knownFieldTypes.indexOf(d.format) >= 0)
+		if ($rootScope.globals.knownFieldTypes.indexOf(d.format) >= 0)
 			return 'partials/datafield-' + d.format + '.html';
 		else
 			return 'partials/datafield-default.html';

@@ -89,15 +89,13 @@ EntityDisplay.displayEntityRelations = function (entity) {
 		if (!(rel.entity.hasOwnProperty("id")) || !rel.entity.id) return;// console.log("no id", rel)
 
 		var activities = []; //nebeneinkünfte
-		var jobs = []; // tätigkeiten (goverment, anstellungen, exeutive, memberships ...)
-		var associations = []; // andere verbindungen (hausausweise, geschäftsverbindungen ...)
+		var associations = []; // verbindungen (goverment, anstellungen, exeutive, memberships, hausausweise, geschäftsverbindungen ...)
 		var donations = []; // parteispenden
 		var everythingelse = []; //alles andere
 
 		if (rel.data && rel.data.length > 0) {
 			rel.data.forEach(function (d) {
-				if (d.format == 'job') jobs.push(d);
-				else if (d.format == 'activity') activities.push(d);
+				if (d.format == 'activity') activities.push(d);
 				else if (d.format == 'association') associations.push(d);
 				else if (d.format == 'donation') donations.push(d);
 				else everythingelse.push(d);
@@ -121,14 +119,18 @@ EntityDisplay.displayEntityRelations = function (entity) {
 			}
 		}
 
-		var governments = jobs.filter(function (d) {
+		if (donations.length > 0) {
+			collect.donations.list.push({rel: rel, list: donations});
+		}
+
+		var governments = associations.filter(function (d) {
 			return d.value && (d.value.type == 'government')
 		});
 		if (governments.length > 0) {
 			collect.governments.list.push({rel: rel, list: governments, format: EntityDisplay.formatJob, icon: 'fa-institution'});
 		}
 
-		var memberships = jobs.filter(function (d) {
+		var memberships = associations.filter(function (d) {
 			return d.value && (d.value.type == 'member')
 		});
 		if (memberships.length > 0) {
@@ -139,15 +141,11 @@ EntityDisplay.displayEntityRelations = function (entity) {
 			});
 		}
 
-		var otherjobs = jobs.filter(function (d) {
-			return d.value && (memberships.indexOf(d) < 0) && (governments.indexOf(d) < 0);
+		var otherjobs = associations.filter(function (d) {
+			return d.value && (d.value.type == 'job');
 		});
 		if (otherjobs.length > 0) {
 			collect.otherjobs.list.push({rel: rel, list: otherjobs, format: EntityDisplay.formatJob, icon: 'fa-group'});
-		}
-
-		if (donations.length > 0) {
-			collect.donations.list.push({rel: rel, list: donations});
 		}
 
 		var hausausweise = associations.filter(function (d) {
@@ -165,7 +163,12 @@ EntityDisplay.displayEntityRelations = function (entity) {
 		}
 
 		var otherassociations = associations.filter(function (d) {
-			return d.value && (hausausweise.indexOf(d) < 0);
+			return d.value
+				&& (governments.indexOf(d) < 0)
+				&& (memberships.indexOf(d) < 0)
+				&& (otherjobs.indexOf(d) < 0)
+				&& (committees.indexOf(d) < 0)
+				&& (hausausweise.indexOf(d) < 0);
 		});
 		if (otherassociations.length > 0) {
 			collect.otherassociations.list.push({rel: rel, list: otherassociations, format: EntityDisplay.formatAssociation, icon: 'fa-code-fork'});

@@ -254,8 +254,8 @@ var parseRelations = function (row) {
 	rel.update_id1 = row[0];
 	rel.update_id2 = row[9];
 	var d = {
-		key: 'job',
-		format: 'job',
+		key: 'association',
+		format: 'association',
 		importer: 'xing',
 		start: {month: row[3], year: row[4]},
 		end: {month: row[5], year: row[6]},

@@ -137,14 +137,13 @@ var convertAllActivities = function (rel, state) {
 
 var convertFieldsMember = function (rel, state) {
 
-	function buildJob() {
-		var job = {
-			key: 'job',
-			format: 'job',
+	function build() {
+		return {
+			key: 'association',
+			format: 'association',
 			importer: rel.importer,
 			value: {type: 'member', position: 'Mitglied'}
 		};
-		return job;
 	}
 
 	function getData(key, pos) {
@@ -160,12 +159,6 @@ var convertFieldsMember = function (rel, state) {
 
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
-		case 'job':
-		case 'activity - job':
-		case 'activity - activity - donation - job':
-		case 'donation - job':
-			//ignore
-			break;
 		case '':
 		case 'activity':
 		case 'source':
@@ -186,14 +179,14 @@ var convertFieldsMember = function (rel, state) {
 		case 'end - position - source':
 		case 'end - source':
 		case 'begin - end - position - source':
-			adddata(buildGeneric(rel, buildJob(), state));
+			adddata(buildGeneric(rel, build(), state));
 			break;
 		case 'position - position - position':
 		case 'position - position':
 			for (var i = 0; i < rel.data.length; i++) {
 				var d = getData('position', i);
 				if (d) {
-					var job = buildJob();
+					var job = build();
 					job.value.position = d.value;
 					adddata(job);
 					state.removed('merged value', d);
@@ -205,7 +198,7 @@ var convertFieldsMember = function (rel, state) {
 			for (var i = 0; i < rel.data.length; i++) {
 				var d = getData('position', i);
 				if (d) {
-					var job = buildJob();
+					var job = build();
 					job.value.position = d.value;
 					jobs.push(job);
 					state.removed('merged value', d);
@@ -223,7 +216,7 @@ var convertFieldsMember = function (rel, state) {
 			break;
 		case 'donation - source':
 		case 'activity - activity - donation - source':
-			var job = buildJob();
+			var job = build();
 			var donation = getData('donation');
 			var source = getData('source');
 			if (source.value.remark.indexOf('Bundestag Spenden') == 0) {
@@ -236,7 +229,7 @@ var convertFieldsMember = function (rel, state) {
 			state.removed('merged value', source);
 			break;
 		case 'donation - source - source':
-			var job = buildJob();
+			var job = build();
 			var donation = getData('donation').value;
 			var source1 = getData('source', 0);
 			var source2 = getData('source', 1);
@@ -300,10 +293,10 @@ var convertFieldsCommittee = function (rel, state) {
 
 var convertFieldsPosition = function (rel, state, def_position) {
 
-	function buildJob() {
+	function build() {
 		var job = {
-			key: 'job',
-			format: 'job',
+			key: 'association',
+			format: 'association',
 			importer: rel.importer,
 			value: {type: 'job', position: 'Arbeitsverhältnis'}
 		};
@@ -344,7 +337,7 @@ var convertFieldsPosition = function (rel, state, def_position) {
 		case 'end - position - source':
 		case 'end - position - start':
 		case 'end - position - source - start':
-			adddata(buildGeneric(rel, buildJob(), state));
+			adddata(buildGeneric(rel, build(), state));
 			return;
 			break;
 		case 'position - position - position':
@@ -352,7 +345,7 @@ var convertFieldsPosition = function (rel, state, def_position) {
 			for (var i = 0; i < rel.data.length; i++) {
 				var d = getData('position', i);
 				if (d) {
-					var job = buildJob();
+					var job = build();
 					job.value.position = d.value;
 					adddata(job);
 					state.removed('merged value', d);
@@ -361,7 +354,7 @@ var convertFieldsPosition = function (rel, state, def_position) {
 			break;
 		case 'begin - begin - position - position - source':
 			for (var i = 0; i < 2; i++) {
-				var job = buildJob();
+				var job = build();
 				var d = getData('position', i);
 				var begin = getData('begin', i);
 				var source = getData('source');
@@ -378,7 +371,6 @@ var convertFieldsPosition = function (rel, state, def_position) {
 		default:
 			console.log('position - unknown fingerprint', rel._id, idd);
 	}
-
 };
 
 var convertFieldsActivity = function (rel, state) {
@@ -389,10 +381,10 @@ var convertFieldsActivity = function (rel, state) {
 		})[pos || 0];
 	}
 
-	function buildJob() {
+	function build() {
 		var job = {
-			key: 'job',
-			format: 'job',
+			key: 'association',
+			format: 'association',
 			importer: rel.importer,
 			value: {type: 'job', position: 'Arbeitsverhältnis'}
 		};
@@ -417,7 +409,7 @@ var convertFieldsActivity = function (rel, state) {
 		case 'end - position':
 		case 'position - start':
 		case 'end - position - source - start':
-			adddata(buildGeneric(rel, buildJob(), state));
+			adddata(buildGeneric(rel, build(), state));
 			return;
 			break;
 		default:
@@ -438,8 +430,8 @@ var convertFieldsActivity = function (rel, state) {
 		case 'start':
 		case 'source':
 			adddata(buildGeneric(rel, {
-				key: 'job',
-				format: 'job',
+				key: 'association',
+				format: 'association',
 				importer: rel.importer,
 				value: {type: 'member', position: 'Mitglied'}
 			}, state));
@@ -486,7 +478,7 @@ var convertFieldsSubsidiary = function (rel, state) {
 	}
 
 };
-//subsidiary
+
 var convertFieldsBusiness = function (rel, state) {
 
 	function getData(key, pos) {
@@ -541,10 +533,10 @@ var convertFieldsConsulting = function (rel, state) {
 		return job;
 	}
 
-	function buildJob() {
+	function build() {
 		var job = {
-			key: 'job',
-			format: 'job',
+			key: 'association',
+			format: 'association',
 			importer: rel.importer,
 			value: {type: 'job', position: 'Berater'}
 		};
@@ -584,7 +576,7 @@ var convertFieldsConsulting = function (rel, state) {
 		case 'start':
 		case 'position':
 		case 'position - source':
-			adddata(buildGeneric(rel, buildJob(), state));
+			adddata(buildGeneric(rel, build(), state));
 			break;
 		default:
 			console.log('consulting - unknown fingerprint', rel._id, idd, rel.importer);
@@ -700,10 +692,10 @@ var convertFieldsGovernment = function (rel, state) {
 		});
 	}
 
-	function buildJob() {
+	function build() {
 		var job = {
-			key: 'job',
-			format: 'job',
+			key: 'association',
+			format: 'association',
 			importer: rel.importer,
 			value: {type: 'government', position: 'Politische Position'}
 		};
@@ -717,10 +709,6 @@ var convertFieldsGovernment = function (rel, state) {
 
 	var idd = dataFingerPrint(rel.data);
 	switch (idd) {
-		case 'job':
-		case 'job - job':
-		case 'job - job - job':
-			break;
 		case 'position':
 		case 'end - position - source - start':
 		case 'position - source - verified':
@@ -730,7 +718,7 @@ var convertFieldsGovernment = function (rel, state) {
 		case 'end - position - start':
 		case 'begin - end - position':
 		case 'begin - position':
-			adddata(buildGeneric(rel, buildJob(), state));
+			adddata(buildGeneric(rel, build(), state));
 			return;
 			break;
 		case 'position - position - position':
@@ -738,7 +726,7 @@ var convertFieldsGovernment = function (rel, state) {
 			for (var i = 0; i < rel.data.length; i++) {
 				var d = getData('position', i);
 				if (d) {
-					var job = buildJob();
+					var job = build();
 					job.value.position = d.value;
 					adddata(job);
 					state.removed('merged value', d);
@@ -772,7 +760,7 @@ var convertFieldsGovernment = function (rel, state) {
 					var e = matching[0];
 					matched[e.id] = true;
 					matched[b.id] = true;
-					var job = buildJob();
+					var job = build();
 					job.value.position = position.value;
 					var splitdate = getSplitDateField(b);
 					if (splitdate) job.value.start = splitdate;
@@ -791,7 +779,7 @@ var convertFieldsGovernment = function (rel, state) {
 				return (!matched[b.id])
 			});
 			if (begin.length == 1 && end.length == 1) {
-				var job = buildJob();
+				var job = build();
 				job.value.position = position.value;
 				var splitdate = getSplitDateField(begin[0]);
 				if (splitdate) job.value.start = splitdate;
@@ -804,7 +792,7 @@ var convertFieldsGovernment = function (rel, state) {
 				return;
 			}
 			if (begin.length == 1 && end.length == 0) {
-				var job = buildJob();
+				var job = build();
 				job.value.position = position.value;
 				var splitdate = getSplitDateField(begin[0]);
 				if (splitdate) job.value.start = splitdate;
@@ -814,7 +802,7 @@ var convertFieldsGovernment = function (rel, state) {
 				return;
 			}
 			if (begin.length == 0 && end.length == 1) {
-				var job = buildJob();
+				var job = build();
 				job.value.position = position.value;
 				var splitdate = getSplitDateField(end[0]);
 				if (splitdate) job.value.end = splitdate;
@@ -837,10 +825,10 @@ var convertFieldsGovernment = function (rel, state) {
 
 var convertFieldsExecutive = function (rel, state) {
 
-	var buildJob = function () {
+	var build = function () {
 		var job = {
-			key: 'job',
-			format: 'job',
+			key: 'association',
+			format: 'association',
 			importer: rel.importer,
 			value: {type: 'executive', position: 'Vorstand'}
 		};
@@ -875,7 +863,7 @@ var convertFieldsExecutive = function (rel, state) {
 		case 'position - source':
 		case 'source - start':
 		case 'activity - source':
-			adddata(buildGeneric(rel, buildJob(), state));
+			adddata(buildGeneric(rel, build(), state));
 			break;
 		default:
 			console.log('executive - unknown fingerprint', rel._id, idd, rel.importer);
@@ -884,14 +872,6 @@ var convertFieldsExecutive = function (rel, state) {
 
 var convertFieldsDonation = function (rel, state) {
 
-	//var buildJob = function () {
-	//	var job = {
-	//		key: 'job',
-	//		format: 'job',
-	//		value: {type: 'executive', position: 'Vorstand'}
-	//	};
-	//	return job;
-	//};
 	function getDataList(key) {
 		return rel.data.filter(function (d) {
 			return d.key == key;
@@ -945,7 +925,7 @@ var convertRelationFields = function (rel, state) {
 		if (b.created < a.created)return 1;
 		return 0;
 	});
-	var validfingerprints = ['job', 'activity', 'donation', 'association'];
+	var validfingerprints = ['activity', 'donation', 'association'];
 
 	convertAllActivities(rel, state);
 
