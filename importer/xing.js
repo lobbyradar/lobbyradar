@@ -1,6 +1,6 @@
-var XLSX = require('xlsx-extract').XLSX;
 var utils = require("../lib/utils.js");
 var path = require("path");
+var fs = require("fs");
 var slug = require("slug");
 var mongojs = require("mongojs");
 var config = require(path.resolve(__dirname, "../config.js"));
@@ -10,11 +10,21 @@ var model = require(path.resolve(__dirname, "../lib/model.js"));
 
 var loadFile = function (parse, cb) {
 	var result = [];
+	if (fs.existsSync('./data/xing-miz.json')) {
+		var rows = JSON.parse(fs.readFileSync('./data/xing-miz.json').toString());
+		rows.forEach(function(row){
+			result = result.concat(parse(row));
+		});
+		return cb(null, result);
+	}
+	var XLSX = require('xlsx-extract').XLSX;
+	var rows = [];
 	new XLSX().extract('./data/xing-miz.xlsx', {ignore_header: 1, sheet_nr: 1}) // or sheet_name or sheet_nr
 		.on('sheet', function (sheet) {
 			console.log('sheet', sheet);  //sheet is array [sheetname, sheetid, sheetnr]
 		})
 		.on('row', function (row) {
+			rows.push(row);
 			result = result.concat(parse(row));
 		})
 		//.on('cell', function (cell) {
@@ -24,6 +34,7 @@ var loadFile = function (parse, cb) {
 			console.error('error', err);
 		})
 		.on('end', function (err) {
+			fs.writeFileSync('./data/xing-miz.json', JSON.stringify(rows, null, '\t'));
 			cb(null, result);
 		});
 };
