@@ -24,7 +24,7 @@ module.exports = {
 		recache: "5min",
 
 		// cache directory
-		cachedir: "assets/cache",
+		cachedir: "assets/data",
 
 		// whitelist file
 		whitelist: "assets/data/whitelist.json"

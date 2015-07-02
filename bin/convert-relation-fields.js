@@ -1,6 +1,12 @@
 var util = require('util');
 var db = require("./db.js");
 
+if (!util.isString) {
+	util.isString = function(s){
+		return typeof s == 'string';
+	}
+}
+
 var entities = {};
 
 var getSplitDate = function (date) {

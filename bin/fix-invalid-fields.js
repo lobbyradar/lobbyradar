@@ -4,6 +4,12 @@ var db = require("./db.js");
 var utils = require("../lib/utils.js");
 var model = require(path.resolve(__dirname, "../lib/model.js"));
 
+if (!util.isString) {
+	util.isString = function(s){
+		return typeof s == 'string';
+	}
+}
+
 /* filter out invalid data fields */
 
 var checkFieldsByFormat = function (data, state) {
