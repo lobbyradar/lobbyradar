@@ -33,6 +33,12 @@ var db = mongojs(config.db, ["entities", "relations", "users", "fields", "whitel
 // api instance
 var api = require("./lib/api.js")(config.api, db);
 
+var stats = {
+	views: 0,
+	entities: 0,
+	relations: 0
+};
+
 // use nsa if configured
 if (config.hasOwnProperty("nsa") && (config.nsa)) {
 	var heartbeat = new nsa({
@@ -41,6 +47,10 @@ if (config.hasOwnProperty("nsa") && (config.nsa)) {
 		interval: "10s"
 	}).start(function () {
 			debug("started heartbeat");
+			setInterval(function () {
+				heartbeat.leak(stats, function () {
+				});
+			}, 60 * 1000);
 		});
 }
 
@@ -98,8 +108,6 @@ var sessionMiddleware = session({
 	})
 });
 
-//app.use(passport.initialize());
-
 var passportMiddleware = passport.initialize();
 var passportSessionMiddleware = passport.session();
 function sessionHandler(req, res, next) {
@@ -141,56 +149,67 @@ var nice_error = function (err) {
 
 // index page
 app.all("/", function (req, res) {
+	stats.views++;
 	res.render("index", {});
 });
 
 // FAQ Page (static)
 app.get("/oft-gestellte-fragen", function (req, res) {
+	stats.views++;
 	res.render("faq", {});
 });
 
 // FAQ Page (static)
 app.get("/artikel", function (req, res) {
+	stats.views++;
 	res.render("articles", {});
 });
 
 // Abspann Page (static)
 app.get("/abspann", function (req, res) {
+	stats.views++;
 	res.render("abspann", {});
 });
 
 // Intro Page (static)
 app.get("/um-was-geht-es", function (req, res) {
+	stats.views++;
 	res.render("intro", {});
 });
 
 // Abspann Page (static)
 app.get("/download-plugin", function (req, res) {
+	stats.views++;
 	res.render("extension", {});
 });
 
 // Abspann Page (static)
 app.get("/ueber-uns", function (req, res) {
+	stats.views++;
 	res.render("about", {});
 });
 
 // Abspann Page (static)
 app.get("/verbindungssuche", function (req, res) {
+	stats.views++;
 	res.render("app", {});
 });
 
 // Search Page (static)
 app.get("/search/:id", function (req, res) {
+	stats.views++;
 	res.render("app", {});
 });
 
 // Entity page (static)
 app.all("/entity/:id", function (req, res) {
+	stats.views++;
 	res.render("app", {});
 });
 
 // Relation Viz
 app.get("/relation/:tag", function (req, res) {
+	stats.views++;
 	res.render("relation", {});
 });
 
@@ -299,6 +318,7 @@ app.all("/api/plugin/export-live", function (req, res) {
 
 // get entity.
 app.all("/api/entity/get/:id", function (req, res) {
+	stats.views++;
 	debug("get entity %s", req.params.id);
 	api.ent_get(req.params.id, function (err, result) {
 		if (result && req.query && req.query.relations) {
@@ -722,6 +742,10 @@ app.post("/api/update/relation/create/:id", sessionUserHandler, function (req, r
 app.all("*", function (req, res) {
 	res.status(404).render("404", {"err": "Wir konnten unter dieser URL leider nichts finden."});
 });
+
+// launch operations
+api.stats = stats;
+api.ops();
 
 if (config.defaultadmin) {
 	api.user_find(config.defaultadmin.name, function (err, user) {
