@@ -47,6 +47,7 @@
 					<ul class="dropdown-menu" role="menu">
 						<li class="active" ui-sref-active="active"><a href ui-sref="start">Start</a></li>
 						<li ui-sref-active="active"><a href ui-sref="whitelist">Whitelist</a></li>
+						<li ui-sref-active="active"><a href ui-sref="update">Updates</a></li>
 						<li ui-sref-active="active" ng-if="loggedInUser.admin"><a href ui-sref="fields">Datenfelder</a></li>
 						<li ui-sref-active="active" ng-if="loggedInUser.admin"><a href ui-sref="users">Benutzerinnen</a></li>
 						<li role="presentation" class="divider"></li>
@@ -69,7 +70,7 @@
 	<div class="row" ng-controller="PagerCtrl">
 		<div class="col-md-3">
 			<div class="btn btn-default" ng-class="{disabled:params.page()==1}" ng-click="params.page(1)" href="">&laquo; Erste</div>
-			<div class="btn btn-default" ng-class="{disabled:params.page()==1}" ng-click="params.page(params.page()-1)" href="">&laquo; Letzte</div>
+			<div class="btn btn-default" ng-class="{disabled:params.page()==1}" ng-click="params.page(params.page()-1)" href="">&laquo; Vorherige</div>
 		</div>
 		<div class="col-md-6">
 			<table class="table">
@@ -135,13 +136,17 @@
 
 			<p><a href ui-sref="whitelist">Liste der Seiten auf denen das Lobbyradar-Plugin aktiv ist </a></p>
 
-			<h4><a href ui-sref="fields">Datenfelder</a></h4>
+			<h4><a href ui-sref="update">Updates</a></h4>
 
-			<p><a href ui-sref="fields">Definition der Ablage von Informationen</a></p>
+			<p><a href ui-sref="update">Daten Updates von den Scrapern</a></p>
 
-			<h4><a href ui-sref="users">Benutzerinnenverwaltung</a></h4>
+			<h4 ng-if="loggedInUser.admin"><a href ui-sref="fields">Datenfelder</a></h4>
 
-			<p><a href ui-sref="users">Zugänge zur Lobbyradarstation</a></p>
+			<p ng-if="loggedInUser.admin"><a href ui-sref="fields">Definition der Ablage von Informationen</a></p>
+
+			<h4 ng-if="loggedInUser.admin"><a href ui-sref="users">Benutzerinnenverwaltung</a></h4>
+
+			<p ng-if="loggedInUser.admin"><a href ui-sref="users">Zugänge zur Lobbyradarstation</a></p>
 		</div>
 	</div>
 </script>
@@ -229,12 +234,12 @@
 			<th ng-if="checks.enabled"></th>
 			<th ng-repeat="f in state.fields"
 				class="sortable" ng-class="{
-                    'sort-asc': tableParams.isSortBy(f.key, 'asc'),
-                    'sort-desc': tableParams.isSortBy(f.key, 'desc')
+                    'sort-asc': tableParams.isSortBy(f._id, 'asc'),
+                    'sort-desc': tableParams.isSortBy(f._id, 'desc')
                   }"
-				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+				ng-click="tableParams.sorting(f._id, tableParams.isSortBy(f._id, 'asc') ? 'desc' : 'asc')">
 				<span ng-bind="f.name"></span>
-				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f.key, 'asc'),'fa-sort-desc':tableParams.isSortBy(f.key, 'desc')}" class="fa"></span>
+				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f._id, 'asc'),'fa-sort-desc':tableParams.isSortBy(f._id, 'desc')}" class="fa"></span>
 			</th>
 
 			<th class="text-right">Aktionen</th>
@@ -253,6 +258,7 @@
 				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
 				<span class="btn-right" ng-click='mergeDialog(p)' title="Personen zusammenführen"><i class="fa fa-code-fork fa-rotate-270"></i></span>
 				<span class="btn-right" ui-sref='person({id: p._id})' title="Person bearbeiten"><i class="fa fa-edit"></i></span>
+				<a class="btn-right" target="_blank" ng-href='/entity/{{p._id}}' title="Person ansehen"><i class="fa fa-eye"></i></a>
 			</td>
 		</tr>
 		</tbody>
@@ -345,12 +351,12 @@
 			<th ng-if="checks.enabled"></th>
 			<th ng-repeat="f in state.fields"
 				class="sortable" ng-class="{
-                    'sort-asc': tableParams.isSortBy(f.key, 'asc'),
-                    'sort-desc': tableParams.isSortBy(f.key, 'desc')
+                    'sort-asc': tableParams.isSortBy(f._id, 'asc'),
+                    'sort-desc': tableParams.isSortBy(f._id, 'desc')
                   }"
-				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+				ng-click="tableParams.sorting(f._id, tableParams.isSortBy(f._id, 'asc') ? 'desc' : 'asc')">
 				<span ng-bind="f.name"></span>
-				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f.key, 'asc'),'fa-sort-desc':tableParams.isSortBy(f.key, 'desc')}" class="fa"></span>
+				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f._id, 'asc'),'fa-sort-desc':tableParams.isSortBy(f._id, 'desc')}" class="fa"></span>
 			</th>
 			<th class="text-right">Aktionen</th>
 		</tr>
@@ -368,6 +374,7 @@
 				<span class="btn-right" ng-click="relationsDialog(p)" title="Verbindungen bearbeiten"><i class="fa fa-link"></i></span>
 				<span class="btn-right" ng-click='mergeDialog(p)' title="Organisationen zusammenführen"><i class="fa fa-code-fork fa-rotate-270"></i></span>
 				<span class="btn-right" ui-sref='organisation({id: p._id})' title="Organisation bearbeiten"><i class="fa fa-edit"></i></span>
+				<a class="btn-right" target="_blank" ng-href='/entity/{{p._id}}' title="Organisation ansehen"><i class="fa fa-eye"></i></a>
 			</td>
 		</tr>
 		</tbody>
@@ -418,12 +425,12 @@
 		<tr>
 			<th ng-repeat="f in state.fields"
 				class="sortable" ng-class="{
-                    'sort-asc': tableParams.isSortBy(f.key, 'asc'),
-                    'sort-desc': tableParams.isSortBy(f.key, 'desc')
+                    'sort-asc': tableParams.isSortBy(f._id, 'asc'),
+                    'sort-desc': tableParams.isSortBy(f._id, 'desc')
                   }"
-				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+				ng-click="tableParams.sorting(f._id, tableParams.isSortBy(f._id, 'asc') ? 'desc' : 'asc')">
 				<span ng-bind="f.name"></span>
-				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f.key, 'asc'),'fa-sort-desc':tableParams.isSortBy(f.key, 'desc')}" class="fa"></span>
+				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f._id, 'asc'),'fa-sort-desc':tableParams.isSortBy(f._id, 'desc')}" class="fa"></span>
 			</th>
 			<th class="text-right">Aktionen</th>
 		</tr>
@@ -510,12 +517,12 @@
 			<th ng-if="checks.enabled"></th>
 			<th ng-repeat="f in state.fields"
 				class="sortable" ng-class="{
-                    'sort-asc': tableParams.isSortBy(f.key, 'asc'),
-                    'sort-desc': tableParams.isSortBy(f.key, 'desc')
+                    'sort-asc': tableParams.isSortBy(f._id, 'asc'),
+                    'sort-desc': tableParams.isSortBy(f._id, 'desc')
                   }"
-				ng-click="tableParams.sorting(f.key, tableParams.isSortBy(f.key, 'asc') ? 'desc' : 'asc')">
+				ng-click="tableParams.sorting(f._id, tableParams.isSortBy(f._id, 'asc') ? 'desc' : 'asc')">
 				<span ng-bind="f.name"></span>
-				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f.key, 'asc'),'fa-sort-desc':tableParams.isSortBy(f.key, 'desc')}" class="fa"></span>
+				<span ng-class="{'fa-sort-asc':tableParams.isSortBy(f._id, 'asc'),'fa-sort-desc':tableParams.isSortBy(f._id, 'desc')}" class="fa"></span>
 			</th>
 			<th class="text-right">Aktionen</th>
 		</tr>
@@ -542,14 +549,29 @@
 
 	<h1><span ng-bind="modename"></span> <span ng-if="isNew">anlegen</span><span ng-if="!isNew">bearbeiten</span></h1>
 
+	<div ng-include="'partials/entity-edit.html'"></div>
+
+	<div class="pull-right">
+		<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
+		<button ng-if="isNew" class="btn btn-primary" ng-click="createnew()">Anlegen</button>
+		<button type="button" class="btn btn-default" ng-click="back()">Abbruch</button>
+	</div>
+
+	<hr/>
+
+	<h1>Verbindungen</h1>
+
+	<div ng-include="'partials/relations-owned.html'"></div>
+
+</script>
+
+<script type="text/ng-template" id="partials/entity-edit.html">
 	<form role="form">
 
 		<div class="form-group">
 			<label for="name">Name</label>
 			<input type="text" class="form-control" id="name" placeholder="Name" ng-model="item.name">
 		</div>
-
-		<hr/>
 
 		<div class="row">
 
@@ -589,6 +611,7 @@
 
 	<div ngdatafields data-fields="item.data" data-fieldsowner="item"></div>
 
+
 	<hr/>
 
 	<div class="btn-group">
@@ -601,17 +624,22 @@
 		</ul>
 	</div>
 
-	<div class="pull-right">
-		<button ng-if="!isNew" class="btn btn-primary" ng-click="save()">Aktualisieren</button>
-		<button ng-if="isNew" class="btn btn-primary" ng-click="createnew()">Anlegen</button>
-		<button type="button" class="btn btn-default" ng-click="back()">Abbruch</button>
+</script>
+
+<script type="text/ng-template" id="partials/update-entity-modal.html">
+	<div ng-controller="ModalUpdateEditorCtrl">
+		<div class="modal-header">
+			<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
+			<h4 class="modal-title"><span ng-bind="modename"></span> bearbeiten</h4>
+		</div>
+		<div class="modal-body">
+			<div ng-include="'partials/entity-edit.html'"></div>
+		</div>
+		<div class="modal-footer">
+			<button class="btn btn-primary" ng-click="ok()">Aktualisieren</button>
+			<button type="button" class="btn btn-warning" ng-click="cancel()">Abbruch</button>
+		</div>
 	</div>
-
-	<hr/>
-
-	<h1>Verbindungen</h1>
-	<div ng-include="'partials/relations-owned.html'"></div>
-
 </script>
 
 <script type="text/ng-template" id="partials/relations-modal.html">
@@ -650,12 +678,7 @@
 			<tr ng-repeat="o in relations">
 				<td ng-bind="o.entity.name"></td>
 				<td ng-bind="o.type"></td>
-				<!--<td ng-bind="o.weight"></td>-->
-				<!--<td ng-bind="o.updated"></td>-->
-				<!--<td ng-bind="o.created"></td>-->
 				<td ng-bind="o.tags"></td>
-				<!--<td ng-bind="o.entities"></td>-->
-				<!--<td ng-bind="o.data"></td>-->
 				<td class="col-action">
 					<span class="btn-right" ng-click="remove(o)" title="Verbindung löschen"><i class="fa fa-trash"></i></span>
 					<span class="btn-right" ng-click="edit(o)" title="Verbindung bearbeiten"><i class="fa fa-edit"></i></span>
@@ -856,7 +879,7 @@
 		<tr ng-repeat="p in $data">
 			<td ng-bind="p.name"></td>
 			<td ng-bind="p.key"></td>
-			<td ng-bind="globals.fieldtypes[p.format]"></td>
+			<td ng-bind="globals.types[p.format].name"></td>
 			<td ng-bind="p.mode"></td>
 			<td><span ng-if="p.default">Ja</span><span ng-if="!p.default">Nein</span></td>
 			<td>
@@ -872,7 +895,7 @@
 <script type="text/ng-template" id="partials/field.html">
 
 	<div class="row">
-		<div class="col-md-6 col-md-offset-3">
+		<div class="col-md-8 col-md-offset-2">
 			<h1>Feld <span ng-if="isNew">anlegen</span><span ng-if="!isNew">bearbeiten</span></h1>
 
 			<form class="form">
@@ -895,13 +918,13 @@
 					<select class="form-control" ng-model="field.mode">
 						<option value="persons">Personen</option>
 						<option value="organisations">Organisationen</option>
-						<option value="relations">Verknüpfungen</option>
+						<option value="relations">Verbindungen</option>
 					</select>
 				</div>
 				<div class="form-group col-md-12">
 					<div class="checkbox">
 						<label>
-							<input type="checkbox" ng-model="field.default"> Standard (Feld beim Neuanlegen von Entitäten automatisch eintragen)
+							<input type="checkbox" ng-model="field.default"> Standard (Feld beim Neuanlegen von Entitäten automatisch anlegen)
 						</label>
 					</div>
 				</div>
@@ -955,7 +978,7 @@
 		<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
 		<h4 class="modal-title">{{data.modename}} zusammenführen</h4>
 	</div>
-	<div class="modal-body" ng-controller="MergeEntitiesCtrl">
+	<div class="modal-body" ng-controller="SearchEntitiesCtrl">
 		<form class="form">
 			<div class="form-group">
 				<label>{{data.entity.name}} zusammenführen mit</label>
@@ -974,194 +997,438 @@
 
 </script>
 
+<script type="text/ng-template" id="partials/search-modal.html">
+	<div class="modal-header">
+		<button type="button" class="close" ng-click="cancel()" aria-hidden="true">&times;</button>
+		<h4 class="modal-title">{{data.modename}} suchen</h4>
+	</div>
+	<div class="modal-body" ng-controller="SearchEntitiesCtrl">
+		<form class="form">
+			<div class="form-group">
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="{{data.modename}}" ng-model="data.edit.name" datasets="typeaheadDatasetEntities" ngtypeahead>
+					<span ng-show="data.edit._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="ok()">OK</button>
+		<button class="btn btn-warning" ng-click="cancel()">Abbruch</button>
+	</div>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-link.html">
+	<form class="form">
+		<div class="form-group col-md-6">
+			<label>URL</label>
+			<input type="text" class="form-control" placeholder="URL" ng-model="d.value.url">
+		</div>
+		<div class="form-group col-md-6">
+			<label>Bemerkung</label>
+			<input type="text" class="form-control" placeholder="Bemerkung" ng-model="d.value.remark">
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-url.html">
+	<form class="form">
+		<div class="form-group col-md-12">
+			<label>URL</label>
+			<input type="text" class="form-control" placeholder="URL" ng-model="d.value">
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-address.html">
+	<form class="form">
+
+		<div class="form-group col-md-12">
+			<label>Name</label>
+			<input type="text" class="form-control" placeholder="Name" ng-model="d.value.name">
+		</div>
+
+		<div class="form-group col-md-12">
+			<label>Adresszeile</label>
+			<input type="text" class="form-control" placeholder="Adresszeile" ng-model="d.value.addr">
+		</div>
+
+		<div class="form-group col-md-12">
+			<label>Straße</label>
+			<input type="text" class="form-control" placeholder="Straße" ng-model="d.value.street">
+		</div>
+
+		<div class="form-group col-md-4">
+			<label>Postleitzahl</label>
+			<input type="text" class="form-control" placeholder="Postleitzahl" ng-model="d.value.postcode">
+		</div>
+
+		<div class="form-group col-md-4">
+			<label>Stadt</label>
+			<input type="text" class="form-control" placeholder="Stadt" ng-model="d.value.city">
+		</div>
+
+		<div class="form-group col-md-4">
+			<label>Land</label>
+			<input type="text" class="form-control" placeholder="Land" ng-model="d.value.country">
+		</div>
+
+		<div class="form-group col-md-6">
+			<label>Telefon</label>
+			<input type="text" class="form-control" placeholder="Telefon" ng-model="d.value.tel">
+		</div>
+
+		<div class="form-group col-md-6">
+			<label>Fax</label>
+			<input type="text" class="form-control" placeholder="Fax" ng-model="d.value.fax">
+		</div>
+
+		<div class="form-group col-md-6">
+			<label>E-Mail</label>
+			<input type="text" class="form-control" placeholder="E-Mail" ng-model="d.value.email">
+		</div>
+
+		<div class="form-group col-md-6">
+			<label>www</label>
+			<input type="text" class="form-control" placeholder="www" ng-model="d.value.www">
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-date.html">
+	<form class="form" ng-controller="DatepickerCtrl" ng-init="dtp_value=d.value;">
+		<div class="form-group col-md-6">
+			<label>Datum</label>
+
+			<p class="input-group">
+				<input type="text" class="form-control" datepicker-options="dtp_dateOptions" datepicker-popup="{{d.value.fmt}}" ng-model="d.value.date" is-open="dtp_opened" ng-required="true" close-text="Schließen"/>
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-default" ng-click="dtp_open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+						</span>
+			</p>
+		</div>
+		<div class="form-group col-md-6">
+			<label>Format</label>
+			<select class="form-control" ng-model="d.value.fmt" ng-options="f.fmt as f.name for f in dtp_formats"></select>
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-range.html">
+	<form class="form">
+		<div class="form-group col-md-3">
+			<label>Start: Monat</label>
+
+			<p class="input-group">
+				<input type="integer" class="form-control" ng-model="d.value.start.month">
+			</p>
+		</div>
+		<div class="form-group col-md-3">
+			<label>Start: Jahr</label>
+
+			<p class="input-group">
+				<input type="integer" class="form-control" ng-model="d.value.start.year">
+			</p>
+		</div>
+		<div class="form-group col-md-3">
+			<label>Ende: Monat</label>
+
+			<p class="input-group">
+				<input type="integer" class="form-control" ng-model="d.value.start.month">
+			</p>
+		</div>
+		<div class="form-group col-md-3">
+			<label>Ende: Jahr</label>
+
+			<p class="input-group">
+				<input type="integer" class="form-control" ng-model="d.value.start.year">
+			</p>
+		</div>
+		<div class="form-group col-md-12">
+			<label>Beschreibung</label>
+			<input type="text" class="form-control" placeholder="Text" ng-model="d.value.desc">
+		</div>
+		<div class="form-group col-md-12">
+			<label>Quelle</label>
+			<input type="text" class="form-control" placeholder="Text" ng-model="d.value.source">
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-monthyear.html">
+	<form class="form">
+		<div class="form-group col-md-6">
+			<label>Monat</label>
+			<input type="text" class="form-control" ng-model="d.value.month">
+		</div>
+		<div class="form-group col-md-6">
+			<label>Jahr</label>
+			<input type="text" class="form-control" ng-model="d.value.year">
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-donation.html">
+	<form class="form">
+		<div class="form-group col-md-6">
+			<label>€</label>
+			<input type="text" class="form-control" ng-model="d.value.amount">
+		</div>
+		<div class="form-group col-md-6">
+			<label>Jahr</label>
+			<input type="text" class="form-control" ng-model="d.value.year">
+		</div>
+		<div class="form-group col-md-12">
+			<label>Quellen</label>
+			<div class="form-group" ng-controller="StringsEdit">
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="Quelle" ng-model="currentedit" ng-enter="addEntry(d.value, 'sources', currentedit)">
+					<span ng-show="canAddEntry(d.value, 'sources', currentedit)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry(d.value, 'sources', currentedit)"></span>
+				</div>
+				<div class="label-list">
+					<div ng-repeat="o in d.value.sources" class="label label-default">
+						<span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Entfernen" ng-click="removeEntry(d.value, 'sources', o)"></i>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="form-group col-md-6">
+			<label>Verifiziert</label>
+
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" ng-model="d.value.verified"> <span ng-if="d.value.verified"><b>Ja</b>/Nein</span><span ng-if="!d.value.verified">Ja/<b>Nein</b></span>
+				</label>
+			</div>
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-activity.html">
+	<form class="form">
+		<div class="form-group col-md-6">
+			<label>Typ</label>
+			<select class="form-control" ng-model="d.value.type" ng-options="x.id as x.name for x in $root.globals.types[d.format].types"></select>
+		</div>
+		<div class="form-group col-md-6">
+			<label>Position</label>
+			<input type="text" class="form-control" ng-model="d.value.position">
+		</div>
+		<div class="form-group col-md-4">
+			<label>Periodical</label>
+			<input type="text" class="form-control" ng-model="d.value.periodical">
+		</div>
+		<div class="form-group col-md-4">
+			<label>Aktivität</label>
+			<input type="text" class="form-control" ng-model="d.value.activity">
+		</div>
+		<div class="form-group col-md-4">
+			<label>Ort</label>
+			<input type="text" class="form-control" ng-model="d.value.place">
+		</div>
+		<div class="form-group col-md-6">
+			<label>Level</label>
+			<input type="number" class="form-control" ng-model="d.value.level">
+		</div>
+		<div class="form-group col-md-6">
+			<label>Unbezahlt</label>
+
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" ng-model="d.value.unsalaried"> <span ng-if="d.value.unsalaried"><b>Ja</b>/Nein</span><span ng-if="!d.value.unsalaried">Ja/<b>Nein</b></span>
+				</label>
+			</div>
+		</div>
+		<div class="form-group col-md-6" ng-controller="Datepicker2Ctrl" ng-init="dtp_value={val:d.value,name:'start'};">
+			<label>Von</label>
+
+			<p class="input-group">
+				<input type="text" class="form-control" datepickerMode="{{dtp.mode}}" datepicker-mode="{{dtp.mode}}" datepicker-options="dtp.options" datepicker-popup="{{dtp.fmt.fmt}}" ng-model="dtp.date" is-open="dtp.opened" ng-required="true" close-text="Schließen" ng-blur='dtp.validate()'/>
+				<span class="input-group-btn"><button type="button" class="btn btn-default" ng-click="dtp.open($event)"><i class="glyphicon glyphicon-calendar"></i></button></span>
+				<select class="form-control" ng-model="dtp.fmt" ng-options="f.name for f in dtp.formats"></select>
+			</p>
+		</div>
+		<div class="form-group col-md-6" ng-controller="Datepicker2Ctrl" ng-init="dtp_value={val:d.value,name:'end'};">
+			<label>Bis</label>
+
+			<p class="input-group">
+				<input type="text" class="form-control" datepickerMode="{{dtp.mode}}" datepicker-mode="{{dtp.mode}}" datepicker-options="dtp.options" datepicker-popup="{{dtp.fmt.fmt}}" ng-model="dtp.date" is-open="dtp.opened" ng-required="true" close-text="Schließen" ng-blur='dtp.validate()'/>
+				<span class="input-group-btn"><button type="button" class="btn btn-default" ng-click="dtp.open($event)"><i class="glyphicon glyphicon-calendar"></i></button></span>
+				<select class="form-control" ng-model="dtp.fmt" ng-options="f.name for f in dtp.formats"></select>
+			</p>
+		</div>
+		<div class="form-group col-md-12">
+			<label>Quellen</label>
+			<div class="form-group" ng-controller="StringsEdit">
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="Quelle" ng-model="currentedit" ng-enter="addEntry(d.value, 'sources', currentedit)">
+					<span ng-show="canAddEntry(d.value, 'sources', currentedit)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry(d.value, 'sources', currentedit)"></span>
+				</div>
+				<div class="label-list">
+					<div ng-repeat="o in d.value.sources" class="label label-default">
+						<span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Entfernen" ng-click="removeEntry(d.value, 'sources', o)"></i>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="form-group col-md-6">
+			<label>Verifiziert</label>
+
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" ng-model="d.value.verified"> <span ng-if="d.value.verified"><b>Ja</b>/Nein</span><span ng-if="!d.value.verified">Ja/<b>Nein</b></span>
+				</label>
+			</div>
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-association.html">
+	<form class="form">
+		<div class="form-group col-md-6">
+			<label>Typ</label>
+			<select class="form-control" ng-model="d.value.type" ng-options="x.id as x.name for x in $root.globals.types[d.format].types"></select>
+		</div>
+		<div class="form-group col-md-6">
+			<label>Position</label>
+			<input type="text" class="form-control" ng-model="d.value.position">
+		</div>
+		<div class="form-group col-md-6" ng-controller="Datepicker2Ctrl" ng-init="dtp_value={val:d.value,name:'start'};">
+			<label>Von</label>
+
+			<p class="input-group">
+				<input type="text" class="form-control" datepickerMode="{{dtp.mode}}" datepicker-mode="{{dtp.mode}}" datepicker-options="dtp.options" datepicker-popup="{{dtp.fmt.fmt}}" ng-model="dtp.date" is-open="dtp.opened" ng-required="true" close-text="Schließen" ng-blur='dtp.validate()'/>
+				<span class="input-group-btn"><button type="button" class="btn btn-default" ng-click="dtp.open($event)"><i class="glyphicon glyphicon-calendar"></i></button></span>
+				<select class="form-control" ng-model="dtp.fmt" ng-options="f.name for f in dtp.formats"></select>
+			</p>
+		</div>
+		<div class="form-group col-md-6" ng-controller="Datepicker2Ctrl" ng-init="dtp_value={val:d.value,name:'end'};">
+			<label>Bis</label>
+
+			<p class="input-group">
+				<input type="text" class="form-control" datepickerMode="{{dtp.mode}}" datepicker-mode="{{dtp.mode}}" datepicker-options="dtp.options" datepicker-popup="{{dtp.fmt.fmt}}" ng-model="dtp.date" is-open="dtp.opened" ng-required="true" close-text="Schließen" ng-blur='dtp.validate()'/>
+				<span class="input-group-btn"><button type="button" class="btn btn-default" ng-click="dtp.open($event)"><i class="glyphicon glyphicon-calendar"></i></button></span>
+				<select class="form-control" ng-model="dtp.fmt" ng-options="f.name for f in dtp.formats"></select>
+			</p>
+		</div>
+		<div class="form-group col-md-12">
+			<label ng-bind="d.value.type=='pass'?'Ausgestellt durch':'Beschreibung'"></label>
+			<input type="text" class="form-control" ng-model="d.value.desc">
+		</div>
+		<div class="form-group col-md-12">
+			<label>Quellen</label>
+			<div class="form-group" ng-controller="StringsEdit">
+				<div class="has-feedback">
+					<input type="text" class="form-control" placeholder="Quelle" ng-model="currentedit" ng-enter="addEntry(d.value, 'sources', currentedit)">
+					<span ng-show="canAddEntry(d.value, 'sources', currentedit)" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addEntry(d.value, 'sources', currentedit)"></span>
+				</div>
+				<div class="label-list">
+					<div ng-repeat="o in d.value.sources" class="label label-default">
+						<span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Entfernen" ng-click="removeEntry(d.value, 'sources', o)"></i>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="form-group col-md-6">
+			<label>Verifiziert</label>
+
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" ng-model="d.value.verified"> <span ng-if="d.value.verified"><b>Ja</b>/Nein</span><span ng-if="!d.value.verified">Ja/<b>Nein</b></span>
+				</label>
+			</div>
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-number.html">
+	<form class="form">
+		<div class="form-group col-md-4">
+			<input type="number" class="form-control" placeholder="Zahl" ng-model="d.value">
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-integer.html">
+	<form class="form">
+		<div class="form-group col-md-4">
+			<input type="number" class="form-control" placeholder="Zahl" ng-model="d.value">
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-string.html">
+	<form class="form">
+		<div class="form-group col-md-12" ng-controller="AutoCompleteCtrl">
+			<input type="text" class="form-control" placeholder="Text" ng-model="d.value" datasets="datasetString" ngtypeahead>
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-photo.html">
+	<form class="form">
+		<div class="form-group col-md-12">
+			<label>URL</label>
+			<input type="url" class="form-control" placeholder="URL" ng-model="d.value.url">
+		</div>
+		<div class="form-group col-md-12">
+			<label>Copyright</label>
+			<input type="text" class="form-control" placeholder="Copyright" ng-model="d.value.copyright">
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-strings.html">
+	<form class="form">
+		<div class="form-group col-md-12">
+			<input type="text" class="form-control" placeholder="Text" ng-model="d.value">
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-tags.html">
+	<form class="form">
+		<div class="form-group col-md-12" ng-controller="TagEdit">
+			<div class="has-feedback">
+				<input type="text" class="form-control" placeholder="{{d.desc}}" ng-model="edit[d.key]" ng-enter="addTagEntry(d, edit[d.key])" datasets="d.dataset" ngtypeahead>
+				<span ng-show="canAddTagEntry(d, edit[d.key])" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addTagEntry(d, edit[d.key])"></span>
+			</div>
+			<div class="label-list">
+				<div ng-repeat="o in d.value" class="label label-default">
+					<span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Entfernen" ng-click="removeTagEntry(d, o)"></i>
+				</div>
+			</div>
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-bool.html">
+	<form class="form">
+		<div class="form-group col-md-12">
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" ng-model="d.value"> <span ng-if="d.value"><b>Ja</b>/Nein</span><span ng-if="!d.value">Ja/<b>Nein</b></span>
+				</label>
+			</div>
+		</div>
+	</form>
+</script>
+
+<script type="text/ng-template" id="partials/datafield-default.html">
+	<form class="form">
+		<div class="form-group col-md-12">
+			Bearbeiten von Datentyp <span ng-bind="d.format"></span> wird noch nicht unterstützt.
+		</div>
+	</form>
+</script>
+
 <script type="text/ng-template" id="partials/datafields.html">
 
-	<div ng-repeat="d in fields" ng-switch="d.format" ng-controller="FieldListEditCtrl">
-		<p class="field-headline"><span ng-bind="d.desc"></span><i ng-show="!d.fixed" class="glyphicon glyphicon-remove btn-right" title="{{d.desc}} entfernen" ng-click="removeData(d,fields)"></i></p>
+	<div ng-repeat="d in fields" ng-controller="FieldListEditCtrl">
+		<p class="field-headline"><span ng-bind="d.desc||$root.globals.types[d.format].name"></span><i ng-show="!d.fixed" class="glyphicon glyphicon-remove btn-right" title="{{d.desc||d.format}} entfernen" ng-click="removeData(d,fields)"></i></p>
 
-		<div ng-switch-when="link" class="row">
-			<form class="form">
-				<div class="form-group col-md-12">
-					<label>URL</label>
-					<input type="url" class="form-control" placeholder="URL" ng-model="d.value.url">
-				</div>
-				<div class="form-group col-md-12">
-					<label>Bemerkung</label>
-					<input type="text" class="form-control" placeholder="Bemerkung" ng-model="d.value.remark">
-				</div>
-			</form>
-		</div>
-
-		<div ng-switch-when="address" class="row">
-			<form class="form">
-
-				<div class="form-group col-md-12">
-					<label>Name</label>
-					<input type="text" class="form-control" placeholder="Name" ng-model="d.value.name">
-				</div>
-
-				<div class="form-group col-md-12">
-					<label>Adresszeile</label>
-					<input type="text" class="form-control" placeholder="Adresszeile" ng-model="d.value.addr">
-				</div>
-
-				<div class="form-group col-md-12">
-					<label>Straße</label>
-					<input type="text" class="form-control" placeholder="Straße" ng-model="d.value.street">
-				</div>
-
-				<div class="form-group col-md-4">
-					<label>Postleitzahl</label>
-					<input type="text" class="form-control" placeholder="Postleitzahl" ng-model="d.value.postcode">
-				</div>
-
-				<div class="form-group col-md-4">
-					<label>Stadt</label>
-					<input type="text" class="form-control" placeholder="Stadt" ng-model="d.value.city">
-				</div>
-
-				<div class="form-group col-md-4">
-					<label>Land</label>
-					<input type="text" class="form-control" placeholder="Land" ng-model="d.value.country">
-				</div>
-
-				<div class="form-group col-md-6">
-					<label>Telefon</label>
-					<input type="text" class="form-control" placeholder="Telefon" ng-model="d.value.tel">
-				</div>
-
-				<div class="form-group col-md-6">
-					<label>Fax</label>
-					<input type="text" class="form-control" placeholder="Fax" ng-model="d.value.fax">
-				</div>
-
-				<div class="form-group col-md-6">
-					<label>E-Mail</label>
-					<input type="text" class="form-control" placeholder="E-Mail" ng-model="d.value.email">
-				</div>
-
-				<div class="form-group col-md-6">
-					<label>www</label>
-					<input type="text" class="form-control" placeholder="www" ng-model="d.value.www">
-				</div>
-			</form>
-		</div>
-
-		<div ng-switch-when="date" class="row">
-			<form class="form" ng-controller="DatepickerCtrl" ng-init="dtp_value=d.value;">
-				<div class="form-group col-md-6">
-					<label>Datum</label>
-
-					<p class="input-group">
-						<input type="text" class="form-control" datepicker-options="dtp_dateOptions" datepicker-popup="{{d.value.fmt}}" ng-model="d.value.date" is-open="dtp_opened" ng-required="true" close-text="Schließen"/>
-						<span class="input-group-btn">
-							<button type="button" class="btn btn-default" ng-click="dtp_open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
-						</span>
-					</p>
-				</div>
-				<div class="form-group col-md-6">
-					<label>Format</label>
-					<select class="form-control" ng-model="d.value.fmt" ng-options="f.fmt as f.name for f in dtp_formats"></select>
-				</div>
-			</form>
-		</div>
-
-		<div ng-switch-when="range" class="row">
-			<form class="form" ng-controller="DatepickerCtrl" ng-init="dtp_range_value=d.value;">
-				<div class="form-group col-md-6">
-					<label>Start</label>
-
-					<p class="input-group">
-						<input type="text" class="form-control" datepicker-options="dtp_dateOptions" datepicker-popup="{{d.value.fmt}}" ng-model="d.value.start" is-open="dtp_opened" ng-required="true" close-text="Schließen"/>
-						<span class="input-group-btn">
-							<button type="button" class="btn btn-default" ng-click="dtp_open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
-						</span>
-					</p>
-				</div>
-				<div class="form-group col-md-6">
-					<label>Ende</label>
-
-					<p class="input-group">
-						<input type="text" class="form-control" datepicker-options="dtp_dateOptions" datepicker-popup="{{d.value.fmt}}" ng-model="d.value.end" is-open="dtp_opened" ng-required="true" close-text="Schließen"/>
-						<span class="input-group-btn">
-							<button type="button" class="btn btn-default" ng-click="dtp_open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
-						</span>
-					</p>
-				</div>
-				<div class="form-group col-md-6">
-					<label>Format</label>
-					<select class="form-control" ng-model="d.value.fmt" ng-options="f.fmt as f.name for f in dtp_formats"></select>
-				</div>
-			</form>
-		</div>
-
-		<div ng-switch-when="number" class="row">
-			<form class="form">
-				<div class="form-group col-md-4">
-					<input type="number" class="form-control" placeholder="Zahl" ng-model="d.value">
-				</div>
-			</form>
-		</div>
-
-		<div ng-switch-when="string" class="row">
-			<form class="form">
-				<div class="form-group col-md-12" ng-controller="AutoCompleteCtrl">
-					<input type="text" class="form-control" placeholder="Text" ng-model="d.value" datasets="datasetString" ngtypeahead>
-				</div>
-			</form>
-		</div>
-
-		<div ng-switch-when="photo" class="row">
-			<form class="form">
-				<div class="form-group col-md-12">
-					<label>URL</label>
-					<input type="url" class="form-control" placeholder="URL" ng-model="d.value.url">
-				</div>
-				<div class="form-group col-md-12">
-					<label>Copyright</label>
-					<input type="text" class="form-control" placeholder="Copyright" ng-model="d.value.copyright">
-				</div>
-			</form>
-		</div>
-
-		<div ng-switch-when="strings" class="row">
-			<form class="form">
-				<div class="form-group col-md-12">
-					<input type="text" class="form-control" placeholder="Text" ng-model="d.value">
-				</div>
-			</form>
-		</div>
-
-		<div ng-switch-when="tags" class="row">
-			<form class="form">
-				<div class="form-group col-md-12" ng-controller="TagEdit">
-					<div class="has-feedback">
-						<input type="text" class="form-control" placeholder="{{d.desc}}" ng-model="edit[d.key]" ng-enter="addTagEntry(d, edit[d.key])" datasets="d.dataset" ngtypeahead>
-						<span ng-show="canAddTagEntry(d, edit[d.key])" class="glyphicon glyphicon-plus-sign form-control-feedback clickable" ng-click="addTagEntry(d, edit[d.key])"></span>
-					</div>
-					<div class="label-list">
-						<div ng-repeat="o in d.value" class="label label-default">
-							<span ng-bind="o"></span><i class="glyphicon glyphicon-remove btn-label-right" title="Entfernen" ng-click="removeTagEntry(d, o)"></i>
-						</div>
-					</div>
-				</div>
-			</form>
-		</div>
-
-		<div ng-switch-when="bool" class="row">
-			<form class="form">
-				<div class="form-group col-md-12">
-					<div class="checkbox">
-						<label>
-							<input type="checkbox" ng-model="d.value"> <span ng-if="d.value"><b>Ja</b>/Nein</span><span ng-if="!d.value">Ja/<b>Nein</b></span>
-						</label>
-					</div>
-				</div>
-			</form>
-		</div>
-
+		<div class="row" ng-include="getFieldPartial(d)"></div>
 		<hr ng-if="$index==fields.length"/>
-
 	</div>
 
 </script>
@@ -1206,16 +1473,16 @@
 				<span ng-show="edit.two._id" class="glyphicon glyphicon-ok form-control-feedback"></span>
 			</div>
 		</div>
-		<div class="form-group">
-			<label>Art</label>
-			<span class="dropdown dropdown-btn-right">
-				<a role="button" data-toggle="dropdown" class="dropdown-toggle" href><span class="caret"></span>&nbsp;</a>
-				<ul role="menu" class="dropdown-menu">
-					<li ng-repeat="t in types"><a href ng-click="relation.type=t" ng-bind="t"></a></li>
-				</ul>
-			</span>
-			<input type="text" class="form-control" placeholder="Art" ng-model="relation.type" datasets="datasetTypes" ngtypeahead>
-		</div>
+		<!--<div class="form-group">-->
+			<!--<label>Art</label>-->
+			<!--<span class="dropdown dropdown-btn-right">-->
+				<!--<a role="button" data-toggle="dropdown" class="dropdown-toggle" href><span class="caret"></span>&nbsp;</a>-->
+				<!--<ul role="menu" class="dropdown-menu">-->
+					<!--<li ng-repeat="t in types"><a href ng-click="relation.type=t" ng-bind="t"></a></li>-->
+				<!--</ul>-->
+			<!--</span>-->
+			<!--<input type="text" class="form-control" placeholder="Art" ng-model="relation.type" datasets="datasetTypes" ngtypeahead>-->
+		<!--</div>-->
 		<div class="form-group">
 			<label>Schlagworte</label>
 			<span class="dropdown dropdown-btn-right">
@@ -1249,7 +1516,7 @@
 
 <script type="text/ng-template" id="partials/relation.html">
 	<div class="row" ng-controller="RelationEditCtrl">
-		<div class="col-md-6 col-md-offset-3">
+		<div class="col-md-8 col-md-offset-2">
 			<h1>Verbindung <span ng-if="isNew">anlegen</span><span ng-if="!isNew">bearbeiten</span></h1>
 
 			<div ng-include="'partials/relation-edits.html'"></div>
@@ -1347,11 +1614,140 @@
 
 </script>
 
-<script type="text/ng-template" id="partials/import.html">
+<script type="text/ng-template" id="partials/update.html">
+	<div class="row">
+		<div class="col-md-4 headline">
+			<h1>Updates</h1>
 
-	<div ng-repeat="import in imports">
-		<span ng-bind="import.name"></span>
+			<p>Anzahl <span ng-bind="updates.length"></span></p>
+
+		</div>
+		<!--<div class="col-md-5">-->
+		<!--<div class="pull-right">-->
+		<!--<label>Aktionen</label>-->
+		<!---->
+		<!--<div>-->
+		<!--<button class="btn btn-default" ui-sref="person({id: 'new'})">Person anlegen</button>-->
+		<!--<div class="btn-group">-->
+		<!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">-->
+		<!--Daten anzeigen <span class="caret"></span>-->
+		<!--</button>-->
+		<!--<ul class="dropdown-menu" role="menu">-->
+		<!--<li ng-repeat="o in fields" ng-class="{active:isFieldActive(o)}"><a href ng-click="toggleField(o)" ng-bind="o.name"></a></li>-->
+		<!--</ul>-->
+		<!--</div>-->
+		<!--</div>-->
+		<!--</div>-->
+		<!--</div>-->
+		<!--<div class="col-md-3">-->
+		<!--<div ng-include="'partials/filter.html'"></div>-->
+		<!--</div>-->
 	</div>
+
+	<div class="update" ng-if="updates.length>0">
+		<div class="detail-row">
+			<div class="detail-col">
+				<div class="update-head">Update Daten</div>
+			</div>
+			<div class="detail-col">
+				<div class="update-head">Vorhandene Daten</div>
+			</div>
+		</div>
+
+		<div class="item" ng-repeat="entry in updates | pagination: curPage * pageSize | limitTo: pageSize">
+			<div class="info" ng-click="show(entry)">
+				<i class="fa" ng-class="{'fa-plus':!entry.$visible,'fa-minus':entry.$visible}"></i>
+				<i class="fa" ng-class="{'fa-user':entry.type=='person','fa-building-o':entry.type=='entity'}"></i>
+				<span ng-bind="entry.name"></span>
+				<!--<i ng-if="entry.$visible" class="fa fa-remove"></i>-->
+			</div>
+			<i ng-if="entry.$loading" class="fa fa-spin fa-spinner fa-2x"></i>
+
+			<div ng-if="entry.$visible" class="details">
+
+				<!--<div class="details-head" ng-bind="entry.type=='person'?'Person':'Organisation'"></div>-->
+
+				<div class="detail-row">
+					<div class="detail-col">
+						<i class="fa" ng-class="{'fa-user':entry.update.entity.type=='person','fa-building-o':entry.update.entity.type=='entity'}"></i>
+						<span ng-bind="entry.update.entity.name"></span>
+						<a class="btn-right" href ng-click="deleteEntity(entry)" title="Eintrag löschen"><i class="fa fa-trash"></i></a>
+						<a class="btn-right" href ng-click="searchEntity(entry.update.entity)" title="Passenden Eintrag suchen"><i class="fa fa-search"></i></a>
+						<a class="btn-right" href ng-click="editEntity(entry.update.entity)" title="Eintrag bearbeiten"><i class="fa fa-edit"></i></a>
+						<a ng-if="(entry.update.matches.length==0)" class="btn-right" href ng-click="createEntity(entry)" title="Eintrag anlegen"><i class="fa fa-arrow-right"></i></a>
+
+						<div>
+							<span class="detail-label">Aliase:</span> <span ng-bind="entry.update.entity.aliases"></span><br/>
+							<span class="detail-label">Importer:</span> <span ng-bind="entry.update.entity.importer"></span><br/>
+						</div>
+						<div class="detail-field" ng-repeat="d in entry.update.data_matches">
+							<span class="detail-label" ng-bind="d.data.desc"></span>
+							<span ng-bind="d.data | fieldvalue"></span>
+						</div>
+					</div>
+					<div class="detail-col" ng-if="entry.update.matches.length==0">
+						<a class="action" href ng-click="createEntity(entry)"><i class="fa fa-arrow-right"></i> Eintrag anlegen</a><br/>
+					</div>
+					<div class="detail-col" ng-if="(entry.update.matches.length==1)">
+						<span ng-bind="entry.update.matches[0].name"></span><br/>
+						<span class="detail-label">Aliase:</span> <span ng-bind="entry.update.matches[0].aliases"></span><br/>
+						<span class="detail-label">Importer:</span> <span ng-bind="entry.update.matches[0].importer"></span><br/>
+
+						<div class="detail-field" ng-repeat="d in entry.update.data_matches">
+							<div ng-if="d.match" title="{{d.match.format}}" ng-bind="d.match | fieldvalue"></div>
+							<div ng-if="!d.match">
+								<a class="action" href ng-click="applyEntityData(d.data, entry.update.entity)"><i class="fa fa-arrow-right"></i> Daten übernehmen</a>
+							</div>
+						</div>
+					</div>
+					<div class="detail-col" ng-if="entry.update.matches.length>1">
+						<div ng-repeat="ent in entry.update.matches">
+							-> <span ng-bind="ent.name"></span>
+						</div>
+					</div>
+				</div>
+
+				<div class="relations" ng-if="entry.update.relations.length">
+					<div class="detail-row">
+						<div class="detail-col">
+							<div class="details-head">Verbindungen</div>
+						</div>
+						<div class="detail-col">
+							<!--<a ng-if="entry.update.relations.length>1" href ng-click="createRelations(entry)"><i class="fa fa-arrow-right"></i> Alle Verbindungen anlegen</a>-->
+						</div>
+					</div>
+
+					<div class="detail-row" ng-repeat="rel_info in entry.update.relations">
+						<div class="detail-col">
+							<b ng-bind="rel_info.entity.name"></b>
+							<a class="btn-right" href ng-click="deleteRelation(rel_info.rel)" title="Verbindung löschen"><i class="fa fa-trash"></i></a>
+							<a class="btn-right" href ng-click="searchEntity(rel_info.entity)" title="Passenden Eintrag suchen"><i class="fa fa-search"></i></a>
+							<a class="btn-right" href ng-click="editEntity(rel_info.entity)" title="Eintrag bearbeiten"><i class="fa fa-edit"></i></a>
+							<a ng-if="(rel_info.matches.length==0)" class="btn-right" href ng-click="createRelation(rel_info.rel)" title="Verbindung anlegen"><i class="fa fa-arrow-right"></i></a>
+
+							<div class="detail-field" ng-repeat="d in rel_info.data_matches">
+								<div title="{{d.data.format}}" ng-bind="d.data | fieldvalue"></div>
+							</div>
+						</div>
+						<div class="detail-col">
+							<div ng-if="(rel_info.entity_matches.length!==0)"><b ng-bind="rel_info.entity_matches[0].name"></b></div>
+							<div ng-if="(rel_info.matches.length==0)"><a class="action" href ng-click="createRelation(rel_info.rel)"><i class="fa fa-arrow-right"></i> Verbindung anlegen</a></div>
+							<div class="detail-field" ng-repeat="d in rel_info.data_matches">
+								<div ng-if="d.match" title="{{d.match.format}}" ng-bind="d.match | fieldvalue"></div>
+								<div ng-if="!d.match && (rel_info.entity_matches.length!==0) && (rel_info.matches.length!==0)">
+									<a class="action" href ng-click="applyRelationData(d.data, rel_info.rel)"><i class="fa fa-arrow-right"></i> Daten übernehmen</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<br/>
+
+	<div ng-if="updates.length>0" ng-include="'partials/pager.html'"></div>
 
 </script>
 

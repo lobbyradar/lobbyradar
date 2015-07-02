@@ -1,44 +1,36 @@
 {{>header}}
 {{>nav-grey}}
 {{>nav-blue}}
-
 <div class="fullscreen">
-  
-  <div class="container" id="main">
-    <div class="row">
-      <div class="col-sm-6 viewport-info col-sm-push-6">
-        {{>vizinfo}}
-      </div>
-      <div class="col-sm-6 col-sm-pull-6 viewport-visual">
-        <form class="theme-switch" name="form">
-                <div class="theme-switch-label">Ansicht:</div>
-
-          <label>
-            <select name="link" SIZE="1" onChange="window.location.href = document.form.link.options[document.form.link.selectedIndex].value;">
-              <option selected value=""> </option>
-              <option value="/verbindungssuche"> Gesamtansicht </option>
-              <option value="/relation/pharma"> Pharma </option>
-              <option value="/relation/bank"> Bank </option>
-              <option value="/relation/ruestung"> Rüstung </option>
-              <option value="/relation/verkehr"> Verkehr </option>
-              <option value="/relation/seitenwechsler"> Seitenwechsler </option>
-            </select>
-          </label>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  {{! The Visualisation }}
-  <div id="relationviz-wrapper">
-    <div style="display:block; height: 100%; margin-top: 130px;" id="rel_viz">
-      <!--<div id="rel_viz"></div>-->
-    </div>  
-  </div>
-
-</div> {{! end .fullscreen }}
-
-<script type="text/javascript" src="/assets/js/d3.min.js"></script>
+	<div class="container" id="main">
+		<div class="row">
+			<div class="col-sm-6 viewport-info col-sm-push-6">
+				{{>vizinfo}}
+			</div>
+			<div class="col-sm-6 col-sm-pull-6 viewport-visual">
+				<form class="theme-switch" name="form">
+					<div class="theme-switch-label">Ansicht:</div>
+					<label>
+						<select name="link" SIZE="1" onChange="window.location.href = document.form.link.options[document.form.link.selectedIndex].value;">
+							<option selected value=""></option>
+							<option value="/verbindungssuche"> Gesamtansicht</option>
+							<option value="/relation/pharma"> Pharma</option>
+							<option value="/relation/bank"> Bank</option>
+							<option value="/relation/ruestung"> Rüstung</option>
+							<option value="/relation/verkehr"> Verkehr</option>
+							<option value="/relation/seitenwechsler"> Seitenwechsler</option>
+						</select>
+					</label>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div id="relationviz-wrapper">
+		<div id="rel_viz"></div>
+	</div>
+</div>
+<script type="text/javascript" src="/assets/bower_components/d3/d3.min.js"></script>
+<script type="text/javascript" src="/assets/js/entity.js"></script>
 <script type="text/javascript" src="/assets/js/relationviz.js"></script>
 
 {{>footer}}

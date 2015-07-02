@@ -73,10 +73,10 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 			templateUrl: "partials/user.html",
 			controller: 'UserEditCtrl'
 		})
-		.state('import', {
-			url: "/import",
-			templateUrl: "partials/import.html",
-			controller: 'ImportCtrl'
+		.state('update', {
+			url: "/update",
+			templateUrl: "partials/update.html",
+			controller: 'UpdateCtrl'
 		})
 		.state('login', {
 			url: "/login",
@@ -331,20 +331,48 @@ app.factory('auth', function ($resource) {
 	);
 });
 
-app.factory('imports', function ($resource) {
+app.factory('update', function ($resource) {
 	'use strict';
-	return $resource('/api/imports/:cmd/:id', {}, {
-			list: {
+	return $resource('/api/update/:mode/:cmd/:id', {}, {
+			listUpdates: {
 				method: 'GET',
-				params: {cmd: 'list'}
+				params: {cmd: 'list', mode: 'entity'}
 			},
-			accept: {
+			getUpdate: {
 				method: 'GET',
-				params: {cmd: 'accept'}
+				params: {cmd: 'get', mode: 'entity'}
 			},
-			reject: {
-				method: 'GET',
-				params: {cmd: 'reject'}
+			deleteUpdate: {
+				method: 'POST',
+				params: {cmd: 'delete', mode: 'entity'}
+			},
+			applyEntityData: {
+				method: 'POST',
+				params: {cmd: 'apply', mode: 'entity'}
+			},
+			applyRelationData: {
+				method: 'POST',
+				params: {cmd: 'apply', mode: 'relation'}
+			},
+			deleteRelation: {
+				method: 'POST',
+				params: {cmd: 'delete', mode: 'relation'}
+			},
+			createEntity: {
+				method: 'POST',
+				params: {cmd: 'create', mode: 'entity'}
+			},
+			chooseEntity: {
+				method: 'POST',
+				params: {cmd: 'choose', mode: 'entity'}
+			},
+			saveEntity: {
+				method: 'POST',
+				params: {cmd: 'save', mode: 'entity'}
+			},
+			createRelation: {
+				method: 'POST',
+				params: {cmd: 'create', mode: 'relation'}
 			}
 		}
 	);
@@ -470,35 +498,216 @@ var reportServerError = function ($scope, err) {
 	}, 500);
 };
 
+var reportConnectionError = function ($scope, err) {
+	console.error(err);
+	setTimeout(function () {
+		alert(err.status + ': ' + err.statusText);
+	}, 500);
+};
+
+
+var formatSplitDate = function (date) {
+	var result = '';
+	if (!date) return result;
+	var months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+	if (date.year) {
+		if (date.month) {
+			if (date.day) {
+				result += date.day + '. ';
+			}
+			result += months[date.month - 1] || '';
+		}
+		result += ' ' + date.year;
+	}
+	return result.trim();
+};
+
+var formatSplitDateRange = function (start, end) {
+	var result = '';
+	var seit = formatSplitDate(start);
+	var bis = formatSplitDate(end);
+	if ((seit.length > 0) || (bis.length > 0)) result += (seit.length > 0 ? seit : '?') + ' - ' + (bis.length > 0 ? bis : '?');
+	return result;
+};
+
+
 // ------------------- controllers -------------------
 
 app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 	'use strict';
 	$rootScope.globals = {
-		fieldtypes: {
-			"string": "Text",
-			"tags": "Text-Liste",
-			"number": "Zahl",
-			"link": "Link",
-			"bool": "Ja/Nein-Wert",
-			"address": "Adresse",
-			"date": "Datum",
-			"range": "Datumsbereich",
-			"photo": "Foto"
+		states: {},
+		types: {
+			string: {
+				"name": "Text",
+				defaults: "",
+				asString: function (v) {
+					return v.value;
+				}
+			},
+			url: {
+				"name": "URL",
+				defaults: "",
+				asString: function (v) {
+					return v.value;
+				}
+			},
+			date: {
+				"name": "Datum",
+				defaults: {},
+				asString: function (v) {
+					if (v.value.fmt)
+						return dateFilter(v.value.date, v.value.fmt);
+					else
+						return dateFilter(v.value, 'dd.MM.yyyy');
+				}
+			},
+			monthyear: {
+				"name": "Datum (Monat/Tag)",
+				defaults: {},
+				asString: function (v) {
+					return ((v.value.month !== null ? v.value.month : '') + ' ' + (v.value.year !== null ? v.value.year : '')).trim();
+				}
+			},
+			range: {
+				"name": "Datumbereich",
+				defaults: {},
+				asString: function (v) {
+					return (v.value.desc ? v.value.desc + ': ' : '') +
+						((v.value.start_month !== null ? v.value.start_month + '.' : '') + (v.value.start_year !== null ? v.value.start_year : '?'))
+						+ ' - ' +
+						((v.value.end_month !== null ? v.value.end_month + '.' : '') + (v.value.end_year !== null ? v.value.end_year : '?'));
+				}
+			},
+			photo: {
+				"name": "Foto",
+				defaults: {},
+				asString: function (v) {
+					var sl = [];
+					if (v.value) {
+						if (v.value.url) sl.push(v.value.url);
+						if (v.value.copyright) sl.push(v.value.copyright);
+					}
+					return sl.join('; ');
+				}
+			},
+			bool: {
+				"name": "Ja/Nein-Wert",
+				defaults: true,
+				asString: function (v) {
+					return v.value ? 'Ja' : 'Nein';
+				}
+			},
+			tags: {
+				"name": "Text-Liste",
+				defaults: [],
+				asString: function (v) {
+					return v.value.join(', ');
+				}
+			},
+			strings: {
+				"name": "Text-Liste",
+				defaults: [],
+				asString: function (v) {
+					return v.value.join(', ');
+				}
+			},
+			number: {
+				"name": "Zahl",
+				defaults: 0,
+				asString: function (v) {
+					return v.value.toString();
+				}
+			},
+			integer: {
+				"name": "Zahl",
+				defaults: 0,
+				asString: function (v) {
+					return v.value.toString();
+				}
+			},
+			address: {
+				"name": "Adresse",
+				defaults: {},
+				asString: function (v) {
+					var sl = [];
+					if (v.value.name) sl.push(v.value.name);
+					if (v.value.addr) sl.push(v.value.addr);
+					if (v.value.street) sl.push(v.value.street);
+					if (v.value.postcode) sl.push(v.value.postcode);
+					if (v.value.city) sl.push(v.value.city);
+					if (v.value.country) sl.push(v.value.country);
+					return sl.join('; ');
+				}
+			},
+			link: {
+				"name": "Link",
+				defaults: {},
+				asString: function (v) {
+					return v.value.url;
+				}
+			},
+			association: {
+				"name": "Verbindung",
+				defaults: {
+					type: 'job',
+					start: {},
+					end: {},
+					sources: [],
+					verified: true
+				},
+				asString: function (v) {
+					var sl = [];
+					if (v.value.position) sl.push(v.value.position);
+					else if (v.value.type) {
+						$rootScope.globals.types.association.types.forEach(function (t) {
+							if (t.id == v.value.type)
+								sl.push(t.name);
+						});
+					}
+					var s = formatSplitDateRange(v.value.start, v.value.end);
+					if (s.length > 0) sl.push(s);
+					if (v.value.desc && v.value.desc != sl[0]) sl.push(v.value.desc);
+					return sl.join(', ');
+				},
+				types: [{id: 'executive', name: 'Vorstand'}, {id: 'member', name: 'Mitglied'}, {id: 'job', name: 'Arbeitsverhältnis'}, {id: 'government', name: 'Politische Position'}, {id: 'pass', name: 'Ausweis'}, {id: 'business', name: 'Geschäftsverbindung'}, {id: 'subsidiary', name: 'Tochterunternehmen/-gliederung'}, {id: 'sponsoring', name: 'Sponsor'}, {id: 'committee', name: 'Ausschuss'}, {id: 'participant', name: 'Teilnehmer'}]
+			},
+			donation: {
+				"name": "Spende",
+				defaults: {
+					sources: [],
+					verified: true
+				},
+				asString: function (v) {
+					return ((v.value.year !== null ? v.value.year + ':' : '') + ' ' + (v.value.amount !== null ? v.value.amount : '')).trim();
+				}
+			},
+			activity: {
+				"name": "Nebeneinkünfte",
+				defaults: {
+					verified: true
+				},
+				asString: function (v) {
+					var sl = [];
+					var s = formatSplitDateRange(v.value.start, v.value.end);
+					if (s.length > 0) sl.push(s)
+					if (v.value.periodical) sl.push(v.value.periodical);
+					if (v.value.position) sl.push(v.value.position);
+					if (v.value.place) sl.push(v.value.place);
+					if (v.value.activity) sl.push(v.value.activity);
+					return sl.join('; ');
+				}
+			}
 		},
-		fielddefaults: {
-			"string": "",
-			"tags": [],
-			"number": 0,
-			"link": {},
-			"bool": true,
-			"address": {},
-			"date": {},
-			"range": {},
-			"photo": {}
-		},
-		states: {}
+		getDisplayValue: function (v) {
+			if (v.value == null) return '';
+			var type = $rootScope.globals.types[v.format];
+			if (type) return type.asString(v);
+			return v.value;
+		}
 	};
+
+	$rootScope.globals.knownFieldTypes = Object.keys($rootScope.globals.types);
 
 	$scope.getDispayValues = function (field, entity) {
 		var result = [];
@@ -509,40 +718,13 @@ app.controller('AppCtrl', function ($rootScope, $scope, dateFilter, auth) {
 		} else {
 			if (entity.data && entity.data.length)
 				entity.data.forEach(function (d) {
-					if (field.key == d.key) {
+					if ((field.key == d.key) && (field.format == d.format)) {
 						result.push(d);
 					}
 				})
 		}
 		return result.map(function (v) {
-			if (!v.value) return '';
-			if ((v.format == 'strings') || (v.format == 'tags')) return v.value.join(', ');
-			else if (v.format == 'bool') return v.value ? 'Ja' : 'Nein';
-			else if (v.format == 'link') return v.value.url;
-			else if (v.format == 'date') return dateFilter(v.value.date, v.value.fmt);
-			else if (v.format == 'range') return dateFilter(v.value.start, v.value.fmt) + ' - ' + dateFilter(v.value.end, v.value.fmt);
-			else if (v.format == 'number') return v.value;
-			else if (v.format == 'address') {
-				var sl = [];
-				if (v.value) {
-					if (v.value.name) sl.push(v.value.name);
-					if (v.value.addr) sl.push(v.value.addr);
-					if (v.value.street) sl.push(v.value.street);
-					if (v.value.postcode) sl.push(v.value.postcode);
-					if (v.value.city) sl.push(v.value.city);
-					if (v.value.country) sl.push(v.value.country);
-				}
-				return sl.join('; ');
-			}
-			else if (v.format == 'photo') {
-				var sl = [];
-				if (v.value) {
-					if (v.value.url) sl.push(v.value.url);
-					if (v.value.copyright) sl.push(v.value.copyright);
-				}
-				return sl.join('; ');
-			}
-			return v.value;
+			return $rootScope.globals.getDisplayValue(v);
 		}).join(', ');
 	};
 
@@ -562,16 +744,16 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 	var state = $scope.globals.states[mode];
 	$scope.state = state;
 	state.filter = state.filter || {
-		text: '',
-		special: false
-	};
+			text: '',
+			special: false
+		};
 	state.table = state.table || {
-		page: 1,
-		count: defaultcount,
-		sorting: {
-			name: 'asc'
-		}
-	};
+			page: 1,
+			count: defaultcount,
+			sorting: {
+				name: 'asc'
+			}
+		};
 
 	$scope.loading = true;
 
@@ -599,7 +781,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		$scope.list = $scope.list.filter(function (oe) {
 			return oe._id != id;
 		});
-		$scope.refilter();
+		$scope.tableParams.reload();
 	};
 
 	$scope.reloadEntry = function (item, cb) {
@@ -610,7 +792,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 			$scope.refilter();
 			if (cb) cb();
 		}, function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		});
 	};
 
@@ -625,7 +807,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 					if (data.error) return reportServerError($scope, data.error);
 					$scope.removeFromList(o._id);
 				}, function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				})
 			});
 	};
@@ -643,19 +825,28 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 		var orderedData = $scope.list;
 
 		if ($scope.filter.text.length > 0) {
+
+			var lowercase = true;
+
+			var searchtext = lowercase ? $scope.filter.text.toLowerCase() : $scope.filter.text;
+
+			var find = function (text) {
+				if (lowercase) text = text.toLowerCase();
+				return (text.indexOf(searchtext) >= 0);
+			};
+
 			var allFilter = function (o) {
 				var found = false;
 				state.fields.forEach(function (f) {
 					if (!found) {
-						var s = $scope.getDispayValues(f, o);
-						found = (s.indexOf($scope.filter.text) >= 0);
+						found = find($scope.getDispayValues(f, o));
 					}
 				});
 				return found;
 			};
 			var singleFilter = function (o) {
 				var s = $scope.getDispayValues($scope.filter.mode, o) || '';
-				return (s.indexOf($scope.filter.text) >= 0);
+				return find(s);
 			};
 			orderedData = orderedData.filter($scope.filter.mode ? singleFilter : allFilter);
 		}
@@ -667,9 +858,28 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 			});
 		}
 
-		orderedData = params.sorting() ?
-			$filter('orderBy')(orderedData, params.orderBy()) :
-			orderedData;
+		var sorting = params.sorting();
+
+		if (sorting) {
+			var s = Object.keys(sorting)[0];
+			var f = $scope.state.fields.filter(function (f) {
+				return f._id == s;
+			})[0];
+			if (!f) console.log('invalid sort id', s);
+			else {
+				//console.log('sort by', f);
+				var dir = sorting[s] == 'asc' ? 1 : -1;
+				orderedData = orderedData.sort(function (a, b) {
+					var sa = $scope.getDispayValues(f, a);
+					var sb = $scope.getDispayValues(f, b);
+					if (sa.length == 0) return 1;
+					if (sb.length == 0) return -1;
+					if (sa < sb) return -1 * dir;
+					if (sa > sb) return 1 * dir;
+					return 0;
+				});
+			}
+		}
 
 		params.total(orderedData.length);
 		var current = orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count());
@@ -693,7 +903,7 @@ var typedListCtrl = function ($scope, $resource, $filter, $modal, ngTableParams,
 				$scope.loading = false;
 			},
 			function (err) {
-				console.error(err);
+				reportConnectionError($scope, err);
 			}
 		);
 	};
@@ -739,7 +949,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 					},
 					function (err) {
 						callback(matches);
-						console.error(err);
+						reportConnectionError($scope, err);
 					}
 				);
 
@@ -762,7 +972,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 					if (data.error) return reportServerError($scope, data.error);
 					callback(data.result);
 				}, function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				});
 			}
 		},
@@ -807,7 +1017,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 				p.tags.push(tag);
 			});
 		}, function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		});
 	};
 
@@ -829,17 +1039,17 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 				})
 			});
 		}, function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		});
 	};
 
 	var fixedfields = [
-		{name: 'Name', key: 'name', format: 'string', _type: 'fields'},
-		{name: 'Aliase', key: 'aliases', format: 'tags', _type: 'fields'},
-		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'},
-		{name: 'Anzahl Verbindungen', key: 'connections', format: 'number', _type: 'extras'}
+		{_id: 'name', name: 'Name', key: 'name', format: 'string', _type: 'fields'},
+		{_id: 'aliases', name: 'Aliase', key: 'aliases', format: 'tags', _type: 'fields'},
+		{_id: 'tags', name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'},
+		{_id: 'connections', name: 'Anzahl Verbindungen', key: 'connections', format: 'number', _type: 'extras'}
 	];
-	if (mode == 'all') fixedfields.push({name: 'Art', key: 'type', format: 'string', _type: 'fields'});
+	if (mode == 'all') fixedfields.push({_id: 'type', name: 'Art', key: 'type', format: 'string', _type: 'fields'});
 
 	if (state.fields.length == 0) {
 		state.fields.push(fixedfields[0]);
@@ -852,7 +1062,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 		if (data.error) return reportServerError($scope, data.error);
 		$scope.fields = fixedfields.concat(data.result);
 	}, function (err) {
-		console.error(err);
+		reportConnectionError($scope, err);
 	});
 
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, api, mode, 10, function () {
@@ -916,7 +1126,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 									},
 									function (err) {
 										callback(matches);
-										console.error(err);
+										reportConnectionError($scope, err);
 									}
 								);
 							}
@@ -993,7 +1203,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 								cb();
 							},
 							function (err) {
-								console.error(err);
+								reportConnectionError($scope, err);
 							}
 						);
 					},
@@ -1011,7 +1221,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 					$scope.refilter();
 				});
 		}, function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		});
 	};
 
@@ -1043,7 +1253,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 				});
 			},
 			function (err) {
-				console.error(err);
+				reportConnectionError($scope, err);
 			}
 		);
 	};
@@ -1065,7 +1275,7 @@ var entitiesListCtrl = function ($scope, $location, $resource, $filter, $modal, 
 								$scope.reloadEntry(item, cb);
 							},
 							function (err) {
-								console.error(err);
+								reportConnectionError($scope, err);
 							}
 						)
 					}
@@ -1100,9 +1310,8 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 	state.fields = state.fields || [];
 
 	var fixedfields = [
-		{name: 'Name', key: 'name', format: 'string', _type: 'extras'},
-		{name: 'Art', key: 'type', format: 'string', _type: 'fields'},
-		{name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'}
+		{_id: 'name', name: 'Name', key: 'name', format: 'string', _type: 'extras'},
+		{_id: 'tags', name: 'Schlagworte', key: 'tags', format: 'tags', _type: 'fields'}
 	];
 
 	$scope.isFieldActive = function (field) {
@@ -1114,7 +1323,6 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 	if (state.fields.length == 0) {
 		state.fields.push(fixedfields[0]);
 		state.fields.push(fixedfields[1]);
-		state.fields.push(fixedfields[2]);
 	}
 
 	fields.list({mode: 'relations'}, function (data) {
@@ -1122,7 +1330,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 			$scope.fields = fixedfields.concat(data.result);
 		},
 		function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		}
 	);
 
@@ -1194,7 +1402,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 									},
 									function (err) {
 										callback(matches);
-										console.error(err);
+										reportConnectionError($scope, err);
 									}
 								);
 							}
@@ -1271,7 +1479,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 								cb();
 							},
 							function (err) {
-								console.error(err);
+								reportConnectionError($scope, err);
 							}
 						);
 					},
@@ -1289,7 +1497,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 					$scope.refilter();
 				});
 		}, function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		});
 	};
 
@@ -1324,7 +1532,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 					},
 					function (err) {
 						callback(matches);
-						console.error(err);
+						reportConnectionError($scope, err);
 					}
 				);
 
@@ -1348,7 +1556,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 				p.tags.push(tag);
 			});
 		}, function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		});
 	};
 
@@ -1370,7 +1578,7 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 				})
 			});
 		}, function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		});
 	};
 
@@ -1379,18 +1587,18 @@ app.controller('RelationsCtrl', function ($scope, $resource, $filter, $modal, ng
 app.controller('FieldsCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, fields) {
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, fields, 'fields', 200);
 	$scope.fields = [
-		{name: 'Name', key: 'name', format: 'string', _type: 'fields'},
-		{name: 'Schlüssel', key: 'key', format: 'string', _type: 'fields'},
-		{name: 'Format', key: 'format', format: 'string', _type: 'fields'},
-		{name: 'Typ', key: 'mode', format: 'string', _type: 'fields'},
-		{name: 'Standard', key: 'default', format: 'bool', _type: 'fields'}
+		{_id: 'name', name: 'Name', key: 'name', format: 'string', _type: 'fields'},
+		{_id: 'key', name: 'Schlüssel', key: 'key', format: 'string', _type: 'fields'},
+		{_id: 'format', name: 'Format', key: 'format', format: 'string', _type: 'fields'},
+		{_id: 'mode', name: 'Typ', key: 'mode', format: 'string', _type: 'fields'},
+		{_id: 'default', name: 'Standard', key: 'default', format: 'bool', _type: 'fields'}
 	];
 	$scope.state.fields = $scope.fields;
 });
 
 app.controller('UsersCtrl', function ($scope, $resource, $filter, $modal, ngTableParams, users) {
 	typedListCtrl($scope, $resource, $filter, $modal, ngTableParams, users, 'users', 200);
-	$scope.fields = [{name: 'Name', key: 'name', format: 'string', _type: 'fields'}];
+	$scope.fields = [{_id: 'name', name: 'Name', key: 'name', format: 'string', _type: 'fields'}];
 	$scope.state.fields = $scope.fields;
 });
 
@@ -1417,7 +1625,32 @@ app.controller('TagEdit', function ($scope) {
 	};
 });
 
-app.controller('MergeEntitiesCtrl', function ($scope, entities) {
+app.controller('StringsEdit', function ($scope) {
+
+	$scope.currentedit = '';
+
+	$scope.addEntry = function (field, name, a) {
+		if ($scope.canAddEntry(field, name, a)) {
+			field[name] = field[name] || [];
+			field[name].push(a);
+			$scope.currentedit = '';
+		}
+	};
+
+	$scope.canAddEntry = function (field, name, a) {
+		return (a && (a.length > 0) && ((!field[name]) || (field[name].indexOf(a) < 0)));
+	};
+
+	$scope.removeEntry = function (field, name, a) {
+		field[name] = field[name] || [];
+		var i = field[name].indexOf(a);
+		if (i >= 0) {
+			field[name].splice(i, 1);
+		}
+	};
+});
+
+app.controller('SearchEntitiesCtrl', function ($scope, entities) {
 	var mode = $scope.data.mode;
 	$scope.data.org = {};
 	$scope.typeaheadDatasetEntities = {
@@ -1437,7 +1670,7 @@ app.controller('MergeEntitiesCtrl', function ($scope, entities) {
 					if (data.error) return reportServerError($scope, data.error);
 					callback(data.result);
 				}, function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				});
 		}
 	};
@@ -1485,7 +1718,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 				$scope.item = data.result;
 			},
 			function (err) {
-				console.error(err);
+				reportConnectionError($scope, err);
 			}
 		);
 	}
@@ -1502,7 +1735,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 			}
 		},
 		function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		}
 	);
 
@@ -1513,7 +1746,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 			$scope.tags = data.result;
 		},
 		function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		}
 	);
 
@@ -1574,7 +1807,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 			format: o.format,
 			key: o.key,
 			desc: o.name,
-			value: angular.copy($scope.globals.fielddefaults[o.format])
+			value: angular.copy($scope.globals.types[o.format].defaults)
 		});
 	};
 
@@ -1596,7 +1829,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 					$scope.back();
 				},
 				function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				}
 			);
 		});
@@ -1610,7 +1843,7 @@ var typedEntityEditCtrl = function ($scope, $state, $stateParams, api, fields, t
 					$scope.back();
 				},
 				function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				}
 			);
 		});
@@ -1671,7 +1904,7 @@ var typedSimpleEditCtrl = function ($scope, $state, $stateParams, api, type, mod
 					$state.go(mode);
 				},
 				function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				}
 			);
 		});
@@ -1687,7 +1920,7 @@ var typedSimpleEditCtrl = function ($scope, $state, $stateParams, api, type, mod
 					$state.go(mode);
 				},
 				function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				}
 			);
 		});
@@ -1704,7 +1937,7 @@ var typedSimpleEditCtrl = function ($scope, $state, $stateParams, api, type, mod
 				$scope[type] = data.result;
 			},
 			function (err) {
-				console.error(err);
+				reportConnectionError($scope, err);
 			}
 		);
 	}
@@ -1729,10 +1962,11 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 	};
 
 	$scope.relation = $scope.relation || {
-		tags: [],
-		entities: ['', ''],
-		data: []
-	};
+			tags: [],
+			entities: ['', ''],
+			data: [],
+			type: 'general'
+		};
 
 	$scope.modename = 'Verbindung';
 
@@ -1746,7 +1980,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 					aftersave();
 				},
 				function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				}
 			);
 		});
@@ -1760,7 +1994,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 					aftersave();
 				},
 				function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				}
 			);
 		});
@@ -1779,7 +2013,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 			$scope.tags = data.result;
 		},
 		function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		}
 	);
 
@@ -1789,7 +2023,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 			$scope.types = data.result;
 		},
 		function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		}
 	);
 
@@ -1805,7 +2039,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 			}
 		},
 		function (err) {
-			console.error(err);
+			reportConnectionError($scope, err);
 		}
 	);
 
@@ -1824,7 +2058,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 						if (data.error) return reportServerError($scope, data.error);
 						callback(data.result);
 					}, function (err) {
-						console.error(err);
+						reportConnectionError($scope, err);
 					});
 			}
 		};
@@ -1922,7 +2156,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 			format: o.format,
 			key: o.key,
 			desc: o.name,
-			value: angular.copy($scope.globals.fielddefaults[o.format])
+			value: angular.copy($scope.globals.types[o.format].defaults)
 		});
 	};
 
@@ -1934,7 +2168,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 					$scope.edit.oneorg = data.result.name;
 					$scope.edit.one = data.result;
 				}, function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				});
 			if (v.entities[1])
 				entities.item({id: v.entities[1]}, function (data) {
@@ -1942,7 +2176,7 @@ var relationEditCtrl = function ($scope, $state, relations, entities, tags, fiel
 					$scope.edit.twoorg = data.result.name;
 					$scope.edit.two = data.result;
 				}, function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				});
 		}
 	});
@@ -1969,7 +2203,7 @@ app.controller('RelationEditCtrl', function ($scope, $state, $stateParams, relat
 				$scope.relation = data.result;
 			},
 			function (err) {
-				console.error(err);
+				reportConnectionError($scope, err);
 			}
 		);
 	}
@@ -1997,7 +2231,7 @@ app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, en
 						return oe != rel;
 					});
 				}, function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				})
 			});
 	};
@@ -2031,7 +2265,7 @@ app.controller('RelationsOwnedListCtrl', function ($scope, $modal, relations, en
 					if (data.error) return reportServerError($scope, data.error);
 					$scope.relations = data.result.relations;
 				}, function (err) {
-					console.error(err);
+					reportConnectionError($scope, err);
 				});
 			});
 	};
@@ -2050,8 +2284,8 @@ app.controller('UserEditCtrl', function ($scope, $state, $stateParams, users) {
 
 app.controller('FieldEditCtrl', function ($scope, $rootScope, $state, $stateParams, fields) {
 	$scope.fieldtypes = [];
-	for (var key in $rootScope.globals.fieldtypes) {
-		$scope.fieldtypes.push({id: key, name: $rootScope.globals.fieldtypes[key]});
+	for (var key in $rootScope.globals.types) {
+		$scope.fieldtypes.push({id: key, name: $rootScope.globals.types[key].name});
 	}
 	$scope.field = {format: 'string'};
 	typedSimpleEditCtrl($scope, $state, $stateParams, fields, 'field', 'fields', 'Feld');
@@ -2081,7 +2315,7 @@ app.controller('WhitelistCtrl', function ($scope, $resource, $filter, $modal, ng
 		}
 	}, 'whitelist', 5000);
 
-	$scope.fields = [{name: 'URL', key: 'name', format: 'string', _type: 'fields'}];
+	$scope.fields = [{_id: 'name', name: 'URL', key: 'name', format: 'string', _type: 'fields'}];
 	$scope.state.fields = $scope.fields;
 
 	$scope.newEntry = function () {
@@ -2098,7 +2332,7 @@ app.controller('WhitelistCtrl', function ($scope, $resource, $filter, $modal, ng
 							cb();
 						},
 						function (err) {
-							console.error(err);
+							reportConnectionError($scope, err);
 						}
 					)
 				}
@@ -2123,7 +2357,7 @@ app.controller('WhitelistCtrl', function ($scope, $resource, $filter, $modal, ng
 							cb();
 						},
 						function (err) {
-							console.error(err);
+							reportConnectionError($scope, err);
 						}
 					)
 				}
@@ -2180,6 +2414,103 @@ app.controller('DatepickerCtrl', function ($scope) {
 
 });
 
+app.controller('Datepicker2Ctrl', function ($scope, dateFilter) {
+
+	$scope.dtp = {
+		options: {
+			formatYear: 'yyyy',
+			startingDay: 1
+		},
+		date: null,
+		splitdate: null,
+		opened: false,
+		formats: [
+			{name: 'dd.mm.yyyy', fmt: 'dd.MM.yyyy', mode: 'day'},
+			{name: 'mm.yyyy', fmt: 'MM.yyyy', mode: 'month'},
+			{name: 'yyyy', fmt: 'yyyy', mode: 'year'}
+		],
+		open: function ($event) {
+			$event.preventDefault();
+			$event.stopPropagation();
+			$scope.dtp.opened = true;
+		},
+		validate: function () {
+			if (!$scope.dtp.date) {
+				displaySplitValue($scope.dtp.splitdate);
+			}
+		}
+	};
+	$scope.dtp.fmt = $scope.dtp.formats[0];
+
+	$scope.dtp_today = function () {
+		$scope.dtp.date = new Date();
+	};
+
+	$scope.dtp_clear = function () {
+		$scope.dtp.date = null;
+	};
+
+	var apply = function () {
+		if (!$scope.dtp_value) return;
+		if (!$scope.dtp.splitdate) return;
+		if (!$scope.dtp.date) return;
+		var i = $scope.dtp.formats.indexOf($scope.dtp.fmt);
+		if (i == 0) {
+			$scope.dtp.splitdate.year = $scope.dtp.date.getFullYear();
+			$scope.dtp.splitdate.month = $scope.dtp.date.getMonth() + 1;
+			$scope.dtp.splitdate.day = $scope.dtp.date.getDate();
+		} else if (i == 1) {
+			$scope.dtp.splitdate.year = $scope.dtp.date.getFullYear();
+			$scope.dtp.splitdate.month = $scope.dtp.date.getMonth() + 1;
+			delete $scope.dtp.splitdate.day;
+		} else {
+			$scope.dtp.splitdate.year = $scope.dtp.date.getFullYear();
+			delete $scope.dtp.splitdate.month;
+			delete $scope.dtp.splitdate.day;
+		}
+	};
+
+	var displaySplitValue = function (v) {
+		if (v && v.year) {
+			$scope.dtp.date = new Date(v.year, v.month ? v.month - 1 : 0, v.day ? v.day : 1);
+		}
+	};
+
+	$scope.$watch('dtp.date', function (d) {
+		if (d)
+			apply();
+	});
+	$scope.$watch('dtp.fmt', function (d) {
+		if (d) {
+			$scope.dtp.options.datepickerMode = d.mode;
+			apply();
+			displaySplitValue($scope.dtp.splitdate);
+		}
+	});
+	$scope.$watch('dtp_value', function (d) {
+		if (d) {
+			var v = (d.val[d.name]);
+			if (!v) {
+				d.val[d.name] = {};
+				v = d.val[d.name];
+			}
+			$scope.dtp.splitdate = v;
+			var format = 0;
+			if (v) {
+				if (v.day) format = 0;
+				else if (v.month) format = 1;
+				else if (v.year) format = 2;
+				//displaySplitValue(v);
+				//if (v.year) {
+				//	$scope.dtp.date = new Date(v.year, v.month ? v.month - 1 : 0, v.day ? v.day : 1);
+				//}
+				$scope.dtp.fmt = $scope.dtp.formats[format];
+			}
+		}
+	});
+
+});
+
 app.controller('AutoCompleteCtrl', function ($scope, autocomplete) {
 	var d = $scope.d;
 	if (d && (d.format == 'string')) {
@@ -2202,14 +2533,22 @@ app.controller('AutoCompleteCtrl', function ($scope, autocomplete) {
 						if (data.error) return reportServerError($scope, data.error);
 						callback(data.result);
 					}, function (err) {
-						console.error(err);
+						reportConnectionError($scope, err);
 					});
 			}
 		};
 	}
 });
 
-app.controller('FieldListEditCtrl', function ($scope) {
+app.controller('FieldListEditCtrl', function ($scope, $rootScope) {
+
+	$scope.getFieldPartial = function (d) {
+		if ($rootScope.globals.knownFieldTypes.indexOf(d.format) >= 0)
+			return 'partials/datafield-' + d.format + '.html';
+		else
+			return 'partials/datafield-default.html';
+	};
+
 	$scope.removeData = function (d, list) {
 		var i = list.indexOf(d);
 		if (i >= 0) {
@@ -2218,12 +2557,222 @@ app.controller('FieldListEditCtrl', function ($scope) {
 	};
 });
 
-app.controller('ImportCtrl', function ($scope, imports) {
-	imports.list(function (data) {
-		$scope.imports = data.result;
+app.controller('ModalUpdateEditorCtrl', function ($scope, fields, tags, update) {
+	var item = angular.copy($scope.data.item);
+
+	$scope.data.validate = function (result, cb) {
+		update.saveEntity({id: item._id}, {id: item._id, ent: item},
+			function (data) {
+				if (data.error) return reportServerError($scope, data.error);
+				$scope.data.update = data.result;
+				cb(true);
+			},
+			function (err) {
+				reportConnectionError($scope, err);
+			}
+		);
+	};
+	var modename = item.type == 'person' ? 'Person' : 'Organisation';
+	var mode = item.type == 'person' ? 'persons' : 'entities';
+	$scope.edit = {};
+	typedEntityEditCtrl($scope, {}, {}, {
+		item: function (params, cb) {
+			cb(item);
+		}
+	}, fields, tags, item.type, mode, modename);
+	$scope.item = item;
+});
+
+app.controller('UpdateCtrl', function ($scope, $modal, update) {
+
+	$scope.updates = [];
+
+	update.listUpdates(function (data) {
+		data.result.sort(function (a, b) {
+			if (a.name < b.name) return -1;
+			if (a.name > b.name) return 1;
+			return 0;
+		});
+
+		$scope.updates = data.result;
 	}, function (err) {
 		console.log(err);
-	})
+	});
+
+
+	$scope.curPage = 0;
+	$scope.pageSize = 25;
+
+	$scope.params = {
+		total: function () {
+			return $scope.updates.length;
+		},
+		page: function (nr) {
+			if (!isNaN(nr)) $scope.curPage = nr - 1;
+			return $scope.curPage + 1;
+
+		},
+		count: function (nr) {
+			if (!isNaN(nr)) $scope.pageSize = nr;
+			return $scope.pageSize;
+		}
+	};
+
+	$scope.show = function (entry) {
+		if (entry.$loading) return;
+		if (entry.$visible) {
+			entry.update = null;
+			entry.$visible = false;
+			return;
+		}
+		if (!entry.update) {
+			entry.$loading = true;
+			update.getUpdate({id: entry._id}, function (data) {
+				entry.update = data.result;
+				entry.$loading = false;
+				entry.$visible = true;
+			}, function (err) {
+				console.log(err);
+			});
+		} else {
+			entry.$visible = true;
+		}
+	};
+
+	var removeUpdate = function (id) {
+		$scope.updates = $scope.updates.filter(function (entry) {
+			return (entry._id !== id);
+		});
+		$scope.updates.forEach(function (entry) {
+			if (entry.update) {
+				var hasEntryToRemove = false;
+				entry.update.relations.forEach(function (rel_info) {
+					if (rel_info.entity._id == id) {
+						hasEntryToRemove = true;
+					}
+				});
+				if (hasEntryToRemove) {
+					entry.update.relations = entry.update.relations.filter(function (rel_info) {
+						return (rel_info.entry._id !== id);
+					});
+				}
+			}
+		});
+
+	};
+
+	var applyResult = function (data) {
+		if (data.error) {
+			alert(data.error);
+			return reportServerError($scope, data.error);
+		}
+		data = angular.isArray(data.result) ? data.result : [data.result];
+		data.forEach(function (update) {
+			if (update.deleted) return removeUpdate(update._id);
+			var id = update.entity._id;
+			$scope.updates.forEach(function (entry) {
+				if (entry._id == id) {
+					entry.name = update.entity.name;
+					entry.update = update;
+				} else if (entry.update) {
+					entry.update.relations.forEach(function (rel_info) {
+						if (rel_info.entity._id == id) {
+							rel_info.entity = update.entity;
+						}
+					});
+				}
+			});
+		});
+	};
+
+
+	$scope.searchEntity = function (entity) {
+		editModalDialog($modal,
+			{
+				mode: entity.type == 'person' ? 'persons' : 'entities',
+				modename: entity.type == 'person' ? 'Person' : 'Organisation',
+				item: entity,
+				validate: function (data, cb) {
+					if (!data.edit._id) return;
+					update.chooseEntity({id: entity._id}, {ent: data.edit._id},
+						function (data) {
+							applyResult(data);
+							cb(true);
+						},
+						function (err) {
+							reportConnectionError($scope, err);
+						}
+					);
+				}
+			},
+			'partials/search-modal.html'
+			, function (data) {
+			});
+	};
+
+	$scope.editEntity = function (entity) {
+		editModalDialog($modal,
+			{
+				item: entity
+			},
+			'partials/update-entity-modal.html'
+			, function (data) {
+				applyResult({result: data.update});
+			});
+	};
+
+	$scope.deleteEntity = function (entry) {
+		update.deleteUpdate({id: entry._id}, {id: entry._id}, applyResult, function (err) {
+			console.log(err);
+		});
+	};
+
+	$scope.deleteRelation = function (rel) {
+		update.deleteRelation({id: rel._id}, {id: rel._id}, applyResult, function (err) {
+			console.log(err);
+		});
+	};
+
+	$scope.createEntity = function (entry) {
+		update.createEntity({id: entry._id}, {id: entry._id}, applyResult, function (err) {
+			console.log(err);
+		});
+	};
+
+	$scope.applyEntityData = function (data, entry) {
+		update.applyEntityData({id: entry._id}, {data_id: data.id}, applyResult, function (err) {
+			console.log(err);
+		});
+	};
+
+	$scope.applyRelationData = function (data, rel) {
+		update.applyRelationData({id: rel._id}, {data_id: data.id}, applyResult, function (err) {
+			console.log(err);
+		});
+	};
+
+	$scope.createRelation = function (rel) {
+		update.createRelation({id: rel._id}, {id: rel._id}, applyResult, function (err) {
+			console.log(err);
+		});
+	}
+});
+
+// ------------------- filter -------------------
+
+app.filter('pagination', function () {
+	return function (input, start) {
+		start = +start;
+		return input.slice(start);
+	};
+});
+
+app.filter('fieldvalue', function ($rootScope) {
+	'use strict';
+	return function (input) {
+		if (input == null) return "";
+		return $rootScope.globals.getDisplayValue(input);
+	};
 });
 
 // ------------------- directives -------------------

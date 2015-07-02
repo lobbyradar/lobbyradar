@@ -19,6 +19,7 @@ nodes = nodes.map(function (node) {
 		name:             node.name,
 		id:               node._id,
 		type:             node.type,
+		mdb:              node.mdb,
 		size:             node.connections,
 		r:      Math.sqrt(node.connections)*2,
 		charge:        -4*node.connections-6,

@@ -31,6 +31,7 @@ queue.push(function (callback) {
 				_id: entry._id,
 				name: entry.name,
 				type: entry.type,
+				mdb: entry.tags ? (entry.tags.indexOf('mdb') >= 0) : false,
 				connections: 0
 			}
 			nodeLookup[node._id] = node;

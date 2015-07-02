@@ -11,12 +11,12 @@ var sessionJSONstore = require('express-session-json-store')(session);
 var express = require("express");
 var mongojs = require("mongojs");
 var moment = require("moment");
-var crypto = require("crypto");
 var debug = require("debug")("app");
 var path = require("path");
 var unq = require("unq");
 var nsa = require("nsa");
 var fs = require("fs");
+var favicon = require('serve-favicon');
 
 // config
 var config = require("./config.js");
@@ -28,10 +28,16 @@ if (!config.hasOwnProperty("listen")) {
 }
 
 // database connection 
-var db = mongojs(config.db, ["entities", "relations", "users", "fields", "dataindex"]);
+var db = mongojs(config.db, ["entities", "relations", "users", "fields", "whitelist", "dataindex"]);
 
 // api instance
 var api = require("./lib/api.js")(config.api, db);
+
+var stats = {
+	views: 0,
+	entities: 0,
+	relations: 0
+};
 
 // use nsa if configured
 if (config.hasOwnProperty("nsa") && (config.nsa)) {
@@ -41,6 +47,10 @@ if (config.hasOwnProperty("nsa") && (config.nsa)) {
 		interval: "10s"
 	}).start(function () {
 			debug("started heartbeat");
+			setInterval(function () {
+				heartbeat.leak(stats, function () {
+				});
+			}, 60 * 1000);
 		});
 }
 
@@ -71,10 +81,12 @@ var app = express();
 
 // use mustache
 var _mustache = mustache();
-_mustache.cache = false;
+//_mustache.cache = false;
 app.engine("mustache", _mustache);
 app.set("view engine", "mustache");
 app.set("views", path.resolve(__dirname, "assets/views"));
+
+app.use(favicon(__dirname + '/assets/images/favicon.ico'));
 
 // static assets
 app.use("/assets", express.static(path.resolve(__dirname, "assets")));
@@ -87,6 +99,7 @@ app.use(cookieParser(config.secret));
 var sessionMiddleware = session({
 	secret: config.secret,
 	resave: false,
+	name: 'lobbyradar-seesion',
 	saveUninitialized: false,
 	store: new sessionJSONstore({
 		path: __dirname,
@@ -94,8 +107,6 @@ var sessionMiddleware = session({
 		saveInterval: 60 * 1000
 	})
 });
-
-//app.use(passport.initialize());
 
 var passportMiddleware = passport.initialize();
 var passportSessionMiddleware = passport.session();
@@ -135,6 +146,85 @@ var nice_error = function (err) {
 	if (!err) return;
 	return err.toString();
 };
+
+// index page
+app.all("/", function (req, res) {
+	stats.views++;
+	res.render("index", {});
+});
+
+// FAQ Page (static)
+app.get("/oft-gestellte-fragen", function (req, res) {
+	stats.views++;
+	res.render("faq", {});
+});
+
+// FAQ Page (static)
+app.get("/artikel", function (req, res) {
+	stats.views++;
+	res.render("articles", {});
+});
+
+// Abspann Page (static)
+app.get("/abspann", function (req, res) {
+	stats.views++;
+	res.render("abspann", {});
+});
+
+// Intro Page (static)
+app.get("/um-was-geht-es", function (req, res) {
+	stats.views++;
+	res.render("intro", {});
+});
+
+// Abspann Page (static)
+app.get("/download-plugin", function (req, res) {
+	stats.views++;
+	res.render("extension", {});
+});
+
+// Abspann Page (static)
+app.get("/ueber-uns", function (req, res) {
+	stats.views++;
+	res.render("about", {});
+});
+
+// Abspann Page (static)
+app.get("/verbindungssuche", function (req, res) {
+	stats.views++;
+	res.render("app", {});
+});
+
+// Search Page (static)
+app.get("/search/:id", function (req, res) {
+	stats.views++;
+	res.render("app", {});
+});
+
+// Entity page (static)
+app.all("/entity/:id", function (req, res) {
+	stats.views++;
+	res.render("app", {});
+});
+
+// Relation Viz
+app.get("/relation/:tag", function (req, res) {
+	stats.views++;
+	res.render("relation", {});
+});
+
+// default api method.
+app.all("/api", function (req, res) {
+	res.type("json").status("200").json({error: null});
+});
+
+// autocomplete
+app.get("/api/autocomplete", function (req, res) {
+	if (!req.query.hasOwnProperty("q") || req.query.q === null || req.query.q === "") return res.status(200).json([]);
+	api.autocomplete(req.query.q, function (err, result) {
+		res.status(200).json(result);
+	});
+});
 
 // search api, get
 app.get("/api/search-fields", function (req, res) {
@@ -211,7 +301,7 @@ app.all("/api/plugin/export", function (req, res) {
 });
 
 // whitelist
-app.get("/api/plugin/whitelist2", function (req, res) {
+app.get("/api/plugin/whitelist-live", function (req, res) {
 	debug("get plugin whitelist");
 	api.whitelist_get(function (err, result) {
 		res.type("json").status("200").json({err: ((err) ? err.message : null), result: result});
@@ -219,7 +309,7 @@ app.get("/api/plugin/whitelist2", function (req, res) {
 });
 
 // export.
-app.all("/api/plugin/export2", function (req, res) {
+app.all("/api/plugin/export-live", function (req, res) {
 	debug("export");
 	api.ent_export(function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
@@ -228,6 +318,7 @@ app.all("/api/plugin/export2", function (req, res) {
 
 // get entity.
 app.all("/api/entity/get/:id", function (req, res) {
+	stats.views++;
 	debug("get entity %s", req.params.id);
 	api.ent_get(req.params.id, function (err, result) {
 		if (result && req.query && req.query.relations) {
@@ -336,14 +427,6 @@ app.get("/api/fields/list", function (req, res) {
 	});
 });
 
-// delete field.
-app.all("/api/fields/delete/:id", function (req, res) {
-	debug("delete field %s", req.params.id || req.body.id);
-	api.field_delete(req.params.id || req.body.id, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
 // get autocomplete for fields.
 app.all("/api/field/autocomplete", function (req, res) {
 	debug("get field autocomplete %s", req.query.q);
@@ -375,152 +458,6 @@ app.all("/api/tags/list", function (req, res) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
-
-// default api method.
-app.all("/api", function (req, res) {
-	res.type("json").status("200").json({error: null});
-});
-
-// entity page
-app.all("/entity/:id", function (req, res) {
-	api.ent_get(req.params.id, function (err, ent) {
-		if (err) return res.render("entity", {"err": err});
-		if (ent === null || !ent.hasOwnProperty("_id")) return res.status(404).render("404", {"err": "Diese Entität existiert nicht"});
-		api.ent_rels(ent._id, function (err, rels) {
-			ent.relations = rels;
-			// rework data
-			ent.data = ent.data.filter(function (d) {
-				switch (d.key) {
-					case "source":
-						if (!ent.hasOwnProperty("sources")) ent.sources = [];
-						ent.sources.push(d.value);
-						break;
-					case "address":
-						if (!ent.hasOwnProperty("addresses")) ent.addresses = [];
-						ent.addresses.push(d.value);
-						break;
-					// other stuff here
-					default:
-						return true;
-						break;
-				}
-				return false;
-			});
-
-			// dates
-			ent.created = moment(ent.created).format("DD.MM.YYYY hh:mm");
-			ent.updated = moment(ent.updated).format("DD.MM.YYYY hh:mm");
-
-			// aliases and tags
-			if (ent.aliases.length > 0) ent.has_aliases = true;
-			if (ent.tags.length > 0) ent.has_tags = true;
-			if (ent.sources && ent.sources.length > 0) ent.has_sources = true;
-			if (ent.addresses && ent.addresses.length > 0) ent.has_addresses = true;
-			
-			res.render("app", { // we render index instead and load entity via ajax from FE
-				"err": err,
-				"entity": ent
-			});
-		});
-	});
-});
-
-// listing page
-app.all("/list/:type/:letter?", function (req, res) {
-	var cond = {};
-
-	if (req.params.hasOwnProperty("letter") && /^[a-z0-9]$/i.test(req.params.letter)) cond.letter = req.params.letter;
-	if (req.params.hasOwnProperty("type") && ["person", "organisation", "entity"].indexOf(req.params.type) >= 0) cond.type = req.params.type;
-
-	api.ent_list(cond, function (err, list) {
-		list = list.map(function (item) {
-			switch (item.type) {
-				case "person":
-					item.icon = "user";
-					break;
-				case "organisation":
-					item.icon = "building";
-					break;
-				case "entity":
-					item.icon = "building";
-					break;
-			}
-			return item;
-		});
-		var tmpl = {"list": {"type": (cond.type || "all"), "err": err, "item": list}};
-		if (cond.letter) tmpl["letter_" + cond.letter] = true;
-		if (cond.type) {
-			tmpl["nav_" + cond.type] = true;
-			tmpl["hl_" + cond.type] = true;
-		} else {
-			tmpl["hl_all"] = true;
-		}
-		res.render("app", tmpl);
-	});
-});
-
-// autocomplete
-app.get("/api/autocomplete", function (req, res) {
-	if (!req.query.hasOwnProperty("q") || req.query.q === null || req.query.q === "") return res.status(200).json([]);
-	api.autocomplete(req.query.q, function (err, result) {
-		res.status(200).json(result);
-	});
-});
-
-// index page
-app.all("/", function (req, res) {
-	res.render("index", {});
-});
-
-// FAQ Page (static)
-app.get("/oft-gestellte-fragen", function (req, res) {
-	res.render("faq", {});
-});
-
-// FAQ Page (static)
-app.get("/artikel", function (req, res) {
-	res.render("articles", {});
-});
-
-// Abspann Page (static)
-app.get("/abspann", function (req, res) {
-	res.render("abspann", {});
-});
-
-// Intro Page (static)
-app.get("/um-was-geht-es", function (req, res) {
-	res.render("intro", {});
-});
-
-// Abspann Page (static)
-app.get("/download-plugin", function (req, res) {
-	res.render("extension", {});
-});
-
-// Abspann Page (static)
-app.get("/ueber-uns", function (req, res) {
-	res.render("about", {});
-});
-
-// Abspann Page (static)
-app.get("/verbindungssuche", function (req, res) {
-	res.render("app", {});
-});
-
-// Relation Viz
-app.get("/relation/:tag", function (req, res) {
-	res.render("relation", {tag: req.params.tag});
-});
-
-// Search Page (static)
-app.get("/search/:id", function (req, res) {
-	res.render("app", {});
-});
-
-
-/*
- * backend api
- */
 
 // current user.
 app.get("/user", sessionUserHandler, function (req, res) {
@@ -562,6 +499,14 @@ app.get("/api/users/list", sessionAdminHandler, function (req, res) {
 	});
 });
 
+// delete field.
+app.all("/api/fields/delete/:id", sessionUserHandler, function (req, res) {
+	debug("delete field %s", req.params.id || req.body.id);
+	api.field_delete(req.params.id || req.body.id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
 // create entity.
 app.post("/api/entity/create", sessionUserHandler, function (req, res) {
 	debug("create entity for \"%s\"", req.body.ent.name);
@@ -598,14 +543,6 @@ app.post("/api/users/create", sessionAdminHandler, function (req, res) {
 app.post("/api/users/update/:id", sessionAdminHandler, function (req, res) {
 	debug("update user %s", req.params.id || req.body.id);
 	api.user_update(req.params.id || req.body.id, req.body.user, function (err, result) {
-		res.type("json").status("200").json({error: nice_error(err), result: result});
-	});
-});
-
-// clean db.
-app.get("/api/db/clean", sessionAdminHandler, function (req, res) {
-	debug("clean db command");
-	api.db_clean(function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -731,9 +668,72 @@ app.post("/api/relation/upmerge/:id", sessionUserHandler, function (req, res) {
 });
 
 // list imports.
-app.post("/api/imports/list", sessionUserHandler, function (req, res) {
+app.get("/api/update/entity/list", sessionUserHandler, function (req, res) {
 	debug("list imports");
-	api.imports_list(function (err, result) {
+	api.update_list(function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.get("/api/update/entity/get/:id", sessionUserHandler, function (req, res) {
+	debug("get update ", req.params.id);
+	api.update_entity_info_id(req.params.id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.post("/api/update/entity/delete/:id", sessionUserHandler, function (req, res) {
+	debug("delete update ", req.params.id || req.body.id);
+	api.update_ent_delete(req.params.id || req.body.id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.post("/api/update/entity/apply/:id", sessionUserHandler, function (req, res) {
+	debug("apply entity update ", req.params.id || req.body.id);
+	api.update_ent_apply(req.params.id || req.body.id, req.params.data_id || req.body.data_id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.post("/api/update/entity/choose/:id", sessionUserHandler, function (req, res) {
+	debug("choose update entity %s", req.params.id || req.body.id);
+	api.update_ent_choose(req.params.id || req.body.id, req.body.ent, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.post("/api/update/entity/save/:id", sessionUserHandler, function (req, res) {
+	debug("save update entity %s", req.params.id || req.body.id);
+	api.update_ent_update(req.params.id || req.body.id, req.body.ent, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.post("/api/update/relation/delete/:id", sessionUserHandler, function (req, res) {
+	debug("delete update relation ", req.params.id || req.body.id);
+	api.update_rel_delete(req.params.id || req.body.id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.post("/api/update/relation/apply/:id", sessionUserHandler, function (req, res) {
+	debug("apply relation data update ", req.params.id || req.body.id);
+	api.update_rel_apply(req.params.id || req.body.id, req.params.data_id || req.body.data_id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.post("/api/update/entity/create/:id", sessionUserHandler, function (req, res) {
+	debug("create update entity", req.params.id || req.body.id);
+	api.update_ent_create(req.params.id || req.body.id, function (err, result) {
+		res.type("json").status("200").json({error: nice_error(err), result: result});
+	});
+});
+
+app.post("/api/update/relation/create/:id", sessionUserHandler, function (req, res) {
+	debug("create update relation", req.params.id || req.body.id);
+	api.update_rel_create(req.params.id || req.body.id, function (err, result) {
 		res.type("json").status("200").json({error: nice_error(err), result: result});
 	});
 });
@@ -743,8 +743,17 @@ app.all("*", function (req, res) {
 	res.status(404).render("404", {"err": "Wir konnten unter dieser URL leider nichts finden."});
 });
 
+// launch operations
+api.stats = stats;
+api.ops();
+
 if (config.defaultadmin) {
-	api.user_create({name: config.defaultadmin.name, pass: config.defaultadmin.pass, admin: true}, function () {
+	api.user_find(config.defaultadmin.name, function (err, user) {
+		if (err) console.log(err);
+		if (!user)
+			api.user_create({name: config.defaultadmin.name, pass: config.defaultadmin.pass, admin: true}, function (err) {
+				if (err) console.log(err);
+			});
 	});
 }
 
