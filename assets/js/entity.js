@@ -433,8 +433,8 @@ EntityDisplay.formatRelation = function (rel, datalist, formatter, icon, namepre
 EntityDisplay.formatAssociation = function (data, defaultposition) {
 	var result = '';
 	if (data.value.position) result += '<br/>' + data.value.position;
+	else if (defaultposition) result += '<br/>' + defaultposition;
 	if (data.value.sources && data.value.sources.length > 0) result += EntityDisplay.formatSource(data);
-	else if (defaultposition)result += '<br/>' + defaultposition;
 	var dateString = EntityDisplay.formatSplitDateRange(data.value.start, data.value.end);
 	if (dateString.length > 0) result += '<br/>' + dateString;
 	return result;
