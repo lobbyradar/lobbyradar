@@ -1,4 +1,5 @@
 {
+  "private": true,
   "name": "lobbyradar",
   "version": "0.1.2",
   "description": "lobbyradar api",
@@ -7,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/lobbyradar/lobbyradar.git"
   },
-  "author": "Datenfreunde UG <info@datenfreunde.com> (http://datenfreunde.de/)",
+  "author": "yetzt <node@yetzt.me>",
   "license": "MIT",
   "dependencies": {
     "JSONStream": "^0.10.0",
